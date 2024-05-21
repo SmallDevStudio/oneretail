@@ -16,7 +16,7 @@ export default function App({
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
       </Head>
 
-      <SessionProvider session={session}>
+      <SessionProvider session={session} basePath="/" refetchInterval={5 * 60} refetchOnWindowFocus={true}>
         <Component {...pageProps} />
       </SessionProvider>
     </>
