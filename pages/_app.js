@@ -1,13 +1,12 @@
 import Head from "next/head";
-import { useLine } from "@/lib/hook/useLine";
+import { SessionProvider } from "next-auth/react";
 
 import "@/styles/globals.css";
 
-export default function App({ Component, pageProps }) {
-  const { liffObject, status } = useLine();
-
-  pageProps.liffObject = liffObject;
-  pageProps.status = status;
+export default function App({ 
+  Component, 
+  pageProps: { session, ...pageProps },
+  }) {
 
   return (
     <>
@@ -16,7 +15,10 @@ export default function App({ Component, pageProps }) {
         <description>One Retail Application</description>
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
       </Head>
-      <Component {...pageProps} />
+
+      <SessionProvider session={session}>
+        <Component {...pageProps} />
+      </SessionProvider>
     </>
   );
 }
