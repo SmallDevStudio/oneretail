@@ -18,14 +18,6 @@ export default function Home(props) {
       </div>
     );
   } else {
-    getAccessToken().then(accessToken => {
-      console.log(accessToken)
-    })
-
-    getIDToken().then(idToken => {
-      console.log(idToken)
-    })
-
     return (
       <div>
         <Head>
