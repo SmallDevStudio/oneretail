@@ -13,7 +13,7 @@ export default function Home(props) {
     window.location.reload();
   };
 
-  const {idtoken, accesstoken, profile, version} = useLineInfo({
+  const {profile: {userId, displayName, pictureUrl, statusMessage}, version,} = useLineInfo({
     liff: liffObject,
     status
   });
@@ -35,13 +35,10 @@ export default function Home(props) {
         </Head>
 
         <h1>Profile</h1>
-        <pre>{profile}</pre>
-
-        <h1>ID Token</h1>
-        <pre>{idtoken}</pre>
-
-        <h1>Access Token</h1>
-        <pre>{accesstoken}</pre>
+        <p>{userId}</p>
+        <p>{displayName}</p>
+        <p>{pictureUrl}</p>
+        <p>{statusMessage}</p>
 
         <button onClick={handleClick}>Logout</button>
 
