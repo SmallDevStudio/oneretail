@@ -7,7 +7,8 @@ export default function AddUser() {
         console.log(data);
     }
 
-    <form onSubmit={handleSubmit(onSubmit)}>
+    return (
+        <form onSubmit={handleSubmit(onSubmit)}>
 
             <input
                 placeholder="รหัสพนักงาน"
@@ -53,7 +54,8 @@ export default function AddUser() {
 
             <input type="submit" value="Submit" onClick={handleSubmit(onSubmit)} />
 
-    </form>
+        </form>
+    );
    
 }
 
