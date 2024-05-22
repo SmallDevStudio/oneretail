@@ -13,7 +13,7 @@ export default function App({ Component, pageProps}) {
   useEffect(() => {
     console.log("start liff.init()...");
     liff
-      .init({ liffId: process.env.LIFF_ID })
+      .init({ liffId: process.env.NEXT_PUBLIC_LIFF_ID })
       .then(() => {
         console.log("liff.init() done");
         setLiffObject(liff);
