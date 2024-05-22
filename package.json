@@ -11,6 +11,7 @@
   "dependencies": {
     "@line/liff": "^2.23.2",
     "@vercel/analytics": "^1.2.2",
+    "firebase": "^10.12.1",
     "firebase-admin": "^12.1.1",
     "firebase-tools": "^13.10.0",
     "iron-session": "^8.0.1",
