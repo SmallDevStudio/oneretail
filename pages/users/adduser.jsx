@@ -70,7 +70,6 @@ export default function AddUser() {
         <h1>Add User</h1>
 
         <Formik 
-            initialValues={initialDataForm}
             validationSchema={validationSchema}
             onSubmit={(values) => console.log(values)}
         >
