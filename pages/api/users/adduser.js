@@ -16,6 +16,9 @@ export default async function handler(req, res) {
         logined_at: new Date()
     }
 
-    const docRef = await db.collection("users").doc(data.empid).set(data);
+    const docRef = await db.collection("emp_users").doc(data.empid).set(data);
+    if (!docRef) {
+        res.status(500).json({ docRef });
+    }
     res.status(200).json({ docRef });
 }
