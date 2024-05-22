@@ -1,6 +1,7 @@
 "use client";
 import Head from "next/head";
 import useLine from "@/lib/hook/useLine";
+import Image from "next/image";
 
 export default function Home(props) {
   const { liffObject, status } = props
@@ -32,9 +33,9 @@ export default function Home(props) {
         </Head>
 
         <h1>Profile</h1>
+        <Image src={pictureUrl} alt={displayName} width={200} height={200} className="rounded-full"/>
         <p>{userId}</p>
         <p>{displayName}</p>
-        <p>{pictureUrl}</p>
         <p>{statusMessage}</p>
 
         <button onClick={handleClick}>Logout</button>
