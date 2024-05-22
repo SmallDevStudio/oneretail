@@ -1,12 +1,16 @@
 import Head from "next/head";
 import useLine from "@/lib/hook/useLine";
 
-
-
 export default function Home(props) {
   const { status } = props
 
   const { login, logout } = useLine();
+  console.log(status)
+
+  const handleClick = () => {
+    logout();
+    window.location.reload();
+  };
 
   if (status !== 'inited') {
     return (
@@ -23,7 +27,7 @@ export default function Home(props) {
         <Head>
           <title>One Retail by TTB</title>
         </Head>
-        <button onClick={logout}>Logout</button>
+        <button onClick={handleClick}>Logout</button>
       </div>
     );
   }
