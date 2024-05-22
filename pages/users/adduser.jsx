@@ -70,19 +70,19 @@ export default function AddUser(props) {
                 />
                 <div>
                     <label>Employee ID</label>
-                    <input type="text" id="empId" name="empId" onChange={handleChange} value={formData.empId} />
+                    <input type="text" id="empId" name="empId" onChange={handleChange(e)} value={formData.empId} />
                 </div>
                 <div>
                     <label>Name</label>
-                    <input type="text" id="name" name="name" onChange={handleChange} value={formData.name} />
+                    <input type="text" id="name" name="name" onChange={handleChange(e)} value={formData.name} />
                 </div>
                 <div>
                     <label>Phone</label>
-                    <input type="text" id="phone" name="phone" onChange={handleChange} value={formData.phone} />
+                    <input type="text" id="phone" name="phone" onChange={handleChange(e)} value={formData.phone} />
                 </div>
                 <div>
                     <label>Address</label>
-                    <input type="text" id="address" name="address" onChange={handleChange} value={formData.address} />
+                    <input type="text" id="address" name="address" onChange={handleChange(e)} value={formData.address} />
                 </div>
                 
                 <button type="submit">Register</button>
