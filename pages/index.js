@@ -5,16 +5,13 @@ import useLine from "@/lib/hook/useLine";
 export default function Home(props) {
   const { status } = props
 
-  const { login, logout } = useLine();
-  console.log(status)
+  const { login, logout, getProfile, getAccessToken } = useLine();
+  console.log(getAccessToken, getProfile);
 
   const handleClick = () => {
     logout();
     window.location.reload();
   };
-
-  const session = localStorage.getItem('profile', 'accessToken');
-  console.log(session);
 
   if (status !== 'inited') {
     return (
