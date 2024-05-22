@@ -7,7 +7,7 @@ export default function AddUser() {
 
     const onSubmit = (data) => setData(data);
 
-    console.log(JSON.stringify(data));
+    console.log(data);
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
