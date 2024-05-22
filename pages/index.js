@@ -1,7 +1,6 @@
 "use client";
 import Head from "next/head";
 import useLine from "@/lib/hook/useLine";
-import { getSession } from "@/lib/session/getSession";
 
 export default function Home(props) {
   const { status } = props
@@ -14,7 +13,7 @@ export default function Home(props) {
     window.location.reload();
   };
 
-  const session = getSession();
+  const session = localStorage.getItem('profile', 'accessToken');
   console.log(session);
 
   if (status !== 'inited') {
