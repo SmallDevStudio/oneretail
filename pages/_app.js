@@ -1,36 +1,13 @@
 "use client";
-import Head from "next/head";
-import { useState, useEffect } from "react";
-import liff from "@line/liff";
+import useLine from "@/lib/hook/useLine";
 
 import "@/styles/globals.css";
 
 export default function App({ Component, pageProps}) {
-  const [liffObject, setLiffObject] = useState(null);
-  const [liffError, setLiffError] = useState(null);
-
-  // Execute liff.init() when the app is initialized
-  useEffect(() => {
-    console.log("start liff.init()...");
-    liff
-      .init({ liffId: process.env.NEXT_PUBLIC_LIFF_ID })
-      .then(() => {
-        console.log("liff.init() done");
-        setLiffObject(liff);
-      })
-      .catch((error) => {
-        console.log(`liff.init() failed: ${error}`);
-        if (!process.env.NEXT_PUBLIC_LIFF_ID) {
-          console.info(
-            "LIFF Starter: Please make sure that you provided `LIFF_ID` as an environmental variable."
-          );
-        }
-        setLiffError(error.toString());
-      });
-  }, []);
+  const { liffObject, status } = useLine();
 
   pageProps.liff = liffObject;
-  pageProps.liffError = liffError;
+  pageProps.status = status;
 
   return (
     <>
