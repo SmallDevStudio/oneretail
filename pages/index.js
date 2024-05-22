@@ -4,10 +4,9 @@ import useLineInfo from "@/lib/hook/useLineInfo";
 
 
 export default function Home(props) {
-  const { liffObject, Status } = props
+  const { Status } = props
 
   const { login, logout } = useLine();
-  const { accesstoken, idtoken, version } = useLineInfo({ liff: liffObject, Status });
 
   if (Status !== 'inited') {
     return (
@@ -24,10 +23,6 @@ export default function Home(props) {
       <Head>
           <title>LIFF Starter</title>
       </Head>
-      <p>LIFF ID: {process.env.NEXT_PUBLIC_LIFF_ID}</p>
-      <p>Access Token: {accesstoken}</p>
-      <p>ID Token: {idtoken}</p>
-      <p>LIFF version: {version}</p>
       <button onClick={logout}>Logout</button>
 
     </>
