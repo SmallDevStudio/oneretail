@@ -9,8 +9,6 @@ export default function Home(props) {
   const { login, logout, profile, accessToken} = useLine();
   const { userId, displayName, pictureUrl, statusMessage } = profile;
 
-  console.log(accessToken);
-
   const handleClick = () => {
     logout();
     window.location.reload();
