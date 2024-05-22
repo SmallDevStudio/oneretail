@@ -60,7 +60,7 @@ export default function AddUser(props) {
             </h1>
             <hr />
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={(formData) => console.log(formData)}>
                 <Image
                     src={pictureUrl}
                     alt="Profile picture"
