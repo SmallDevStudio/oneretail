@@ -1,17 +1,22 @@
 "use client";
 import Head from "next/head";
 import useLine from "@/lib/hook/useLine";
+import useLineInfo from "@/lib/hook/useLineInfo";
 
 export default function Home(props) {
   const { status } = props
 
-  const { login, logout, getProfile, getAccessToken } = useLine();
-  console.log(getAccessToken, getProfile);
+  const { login, logout } = useLine();
 
   const handleClick = () => {
     logout();
     window.location.reload();
   };
+
+  const { profile, idtoken, accesstoken } = useLineInfo({
+    liff: props.liff,
+    status
+  });
 
   if (status !== 'inited') {
     return (
@@ -28,7 +33,18 @@ export default function Home(props) {
         <Head>
           <title>One Retail by TTB</title>
         </Head>
+
+        <h1>Profile</h1>
+        <pre>{JSON.stringify(profile, null, 2)}</pre>
+
+        <h1>ID Token</h1>
+        <pre>{idtoken}</pre>
+
+        <h1>Access Token</h1>
+        <pre>{accesstoken}</pre>
+        
         <button onClick={handleClick}>Logout</button>
+
       </div>
     );
   }
