@@ -16,6 +16,6 @@ export default async function handler(req, res) {
         logined_at: new Date()
     }
 
-    const docRef = await db.collection("users", empid).add(data)
-    res.status(200).json({ docRef })
+    const docRef = await db.collection("users").doc(data.empid).set(data);
+    res.status(200).json({ docRef });
 }

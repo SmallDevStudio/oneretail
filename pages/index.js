@@ -4,12 +4,12 @@ import useLine from "@/lib/hook/useLine";
 import Image from "next/image";
 
 export default function Home(props) {
-  const { liffObject, status } = props
+  const { status } = props
 
-  const { login, logout, profile } = useLine();
-
-  console.log("profile", profile);
+  const { login, logout, profile, accessToken, idToken } = useLine();
   const { userId, displayName, pictureUrl, statusMessage } = profile;
+
+  console.log(accessToken, idToken);
 
   const handleClick = () => {
     logout();
