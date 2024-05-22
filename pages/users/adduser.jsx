@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
-export default function AddUser(props) {
+export default function AddUser() {
     const { register, handleSubmit } = useForm();
-    const [data, setData] = useState({});
+    const [data, setData] = useState("");
 
     const onSubmit = (data) => setData(data);
 
