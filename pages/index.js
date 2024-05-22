@@ -7,7 +7,7 @@ export default function Home(props) {
   const { liffObject, Status } = props
 
   const { login, logout } = useLine();
-  const { accesstoken, idtoken, version } = useLineInfo();
+  const { accesstoken, idtoken, version } = useLineInfo({ liff: liffObject, Status });
 
   if (Status !== 'inited') {
     return (
