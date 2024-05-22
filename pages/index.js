@@ -1,14 +1,14 @@
 import Head from "next/head";
 import useLine from "@/lib/hook/useLine";
-import useLineInfo from "@/lib/hook/useLineInfo";
+
 
 
 export default function Home(props) {
-  const { Status } = props
+  const { status } = props
 
   const { login, logout, getAccessToken, getIDToken } = useLine();
 
-  if (Status !== 'inited') {
+  if (status !== 'inited') {
     return (
       <div>
         <Head>
@@ -25,7 +25,7 @@ export default function Home(props) {
     getIDToken().then(idToken => {
       console.log(idToken)
     })
-    
+
     return (
       <div>
         <Head>
