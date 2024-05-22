@@ -12,7 +12,7 @@ export default function Document() {
         <link rel="icon" type="image/png" sizes="16x16" href="dist/icons/favicon-16x16.png" />
         <link rel="manifest" href="/manifest.json" />
       </Head>
-      <body>
+      <body className="bg-gray-100">
         <Main 
           className="max-w-md"
         />
