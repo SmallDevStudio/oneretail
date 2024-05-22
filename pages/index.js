@@ -1,3 +1,4 @@
+"use client";
 import Head from "next/head";
 import useLine from "@/lib/hook/useLine";
 import { getSession } from "@/lib/session/getSession";
