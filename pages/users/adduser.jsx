@@ -8,7 +8,7 @@ export default function AddUser() {
     }
 
     <form onSubmit={handleSubmit(onSubmit)}>
-        <label>
+
             <input
                 placeholder="รหัสพนักงาน"
                 type="text" 
@@ -52,7 +52,7 @@ export default function AddUser() {
             {errors.address && <span>This field is required</span>}
 
             <input type="submit" value="Submit" onClick={handleSubmit(onSubmit)} />
-        </label>
+
     </form>
    
 }
