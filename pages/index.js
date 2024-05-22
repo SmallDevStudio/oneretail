@@ -13,8 +13,8 @@ export default function Home(props) {
     window.location.reload();
   };
 
-  const { profile, idtoken, accesstoken } = useLineInfo({
-    liff: props.liff,
+  const {idtoken, accesstoken, profile, version} = useLineInfo({
+    liff: liffObject,
     status
   });
 
@@ -42,7 +42,7 @@ export default function Home(props) {
 
         <h1>Access Token</h1>
         <pre>{accesstoken}</pre>
-        
+
         <button onClick={handleClick}>Logout</button>
 
       </div>
