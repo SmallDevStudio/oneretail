@@ -14,6 +14,7 @@ export default function AddUser() {
         address: "",
         userid: "",
         pictureUrl: "",
+        created_at: new Date(),
     });        
 
     function handleChangeImage(e) {
@@ -31,6 +32,7 @@ export default function AddUser() {
         formData.append("phone", phone);
         formData.append("address", address);
         formData.append("userid", userid);
+        formData.append("created_at", created_at);
 
         if(image) {
             formData.append("pictureUrl", image);

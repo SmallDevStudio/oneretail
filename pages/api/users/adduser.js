@@ -11,7 +11,7 @@ export default async function handler(req, res) {
         address: req.body.address,
         userid: req.body.userid,
         pictureUrl: req.body.pictureUrl,
-        created_at: new Date(),
+        created_at: req.body.created_at,
         updated_at: new Date(),
         logined_at: new Date()
     }
