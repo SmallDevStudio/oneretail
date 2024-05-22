@@ -28,6 +28,7 @@ export default function Home(props) {
       <p>Access Token: {accesstoken}</p>
       <p>ID Token: {idtoken}</p>
       <p>LIFF version: {version}</p>
+      <button onClick={logout}>Logout</button>
 
     </>
   )
