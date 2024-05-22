@@ -4,7 +4,7 @@ import useLine from "@/lib/hook/useLine";
 import useLineInfo from "@/lib/hook/useLineInfo";
 
 export default function Home(props) {
-  const { status } = props
+  const { liffObject, status } = props
 
   const { login, logout } = useLine();
 
