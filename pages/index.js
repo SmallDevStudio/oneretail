@@ -1,5 +1,6 @@
 import Head from "next/head";
 import useLine from "@/lib/hook/useLine";
+import { getSession } from "@/lib/session/getSession";
 
 export default function Home(props) {
   const { status } = props
@@ -11,6 +12,9 @@ export default function Home(props) {
     logout();
     window.location.reload();
   };
+
+  const session = getSession();
+  console.log(session);
 
   if (status !== 'inited') {
     return (
