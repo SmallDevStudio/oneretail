@@ -2,7 +2,7 @@ import { useState } from "react"
 import Head from "next/head"
 import { Formik } from "formik"
 import Image from "next/image";
-import yup from "yup"
+import * as yup from "yup"
 
 export default function AddUser() {
     const [image, setImage] = useState();
