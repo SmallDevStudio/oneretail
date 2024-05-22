@@ -1,6 +1,28 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  swcMinify: true,
+    images: {
+        remotePatterns: [
+          {
+            protocol: 'https',
+            hostname: 'localhost:3000',
+          },
+          {
+            protocol: 'https',
+            hostname: 'firebasestorage.googleapis.com',
+          },
+          {
+            protocol: 'https',
+            hostname: 'profile.line-scdn.net',
+          },
+          {
+            protocol: 'https',
+            hostname: 'one-retail.vercel.app',
+          },
+        ],
+        
+      },
   env: {
     LIFF_ID: process.env.NEXT_PUBLIC_LIFF_ID,
   },
