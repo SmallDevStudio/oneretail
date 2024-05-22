@@ -1,31 +1,72 @@
-"use client"
-import { useSession, signIn, signOut } from "next-auth/react";
-import Image from "next/image";
+import Head from "next/head";
+import packageJson from "../package.json";
 
-export default function Home() {
-  const { data: session } = useSession();
-  console.log({ session });
-
-  if (session) {
-    return (
-      <>
-        <Image 
-          src={session.user.image} 
-          alt="profile" 
-          className="rounded-full" 
-          width={200}
-          height={200}
-          priority
-          />
-          Signed in as {session.user.name} <br />
-        <button onClick={() => signOut()}>Sign out</button>
-      </>
-    )
-  }
+export default function Home(props) {
+  /** You can access to liff and liffError object through the props.
+   *  const { liff, liffError } = props;
+   *  console.log(liff.getVersion());
+   *
+   *  Learn more about LIFF API documentation (https://developers.line.biz/en/reference/liff)
+   **/
   return (
-    <>
-      Not signed in <br />
-      <button onClick={() => signIn('line')}>Sign in</button>
-    </>
-  )
+    <div>
+      <Head>
+        <title>LIFF Starter</title>
+      </Head>
+      <div className="home">
+        <h1 className="home__title">
+          Welcome to <br />
+          <a
+            className="home__title__link"
+            href="https://developers.line.biz/en/docs/liff/overview/"
+          >
+            LIFF Starter!
+          </a>
+        </h1>
+        <div className="home__badges">
+          <span className="home__badges__badge badge--primary">
+            LIFF Starter
+          </span>
+          <span className="home__badges__badge badge--secondary">nextjs</span>
+          <span className="home__badges__badge badge--primary">
+            {packageJson.version}
+          </span>
+          <a
+            href="https://github.com/line/line-liff-v2-starter"
+            target="_blank"
+            rel="noreferrer"
+            className="home__badges__badge badge--secondary"
+          >
+            GitHub
+          </a>
+        </div>
+        <div className="home__buttons">
+          <a
+            href="https://developers.line.biz/en/docs/liff/developing-liff-apps/"
+            target="_blank"
+            rel="noreferrer"
+            className="home__buttons__button button--primary"
+          >
+            LIFF Documentation
+          </a>
+          <a
+            href="https://liff-playground.netlify.app/"
+            target="_blank"
+            rel="noreferrer"
+            className="home__buttons__button button--tertiary"
+          >
+            LIFF Playground
+          </a>
+          <a
+            href="https://developers.line.biz/console/"
+            target="_blank"
+            rel="noreferrer"
+            className="home__buttons__button button--secondary"
+          >
+            LINE Developers Console
+          </a>
+        </div>
+      </div>
+    </div>
+  );
 }

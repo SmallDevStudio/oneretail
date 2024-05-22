@@ -1,13 +1,36 @@
 "use client";
 import Head from "next/head";
-import { SessionProvider } from "next-auth/react";
+import { useState, useEffect } from "react";
+import liff from "@line/liff";
 
 import "@/styles/globals.css";
 
-export default function App({ 
-  Component, 
-  pageProps: { session, ...pageProps },
-  }) {
+export default function App({ Component, pageProps}) {
+  const [liffObject, setLiffObject] = useState(null);
+  const [liffError, setLiffError] = useState(null);
+
+  // Execute liff.init() when the app is initialized
+  useEffect(() => {
+    console.log("start liff.init()...");
+    liff
+      .init({ liffId: process.env.LIFF_ID })
+      .then(() => {
+        console.log("liff.init() done");
+        setLiffObject(liff);
+      })
+      .catch((error) => {
+        console.log(`liff.init() failed: ${error}`);
+        if (!process.env.liffId) {
+          console.info(
+            "LIFF Starter: Please make sure that you provided `LIFF_ID` as an environmental variable."
+          );
+        }
+        setLiffError(error.toString());
+      });
+  }, []);
+
+  pageProps.liff = liffObject;
+  pageProps.liffError = liffError;
 
   return (
     <>
@@ -17,9 +40,8 @@ export default function App({
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
       </Head>
 
-      <SessionProvider session={session} basePath="/" refetchInterval={5 * 60} refetchOnWindowFocus={true}>
         <Component {...pageProps} />
-      </SessionProvider>
+
     </>
   );
 }
