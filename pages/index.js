@@ -6,10 +6,10 @@ import Image from "next/image";
 export default function Home(props) {
   const { status } = props
 
-  const { login, logout, profile, accessToken, idToken } = useLine();
+  const { login, logout, profile, accessToken} = useLine();
   const { userId, displayName, pictureUrl, statusMessage } = profile;
 
-  console.log(accessToken, idToken);
+  console.log(accessToken);
 
   const handleClick = () => {
     logout();
