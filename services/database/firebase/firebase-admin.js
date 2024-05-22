@@ -1,7 +1,7 @@
 import admin from "firebase-admin";
 import { dbConfig } from "@/config/database.config";
 
-const serviceAccount = dbConfig.provider.firebase-admin;
+const serviceAccount = dbConfig.provider.firebaseadmin;
 
 if(!admin.apps.length) {
     try {

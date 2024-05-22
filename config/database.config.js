@@ -10,7 +10,7 @@ export const dbConfig = {
          appId: process.env.FIREBASE_APP_ID,
        },
 
-       "firebase-admin": {
+       "firebaseadmin": {
           type: process.env.FIREBASE_ADMIN_TYPE,
           project_id: process.env.FIREBASE_ADMIN_PROJECT_ID,
           private_key_id: process.env.FIREBASE_ADMIN_PRIVATE_KEY_ID,
