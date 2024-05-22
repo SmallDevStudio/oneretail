@@ -6,7 +6,7 @@ import useLine from "@/lib/hook/useLine";
 export default function Home(props) {
   const { status } = props
 
-  const { login, logout, getAccessToken, getIDToken } = useLine();
+  const { login, logout } = useLine();
 
   if (status !== 'inited') {
     return (
