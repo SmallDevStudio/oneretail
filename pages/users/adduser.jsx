@@ -1,14 +1,7 @@
-import useLine from "@/lib/hook/useLine";
 import { useState } from "react";
-import Image from "next/image";
-import axios from "axios";
-import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 export default function AddUser(props) {
-    const { status } = props
-    const { profile } = useLine();
-    const { userId, displayName, pictureUrl, statusMessage } = profile;
     const { register, handleSubmit } = useForm();
     const [formData, setFormData] = useState({});
 
