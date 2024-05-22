@@ -35,7 +35,7 @@ export default function Home(props) {
         </Head>
 
         <h1>Profile</h1>
-        <pre>{JSON.stringify(profile, null, 2)}</pre>
+        <pre>{profile}</pre>
 
         <h1>ID Token</h1>
         <pre>{idtoken}</pre>
