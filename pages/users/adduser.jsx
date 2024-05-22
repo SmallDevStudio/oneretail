@@ -1,38 +1,59 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 export default function AddUser() {
-    const [data, setData] = useState("");
+    const { register, handleSubmit, formState: { errors } } = useForm();
 
-    const handleChange = (event) => {
-        const { name, value } = event.target;
-
-        setData({
-            ...data,
-            [name]: value
-        });
-
-    }
-
-    const handleSubmit = (event) => {
-        event.preventDefault();
-
+    const onSubmit = (data) => {
         console.log(data);
     }
-    
 
-    console.log(data);
+    <form onSubmit={handleSubmit(onSubmit)}>
+        <label>
+            <input
+                placeholder="รหัสพนักงาน"
+                type="text" 
+                {...register("empid", {
+                    required: true,
+                    maxLength: 10
+                })} 
+                
+            />
+            {errors.empid && <span>This field is required</span>}
 
-    return (
-        <form onSubmit={handleSubmit}>
+            <input 
+                placeholder="ชื่อ-นามสกุล"
+                type="text" 
+                {...register("fullname", {
+                    required: true,
+                    pattern: /^[ก-๏\s]+$/
+                })} 
+                
+            />
+            {errors.fullname && <span>This field is required</span>}
 
-            <input type="text" name="empid" value={data.event.target} onChange={handleChange} placeholder="รหัสพนักงาน"/>
-            <input type="text" name="name" value={data.event.target} onChange={handleChange} placeholder="ชื่อ-นามสกุล"/>
-            <input type="text" name="phone" value={data.event.target} onChange={handleChange} placeholder="เบอร์โทรศัพท์"/>
-            <textarea type="text" name="address" value={data.event.target} onChange={handleChange} placeholder="ที่อยู่"/>
+            <input 
+                placeholder="เบอร์โทรศัพท์"
+                type="phone" 
+                {...register("phone", {
+                    required: true
+                })} 
+                
+            />
+            {errors.phone && <span>This field is required</span>}
 
-            <input type="submit" value="Submit" className="btn btn-primary" />
-        </form>
-        
-    );
+            <input 
+                placeholder="ที่อยู่"
+                type="text" 
+                {...register("address", {
+                    required: true
+                })} 
+                
+            />
+            {errors.address && <span>This field is required</span>}
+
+            <input type="submit" value="Submit" onClick={handleSubmit(onSubmit)} />
+        </label>
+    </form>
+   
 }
 

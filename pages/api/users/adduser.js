@@ -6,7 +6,7 @@ export default async function handler(req, res) {
 
     const data = {
         empid: req.body.empid,
-        name: req.body.name,
+        fullname: req.body.fullname,
         phone: req.body.phone,
         address: req.body.address,
         userid: req.body.userid,
