@@ -4,10 +4,10 @@ import useLine from "@/lib/hook/useLine";
 import "@/styles/globals.css";
 
 export default function App({ Component, pageProps}) {
-  const { liffObject, status } = useLine();
+  const { liffObject, Status } = useLine();
 
   pageProps.liff = liffObject;
-  pageProps.status = status;
+  pageProps.status = Status;
 
   return (
     <>
