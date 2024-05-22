@@ -11,6 +11,8 @@
   "dependencies": {
     "@line/liff": "^2.23.2",
     "@vercel/analytics": "^1.2.2",
+    "iron-session": "^8.0.1",
+    "jsonwebtoken": "^9.0.2",
     "next": "14.2.3",
     "next-auth": "^4.24.7",
     "react": "^18",
