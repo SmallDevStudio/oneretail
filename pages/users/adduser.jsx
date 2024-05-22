@@ -13,13 +13,13 @@ export default function AddUser(props) {
     const [formData, setFormData] = useState({});
 
     return (
-        <form onSubmit={handleSubmit((data) => setFormData(JSON.stringify(data)))}>
+        <form onSubmit={handleSubmit((formData) => setFormData(JSON.stringify(formData)))}>
             <input {...register("empid")} placeholder="empid" />
             <input {...register("name")} placeholder="name" />
             <input {...register("phone")} placeholder="phone" />
             <textarea {...register("address")} placeholder="address" />
             <input type="submit" />
-            <p>{data}</p>
+            <p>{formData}</p>
         </form>
     );
 }
