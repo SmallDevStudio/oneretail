@@ -1,22 +1,19 @@
 "use client";
 import Head from "next/head";
 import useLine from "@/lib/hook/useLine";
-import useLineInfo from "@/lib/hook/useLineInfo";
 
 export default function Home(props) {
   const { liffObject, status } = props
 
-  const { login, logout } = useLine();
+  const { login, logout, profile } = useLine();
+
+  console.log("profile", profile);
+  const { userId, displayName, pictureUrl, statusMessage } = profile;
 
   const handleClick = () => {
     logout();
     window.location.reload();
   };
-
-  const {profile: {userId, displayName, pictureUrl, statusMessage}, version,} = useLineInfo({
-    liff: liffObject,
-    status
-  });
 
   if (status !== 'inited') {
     return (
