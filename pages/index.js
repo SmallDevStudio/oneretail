@@ -20,7 +20,7 @@ export default function Home(props) {
     return (
       <div>
         <Head>
-          <title>One Retail by TTB</title>
+          <title>One Retail</title>
         </Head>
         <button onClick={login}>Login</button>
       </div>
@@ -29,7 +29,7 @@ export default function Home(props) {
     return (
       <div>
         <Head>
-          <title>One Retail by TTB</title>
+          <title>One Retail</title>
         </Head>
 
         <h1>Profile</h1>
