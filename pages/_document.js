@@ -13,7 +13,9 @@ export default function Document() {
         <link rel="manifest" href="/manifest.json" />
       </Head>
       <body>
-        <Main />
+        <Main 
+          className="max-w-md"
+        />
         <NextScript />
         <Analytics />
       </body>
