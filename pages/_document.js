@@ -13,7 +13,7 @@ export default function Document() {
         <link rel="manifest" href="/manifest.json" />
       </Head>
       <body className="bg-gray-300">
-        <div className="max-w-md mx-auto bg-white">
+        <div className="max-w-md w-[100vw] h-[100vh] bg-white">
           <Main/>
         </div>
         <NextScript />
