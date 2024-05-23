@@ -1,17 +1,23 @@
-"use client";
 import useLine from "@/lib/hook/useLine";
+import { getLocalStorage, setLocalStorage } from "@/lib/localStorage";
+import { useRouter } from "next/router";
 
 import "@/styles/globals.css";
 
-export default function App({ Component, pageProps}) {
-  const { liffObject, status } = useLine();
+export default function App({ Component, pageProps }) {
+  const status = getLocalStorage("status");
+  const { liffObject } = useLine();
+  const router = useRouter();
 
-  pageProps.liff = liffObject;
-  pageProps.status = status;
+  if (status === "login" && !liffObject) {
+    setLocalStorage("status", "register");
+    liffObject?.login();
+  } else if (status === "register") {
+    router.push("/auth/adduser");
+    setLocalStorage("status", "inited");
+  }
 
-  return (
-    <>
-        <Component {...pageProps} />
-    </>
-  );
+  pageProps.liffObject = liffObject;
+
+  return <Component {...pageProps} />;
 }
