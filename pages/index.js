@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import useLine from '@/lib/hook/useLine';
 
 export default function HomePage(props) {
-  const { status, } = props
+  const { status } = props
   const { login, logout, idTokens, accessTokens } = useLine();
   const router = useRouter();
 

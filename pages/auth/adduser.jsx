@@ -1,10 +1,24 @@
 import { useForm } from "react-hook-form";
 import useLine from "@/lib/hook/useLine";
+import jwt from "jsonwebtoken";
+import axios from "axios";
 
 export default function AddUser() {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const { logout, idTokens, accessTokens } = useLine();
     console.log('page addUser', 'idToken:', idTokens, 'accessToken:', accessTokens );
+
+    const idToken = idTokens;
+    const response = axios.get(`https://api.line.me/oauth2/v2.1/verify`, {
+        params: {
+            id_token: idToken,
+            client_id: process.env.NEXT_PUBLIC_LINE_CHANNEL_ID
+        },
+    });
+
+    const profile = response.data;
+
+    console.log('profile:', profile);
 
     const onSubmit = (data) => {
         console.log(data);
