@@ -1,15 +1,13 @@
 
-const HomePage = ({ user }) => {
-  if (!user) {
-    return <p>Redirecting....</p>
-  }
-
+const HomePage = (props) => {
+  const session = props.session;
+  console.log('session', session);
+  
   return (
-    <div>
-      <h1>Welcome {user.name}</h1>
-    </div>
+    <>
+      <h1>Welcome</h1>
+    </>
   );
-};
-
-
+    
+}
 export default HomePage;
