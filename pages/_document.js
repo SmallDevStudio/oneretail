@@ -12,6 +12,7 @@ export default function Document() {
         <link rel="icon" type="image/png" sizes="16x16" href="dist/icons/favicon-16x16.png" />
         <link rel="manifest" href="/manifest.json" />
       </Head>
+
       <body className="flex flex-row justify-center items-center bg-gray-300">
         <div className="relative max-w-md w-[100vw] h-[100vh] bg-white">
           <Main/>
@@ -19,6 +20,7 @@ export default function Document() {
         <NextScript />
         <Analytics />
       </body>
+
     </Html>
   );
 }
