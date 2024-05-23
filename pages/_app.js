@@ -11,6 +11,7 @@ export default function App({ Component, pageProps }) {
 
   if (status === "login" && !liffObject) {
     setLocalStorage("status", "register");
+    console.log("status Login....","status:", status, "liffObject:", liffObject);
     liffObject?.login();
   } else if (status === "register") {
     router.push("/auth/adduser");
