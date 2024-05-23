@@ -1,7 +1,10 @@
 import { useForm } from "react-hook-form";
+import useLine from "@/lib/hook/useLine";
 
 export default function AddUser() {
     const { register, handleSubmit, formState: { errors } } = useForm();
+    const { logout, idTokens, accessTokens } = useLine();
+    console.log('page addUser', 'idToken:', idTokens, 'accessToken:', accessTokens );
 
     const onSubmit = (data) => {
         console.log(data);

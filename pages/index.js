@@ -2,7 +2,7 @@ import useLine from "@/lib/hook/useLine";
 const HomePage = (props) => {
   const { liffObject, status, } = props
 
-  const { logout, login, profiles, idtokens, accessTokens } = useLine();
+  const { logout, login, idtokens, accessTokens } = useLine();
 
   if (status !== 'inited') {
     return (
