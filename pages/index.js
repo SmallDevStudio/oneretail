@@ -1,24 +1,27 @@
-import useLine from "@/lib/hook/useLine";
-const HomePage = (props) => {
-  const { liffObject, status, } = props
+import React from 'react';
+import { useRouter } from 'next/router';
+import useLine from '@/lib/hook/useLine';
 
-  const { logout, login, idtokens, accessTokens } = useLine();
+export default function HomePage(props) {
+  const { status, } = props
+  const { login, logout, idTokens, accessTokens } = useLine();
+  const router = useRouter();
 
-  if (status !== 'inited') {
+  if (status === 'registered') {
+    return router.push('/auth/adduser');
+  } else if (status !== 'inited') {
     return (
-      <>
-        <h1>Login</h1>
-        <button className="btn btn-primary" onClick={login}>Login</button>
-      </>
-    )
+      <div>
+        <p>Log-in</p>
+        <button className='btn bg-primary' onClick={login}>Log-in</button>
+      </div>
+    );
   }
 
   return (
-    <>
-      <h1>Home</h1>
-      <button className="btn btn-primary" onClick={logout}>Logout</button>
-    </>
-  )
-    
+    <div>
+      <p>Home</p>
+      <button className='btn bg-primary' onClick={logout}>Log-out</button>
+    </div>
+  );
 }
-export default HomePage;
