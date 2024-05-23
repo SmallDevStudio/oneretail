@@ -1,13 +1,24 @@
-
+import useLine from "@/lib/hook/useLine";
 const HomePage = (props) => {
-  const session = props.session;
-  console.log('session', session);
-  
+  const { liffObject, status, } = props
+
+  const { logout, login, profiles, idtokens, accessTokens } = useLine();
+
+  if (status !== 'inited') {
+    return (
+      <>
+        <h1>Login</h1>
+        <button className="btn btn-primary" onClick={login}>Login</button>
+      </>
+    )
+  }
+
   return (
     <>
-      <h1>Welcome</h1>
+      <h1>Home</h1>
+      <button className="btn btn-primary" onClick={logout}>Logout</button>
     </>
-  );
+  )
     
 }
 export default HomePage;
