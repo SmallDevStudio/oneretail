@@ -1,12 +1,10 @@
 "use client";
 import Head from "next/head";
 import Image from "next/image";
-import { getLocalStorage } from "@/lib/localStorage";
 import useLine from "@/lib/hook/useLine";
 
 export default function Home(props) {
-  const { liffObject } = props;
-  const status = getLocalStorage("status");
+  const { liffObject, status } = props;
   const { login, logout } = useLine();
 
   if (status !== "inited") {
