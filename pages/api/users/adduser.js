@@ -22,7 +22,7 @@ export default async function handler(req, res) {
         };
         console.log('userRef:', userRef);
         
-        const docRef = await admin.firestore().collection('users').doc(empid).set(JSON.parse(JSON.stringify(userRef)));
+        const docRef = await admin.firestore().collection('users').doc(empid).set(userRef);
         if (!docRef) {
             res.status(500).json({ message: 'Failed to add user' });
         } else {
