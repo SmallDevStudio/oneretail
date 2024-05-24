@@ -2,6 +2,7 @@ import { getIronSession } from "iron-session";
 import { sessionOptions } from "@/lib/session";
 import useLine from "@/lib/hook/useLine";
 import "@/styles/globals.css";
+import { Suspense } from "react";
 
 function App({ Component, pageProps }) {
   const { liffObject, status } = useLine();
@@ -10,7 +11,9 @@ function App({ Component, pageProps }) {
   pageProps.status = status;
 
   return (
+    <Suspense fallback={<div>Loading...</div>}>
       <Component {...pageProps} />
+    </Suspense>
   )
 }
 

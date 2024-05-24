@@ -1,3 +1,4 @@
+"use client"
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import useLine from "@/lib/hook/useLine";
@@ -17,9 +18,14 @@ export default function AddUser() {
     }
    
     return (
-        <main className="flex w-full h-full p-3 bg-white">
-             <div>
-                <p>LOGO</p>
+        <main className="flex flex-col w-[100%] h-[100%] p-3 bg-white">
+             <div className="flex justify-center items-center text-center">
+                <image
+                    src="/dist/img/logo-one-retail.png"
+                    alt="one-retail logo"
+                    width={150}
+                    height={150}
+                />
                 <span>ลงทะเบียนการใช้บริการ</span>
              </div>
              <div>
