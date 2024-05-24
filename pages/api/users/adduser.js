@@ -22,10 +22,7 @@ export default async function handler(req, res) {
         };
         console.log(userRef);
         
-        const docRef = await setDoc(
-            doc(db, 'users', empid),
-            userRef
-        )
+        const docRef = await db.collection('users').doc(empid).set(userRef);
         if (!docRef) {
             res.status(500).json({ message: 'Failed to add user' });
         } else {
