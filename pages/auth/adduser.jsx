@@ -10,7 +10,7 @@ export default function AddUser() {
     const [ formData , setFormData ] = useState({});
 
     const profileRef = profiles;
-    console.log(profileRef);
+    console.log('Picture:', profileRef.pictureUrl);
 
 
     const handleInputChange = async (event) => {
@@ -62,7 +62,7 @@ export default function AddUser() {
                          </h1>
                          {/* Avatar */}
                          <Image
-                             src={"/dist/img/avatar.png"}
+                             src={profileRef.pictureUrl || "/dist/img/avatar.png"}
                              alt="One Retail Logo"
                              width={150}
                              height={150}
