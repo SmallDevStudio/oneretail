@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import useLine from "@/lib/hook/useLine";
-import jwt from "jsonwebtoken";
 import axios from "axios";
 import Image from "next/image";
 
@@ -10,7 +9,7 @@ export default function AddUser() {
     const [ formData , setFormData ] = useState({});
     
     const profile = JSON.stringify(profiles);
-    console.log('page: adduser','profile:', profile, 'picture:', profile.pictureUrl);
+    console.log('page: adduser','profile:', profile, 'picture:', profile[pictureUrl]);
 
     const handleInputChange = async (event) => {
         e.preventDefault();
@@ -39,7 +38,7 @@ export default function AddUser() {
     }
 
     return (
-        <main className="w-full h-full p-3 bg-white">
+        <main className="flex w-full h-full p-3 bg-white">
              <div className="flex flex-col justify-center items-center mt-5 p-3">
                  {/* logo */}
                  <div className="text-center justify-center">
