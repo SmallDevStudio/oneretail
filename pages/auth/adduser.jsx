@@ -52,7 +52,7 @@ export default function AddUser() {
                             website
                         </span>
                     </div>
-                    <div className="block mb-4">
+                    <div className="block mb-2">
                     <div className="relative">
                     <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
                         <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -72,7 +72,7 @@ export default function AddUser() {
                         </div>
                     </div>
                         
-                    <div className="block mb-4">
+                    <div className="block mb-2">
                     <div className="relative">
                         <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
                             <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -92,7 +92,7 @@ export default function AddUser() {
                         </div>
                     </div>
                        
-                    <div className="block mb-4">
+                    <div className="block mb-2">
                     <div className="relative">
                         <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
                             <svg className=" w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -112,7 +112,7 @@ export default function AddUser() {
                         </div>
                     </div>
                     
-                    <div className="block mb-4">
+                    <div className="block mb-2">
                     <div className="mt-10">
                         <label for="address" className="block mb-2 text-lg font-bold text-gray-900 dark:text-white">ที่อยู่สำหรับจัดส่งของรางวัล</label>
                         <textarea 
@@ -142,13 +142,13 @@ export default function AddUser() {
                             </div>
                             <div className="block">
                                 <ul className="text-sm font-light text-gray-900 dark:text-gray-400 list-disc ml-10 mb-4 mt-2 text-left">
-                                    <li className="mb-4">
+                                    <li className="mb-2">
                                         เราขอยื่นยันว่าเราให้ความสำคัญกับความเป็นส่วนตัวและความปลอดภัยของข้อมูลส่วนบุคคลของคุณ ดังนั้นเรามุ่งมั่นที่จะปฏิบัติตามกฎหมายคุ้มครองข้อมูลส่วนบุคคล (PD PA) ในการเก็บรวบรวมใช้และประมวลผลข้อมูลส่วนบุคคลของคุณข้อมูลที่เราเก็บรวบรวมจะใช้เพื่อวัตถุประสงค์ที่เกี่ยวกับการให้บริการ และปรับปรุงประสิทธิภาพของบริการของเราเก่านั้นและจะไม่นำข้อมูลของคุณไปใช้เพื่อวัตถุประสงค์อื่นๆโดยไม่ได้รับความยินยอมจาก คุณล่วงหน้า 
                                     </li>
-                                    <li className="mb-4">
+                                    <li className="mb-2">
                                         เราจะไม่เปิดเผยข้อมูลส่วนบุคคลของคุณแก่บุคคลที่สามได้ยกเว้น เฉพาะในกรณีที่เราจำเป็นต้องทำเช่นนั้นตามกฎหมายหรือโดยคำสั่งของหน่วยงานราชการที่มีอำนาจ 
                                     </li>
-                                    <li className="mb-4">
+                                    <li className="mb-2">
                                         ผู้ขออนุญาตใช้งานจะต้องไม่เผยแพร่ข้อมูลข่าวสารนี้ต่อบุคคลภายนอก ttb โดยเด็ดขาด
                                     </li>
                                 </ul>
