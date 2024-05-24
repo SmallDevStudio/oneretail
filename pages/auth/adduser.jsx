@@ -14,8 +14,8 @@ export default function AddUser() {
         setFormData({ ...formData, [name]: value });
     }
 
-    const onSubmit = (data) => {
-        console.log(data);
+    const onSubmit = (formData) => {
+        console.log(formData);
     }
 
     return (
