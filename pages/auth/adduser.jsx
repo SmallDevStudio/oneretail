@@ -11,6 +11,7 @@ export default function AddUser() {
     
     const profile = profiles;
     console.log('page: adduser','profile', profile);
+    console.log('page: adduser','picture', profile.pictureUrl);
 
     const handleInputChange = async (event) => {
         e.preventDefault();
@@ -39,8 +40,8 @@ export default function AddUser() {
     }
 
     return (
-        <main className="w-[100%] h-[100%] p-3 bg-white">
-             <div className="flex flex-col justify-center items-center w-full mt-5 p-3">
+        <main className="w-full h-full p-3 bg-white">
+             <div className="flex flex-col justify-center items-center mt-5 p-3">
                  {/* logo */}
                  <div className="text-center justify-center">
                      <Image
