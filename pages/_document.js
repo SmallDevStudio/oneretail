@@ -13,7 +13,7 @@ export default function Document() {
         <link rel="manifest" href="/manifest.json" />
       </Head>
 
-      <body className="flex flex-row justify-center items-center bg-gray-300">
+      <body className="flex flex-row justify-center items-center bg-gray-300 w-[100vw] h-[100vh]">
         <Main/>
         <NextScript />
         <Analytics />
