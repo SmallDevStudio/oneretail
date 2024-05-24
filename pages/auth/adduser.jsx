@@ -18,20 +18,24 @@ export default function AddUser() {
     const { userId, pictuerUrl } = profile;
     
 
-    const onSumit = (data) => {
+    const onSumit = async (data) => {
         setLoading(true);
         try {
             if (data.agree !== true) {
                 Alert.error('กรุณายอมรับเงื่อนไขในการลงทะเบียน');
                 return;
             }
-            const res = axios.post('/api/users/adduser', data);
-            if (res.data) {
-                Alert.success('บันทึกข้อมูลสําเร็จ');
-                router.push('/auth/login');
-            }
-            setLoading(false);
-
+            await axios.post('/api/users/adduser', data)
+                .then((res) => {
+                    if (res.data) {
+                        setLoading(false);
+                        router.push('/auth/login');
+                    }
+                    setLoading(false);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
         } catch (error) {
             console.log(error);
         }
