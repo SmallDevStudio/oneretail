@@ -4,12 +4,15 @@ import { useForm } from "react-hook-form";
 import useLine from "@/lib/hook/useLine";
 import axios from "axios";
 import Image from "next/image";
+import LogoImage from "@/components/LogoImage";
+import dynamic from "next/dynamic";
 
 export default function AddUser() {
     const { logout, idTokens, accessTokens, profile } = useLine();
     const { register, handleSubmit, formState: { errors } } = useForm();
     const [ loading, setLoading ] = useState(false);
     const [ data , setData ] = useState({});
+    const Avatar = dynamic(() => import('@/components/AvatarImage'), { ssr: false });
     
 
     const onSumit = (data) => {
@@ -18,68 +21,111 @@ export default function AddUser() {
     }
    
     return (
-        <main className="flex flex-col w-[100%] h-[100%] p-3 bg-white">
-             <div className="flex justify-center items-center text-center">
-                <image
-                    src="/dist/img/logo-one-retail.png"
-                    alt="one-retail logo"
-                    width={150}
-                    height={150}
-                />
-                <span>ลงทะเบียนการใช้บริการ</span>
+        <div className="flex flex-col p-5 bg-white">
+             <div className="block justify-center items-center text-center mt-10 mb-2">
+                <div className="mb-4">
+                    <LogoImage />
+                </div>
+                <span className="text-xl font-black text-[#F2871F]" style={{
+                    fontFamily: 'ttb',
+                    fontWeight: 'bold',
+                }}>
+                    ลงทะเบียนการใช้บริการ
+                </span>
              </div>
-             <div>
+
+             <div className="flex flex-col p-3">
                 <form onSubmit={handleSubmit(onSumit)}>
+                    <div className="flex flex-col justify-center items-center text-center mb-4">
+                        <div className="flex flex-col justify-center items-center text-center mb-2" style={{ width: 150, height: 150 }}>
+                            <Avatar
+                                src="/dist/img/avatar.png"
+                                alt="Profile Avatar"
+                                width={150}
+                                height={150}
+                            />
+                            
+                        </div>
+                        <span className="text-xl font-black text-[#1E3060]" style={{
+                            fontFamily: 'Ekachon',
+                        }}>
+                            website
+                        </span>
+                    </div>
+                    <div className="relative mb-4">
+                    <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                        <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 9h3m-3 3h3m-3 3h3m-6 1c-.306-.613-.933-1-1.618-1H7.618c-.685 0-1.312.387-1.618 1M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm7 5a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"/>
+                        </svg>
+                    </div>
                     <input 
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        type="text" 
+                        className="bg-gray-200 border border-gray-300 text-gray-900 text-lg rounded-3xl focus:ring-blue-500 focus:border-blue-500 block w-full ps-12 p-2  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                        type="number"
                         placeholder="รหัสพนักงาน" 
-                        {...register("empid", { required: true, maxLength: 5 })}
+                        {...register("empid", { required: true, maxLength: 5, minLength: 5 })}
                     />
+                    </div>
                         {errors.name && errors.name.type === "required" && <span>ช่องนี้จำเป็นต้องกรอกข้อมูล</span>}
                         {errors.name && errors.name.type === "maxLength" && <span>ข้อความยาวเกินไป</span> }
+                        {errors.name && errors.name.type === "maxLength" && <span>ข้อความน้อยเกินไป</span> }
 
-                    <input 
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        type="text" 
-                        placeholder="ชื่อ-นามสกุล" 
-                        {...register("fullname", { required: true, pattern: /^[ก-๏\s]+$/i })}
-                    />
+                    <div className="relative mb-4">
+                        <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                            <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0a8.949 8.949 0 0 0 4.951-1.488A3.987 3.987 0 0 0 13 16h-2a3.987 3.987 0 0 0-3.951 3.512A8.948 8.948 0 0 0 12 21Zm3-11a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                            </svg>
+                        </div>
+                        <input 
+                            className="bg-gray-200 border border-gray-300 text-gray-900 text-lg rounded-3xl focus:ring-blue-500 focus:border-blue-500 block w-full ps-12 p-2  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            type="text" 
+                            placeholder="ชื่อ-นามสกุล" 
+                            {...register("fullname", { required: true, pattern: /^[ก-๏\s]+$/i })}
+                        />
+                    </div>
                         {errors.name && errors.name.type === "required" && <span>ช่องนี้จำเป็นต้องกรอกข้อมูล</span>}
                         {errors.name && errors.name.type === "pattern" && <span>ข้อมูลไม่ถูกต้อง</span> }
 
+                    <div className="relative mb-4">
+                        <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                            <svg className=" w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.427 14.768 17.2 13.542a1.733 1.733 0 0 0-2.45 0l-.613.613a1.732 1.732 0 0 1-2.45 0l-1.838-1.84a1.735 1.735 0 0 1 0-2.452l.612-.613a1.735 1.735 0 0 0 0-2.452L9.237 5.572a1.6 1.6 0 0 0-2.45 0c-3.223 3.2-1.702 6.896 1.519 10.117 3.22 3.221 6.914 4.745 10.12 1.535a1.601 1.601 0 0 0 0-2.456Z"/>
+                            </svg>
+                        </div>
                     <input 
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        className="bg-gray-200 border border-gray-300 text-gray-900 text-lg rounded-3xl focus:ring-blue-500 focus:border-blue-500 block w-full ps-12 p-2  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         type="phone" 
                         placeholder="เบอร์โทรศัพท์" 
                         {...register("phone", { required: true, maxLength: 10 })}
                     />
+                    </div>
                         {errors.name && errors.name.type === "required" && <span>ช่องนี้จำเป็นต้องกรอกข้อมูล</span>}
                         {errors.name && errors.name.type === "maxLength" && <span>ข้อความยาวเกินไป</span> }
 
-                    <div>
-                        <label for="address" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ที่อยู่สำหรับจัดส่งของรางวัล</label>
+                    <div className="mt-10">
+                        <label for="address" className="block mb-2 text-lg font-bold text-gray-900 dark:text-white">ที่อยู่สำหรับจัดส่งของรางวัล</label>
                         <textarea 
                             id="address" 
                             rows={4}
+                            className="block p-2 w-full text-lg text-gray-900 bg-gray-200 rounded-xl border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
                             placeholder="ที่อยู่" 
                             {...register("address", { required: true })}>
                         </textarea>
                         {errors.address && errors.address.type === "required" && <span>ช่องนี้จำเป็นต้องกรอกข้อมูล</span>}
                     </div>
-                    <div>
+                    <div className="mt-10">
                         <div>
                             <div>
                                 <input 
                                     id="agree" 
-                                    type="checkbox" 
+                                    type="checkbox"
+                                    className="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                     {...register("agree", { required: true })} 
                                 />
-                                <label for="agree" className="ml-2 text-sm font-medium text-gray-900 dark:text-white">ฉันยอมรับข้อตกลงและเงื่อนไข</label>
+                                <label for="agree" className="ml-2 text-sm font-bold text-gray-900 dark:text-white">ฉันยอมรับข้อตกลงและเงื่อนไข</label>
                                 {errors.agree && errors.agree.type === "required" && <span>ต้องยอมรับเงื่อนไข</span>}
                             </div>
-                            <div>
-                                <ul className="text-sm font-light text-gray-900 dark:text-gray-400 list-disc ml-10 mb-4 mt-2 text-justify">
+                            <div className="block">
+                                <ul className="text-sm font-light text-gray-900 dark:text-gray-400 list-disc ml-10 mb-4 mt-2 text-left">
                                     <li className="mb-4">
                                         เราขอยื่นยันว่าเราให้ความสำคัญกับความเป็นส่วนตัวและความปลอดภัยของข้อมูลส่วนบุคคลของคุณ ดังนั้นเรามุ่งมั่นที่จะปฏิบัติตามกฎหมายคุ้มครองข้อมูลส่วนบุคคล (PD PA) ในการเก็บรวบรวมใช้และประมวลผลข้อมูลส่วนบุคคลของคุณข้อมูลที่เราเก็บรวบรวมจะใช้เพื่อวัตถุประสงค์ที่เกี่ยวกับการให้บริการ และปรับปรุงประสิทธิภาพของบริการของเราเก่านั้นและจะไม่นำข้อมูลของคุณไปใช้เพื่อวัตถุประสงค์อื่นๆโดยไม่ได้รับความยินยอมจาก คุณล่วงหน้า 
                                     </li>
@@ -94,18 +140,18 @@ export default function AddUser() {
                         </div>
                     </div>
 
-                    <div>
+                    <div className="flex justify-center mt-5 w-full">
                         <button 
                             type="submit"
-                            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-bold rounded-3xl text-lg px-5 py-3 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 w-40"
+                            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-bold rounded-3xl text-lg px-5 py-3 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 w-[80%] h-15"
                         >
-                            {loading ? "กําลังบันทึก..." : "บันทึก"}
+                            {loading ? "กําลังบันทึก..." : "ลงทะเบียน"}
                         </button>
                     </div>
 
                 </form>
              </div>
-        </main>
+        </div>
     );
    
 }
