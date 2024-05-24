@@ -1,5 +1,6 @@
-import { db } from "@/services/database/firebase/firebase";
-import { setDoc, doc } from "firebase/firestore";
+import { db } from "@/services/database/firebase/firebase-admin";
+import { setDoc, doc } from "firebase-admin/firestore";
+
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         res.status(405).json({ message: 'Method not allowed' });
@@ -23,7 +24,7 @@ export default async function handler(req, res) {
         
         const docRef = await setDoc(
             doc(db, 'users', empid),
-            JSON.parse(JSON.stringify(userRef)),
+            userRef
         )
         if (!docRef) {
             res.status(500).json({ message: 'Failed to add user' });
