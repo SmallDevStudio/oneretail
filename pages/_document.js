@@ -14,9 +14,7 @@ export default function Document() {
       </Head>
 
       <body className="flex flex-row justify-center items-center bg-gray-300">
-        <div className="relative max-w-md w-[100vw] h-[100vh] bg-white">
-          <Main/>
-        </div>
+        <Main/>
         <NextScript />
         <Analytics />
       </body>
