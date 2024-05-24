@@ -1,4 +1,5 @@
 import { db } from "@/services/database/firebase/firebase";
+import { addDoc, collection } from "firebase/firestore";
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         res.status(405).json({ message: 'Method not allowed' });
