@@ -1,7 +1,11 @@
 import { db } from "@/services/database/firebase/firebase";
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
-        res.status(200).json({ name: 'John Doe' });
+        res.status(405).json({ message: 'Method not allowed' });
+    }
+
+    if (!req.body) {
+        res.status(400).json({ message: 'No data provided' });
     }
 
     const data = {
@@ -16,11 +20,13 @@ export default async function handler(req, res) {
         created_at: new Date(),
         updated_at: new Date(),
         logined_at: new Date()
-    }
+    };
 
-    const docRef = await db.collection("users").doc(data.empid).add(data);
-    if (!docRef) {
-        res.status(500).json({ docRef });
+    try {
+        await db.collection('users').doc(data.empid).set(data);
+        res.status(200).json({ message: 'User added successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to add user' });
     }
-    res.status(200).json({ docRef });
 }
