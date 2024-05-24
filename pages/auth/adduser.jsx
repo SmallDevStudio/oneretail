@@ -9,13 +9,6 @@ export default function AddUser() {
     const { logout, idTokens, accessTokens, profiles } = useLine();
     console.log('page addUser', 'idToken:', idTokens, 'accessToken:', accessTokens );
 
-    const profileRef = {
-        userid: profiles.userid,
-        name: profiles.displayName,
-        pictureUrl: profiles.pictureUrl
-    }
-    console.log('profileRef:', profileRef);
-
     const onSubmit = (data) => {
         console.log(data);
     }
