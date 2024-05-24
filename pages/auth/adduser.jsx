@@ -4,13 +4,11 @@ import axios from "axios";
 import Image from "next/image";
 
 export default function AddUser() {
-    const { logout, idTokens, accessTokens, profiles } = useLine();
+    const { logout, idTokens, accessTokens, profile } = useLine();
     const [ loading, setLoading ] = useState(false);
     const [ formData , setFormData ] = useState({});
     
-    const profile = JSON.stringify(profiles);
-    console.log('page: adduser','profile:', profile, 'picture:', profile[pictureUrl]);
-
+    console.log('page: adduser','profile:', profile);
     const handleInputChange = async (event) => {
         e.preventDefault();
         const { name, value } = event.target;
