@@ -9,15 +9,34 @@ export default function AddUser() {
     const [ loading, setLoading ] = useState(false);
     const [ formData , setFormData ] = useState({});
 
-    const handleInputChange = (event) => {
+    const profileRef = profiles;
+    console.log(profileRef);
+
+
+    const handleInputChange = async (event) => {
+        e.preventDefault();
         const { name, value } = event.target;
         setFormData({ ...formData, [name]: value });
         setLoading(false);
     }
 
-    const onSubmit = (formData) => {
+
+    const data = {
+        empid: formData.empid,
+        fullname: formData.fullname,
+        phone: formData.phone,
+        address: formData.address,
+        userid: formData.userid,
+        role: 'user',
+        active: true,
+        created_at: new Date(),
+        updated_at: new Date(),
+        logined_at: new Date()
+    }
+
+    const onSubmit = (data) => {
         setLoading(true);
-        console.log(formData);
+        console.log(data);
     }
 
     return (
@@ -56,7 +75,6 @@ export default function AddUser() {
                              }}
                              priority
                          />
-                         <input type="hidden" name="picture" value="/dist/img/avatar.png" />
                          {/* End Avatar */}
  
                          <h2 className="max-w-3xl text-center font-bold text-[#1E3060] dark:text-white text-2xl leading-tight mt-5">
