@@ -6,7 +6,7 @@ import Image from "next/image";
 
 export default function AddUser() {
     const { logout, idTokens, accessTokens, profiles } = useLine();
-    const [ loading, setLoading ] = useState(true);
+    const [ loading, setLoading ] = useState(false);
     const [ formData , setFormData ] = useState({});
 
     const handleInputChange = (event) => {
@@ -16,6 +16,7 @@ export default function AddUser() {
     }
 
     const onSubmit = (formData) => {
+        setLoading(true);
         console.log(formData);
     }
 
