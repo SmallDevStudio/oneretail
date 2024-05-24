@@ -12,6 +12,7 @@ export default function AddUser() {
     const handleInputChange = (event) => {
         const { name, value } = event.target;
         setFormData({ ...formData, [name]: value });
+        setLoading(false);
     }
 
     const onSubmit = (formData) => {
@@ -19,7 +20,7 @@ export default function AddUser() {
     }
 
     return (
-        <main className="w-[100vw] h-[100vh] p-3 bg-white">
+        <main className="w-[100%] h-[100%] p-3 bg-white">
              <div className="flex flex-col justify-center items-center w-full mt-5 p-3">
                  {/* logo */}
                  <div className="text-center justify-center">
@@ -143,7 +144,6 @@ export default function AddUser() {
                                      id="accept-terms" 
                                      aria-describedby="accept-terms" 
                                      type="checkbox" 
-                                     value="" 
                                      className="w-4 h-4 text-blue-600 bg-gray-200 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                      required
                                  />
