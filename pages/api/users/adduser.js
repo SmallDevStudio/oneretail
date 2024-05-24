@@ -19,7 +19,7 @@ export default async function handler(req, res) {
             updated_at: new Date().toISOString(),
         };
         
-        const docRef = await addDoc(collection(db, "users", empid), userRef);
+        const docRef = await db.collection("users").doc(empid).set(userRef);
         if (!docRef) {
             res.status(500).json({ message: 'Failed to add user' });
         } else {
