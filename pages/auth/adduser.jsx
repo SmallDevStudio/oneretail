@@ -9,9 +9,8 @@ export default function AddUser() {
     const [ loading, setLoading ] = useState(false);
     const [ formData , setFormData ] = useState({});
     
-    const profile = profiles;
-    console.log('page: adduser','profile', profile);
-    console.log('page: adduser','picture', profile.pictureUrl);
+    const profile = JSON.stringify(profiles);
+    console.log('page: adduser','profile:', profile, 'picture:', profile.pictureUrl);
 
     const handleInputChange = async (event) => {
         e.preventDefault();
