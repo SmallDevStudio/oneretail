@@ -11,14 +11,14 @@ export default async function handler(req, res) {
         address: req.body.address,
         userid: req.body.userid,
         pictureUrl: req.body.pictureUrl,
-        role: req.body.role,
-        status: req.body.status,
-        created_at: req.body.created_at,
+        role: 'admin',
+        active: true,
+        created_at: new Date(),
         updated_at: new Date(),
         logined_at: new Date()
     }
 
-    const docRef = await db.collection("emp_users").doc(data.empid).add(data);
+    const docRef = await db.collection("users").doc(data.empid).add(data);
     if (!docRef) {
         res.status(500).json({ docRef });
     }

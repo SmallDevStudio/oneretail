@@ -1,23 +1,42 @@
 "use client"
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import useLine from "@/lib/hook/useLine";
 import axios from "axios";
-import Image from "next/image";
 import LogoImage from "@/components/LogoImage";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/router";
+import Alert from "@/lib/notification/Alert";
 
 export default function AddUser() {
-    const { logout, idTokens, accessTokens, profile } = useLine();
+    const { profile } = useLine();
     const { register, handleSubmit, formState: { errors } } = useForm();
     const [ loading, setLoading ] = useState(false);
-    const [ data , setData ] = useState({});
     const Avatar = dynamic(() => import('@/components/AvatarImage'), { ssr: false });
+    const router = useRouter();
+
+    const { userId, pictuerUrl } = profile;
     
 
-    const onSumit = (data) => {
+    const onSumit = async (data) => {
+        e.preventDefault();
         setLoading(true);
-        console.log(data);
+        try {
+            if (data.agree !== true) {
+                Alert.error('กรุณายอมรับเงื่อนไขในการลงทะเบียน');
+                return;
+            }
+            const res = await axios.post('/api/users/adduser', data);
+            if (res.data) {
+                Alert.success('บันทึกข้อมูลสําเร็จ');
+                router.push('/auth/login');
+            }
+            setLoading(false);
+
+        } catch (error) {
+            console.log(error);
+        }
+       
     }
    
     return (
@@ -39,11 +58,13 @@ export default function AddUser() {
                     <div className="flex flex-col justify-center items-center text-center mb-4">
                         <div className="flex flex-col justify-center items-center text-center mb-2" style={{ width: 150, height: 150 }}>
                             <Avatar
-                                src="/dist/img/avatar.png"
+                                src={pictuerUrl ? pictuerUrl : '/dist/img/avatar.png'}
                                 alt="Profile Avatar"
                                 width={150}
                                 height={150}
                             />
+                            <input type="hidden" {...register("pictuerUrl", { value: pictuerUrl })} />
+                            <input type="hidden" {...register("userId", { value: userId })} />
                             
                         </div>
                         <span className="text-xl font-black text-[#1E3060]" style={{
