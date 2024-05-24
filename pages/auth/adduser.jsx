@@ -25,17 +25,12 @@ export default function AddUser() {
                 Alert.error('กรุณายอมรับเงื่อนไขในการลงทะเบียน');
                 return;
             }
-            await axios.post('/api/users/adduser', data)
-                .then((res) => {
-                    if (res.data) {
-                        setLoading(false);
-                        router.push('/auth/login');
-                    }
-                    setLoading(false);
-                })
-                .catch((error) => {
-                    console.log(error);
-                });
+            const response = await axios.post('/api/users/adduser', data);
+            if (response.data) {
+                Alert.success('ลงทะเบียนสําเร็จ');
+                router.push('/auth/login');
+            }
+            setLoading(false);
         } catch (error) {
             console.log(error);
         }
