@@ -21,7 +21,7 @@ export default function AddUser() {
     }
    
     return (
-        <div className="flex flex-col p-5 bg-white">
+        <div className="flex flex-col p-5 bg-white mb-10">
              <div className="block justify-center items-center text-center mt-10 mb-2">
                 <div className="mb-4">
                     <LogoImage />
@@ -52,6 +52,7 @@ export default function AddUser() {
                             website
                         </span>
                     </div>
+                    <div>
                     <div className="relative mb-4">
                     <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
                         <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -68,7 +69,9 @@ export default function AddUser() {
                         {errors.name && errors.name.type === "required" && <span>ช่องนี้จำเป็นต้องกรอกข้อมูล</span>}
                         {errors.name && errors.name.type === "maxLength" && <span>ข้อความยาวเกินไป</span> }
                         {errors.name && errors.name.type === "maxLength" && <span>ข้อความน้อยเกินไป</span> }
-
+                    </div>
+                        
+                    <div>
                     <div className="relative mb-4">
                         <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
                             <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -81,10 +84,13 @@ export default function AddUser() {
                             placeholder="ชื่อ-นามสกุล" 
                             {...register("fullname", { required: true, pattern: /^[ก-๏\s]+$/i })}
                         />
+                        
                     </div>
                         {errors.name && errors.name.type === "required" && <span>ช่องนี้จำเป็นต้องกรอกข้อมูล</span>}
                         {errors.name && errors.name.type === "pattern" && <span>ข้อมูลไม่ถูกต้อง</span> }
-
+                    </div>
+                       
+                    <div>
                     <div className="relative mb-4">
                         <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
                             <svg className=" w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -100,7 +106,9 @@ export default function AddUser() {
                     </div>
                         {errors.name && errors.name.type === "required" && <span>ช่องนี้จำเป็นต้องกรอกข้อมูล</span>}
                         {errors.name && errors.name.type === "maxLength" && <span>ข้อความยาวเกินไป</span> }
-
+                    </div>
+                    
+                    <div>
                     <div className="mt-10">
                         <label for="address" className="block mb-2 text-lg font-bold text-gray-900 dark:text-white">ที่อยู่สำหรับจัดส่งของรางวัล</label>
                         <textarea 
@@ -110,8 +118,10 @@ export default function AddUser() {
                             placeholder="ที่อยู่" 
                             {...register("address", { required: true })}>
                         </textarea>
+                    </div>
                         {errors.address && errors.address.type === "required" && <span>ช่องนี้จำเป็นต้องกรอกข้อมูล</span>}
                     </div>
+
                     <div className="mt-10">
                         <div>
                             <div>
