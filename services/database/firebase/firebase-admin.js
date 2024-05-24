@@ -1,20 +1,11 @@
 import admin from "firebase-admin";
+import serviceAccount from './serviceAccountKey.json';
 
 if(!admin.apps.length) {
     try {
         admin.initializeApp({
-            credential: admin.credential.cert({
-                type: 'service_account',
-                private_key_id: process.env.NEXT_PUBLIC_FIREBASE_ADMIN_PRIVATE_KEY_ID,
-                projectId: process.env.NEXT_PUBLIC_FIREBASE_ADMIN_PROJECT_ID,
-                clientEmail: process.env.NEXT_PUBLIC_FIREBASE_ADMIN_CLIENT_EMAIL,
-                privateKey: process.env.NEXT_PUBLIC_FIREBASE_ADMIN_PRIVARE_KEY.replace(/\\n/g, '\n'),
-                client_id: process.env.NEXT_PUBLIC_FIREBASE_ADMIN_CLIENT_ID,
-                token_uri: process.env.NEXT_PUBLIC_FIREBASE_ADMIN_TOKEN_URI,
-                auth_provider_x509_cert_url: process.env.NEXT_PUBLIC_FIREBASE_ADMIN_AUTH_PROVIDER_X509_CERT_URL,
-                client_x509_cert_url: process.env.NEXT_PUBLIC_FIREBASE_ADMIN_CLIENT_X509_CERT_URL,
-                databaseURL: process.env.NEXT_PUBLIC_FIREBASE_ADMIN_DATABASE_URL,
-            }),
+            credential: admin.credential.cert(serviceAccount),
+            databaseURL: "https://oneretail-35482-default-rtdb.asia-southeast1.firebasedatabase.app"
         });
     } catch (error) {
         console.log('Firebase admin initialization error', error.stack);
@@ -23,4 +14,5 @@ if(!admin.apps.length) {
 }
 
 export const db = admin.firestore();
+export const auth = admin.auth();
 export default admin;

@@ -1,5 +1,5 @@
-import admin from "@/services/database/firebase/firebase-admin";
-import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/services/database/firebase/firebase";
+import { setDoc, doc } from "firebase/firestore";
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -7,8 +7,6 @@ export default async function handler(req, res) {
     }
     const { empid, fullname, phone, address, pictureUrl } = req.body;
     console.log('req.body:', req.body);
-    try {
-        // Add the user to the database
         const userRef = {
             empid,
             fullname,
@@ -21,14 +19,15 @@ export default async function handler(req, res) {
             updated_at: new Date().toISOString(),
         };
         console.log('userRef:', userRef);
-        
-        const docRef = await admin.firestore().collection('users').doc(empid).set(userRef);
-        if (!docRef) {
-            res.status(500).json({ message: 'Failed to add user' });
-        } else {
+
+        try {
+            const docRef = await setDoc(doc(db, 'users', empid), userRef);
+            if (!docRef) {
+                res.status(500).json({ message: 'Error adding user' });
+            }
             res.status(200).json({ message: 'User added successfully' });
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ message: 'failed' });
         }
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
 }
