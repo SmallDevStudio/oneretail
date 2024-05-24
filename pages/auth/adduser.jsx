@@ -8,10 +8,9 @@ export default function AddUser() {
     const { logout, idTokens, accessTokens, profiles } = useLine();
     const [ loading, setLoading ] = useState(false);
     const [ formData , setFormData ] = useState({});
-
-    const { userid, pictureUrl } = profiles;
-    console.log('userid:', userid, 'Picture:', pictureUrl);
-
+    
+    const profile = profiles;
+    console.log('page: adduser','profile', profile);
 
     const handleInputChange = async (event) => {
         e.preventDefault();
@@ -62,7 +61,7 @@ export default function AddUser() {
                          </h1>
                          {/* Avatar */}
                          <Image
-                             src={pictureUrl}
+                             src="/dist/img/avatar.png"
                              alt="One Retail Logo"
                              width={150}
                              height={150}
