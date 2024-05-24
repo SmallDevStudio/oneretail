@@ -5,6 +5,7 @@ export default async function handler(req, res) {
         res.status(405).json({ message: 'Method not allowed' });
     }
     const { empid, fullname, phone, address, pictureUrl } = req.body;
+    console.log(req.body);
     try {
         // Add the user to the database
         const userRef = {
@@ -18,8 +19,9 @@ export default async function handler(req, res) {
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
         };
+        console.log(userRef);
         
-        const docRef = await setDoc(doc(db, "users", empid), userRef);
+        const docRef = await db.collection('users').doc(empid).set(userRef);
         if (!docRef) {
             res.status(500).json({ message: 'Failed to add user' });
         } else {
