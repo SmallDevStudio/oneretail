@@ -1,4 +1,3 @@
-import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import useLine from "@/lib/hook/useLine";
 import jwt from "jsonwebtoken";
@@ -6,9 +5,14 @@ import axios from "axios";
 import Image from "next/image";
 
 export default function AddUser() {
-    const { register, handleSubmit, formState: { errors } } = useForm();
     const { logout, idTokens, accessTokens, profiles } = useLine();
+    const [ loading, setLoading ] = useState(true);
+    const [ formData , setFormData ] = useState({});
 
+    const handleInputChange = (event) => {
+        const { name, value } = event.target;
+        setFormData({ ...formData, [name]: value });
+    }
 
     const onSubmit = (data) => {
         console.log(data);
@@ -50,6 +54,7 @@ export default function AddUser() {
                              }}
                              priority
                          />
+                         <input type="hidden" name="picture" value="/dist/img/avatar.png" />
                          {/* End Avatar */}
  
                          <h2 className="max-w-3xl text-center font-bold text-[#1E3060] dark:text-white text-2xl leading-tight mt-5">
@@ -59,9 +64,8 @@ export default function AddUser() {
                  </div>
  
                  {/* form */}
-                 <form className="w-full mt-5" onSubmit={handleSubmit}>
+                 <form className="w-full mt-5" onSubmit={onSubmit}>
                      <div className="grid gap-2 mb-2 mt-5 md:grid-cols-2">
-                        <input type="hidden" name="pictureUrl" value={session.user.pictureUrl} />
                          <div className="relative mb-4">
                              <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
                                  <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -75,7 +79,6 @@ export default function AddUser() {
                                  placeholder="รหัสพนักงาน"
                                  onChange={handleInputChange}
                                  name="embid"
-                                 value={formData.embid}
                                  required
                              />
                          </div>
@@ -94,7 +97,6 @@ export default function AddUser() {
                                  placeholder="ชื่อ-นามสกุล ภาษาไทย"
                                  onChange={handleInputChange}
                                  name="name"
-                                 value={formData.name}
                                  required
                              />
                          </div>
@@ -114,7 +116,6 @@ export default function AddUser() {
                                  placeholder="เบอร์โทรศัพท์"
                                  onChange={handleInputChange}
                                  name="phone"
-                                 value={formData.phone}
                                  required
                              />
                          </div>
@@ -131,7 +132,6 @@ export default function AddUser() {
                                  placeholder="ที่อยู่"
                                  onChange={handleInputChange}
                                  name="address"
-                                 value={formData.address}
                                  required
                                  />
                              
