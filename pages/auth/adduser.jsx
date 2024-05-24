@@ -19,7 +19,7 @@ export default function AddUser() {
     }
 
     return (
-        <main className="w-full p-3">
+        <main className="w-[100vw] h-[100vh] p-3 bg-white">
              <div className="flex flex-col justify-center items-center w-full mt-5 p-3">
                  {/* logo */}
                  <div className="text-center justify-center">
