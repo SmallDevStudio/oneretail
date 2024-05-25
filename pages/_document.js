@@ -5,8 +5,7 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="viewport" content="viewport-fit=cover" />
+        <meta name="viewport" content="width=320, user-scalable=no" />
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="dist/icons/apple-touch-icon.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="dist/icons/favicon-32x32.png" />

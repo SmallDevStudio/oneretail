@@ -38,7 +38,7 @@ export default function AddUser() {
     }
    
     return (
-        <div className="flex flex-col p-5 bg-white mb-10">
+        <div className="flex flex-col justify-center p-5 bg-white">
              <div className="block justify-center items-center text-center mt-10 mb-2">
                 <div className="mb-4">
                     <LogoImage />
