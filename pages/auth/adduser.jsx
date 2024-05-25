@@ -25,7 +25,7 @@ export default function AddUser() {
                 Alert.error('กรุณายอมรับเงื่อนไขในการลงทะเบียน');
                 return;
             }
-            const response = await axios.post('/api/users/adduser', data);
+            const response = await axios.post('/api/users/add', data);
             if (response.data) {
                 Alert.success('ลงทะเบียนสําเร็จ');
                 router.push('/auth/login');
@@ -62,7 +62,7 @@ export default function AddUser() {
                                 height={150}
                             />
                             <input type="hidden" {...register("pictuerUrl", { value: pictuerUrl })} />
-                            <input type="hidden" {...register("userId", { value: userId })} />
+                            <input type="hidden" {...register("line_id", { value: userId })} />
                             
                         </div>
                         <span className="text-xl font-black text-[#1E3060]" style={{
@@ -82,12 +82,12 @@ export default function AddUser() {
                         className="bg-gray-200 border border-gray-300 text-gray-900 text-lg rounded-3xl `{errors.empid ? focus:ring-red-500 focus:border-red-500 : focus:ring-blue-500 focus:border-blue-500 }` focus:ring-blue-500 focus:border-blue-500 block w-full ps-12 p-2  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 " 
                         type="text"
                         placeholder="รหัสพนักงาน" 
-                        {...register("empid", { required: true, pattern: /^[0-9]+$/i })}
+                        {...register("employee_id", { required: true, pattern: /^[0-9]+$/i })}
                     />
                     </div>
                         <div className="text-red-500 text-sm font-bold text-left ml-10 h-2">
-                            {errors.empid && errors.empid.type === "required" && <span>ช่องนี้จำเป็นต้องกรอกข้อมูล</span>}
-                            {errors.empid && errors.empid.type === "pattern" && <span>ตัวเลขเท่านั้น</span> }
+                            {errors.employee_id && errors.employee_id.type === "required" && <span>ช่องนี้จำเป็นต้องกรอกข้อมูล</span>}
+                            {errors.employee_id && errors.employee_id.type === "pattern" && <span>ตัวเลขเท่านั้น</span> }
                         </div>
                     </div>
                         
