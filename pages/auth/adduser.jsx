@@ -25,7 +25,11 @@ export default function AddUser() {
                 Alert.error('กรุณายอมรับเงื่อนไขในการลงทะเบียน');
                 return;
             }
-            const response = await axios.post('/api/users/add', data);
+            const response = await axios.post('/api/users/add', data, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            });
             if (response.data) {
                 Alert.success('ลงทะเบียนสําเร็จ');
                 router.push('/auth/login');
