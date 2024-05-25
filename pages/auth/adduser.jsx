@@ -42,7 +42,7 @@ export default function AddUser() {
 
             if (response.data) {
                 Alert.success('ลงทะเบียนสําเร็จ');
-                router.push('/auth/login');
+                router.push('/');
             }
             setLoading(false);
         } catch (error) {
