@@ -20,6 +20,7 @@ export default function AddUser() {
 
     const onSumit = async (data) => {
         setLoading(true);
+        console.log('data:', {...data,});
         try {
             if (data.agree !== true) {
                 Alert.error('กรุณายอมรับเงื่อนไขในการลงทะเบียน');
