@@ -32,8 +32,13 @@ export default function AddUser() {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                data: {...data,}
+                data: {
+                    ...data,
+                    line_id: userId,
+                    pictureUrl: pictuerUrl
+                }
             })
+            console.log('response data:', response.data);
 
             if (response.data) {
                 Alert.success('ลงทะเบียนสําเร็จ');
