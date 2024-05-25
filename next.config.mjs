@@ -25,6 +25,7 @@ const nextConfig = {
       },
   env: {
     LINE_LIFF_ID: process.env.LINE_LIFF_ID,
+    NEXT_PUBLIC_MONGODB_URL: process.env.NEXT_PUBLIC_MONGODB_URL,
   },
 };
 
