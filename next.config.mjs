@@ -24,7 +24,7 @@ const nextConfig = {
         
       },
   env: {
-    LIFF_ID: process.env.LINE_LIFF_ID,
+    LINE_LIFF_ID: process.env.LINE_LIFF_ID,
   },
 };
 
