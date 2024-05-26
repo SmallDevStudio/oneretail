@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useRouter } from "next/router";
 import useSWR from "swr";
 import useLine from "@/lib/hook/useLine";
@@ -12,6 +13,8 @@ export default function Callback(props) {
     const router = useRouter();
     const { profile } = useLine();
     const { userId } = profile;
+    const [ userdata , setUserData ] = useState({});
+    const [ newStatus, setNewStatus ] = useState(status);
     const { data, error } = useSWR('/api/users/verify/'+ userId, fetcher);
 
     if (error) {
@@ -23,7 +26,14 @@ export default function Callback(props) {
     }
 
     if (data) {
-        return router.push('/admin');
+        setUserData(data);
+        setNewStatus('registered');
+
+        props.status = newStatus;
+        props.user = data;
+
+        return data.role === 'admin' ? router.push('/admin') : 
+        data.role === 'superadmin' ? router.push('/admin') : router.push('/main');
     }
 
     if (status === 'inited') {
@@ -35,13 +45,3 @@ export default function Callback(props) {
 
 }
 
-export async function getServerSideProps(context) {
-    const { query } = context;
-    const { code } = query;
-
-    return {
-        props: {
-            code
-        }
-    }
-}
