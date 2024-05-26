@@ -1,5 +1,5 @@
 import connetMongoDB from "@/services/database/mongoose/mongodb";
-import SubCategory from "@/database/models/Category";
+import SubCategory from "@/database/models/category";
 
 export default async function handler(req, res) {
     if (req.method === "GET") {
