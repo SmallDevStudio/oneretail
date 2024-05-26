@@ -9,7 +9,6 @@ import { useForm } from "react-hook-form";
 
 const Add = (props) => {
     const [loading, setLoading] = useState(false);
-    const [learning, setLearning] = useState({});
     const { register, handleSubmit, formState: { errors } } = useForm();
     const router = useRouter();
     const handleChange = (e) => {
@@ -35,18 +34,16 @@ const Add = (props) => {
             console.log('response data:', response.data);
             if (response.data) {
                 setLoading(false);
-                Alert("สําเร็จ", "เพิ่มข้อมูลเรียบร้อย", "success");
+                new Alert("สําเร็จ", "เพิ่มข้อมูลเรียบร้อย", "success");
                 router.push('/admin/learning');
             }
         } catch (error) {
             setLoading(false);
-            Alert("ผิดพลาด", "เพิ่มข้อมูลไม่สําเร็จ", "error");
+            new Alert("ผิดพลาด", "เพิ่มข้อมูลไม่สําเร็จ", "error");
         }
     }
 
   
-    
-
     return (
         <div className="flex flex-col w-full">
             <Header title="เพิ่มข้อมูล" subtitle="เพิ่มข้อมูล Learning"/>
@@ -59,12 +56,14 @@ const Add = (props) => {
                         {...register("title", { required: true })}
                         
                     />
+                        {errors.title && errors.title.type === "required" && <span>ช่องนี้จำเป็นต้องกรอกข้อมูล</span>}
                     <input 
                         id="slug" type="text" 
                         className="mb-2 text-sm rounded-full block w-full p-2.5 bg-[#D9D9D9] border-1 border-gray-300 focus:ring-0.5 focus:ring-[#0056FF]"
                         placeholder="เพิ่มชื่อลิงค์" 
                         {...register("slug", { required: true })}
                     />
+                        {errors.slug && errors.slug.type === "required" && <span>ช่องนี้จำเป็นต้องกรอกข้อมูล</span>}
                     <input 
                         id="youtubeUrl" type="text" 
                         className="mb-2 text-sm rounded-full block w-full p-2.5 bg-[#D9D9D9] border-1 border-gray-300 focus:ring-0.5 focus:ring-[#0056FF]"
@@ -95,6 +94,7 @@ const Add = (props) => {
                         placeholder="เพิ่มรายละเอียด" 
                         {...register("description")}
                     />
+                        {errors.description && errors.description.type === "required" && <span>ช่องนี้จำเป็นต้องกรอกข้อมูล</span>}
                     <div className="flex flex-row space-x-10">
                         <input 
                             id="point" type="text" 

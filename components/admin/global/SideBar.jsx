@@ -113,7 +113,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
 
               <Item
                 title="จัดการเนื้อหา"
-                to="/admin/leaning"
+                to="/admin/learning"
                 icon={<ContactsOutlinedIcon />}
                 selected={selected}
                 setSelected={setSelected}
