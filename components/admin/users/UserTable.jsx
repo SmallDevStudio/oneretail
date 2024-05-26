@@ -86,7 +86,7 @@ export const UserTable = () => {
                                 </td>
                                 <td className="px-6 py-4">
                                     <div className="flex items-center">
-                                        <button className="w-30 border {Active ?'bg-[#F68B1F]':'bg-gray-200'} rounded-full px-2 py-1 text-white hover:bg-[#F68B1F] focus:ring-4 focus:ring-blue-300 font-medium text-xs leading-tight dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                        <button className="w-30 border {Active ? 'bg-gray-300' : 'bg-[#F68B1F]'} rounded-full px-2 py-1 text-white hover:bg-[#F68B1F] focus:ring-4 focus:ring-blue-300 font-medium text-xs leading-tight dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                                             Active
                                         </button>
                                     </div>
