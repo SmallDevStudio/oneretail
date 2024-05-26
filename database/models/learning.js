@@ -1,13 +1,13 @@
 import mongoose, { Schema } from "mongoose";
 
-const leaningSchema = new Schema({
+const LearningSchema = new Schema({
     title: { type: String, required: true },
     description: { type: String, required: true },
-    videoUrl: { type: String},
+    slug: { type: String, required: true },
+    youtubeUrl: { type: String},
     thumbnailUrl: { type: String},
-    content: { type: String, required: true },
-    caterogy: { type: String, default: undefined },
-    subCaterogy: { type: String, default: undefined },
+    caterogy: { type: String, default: '' },
+    subCaterogy: { type: String, default: '' },
     point: { type: Number, default: 0 },
     coin: { type: Number, default: 0 },
     views: { type: Number, default: 0 },
@@ -17,11 +17,11 @@ const leaningSchema = new Schema({
     options: { type: Array, default: [] },
     publicsher: { type: Boolean, default: true },
     pageCount: { type: Number, default: 0 },
-    employee_id: { type: String, required: true },
+    user_created_id: { type: String, },
 }, {
     timestamps: true
 });
 
-const Leaning = mongoose.models.leaning || mongoose.model('leaning', leaningSchema);
+const Learning = mongoose.models.Learning || mongoose.model('Learning', LearningSchema);
 
-export default Leaning;
+export default Learning;
