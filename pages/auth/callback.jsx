@@ -15,26 +15,7 @@ export default function Callback(props) {
     const { userId } = profile;
     const [ userdata , setUserData ] = useState({});
     const [ newStatus, setNewStatus ] = useState(status);
-    const { data, error } = useSWR('/api/users/verify/'+ userId, fetcher);
-
-    if (error) {
-        return <div>failed to load</div>
-    }
-
-    if (!data) {
-        return router.push('/auth/adduser');
-    }
-
-    if (data) {
-        setUserData(data);
-        setNewStatus('registered');
-
-        props.status = newStatus;
-        props.user = userdata;
-
-        return data.role === 'admin' ? router.push('/admin') : 
-        data.role === 'superadmin' ? router.push('/admin') : router.push('/main');
-    }
+   
 
     if (status === 'inited') {
         return router.push('/auth/adduser');
@@ -43,13 +24,4 @@ export default function Callback(props) {
     } return router.push('/main');
 
 
-}
-
-export const getServerSideProps = async () => {
-    return {
-        props: {
-            status: 'registered',
-            user: {...userdata}
-        }
-    }
 }
