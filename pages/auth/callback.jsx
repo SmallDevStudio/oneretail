@@ -30,7 +30,7 @@ export default function Callback(props) {
         setNewStatus('registered');
 
         props.status = newStatus;
-        props.user = data;
+        props.user = userdata;
 
         return data.role === 'admin' ? router.push('/admin') : 
         data.role === 'superadmin' ? router.push('/admin') : router.push('/main');
@@ -39,9 +39,17 @@ export default function Callback(props) {
     if (status === 'inited') {
         return router.push('/auth/adduser');
     } else if (status === 'registered') {
-        return router.push('/');
-    }
+        return router.push('/main');
+    } return router.push('/main');
 
 
 }
 
+export const getServerSideProps = async () => {
+    return {
+        props: {
+            status: 'registered',
+            user: {...userdata}
+        }
+    }
+}

@@ -6,17 +6,78 @@ import Alert from "@/lib/notification/Alert";
 import Loading from "@/components/Loading";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import axios from "axios";
+import { useForm } from "react-hook-form";
 
 const fetcher = (url) => fetch(url).then((res) => res.json())
 export const LearningTable = () => {
-
     const router = useRouter();
+    const { register, handleSubmit } = useForm();
 
     const { data, error, isLoading } = useSWR('/api/learning', fetcher);
        if (error) return <Alert error={error} />
        if (isLoading) return <Loading />
 
        console.log('usersData:', data.learning);
+
+    function deleteLearning(id) {
+        fetch('/api/learning', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id })
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    new Alert("สําเร็จ", "ลบข้อมูลเรียบร้อย", "success");
+                    router.push('/admin/learning');
+                } else {
+                    new Alert("ผิดพลาด", "ลบข้อมูลไม่สําเร็จ", "error");
+                }
+            })
+            .catch((error) => {
+                new Alert("ผิดพลาด", "ลบข้อมูลไม่สําเร็จ", "error");
+            });
+    }
+
+    const handleOnClickActive = async (id, currentPublicsher) => {
+       if (currentPublicsher === true) {
+           try {
+            const response = await axios({
+                method: 'PUT',
+                url: '/api/learning'+ id,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                data: {
+                    publicsher: false
+                }
+            })
+            console.log('currentPublicsher:', response);
+           } catch (error) {
+            console.log(error);
+           }
+       } else {
+        try {
+            const response = await axios({
+                method: 'PUT',
+                url: '/api/learning'+ id,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                data: {
+                    publicsher: true
+                }
+            })
+            console.log('currentPublicsher:', response);
+           } catch (error) {
+            console.log(error);
+           }
+       }
+    }
+        
    
     return (
         <>
@@ -115,9 +176,13 @@ export const LearningTable = () => {
                                 </td>
                                 <td className="px-6 py-4">
                                     <div className="flex items-center">
-                                        <button key={index} className="w-30 border bg-[#0056FF] rounded-full px-2 py-1 text-white hover:bg-[#F68B1F] focus:ring-4 focus:ring-blue-300 font-medium text-xs leading-tight dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                                            {learning.publicsher === true ? "Active" : "Deactive"}
-                                        </button>
+                                        
+                                            <button className="w-30 border bg-[#0056FF] rounded-full px-2 py-1 text-white hover:bg-[#F68B1F] focus:ring-4 focus:ring-blue-300 font-medium text-xs leading-tight dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                                onChange={() => handleOnClickActive(learning._id, learning.publicsher)}
+                                            >
+                                                {learning.publicsher === true ? "Active" : "Deactive"}
+                                            </button>
+
                                     </div>
                                 </td>
                                 <td className="px-6 py-4" key={index}>
