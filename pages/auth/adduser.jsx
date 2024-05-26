@@ -42,7 +42,7 @@ export default function AddUser() {
 
             if (response.data) {
                 Alert.success('ลงทะเบียนสําเร็จ');
-                router.push('/');
+                router.push('/main');
             }
             setLoading(false);
         } catch (error) {
@@ -55,7 +55,7 @@ export default function AddUser() {
         <div className="flex flex-col justify-center p-5 bg-white">
              <div className="block justify-center items-center text-center mt-10 mb-2">
                 <div className="mb-4">
-                    <LogoImage />
+                    <LogoImage src="/dist/img/logo-one-retail.png" alt="one Retail Logo" width={200} height={200} />
                 </div>
                 <span className="text-xl font-black text-[#F2871F]" style={{
                     fontFamily: 'ttb',

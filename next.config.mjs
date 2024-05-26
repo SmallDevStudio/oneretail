@@ -9,6 +9,10 @@ const nextConfig = {
             hostname: 'localhost:3000',
           },
           {
+            protocol: 'http',
+            hostname: 'localhost:3000',
+          },
+          {
             protocol: 'https',
             hostname: 'firebasestorage.googleapis.com',
           },

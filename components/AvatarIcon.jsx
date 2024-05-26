@@ -1,15 +1,17 @@
 import Image from "next/image";
 
-const AvatarIcon = ({ src, alt }) => {
+const AvatarIcon = ({ src, alt, width, height }) => {
     return (
-        <div className="w-12 h-12 rounded-full overflow-hidden">
+        <div className="flex w-20 h-20 overflow-hidden">
             <Image
                 src={src}
                 alt={alt}
-                width={40}
-                height={40}
-                className="w-full h-full object-cover"
+                width={width}
+                height={height}
+                className="object-cover rounded-full "
             />
         </div>
     );
 };
+
+export default AvatarIcon;

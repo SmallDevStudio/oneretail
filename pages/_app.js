@@ -5,12 +5,14 @@ import "@/styles/globals.css";
 import { Suspense } from "react";
 
 function App({ Component, pageProps }) {
-  const { liffObject, status } = useLine();
+  // const { liffObject, status } = useLine();
 
-  pageProps.liffObject = liffObject;
-  pageProps.status = status;
+  // pageProps.liffObject = liffObject;
+  // pageProps.status = status;
 
-  return (
+  const getLayout = Component.getLayout || ((page) => page);
+
+  return getLayout(
     <Suspense fallback={<div>Loading...</div>}>
       <Component {...pageProps} />
     </Suspense>

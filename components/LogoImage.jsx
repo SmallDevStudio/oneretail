@@ -1,13 +1,14 @@
 import Image from "next/image";
 
-const LogoImage = () => {
+const LogoImage = (src, alt, width, height) => {
     return (
         <div className="flex justify-center items-center">
             <Image
-                src="/dist/img/logo-one-retail.png"
-                alt="one-retail logo"
-                width={200}
-                height={200}
+                src={src}
+                alt={alt}
+                width={width}
+                height={height}
+                priority
             />
         </div>
     );
