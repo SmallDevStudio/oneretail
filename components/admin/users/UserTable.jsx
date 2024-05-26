@@ -3,13 +3,14 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import useSWR from "swr";
 import Alert from "@/lib/notification/Alert";
+import Loading from "@/components/Loading";
 
 const fetcher = (url) => fetch(url).then((res) => res.json())
 export const UserTable = () => {
     
     const { data, error, isLoading } = useSWR('/api/users', fetcher);
        if (error) return <Alert error={error} />
-       if (isLoading) return <p>Loading...</p>
+       if (isLoading) return <Loading />
 
        console.log('usersData:', data.users);
    
