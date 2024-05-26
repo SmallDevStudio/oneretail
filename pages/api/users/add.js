@@ -8,7 +8,7 @@ export default async function handler(req, res) {
         const { fullname, phone, address, pictureUrl, employee_id, line_id } = req.body;
         console.log(fullname, phone, address, pictureUrl, employee_id, line_id);
         await connetMongoDB();
-        await Users.create({fullname, phone, address, pictureUrl, role: 'superadmin', active: true, employee_id, line_id});
+        await Users.create({fullname, phone, address, pictureUrl, role: 'admin', active: true, employee_id, line_id});
 
         res.status(201).json({ message: "User created successfully" });
     }

@@ -1,10 +1,18 @@
 "use client"
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import AvatarIcon from "@/components/AvatarIcon";
+import useSWR from "swr";
+import Alert from "@/lib/notification/Alert";
 
+const fetcher = (url) => fetch(url).then((res) => res.json())
 export const UserTable = () => {
+    
+    const { data, error, isLoading } = useSWR('/api/users', fetcher);
+       if (error) return <Alert error={error} />
+       if (isLoading) return <p>Loading...</p>
 
+       console.log('usersData:', data.users);
+   
     return (
         <>
                 <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -22,7 +30,7 @@ export const UserTable = () => {
                             <input type="text" id="table-search-users" className="block p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search for users"/>
                         </div>
                     </div>
-
+                    {/* Table */}
                     <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                         <thead className="text-xs text-[#121D3A] uppercase bg-[#CCDDFF] dark:bg-gray-700 dark:text-gray-400">
                             <tr>
@@ -52,32 +60,39 @@ export const UserTable = () => {
                                 </th>
                             </tr>
                         </thead>
+                        {data &&
+                            data.users.map((user, index) => {
+                            return (
+                            <>
                         <tbody>
                             <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                 <td className="w-4 p-4">
-                                    <div className="flex items-center">
-                                        <input id="checkbox-table-search-1" type="checkbox" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"/>
+                                    <div key={index} className="flex items-center">
+                                        <input id="checkbox-table-search-1" 
+                                            type="checkbox"
+                                            value={user._id}
+                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"/>
                                         <label for="checkbox-table-search-1" className="sr-only">checkbox</label>
                                     </div>
                                 </td>
                                 <th scope="row" className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
-                                    <Image 
+                                    <Image key={index}
                                         class="w-10 h-10 rounded-full" 
-                                        src="/dist/img/avatar.png" 
+                                        src={user.pictureUrl} 
                                         alt="avatar"
                                         width={40}
                                         height={40}
                                     />
-                                    <div className="ps-3">
-                                        <div className="text-base font-semibold">Neil Sims</div>
-                                        <div className="font-normal text-gray-500">neil.sims@flowbite.com</div>
+                                    <div className="ps-3" key={index}>
+                                        <div className="text-base font-semibold">{user.fullname}</div>
+                                        <div className="font-normal text-gray-500"></div>
                                     </div>  
                                 </th>
                                 <td className="px-6 py-4">
                                     React Developer
                                 </td>
-                                <td className="px-6 py-4">
-                                    Super Admin
+                                <td className="px-6 py-4" key={index}>
+                                    {user.role}
                                 </td>
                                 <td className="px-6 py-4">
                                     <div className="flex items-center">
@@ -86,20 +101,23 @@ export const UserTable = () => {
                                 </td>
                                 <td className="px-6 py-4">
                                     <div className="flex items-center">
-                                        <button className="w-30 border {Active ? 'bg-gray-300' : 'bg-[#F68B1F]'} rounded-full px-2 py-1 text-white hover:bg-[#F68B1F] focus:ring-4 focus:ring-blue-300 font-medium text-xs leading-tight dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                                            Active
+                                        <button key={index} className="w-30 border bg-[#0056FF] rounded-full px-2 py-1 text-white hover:bg-[#F68B1F] focus:ring-4 focus:ring-blue-300 font-medium text-xs leading-tight dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                            {user.active === true ? "Active" : "Deactive"}
                                         </button>
                                     </div>
                                 </td>
                                 <td className="px-6 py-4">
-                                    <a href="#" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit user</a>
+                                    <button className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit user</button>
                                 </td>
-                            </tr>
-                            
+                            </tr> 
                         </tbody>
+                        </>
+                );
+            })}
+       
                     </table>
                 </div>
-            </>
+                </>
     );
 }
 

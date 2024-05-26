@@ -108,21 +108,23 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                 selected={selected}
                 setSelected={setSelected}
               />
+              
+            <hr />
+
               <Item
-                title="Contacts Information"
-                to="/contacts"
+                title="จัดการเนื้อหา"
+                to="/admin/leaning"
                 icon={<ContactsOutlinedIcon />}
                 selected={selected}
                 setSelected={setSelected}
               />
               <Item
-                title="Invoices Balances"
-                to="/invoices"
+                title="จัดการ Events"
+                to="/admin/events"
                 icon={<ReceiptOutlinedIcon />}
                 selected={selected}
                 setSelected={setSelected}
               />
-            <hr />
   
              
             </Box>
