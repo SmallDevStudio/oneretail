@@ -2,7 +2,7 @@ import mongoose, { Schema } from "mongoose";
 
 const categorySchema = new Schema({
     title: { type: String, required: true },
-    description: { type: String, required: true },
+    description: { type: String },
     icon: { type: String },
     image: { type: String },
     color: { type: String },
@@ -13,9 +13,9 @@ const categorySchema = new Schema({
 });
 
 const subCategorySchema = new Schema({
-    caterogy_id: { type: Schema.Types.ObjectId, ref: 'caterogy', required: true },
     title: { type: String, required: true },
-    description: { type: String, required: true },
+    description: { type: String },
+    caterogy_id: { type: Schema.Types.ObjectId, ref: 'caterogy' },
     icon: { type: String },
     image: { type: String },
     color: { type: String },
