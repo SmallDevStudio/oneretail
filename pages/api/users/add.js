@@ -1,5 +1,5 @@
 import connetMongoDB from "@/services/database/mongoose/mongodb";
-import Users from "@/database/models/users";
+import Users from "@/database/models/Users";
 
 export default async function handler(req, res) {
     if (req.method !== "POST") {
