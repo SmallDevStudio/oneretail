@@ -5,37 +5,25 @@ import Loading from "@/components/Loading";
 
 const getPageById = async (id) => {
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}api/learning/${id}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
-        const data = response.json;
+        const response = await fetch(`/api/learning/${id}`, {
+            cache: 'no-store',
+        });
+        const data = response.json();
         if (!data) {
             throw new Error('Data not found');
         }
-        console.log('data:', data);
-        return data;
+    
     } catch (error) {
         console.log(error);
     }
 }
 
-const EditPage = () => {
+const EditPage = async() => {
     const router = useRouter();
     const { id } = router.query;
-    console.log(id);
+    const data = await getPageById(id);
+    console.log('data:', data);
 
-    if (!id) {
-        return <div>Loading...</div>;
-    }
-    const getData = async () => {
-        const data = await getPageById(id);
-        return data;
-    }
-
-    console.log(getData());
     return <Edit />;
 }
 

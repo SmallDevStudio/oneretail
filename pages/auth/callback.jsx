@@ -12,14 +12,14 @@ export default function Callback(props) {
     const [ userdata , setUserData ] = useState({});
     const [ newStatus, setNewStatus ] = useState(status);
 
-    
+
    
 
-    if (status === 'inited') {
-        return router.push('/auth/adduser');
-    } else if (status === 'registered') {
-        return router.push('/admin');
-    } return router.push('/main');
+    if (!status) {
+  //      return router.push('/auth/adduser');
+ //   } else if (status === 'registered') {
+      return router.push('/admin');
+    }  return router.push('/main');
 
 
 }

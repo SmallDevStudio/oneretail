@@ -9,9 +9,9 @@ export default function HomePage(props) {
   const { login, logout } = useLine();
   const router = useRouter();
 
-  if (status === 'registered') {
-    return router.push('/auth/adduser');
-  } else if (status !== 'inited') {
+ // if (status === 'registered') {
+   // return router.push('/auth/adduser');
+ // } else if (status !== 'inited') {
     return (
       <div className="releative">
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center justify-center w-full">
@@ -45,10 +45,10 @@ export default function HomePage(props) {
     );
   }
 
-  return (
-    <div>
-      <p>Home</p>
-      <button className='btn bg-primary' onClick={logout}>Log-out</button>
-    </div>
-  );
-}
+ //return (
+ //   <div>
+  //    <p>Home</p>
+  //    <button className='btn bg-primary' onClick={logout}>Log-out</button>
+ //   </div>
+//  );
+// }
