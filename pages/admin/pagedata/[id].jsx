@@ -1,9 +1,10 @@
 import { AdminLayout } from "@/themes"
-const UpdateLearning = () => {
-    return (
-        <>
-        </>
-    )
+import Edit from "@/components/admin/learning/Edit"
+const EditPage = ({ params }) => {
+    const { id } = params
+    console.log ('id:', id);
+
+    return <Edit />;
 }
 
 UpdateLearning.getLayout = function getLayout(page) {
@@ -14,4 +15,4 @@ UpdateLearning.getLayout = function getLayout(page) {
     )
 }
 
-export default UpdateLearning
+export default EditPage;

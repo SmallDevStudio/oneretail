@@ -8,6 +8,8 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import axios from "axios";
 import { useForm } from "react-hook-form";
+import RemoveBtn from "@/components/btn/removePage";
+import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
 
 const fetcher = (url) => fetch(url).then((res) => res.json())
 export const LearningTable = () => {
@@ -188,8 +190,11 @@ export const LearningTable = () => {
                                 <td className="px-6 py-4" key={index}>
                                     Point: {learning.point} Coin: {learning.coin}
                                 </td>
-                                <td className="px-6 py-4">
-                                    <button className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit Post</button>
+                                <td className="px-6 py-4" key={index}>
+                                   <div className="flex w-20 items-center justify-between">
+                                        <BorderColorOutlinedIcon />
+                                        <RemoveBtn id={learning._id} />
+                                   </div>
                                 </td>
                             </tr> 
                         </tbody>
