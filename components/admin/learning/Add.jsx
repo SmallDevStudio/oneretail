@@ -36,7 +36,7 @@ const Add = (props) => {
             if (response.data) {
                 setLoading(false);
                 new Alert("สําเร็จ", "เพิ่มข้อมูลเรียบร้อย", "success");
-                router.push('/admin/learning');
+                router.push('/admin/pagedata');
             }
         } catch (error) {
             setLoading(false);

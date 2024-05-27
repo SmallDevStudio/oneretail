@@ -84,7 +84,7 @@ export const LearningTable = () => {
                 <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
                     <div className="flex items-center justify-between flex-column flex-wrap md:flex-row space-y-4 md:space-y-0 pb-4 bg-white dark:bg-gray-900">
                         <div className="relative">
-                            <Link href="/admin/learning/create">
+                            <Link href="/admin/pagedata/create">
                                 <button type="button"
                                     className="border border-[#0056FF] text-[#0056FF] hover:bg-[#0056FF]/10 hover:text-[#0056FF] font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#06C755]/50"
                                 >
