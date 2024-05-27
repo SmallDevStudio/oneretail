@@ -1,12 +1,11 @@
 import { AdminLayout } from "@/themes"
 import Edit from "@/components/admin/learning/Edit"
-import { useParams } from "next/navigation";
 import { useRouter } from "next/router";
 import Loading from "@/components/Loading";
 
 const getPageById = async (id) => {
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}api/pages/${id}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}api/learning/${id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
