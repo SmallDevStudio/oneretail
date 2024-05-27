@@ -3,7 +3,6 @@ import Header from "../global/Header";
 import axios from "axios";
 import Alert from "@/lib/notification/Alert";
 import Loading from "@/components/Loading";
-import useLine from "@/lib/hook/useLine";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
@@ -65,6 +64,7 @@ const Add = (props) => {
                             {errors.title && errors.title.type === "required" && <span>ช่องนี้จำเป็นต้องกรอกข้อมูล</span>}
                     </div>
                     
+                    {/*
                     <div>
                         <label for="slug" className="block ml-3 text-sm font-bold text-gray-700 dark:text-white">Slug</label>
                         
@@ -76,6 +76,7 @@ const Add = (props) => {
                         />
                             {errors.slug && errors.slug.type === "required" && <span>ช่องนี้จำเป็นต้องกรอกข้อมูล</span>}
                         </div>
+                        */}
 
                     <div>
                         <label for="youtubeUrl" className="block ml-3 text-sm font-bold text-gray-700 dark:text-white">Youtube Url</label>
@@ -95,22 +96,23 @@ const Add = (props) => {
                     </div>
 
                     <div className="flex flex-row space-x-10 mb-2">
+
                         <div>
-                            <label for="category" className="block ml-3 text-sm font-bold text-gray-700 dark:text-white">Category</label>
+                            <label for="category" className="block ml-3 text-sm font-bold text-gray-700 dark:text-white">MainPage</label>
                             <input
                                 id="category" type="select" 
                                 className="mb-2 text-sm rounded-full block w-full p-2.5 bg-[#D9D9D9] border-1 border-gray-300 focus:ring-0.5 focus:ring-[#0056FF]"
-                                placeholder="เพิ่มประเภท" 
+                                placeholder="เพิ่มหน้า" 
                                 {...register("caterogy")}
                             />
                         </div>
 
                         <div>
-                            <label for="subcategory" className="block ml-3 text-sm font-bold text-gray-700 dark:text-white">Sub Category</label>
+                            <label for="subcategory" className="block ml-3 text-sm font-bold text-gray-700 dark:text-white">Sub Page</label>
                             <input
                                 id="subcategory" type="select" 
                                 className="mb-2 text-sm rounded-full block w-full p-2.5 bg-[#D9D9D9] border-1 border-gray-300 focus:ring-0.5 focus:ring-[#0056FF]"
-                                placeholder="เพิ่มประเภทย้อย" 
+                                placeholder="เพิ่มเมนูยย่อย" 
                                 {...register("subCaterogy")}
                             />
                         </div>

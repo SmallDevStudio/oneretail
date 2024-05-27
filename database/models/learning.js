@@ -3,7 +3,7 @@ import mongoose, { Schema } from "mongoose";
 const LearningSchema = new Schema({
     title: { type: String, required: true },
     description: { type: String, required: true },
-    slug: { type: String, required: true },
+    slug: { type: String },
     youtubeUrl: { type: String},
     thumbnailUrl: { type: String},
     caterogy: { type: String, default: '' },
