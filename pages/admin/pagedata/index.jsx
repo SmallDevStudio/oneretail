@@ -1,11 +1,10 @@
 import { AdminLayout } from "@/themes";
 import { useState } from "react";
 import Header from "@/components/admin/global/Header";
-import Add from "@/components/admin/learning/Add";
 import LearningTable from "@/components/admin/learning/LearningTable";
 import { Suspense } from "react";
 import Loading from "@/components/Loading";
-const Learning = () => {
+const PageData = () => {
     
 
     return (
@@ -23,6 +22,6 @@ const Learning = () => {
     );
 }
 
-export default Learning;
+export default PageData;
 
-Learning.getLayout = (page) => <AdminLayout>{page}</AdminLayout>;
+PageData.getLayout = (page) => <AdminLayout>{page}</AdminLayout>;
