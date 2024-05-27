@@ -22,27 +22,6 @@ export const LearningTable = () => {
 
        console.log('usersData:', data.learning);
 
-    function deleteLearning(id) {
-        fetch('/api/learning', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ id })
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.success) {
-                    new Alert("สําเร็จ", "ลบข้อมูลเรียบร้อย", "success");
-                    router.push('/admin/learning');
-                } else {
-                    new Alert("ผิดพลาด", "ลบข้อมูลไม่สําเร็จ", "error");
-                }
-            })
-            .catch((error) => {
-                new Alert("ผิดพลาด", "ลบข้อมูลไม่สําเร็จ", "error");
-            });
-    }
 
     const handleOnClickActive = async (id, currentPublicsher) => {
        if (currentPublicsher === true) {
@@ -192,7 +171,9 @@ export const LearningTable = () => {
                                 </td>
                                 <td className="px-6 py-4" key={index}>
                                    <div className="flex w-20 items-center justify-between">
-                                        <BorderColorOutlinedIcon />
+                                        <button onClick={() => router.push(`/admin/pagedata/${learning._id}`)}>
+                                            <BorderColorOutlinedIcon/>
+                                        </button>
                                         <RemoveBtn id={learning._id} />
                                    </div>
                                 </td>

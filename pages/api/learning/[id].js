@@ -13,8 +13,11 @@ export default async function handler(req, res) {
         }
     } else if (req.method === "PUT") {
         const { id } = req.query;
+        const { title, description, slug, youtubeUrl, thumbnailUrl, category, subCategory, point, coin, options, user_created_id } = req.body;
         await connetMongoDB();
-        const learning = await Learning.findOneAndUpdate({ _id: id }, req.body, { new: true });
+        const learning = await Learning.findOneAndUpdate({ _id: id }, 
+            { title, description, slug, youtubeUrl, thumbnailUrl, category, subCategory, point, coin, options, user_created_id }, 
+            { new: true });
         if (!learning) {
             res.status(404).json({ message: "learning not found" });
         } else {
