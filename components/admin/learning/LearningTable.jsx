@@ -12,15 +12,15 @@ import RemoveBtn from "@/components/btn/removePage";
 import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
 
 const fetcher = (url) => fetch(url).then((res) => res.json())
-export const LearningTable = () => {
+export const ContentsTable = () => {
     const router = useRouter();
     const { register, handleSubmit } = useForm();
 
-    const { data, error, isLoading } = useSWR('/api/learning', fetcher);
+    const { data, error, isLoading } = useSWR('/api/contents', fetcher);
        if (error) return <Alert error={error} />
        if (isLoading) return <Loading />
 
-       console.log('usersData:', data.learning);
+       console.log('usersData:', data.contents);
 
 
     const handleOnClickActive = async (id, currentPublicsher) => {
@@ -28,7 +28,7 @@ export const LearningTable = () => {
            try {
             const response = await axios({
                 method: 'PUT',
-                url: '/api/learning'+ id,
+                url: '/api/contents'+ id,
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
@@ -44,7 +44,7 @@ export const LearningTable = () => {
         try {
             const response = await axios({
                 method: 'PUT',
-                url: '/api/learning'+ id,
+                url: '/api/contents'+ id,
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
@@ -120,7 +120,7 @@ export const LearningTable = () => {
                             </tr>
                         </thead>
                         {data &&
-                            data.learning.map((learning, index) => {
+                            data.contents.map((contents, index) => {
                             return (
                             <>
                         <tbody>
@@ -137,44 +137,44 @@ export const LearningTable = () => {
                                 <th scope="row" className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
                                     <Image key={index}
                                         class="w-10 h-10 rounded-full" 
-                                        src={learning.thumbnailUrl} 
+                                        src={contents.thumbnailUrl} 
                                         alt="learning thumbnail"
                                         width={100}
                                         height={100}
                                     />
                                 </th>
                                 <td key={index} className="px-6 py-4">
-                                    {learning.title}
+                                    {contents.title}
                                 </td>
                                 <td className="px-6 py-4" key={index}>
-                                    {learning.description}
+                                    {contents.description}
                                 </td>
                                 <td className="px-6 py-4" key={index}>
-                                    {learning.category}
+                                    {contents.category}
                                 </td>
                                 <td className="px-6 py-4" key={index}>
-                                    {learning.subCategory}
+                                    {contents.subCategory}
                                 </td>
                                 <td className="px-6 py-4">
                                     <div className="flex items-center">
                                         
                                             <button className="w-30 border bg-[#0056FF] rounded-full px-2 py-1 text-white hover:bg-[#F68B1F] focus:ring-4 focus:ring-blue-300 font-medium text-xs leading-tight dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                                                onChange={() => handleOnClickActive(learning._id, learning.publicsher)}
+                                                onChange={() => handleOnClickActive(contents._id, contents.publicsher)}
                                             >
-                                                {learning.publicsher === true ? "Active" : "Deactive"}
+                                                {contents.publicsher === true ? "Active" : "Deactive"}
                                             </button>
 
                                     </div>
                                 </td>
                                 <td className="px-6 py-4" key={index}>
-                                    Point: {learning.point} Coin: {learning.coin}
+                                    Point: {contents.point} Coin: {contents.coin}
                                 </td>
                                 <td className="px-6 py-4" key={index}>
                                    <div className="flex w-20 items-center justify-between">
-                                        <button onClick={() => router.push(`/admin/pagedata/${learning._id}`)}>
+                                        <button onClick={() => router.push(`/admin/pagedata/${contents._id}`)}>
                                             <BorderColorOutlinedIcon/>
                                         </button>
-                                        <RemoveBtn id={learning._id} />
+                                        <RemoveBtn id={contents._id} />
                                    </div>
                                 </td>
                             </tr> 
@@ -189,4 +189,4 @@ export const LearningTable = () => {
     );
 }
 
-export default LearningTable;
+export default ContentsTable;

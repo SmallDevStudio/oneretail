@@ -13,7 +13,7 @@ const Add = (props) => {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const router = useRouter();
     const handleChange = (e) => {
-        setLearning({...learning, [e.target.id]: e.target.value});
+        setLearning({...contents, [e.target.id]: e.target.value});
         console.log(e.target.value);
     }
 
@@ -24,7 +24,7 @@ const Add = (props) => {
         try {
             const response = await axios({
                 method: 'POST',
-                url: process.env.NEXT_PUBLIC_BASE_URL + '/api/learning',
+                url: process.env.NEXT_PUBLIC_BASE_URL + '/api/contents',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },

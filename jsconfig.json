@@ -4,6 +4,8 @@
       "@/*": ["./*"],
       "@/api/*": ["./api/*"],
       "@/database/*": ["./database/*"],
+      "@/lib/*": ["./lib/*"],
+      "@/services/*": ["./services/*"],
     }
   }
 }

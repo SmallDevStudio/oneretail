@@ -5,9 +5,9 @@ import Image from 'next/image';
 import LineLogoIcon from '@/resources/icons/LineLogoIcon';
 
 export default function HomePage(props) {
-  const { status } = props
+  // const { status } = props
   const { login, logout } = useLine();
-  const router = useRouter();
+  // const router = useRouter();
 
  // if (status === 'registered') {
    // return router.push('/auth/adduser');
