@@ -11,6 +11,7 @@ export default function Callback() {
   const { profile } = useLine();
 
   useEffect(() => {
+    router.push("/register");
   }, []);
 
   return loading ? <Loading /> : null;
