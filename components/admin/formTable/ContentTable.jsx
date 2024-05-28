@@ -12,7 +12,7 @@ import RemoveBtn from "@/components/btn/removePage";
 import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
 
 const fetcher = (url) => fetch(url).then((res) => res.json())
-export const Table = () => {
+export const ContentTable = () => {
     const router = useRouter();
     const { register, handleSubmit } = useForm();
 
@@ -23,8 +23,8 @@ export const Table = () => {
        console.log('usersData:', data.contents);
 
 
-    const handleOnClickActive = async (id, currentPublicsher) => {
-       if (currentPublicsher === true) {
+    const handleOnClickActive = async (id, currentPublisher) => {
+       if (currentPublisher === true) {
            try {
             const response = await axios({
                 method: 'PUT',
@@ -36,7 +36,7 @@ export const Table = () => {
                     publicsher: false
                 }
             })
-            console.log('currentPublicsher:', response);
+            console.log('currentPublisher:', response);
            } catch (error) {
             console.log(error);
            }
@@ -52,7 +52,7 @@ export const Table = () => {
                     publicsher: true
                 }
             })
-            console.log('currentPublicsher:', response);
+            console.log('currentPublisher:', response);
            } catch (error) {
             console.log(error);
            }
@@ -65,11 +65,11 @@ export const Table = () => {
                 <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
                     <div className="flex items-center justify-between flex-column flex-wrap md:flex-row space-y-4 md:space-y-0 pb-4 bg-white dark:bg-gray-900">
                         <div className="relative">
-                            <Link href="/admin/pagedata/create">
+                            <Link href="/admin/contents/add">
                                 <button type="button"
                                     className="border border-[#0056FF] text-[#0056FF] hover:bg-[#0056FF]/10 hover:text-[#0056FF] font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#06C755]/50"
                                 >
-                                    เพิ่มโพส
+                                    เพิ่มเนื้อหา
                                 </button>
                             </Link>
                         </div>
@@ -109,7 +109,7 @@ export const Table = () => {
                                     SubCategory
                                 </th>
                                 <th scope="col" className="px-6 py-3">
-                                    Publicsher
+                                    Publisher
                                 </th>
                                 <th scope="col" className="px-6 py-3">
                                    Points Coin
@@ -129,16 +129,15 @@ export const Table = () => {
                                     <div key={index} className="flex items-center">
                                         <input id="checkbox-table-search-1" 
                                             type="checkbox"
-                                            value={learning._id}
+                                            value={contents._id}
                                             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"/>
                                         <label for="checkbox-table-search-1" className="sr-only">checkbox</label>
                                     </div>
                                 </td>
                                 <th scope="row" className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
                                     <Image key={index}
-                                        class="w-10 h-10 rounded-full" 
                                         src={contents.thumbnailUrl} 
-                                        alt="learning thumbnail"
+                                        alt="contents thumbnail"
                                         width={100}
                                         height={100}
                                     />
@@ -159,9 +158,9 @@ export const Table = () => {
                                     <div className="flex items-center">
                                         
                                             <button className="w-30 border bg-[#0056FF] rounded-full px-2 py-1 text-white hover:bg-[#F68B1F] focus:ring-4 focus:ring-blue-300 font-medium text-xs leading-tight dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                                                onChange={() => handleOnClickActive(contents._id, contents.publicsher)}
+                                                onChange={() => handleOnClickActive(contents._id, contents.publisher)}
                                             >
-                                                {contents.publicsher === true ? "Active" : "Deactive"}
+                                                {contents.publisher === true ? "Active" : "Deactive"}
                                             </button>
 
                                     </div>
@@ -189,4 +188,4 @@ export const Table = () => {
     );
 }
 
-export default ContentsTable;
+export default ContentTable;

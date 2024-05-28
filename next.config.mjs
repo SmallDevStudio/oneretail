@@ -24,6 +24,10 @@ const nextConfig = {
             protocol: 'https',
             hostname: 'one-retail.vercel.app',
           },
+          {
+            protocol: 'https',
+            hostname: 'i.ytimg.com',
+          },
         ],
         
       },

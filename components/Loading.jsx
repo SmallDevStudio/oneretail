@@ -1,21 +1,22 @@
 import CircularProgress from '@mui/material/CircularProgress';
-import Box from '@mui/material/Box';
-import LogoImage from './LogoImage';
+import Image from 'next/image';
 
 export default function Loading() {
-  return (
-    <div className="flex justify-center items-center h-screen">
-      <div className='releative w-[200px] h-[200px]'>
-        <LogoImage 
-          src="/dist/img/logo-one-retail.png"
-          alt="One Retail Logo"
-          width={200}
-          height={200}
-        />
-      </div>
-        <Box sx={{ display: 'flex' }}>
-        <CircularProgress />
-        </Box>
-    </div>
-  );
+    return (
+        <div
+            style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100vh',
+            }}
+        >
+            <div className='text-center justify-center items-center'>
+                <div className='flex mb-10'>
+                    <Image src="/dist/img/logo-one-retail.png" alt="one Retail Logo" width={150} height={150} priority/>
+                </div>
+                <CircularProgress />
+            </div>
+        </div>
+    );
 }

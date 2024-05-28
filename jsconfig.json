@@ -5,7 +5,9 @@
       "@/api/*": ["./api/*"],
       "@/database/*": ["./database/*"],
       "@/lib/*": ["./lib/*"],
-      "@/services/*": ["./services/*"],
+      "@/components/*": ["./components/*"],
+      "@/pages/*": ["./pages/*"],
+      "@/styles/*": ["./styles/*"]
     }
   }
 }

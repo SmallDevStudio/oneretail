@@ -1,8 +1,7 @@
 "use client"
-import { useState, useEffect } from "react";
 import { AdminLayout } from "@/themes";
 import Header from "@/components/admin/global/Header";
-import { UserTable } from "@/components/admin/users/UserTable";
+import { UserTable } from "@/components/admin/formTable/UserTable";
 import { Suspense } from "react";
 import Loading from "@/components/Loading";
 export default function Users() {

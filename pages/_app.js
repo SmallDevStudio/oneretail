@@ -1,18 +1,16 @@
-import { getIronSession } from "iron-session";
-import { sessionOptions } from "@/lib/session";
-import useLine from "@/lib/hook/useLine";
-import useSession from "@/lib/hook/useSession";
 import "@/styles/globals.css";
 import { Suspense } from "react";
+import useSession from "@/lib/hook/useSession";
+import { useRouter } from "next/router";
+import Loading from "@/components/Loading";
 
 function App({ Component, pageProps }) {
-  const { session } = useSession();
-  console.log('session:', session);
-  // const { liffObject, status } = useLine();
+ // const { session, loading } = useSession();
+ // const router = useRouter();
 
-  // pageProps.liffObject = liffObject;
-  // pageProps.status = status;
-
+ // if (loading) return <Loading />;
+ // if (!session) return router.push("/login");
+  
   const getLayout = Component.getLayout || ((page) => page);
 
   return getLayout(
