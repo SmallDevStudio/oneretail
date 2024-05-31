@@ -115,6 +115,15 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                 title="จัดการเนื้อหา"
                 icon={<FaFileAlt />}
               >
+
+                <Item
+                  title="จัดการเนื้อหา"
+                  to="/admin/contents"
+                  icon={<FaFileAlt />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+
                 <Item
                   title="จัดหมวดหมู่"
                   to="/admin/contents/category"
@@ -139,14 +148,6 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                   setSelected={setSelected}
                 />
                 
-                <Item
-                  title="จัดการเนื้อหา"
-                  to="/admin/contents"
-                  icon={<FaFileAlt />}
-                  selected={selected}
-                  setSelected={setSelected}
-                />
-
               </SubMenu>
               
               <Item
