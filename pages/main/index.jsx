@@ -21,7 +21,7 @@ export default function MainPage() {
                 <div className="relative p-5 flex items-center text-center justify-center mt-5 px-1 pz-1">
                     <MainIconMenu />
                 </div>
-                <div className="mt-10">
+                <div className="mt-10 mb-[50px]">
                     <FooterContant />
                 </div>
             </main>
