@@ -1,9 +1,15 @@
 import './dist/css/app.module.css';
+import AppMenu from '@/components/menu/AppMenu';
 
 export default function AppLayout({ children }) {
     return (
-        <div>
-            {children}
-        </div>
+        <>
+            <div className="app">
+                {children}
+            </div>
+            <nav className="nav">
+                <AppMenu />
+            </nav>
+        </>
     )
 }

@@ -1,52 +1,45 @@
-import AppMenu from "@/components/menu/AppMenu"
+import React from "react";
+import YouTube from "react-youtube";
+import { AppLayout } from "@/themes";
 export default function Learning() {
+    const opts = {
+        height: "250px",
+        width: "100%",
+        playerVars: {
+            autoplay: 1,
+            loop: 1,
+            autohide: 1,
+            modestbranding: 1,
+            controls: 0,
+            showinfo: 0,
+        },
+    };
 
     return (
-        <main className="flex flex-col w-[100vw] h-[100vh] bg-gray-100 dark:bg-gray-900">
-                    <div className="relative p-3 bg-gray-200 top-[-40px]">
-                <div className="flex items-center text-center justify-center mt-[60px] p-2 px-1 pz-1">
-                    <h1 className="text-[35px] font-black text-[#0056FF] dark:text-white">Learning</h1>
+        <main className="flex flex-col dark:bg-gray-900">
+            <div className="flex items-center text-center justify-center mt-5">
+                <div className="flex items-center text-center justify-center p-2 px-1 pz-1">
+                    <h1 className="text-[35px] font-black text-[#0056FF]" style={{ fontFamily: "Ekachon", fontSmoothing: "auto", fontWeight: "black" }}>Learning</h1>
                 </div>
+            </div>
+            <div className="flex flex-row justify-between w-[100vw] px-10 font-bold">
+                <span>ทั้งหมด</span>
+                <span>เรื่องน่าเรียน</span>
+                <span>เรื่องน่ารู้</span>
             </div>
 
             <div className="flex flex-col justify-center items-center w-[100vw] p-2">
-                <div className="flex flex-col">
-                    <div>
-                        <button className="flex flex-col items-center justify-center text-3xl font-black text-[#0056FF] p-2 mb-4 w-[350px] h-[80px] bg-[#D9D9D9] border-2 border-gray-300 rounded-full dark:bg-gray-800 dark:border-gray-600">
-                                CYB
-                        </button>
-
-                        <button className="flex flex-col items-center justify-center text-3xl font-black text-[#0056FF] p-2 mb-4 w-[350px] h-[80px] bg-[#D9D9D9] border-2 border-gray-300 rounded-full dark:bg-gray-800 dark:border-gray-600">
-                            Lorem ipsum
-                        </button>
-
-                        <button className="flex flex-col items-center justify-center text-3xl font-black text-[#0056FF] p-2 mb-4 w-[350px] h-[80px] bg-[#D9D9D9] border-2 border-gray-300 rounded-full dark:bg-gray-800 dark:border-gray-600">
-                            Lorem ipsum
-                        </button>
-
-                        <button className="flex flex-col items-center justify-center text-3xl font-black text-[#0056FF] p-2 mb-4 w-[350px] h-[80px] bg-[#D9D9D9] border-2 border-gray-300 rounded-full dark:bg-gray-800 dark:border-gray-600">
-                            Lorem ipsum
-                        </button>
-
-                        <button className="flex flex-col items-center justify-center text-3xl font-black text-[#0056FF] p-2 mb-4 w-[350px] h-[80px] bg-[#D9D9D9] border-2 border-gray-300 rounded-full dark:bg-gray-800 dark:border-gray-600">
-                            Lorem ipsum
-                        </button>
-
-                        <button className="flex flex-col items-center justify-center text-3xl font-black text-[#0056FF] p-2 mb-4 w-[350px] h-[80px] bg-[#D9D9D9] border-2 border-gray-300 rounded-full dark:bg-gray-800 dark:border-gray-600">
-                            Lorem ipsum
-                        </button>
-
-                        <button className="flex flex-col items-center justify-center text-3xl font-black text-[#0056FF] p-2 mb-4 w-[350px] h-[80px] bg-[#D9D9D9] border-2 border-gray-300 rounded-full dark:bg-gray-800 dark:border-gray-600">
-                            Lorem ipsum
-                        </button>
-
-                        <button className="flex flex-col items-center justify-center text-3xl font-black text-[#0056FF] p-2 mb-4 w-[350px] h-[80px] bg-[#D9D9D9] border-2 border-gray-300 rounded-full dark:bg-gray-800 dark:border-gray-600">
-                            Lorem ipsum
-                        </button>
+                <div className="flex flex-col w-[100vw]">
+                    <div className="relative w-full justify-center items-center">
+                        <YouTube videoId="YzEGodXLdxA" opts={opts} />
                     </div>
+                        
                 </div>
             </div>
-            <AppMenu />
+            
         </main>
     )
 }
+
+Learning.getLayout = (page) => <AppLayout>{page}</AppLayout>;
+Learning.auth = true;

@@ -1,5 +1,6 @@
 import Image from "next/image"
 import AppMenu from "@/components/menu/AppMenu"
+import { AppLayout } from "@/themes"
 export default function Redeem() {
     return (
         <main className="flex flex-col bg-white dark:bg-gray-900 mb-[50px]">
@@ -175,7 +176,16 @@ export default function Redeem() {
                 </div>
 
             </div>
-            <AppMenu />
         </main>
     )
 }
+
+Redeem.getLayout = function getLayout(page) {
+    return (
+        <AppLayout>
+            {page}
+        </AppLayout>
+    )
+}
+
+Redeem.auth = true;

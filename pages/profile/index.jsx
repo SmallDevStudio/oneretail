@@ -34,7 +34,7 @@ export default function Profile() {
             };
             fetchUser();
         }
-    }, []);
+    }, [session]);
 
 
     return (
@@ -58,7 +58,7 @@ export default function Profile() {
                         </div>
                         <div className="flex flex-col ml-3 flex-1">
                             <div className="flex flex-row justify-between">
-                                <h1 className="text-lg font-black mb-[-5px] text-[#0056FF] dark:text-white">{profile.user.fullname}</h1>
+                                <h1 className="text-lg font-black mb-[-5px] text-[#0056FF] dark:text-white">{profile?.user?.fullname}</h1>
                                 <h1 className="text-lg font-semibold text-[#F2871F]">Level.1</h1>
                             </div>
                             <ProgressBar 
@@ -178,12 +178,12 @@ export default function Profile() {
                             initialAnimation
                         />
                     </div>
-                        <div className="flex relative justify-center items-center w-full top-[-130px]">
+                        <div className="flex relative justify-center items-center w-full top-[-180px]">
                             <div className="flex flex-col justify-center items-center">
-                                <span className="text-xl font-black text-[#0056FF] dark:text-white">
+                                <span className="text-xl font-black text-gray-900 dark:text-white">
                                     ภาพรวมอุณหภูมิความสุข 
                                 </span>
-                                <span className="text-xl font-black text-[#0056FF] dark:text-white">
+                                <span className="text-xl font-black text-gray-900 dark:text-white">
                                     ในการทำงานของคุณ
                                 </span>
                             </div>

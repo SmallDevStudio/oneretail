@@ -1,6 +1,7 @@
+import React from "react";
 import { AppLayout } from "@/themes";
 
-export default function LeaderBoard() {
+export default function Games() {
     return (
         <>
             <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center ">
@@ -8,12 +9,14 @@ export default function LeaderBoard() {
                     Coming Soon
                 </h1>
             </div>
-        </>
+        </>  
     );
 }
 
-LeaderBoard.getLayout = function getLayout(page) {
+
+Games.getLayout = function getLayout(page) {
     return <AppLayout>{page}</AppLayout>;
 }
 
-LeaderBoard.auth = true
+Games.auth = true;
+
