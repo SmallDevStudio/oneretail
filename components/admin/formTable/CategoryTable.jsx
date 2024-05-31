@@ -113,7 +113,7 @@ const CategoryTable = () => {
 
   return (
     <div className={styles.container}>
-
+      
       <table {...getTableProps()} className={styles.table}>
         <thead>
           {headerGroups.map(headerGroup => (
@@ -141,7 +141,7 @@ const CategoryTable = () => {
           })}
         </tbody>
       </table>
-     
+      
       <h2>Add New Category</h2>
       <input 
         type="text" 

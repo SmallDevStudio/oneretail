@@ -1,5 +1,6 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
-import Group from "@/database/models/Group";
+import Content from "@/database/models/Content";
+import Users from "@/database/models/users";
 
 export default async function handler(req, res) {
     await connetMongoDB();
@@ -9,16 +10,16 @@ export default async function handler(req, res) {
   switch (method) {
     case 'GET':
       try {
-        const groups = await Group.find({});
-        res.status(200).json(groups);
+        const contents = await Content.find({});
+        res.status(200).json(contents);
       } catch (error) {
         res.status(400).json({ success: false });
       }
       break;
     case 'POST':
       try {
-        const group = await Group.create(req.body);
-        res.status(201).json(group);
+        const content = await Content.create(req.body);
+        res.status(201).json(content);
       } catch (error) {
         res.status(400).json({ success: false });
       }
@@ -26,8 +27,8 @@ export default async function handler(req, res) {
     case 'PUT':
       try {
         const { id, ...data } = req.body;
-        const group = await Group.findByIdAndUpdate(id, data, { new: true });
-        res.status(200).json(group);
+        const content = await Content.findByIdAndUpdate(id, data, { new: true });
+        res.status(200).json(content);
       } catch (error) {
         res.status(400).json({ success: false });
       }
@@ -35,7 +36,7 @@ export default async function handler(req, res) {
     case 'DELETE':
       try {
         const { id } = req.query;
-        await Group.findByIdAndDelete(id);
+        await Content.findByIdAndDelete(id);
         res.status(204).end();
       } catch (error) {
         res.status(400).json({ success: false });

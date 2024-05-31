@@ -1,5 +1,5 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
-import SubCategory from "@/database/models/subcategories";
+import Subcategory from "@/database/models/Subcategory";
 
 export default async function handler(req, res) {
   await connetMongoDB();
@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   switch (method) {
     case 'GET':
       try {
-        const subcategories = await SubCategory.find({});
+        const subcategories = await Subcategory.find({}).populate('category', 'title');
         res.status(200).json(subcategories);
       } catch (error) {
         res.status(400).json({ success: false });
@@ -17,8 +17,8 @@ export default async function handler(req, res) {
       break;
     case 'POST':
       try {
-        const subcategories = await SubCategory.create(req.body);
-        res.status(201).json(subcategories);
+        const subcategory = await Subcategory.create(req.body);
+        res.status(201).json(subcategory);
       } catch (error) {
         res.status(400).json({ success: false });
       }
@@ -26,8 +26,8 @@ export default async function handler(req, res) {
     case 'PUT':
       try {
         const { id, ...data } = req.body;
-        const subcategories = await SubCategory.findByIdAndUpdate(id, data, { new: true });
-        res.status(200).json(subcategories);
+        const subcategory = await Subcategory.findByIdAndUpdate(id, data, { new: true });
+        res.status(200).json(subcategory);
       } catch (error) {
         res.status(400).json({ success: false });
       }
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
     case 'DELETE':
       try {
         const { id } = req.query;
-        await SubCategory.findByIdAndDelete(id);
+        await Subcategory.findByIdAndDelete(id);
         res.status(204).end();
       } catch (error) {
         res.status(400).json({ success: false });

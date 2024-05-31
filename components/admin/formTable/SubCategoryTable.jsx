@@ -7,7 +7,7 @@ const SubcategoryTable = () => {
   const [data, setData] = useState([]);
   const [categories, setCategories] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
-  const [newSubcategory, setNewSubcategory] = useState({ title: '', subtitle: '', categories: '' });
+  const [newSubcategory, setNewSubcategory] = useState({ title: '', subtitle: '', category: '' });
 
   useEffect(() => {
     fetchSubcategories();
@@ -107,11 +107,20 @@ const SubcategoryTable = () => {
     headerGroups,
     prepareRow,
     page,
+    canPreviousPage,
+    canNextPage,
+    pageOptions,
+    pageCount,
+    gotoPage,
+    nextPage,
+    previousPage,
+    setPageSize,
     state: { pageIndex, pageSize }
   } = useTable({ columns, data }, usePagination);
 
   return (
     <div className={styles.container}>
+     
       <table {...getTableProps()} className={styles.table}>
         <thead>
           {headerGroups.map(headerGroup => (
@@ -139,7 +148,7 @@ const SubcategoryTable = () => {
           })}
         </tbody>
       </table>
-     
+      
       <h2>Add New Subcategory</h2>
       <input 
         type="text" 

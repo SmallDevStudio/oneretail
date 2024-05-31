@@ -5,17 +5,27 @@ import { useRouter } from "next/router";
 import RequireAuth from "@/components/RequireAuth";
 import Image from "next/image";
 
-
 export default function Home() {
     const { data: session } = useSession();
     const router = useRouter();
 
+    useEffect(() => {
+        if (session) {
+            const userId = session.user.id;
+            const fetchUser = async () => {
+                const res = await fetch(`/api/user/get/${userId}`);
+                if (!res) {
+                    return router.push("/register");
+                }
+                return router.push("/main");
+            }
+
+            fetchUser();
+        }
+    }, [router, session]);
+
     if (!session) {
-        return (
-            <div className="text-3xl font-bold underline">
-                <Link href="/login">Please sign in </Link>
-            </div>
-        );
+        return router.push("/login");
     }
     return (
         <div className="flex flex-col justify-center items-center text-center mt-10">

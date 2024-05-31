@@ -190,7 +190,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
 
                   <Item
                   title="จัดการหน้าแรก"
-                  to="/admin/home"
+                  to="/admin/homeoptions"
                   icon={<FaHome />}
                   selected={selected}
                   setSelected={setSelected}

@@ -1,9 +1,9 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
-import Category from "@/database/models/categories";
+import Category from "@/database/models/Category";
 
 export default async function handler(req, res) {
   await connetMongoDB();
-
+  
   const { method } = req;
 
   switch (method) {
@@ -17,8 +17,8 @@ export default async function handler(req, res) {
       break;
     case 'POST':
       try {
-        const categories = await Category.create(req.body);
-        res.status(201).json(categories);
+        const category = await Category.create(req.body);
+        res.status(201).json(category);
       } catch (error) {
         res.status(400).json({ success: false });
       }
@@ -26,8 +26,8 @@ export default async function handler(req, res) {
     case 'PUT':
       try {
         const { id, ...data } = req.body;
-        const categories = await Category.findByIdAndUpdate(id, data, { new: true });
-        res.status(200).json(categories);
+        const category = await Category.findByIdAndUpdate(id, data, { new: true });
+        res.status(200).json(category);
       } catch (error) {
         res.status(400).json({ success: false });
       }

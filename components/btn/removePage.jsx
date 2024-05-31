@@ -7,7 +7,7 @@ export default function RemoveBtn({ id }) {
 
         if (confirmed) {
             try {
-                await axios.delete(`/api/contents/${id}`);
+                await axios.delete(`/api/content/${id}`);
                 window.location.reload();
             } catch (error) {
                 console.error(error);

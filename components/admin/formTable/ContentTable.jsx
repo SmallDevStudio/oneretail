@@ -19,49 +19,11 @@ export const ContentTable = () => {
     const { register, handleSubmit } = useForm();
 
     const { data, error, isLoading } = useSWR('/api/contents', fetcher);
-       if (error) return <Alert error={error} />
-       if (isLoading) return <Loading />
-
-       console.log('usersData:', data.contents);
-
-
-    const handleOnClickActive = async (id, currentPublisher) => {
-       if (currentPublisher === true) {
-           try {
-            const response = await axios({
-                method: 'PUT',
-                url: '/api/contents'+ id,
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                data: {
-                    publicsher: false
-                }
-            })
-            console.log('currentPublisher:', response);
-           } catch (error) {
-            console.log(error);
-           }
-       } else {
-        try {
-            const response = await axios({
-                method: 'PUT',
-                url: '/api/contents'+ id,
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                data: {
-                    publicsher: true
-                }
-            })
-            console.log('currentPublisher:', response);
-           } catch (error) {
-            console.log(error);
-           }
-       }
-    }
-        
-   
+    if (error) return <Alert error={error} />
+    if (isLoading) return <Loading />
+    console.log('usersData:', data);
+       // eslint-disable-next-line react-hooks/rules-of-hooks
+  
     return (
         <>
                 <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -129,10 +91,10 @@ export const ContentTable = () => {
                                     Action
                                 </th>
                             </tr>
-                        </thead>
+                    </thead>
                         {data &&
-                            data.contents.map((contents, index) => {
-                            return (
+                            data.map((contents, index) => {
+                        return (
                             <>
                         <tbody>
                             <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
@@ -183,7 +145,7 @@ export const ContentTable = () => {
                                     Point: {contents.point} Coin: {contents.coin}
                                 </td>
                                 <td className="px-6 py-4" key={index}>
-                                    {contents.author ? <AvatarUsers name={contents.author} /> : "No Author"}
+                                    {contents.author ? <AvatarUsers name={{userId: contents.author}} /> : "No Author"}
                                 </td>
                                 <td className="px-6 py-4" key={index}>
                                     <TimeDisplay time={contents.createdAt} />
@@ -196,16 +158,16 @@ export const ContentTable = () => {
                                         <RemoveBtn id={contents._id} />
                                    </div>
                                 </td>
-                            </tr> 
+                </tr>
                         </tbody>
                         </>
-                );
+              );
             })}
        
-                    </table>
-                </div>
+        </table>
+      </div>
                 </>
     );
 }
-
-export default ContentTable;
+  
+  export default ContentTable;

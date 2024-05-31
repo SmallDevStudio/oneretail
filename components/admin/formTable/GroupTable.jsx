@@ -129,7 +129,7 @@ const GroupTable = () => {
 
   return (
     <div className={styles.container}>
-      <h1>Group Management</h1>
+    
       <table {...getTableProps()} className={styles.table}>
         <thead>
           {headerGroups.map(headerGroup => (
@@ -157,7 +157,7 @@ const GroupTable = () => {
           })}
         </tbody>
       </table>
-
+      
       <h2>Add New Group</h2>
       <input 
         type="text" 
