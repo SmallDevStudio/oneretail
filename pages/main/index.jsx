@@ -1,10 +1,11 @@
 "use client"
-import AppMenu from "@/components/menu/AppMenu";
+import React from "react";
 import MainIconMenu from "@/components/MainIconMenu";
 import FooterContant from "@/components/main/footContent";
 import { Suspense } from "react";
 import Loading from "@/components/Loading";
 import dynamic from "next/dynamic";
+import { AppLayout } from "@/themes";
 
 export default function MainPage() {
     const Carousel = dynamic(() => import("@/components/Carousel"), {
@@ -18,16 +19,16 @@ export default function MainPage() {
                 <div >
                    <Carousel />
                 </div>
-                <div className="relative p-5 flex items-center text-center justify-center mt-5 px-1 pz-1">
+                <div className="relative p-5 flex items-center text-center justify-center mt-2 px-12 py-4">
                     <MainIconMenu />
                 </div>
-                <div className="mt-10 mb-[50px]">
+                <div className="mt-2 mb-[60px]">
                     <FooterContant />
                 </div>
             </main>
-            <nav>
-                <AppMenu />
-            </nav>
         </>
     );
 }
+
+MainPage.getLayout = (page) => <AppLayout>{page}</AppLayout>;
+MainPage.auth = true;

@@ -14,7 +14,7 @@ export default function FooterContant() {
         },
     };
     return (
-        <div className="w-full justify-center items-center mt-5">
+        <div className="w-full justify-center items-center">
             <YouTube videoId="LpW8cTkt7rk" opts={opts} />
         </div>
     );
