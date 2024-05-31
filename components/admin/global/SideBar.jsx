@@ -5,6 +5,9 @@ import Link from "next/link";
 import "react-pro-sidebar/dist/css/styles.css";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import { FaTachometerAlt, FaUsers, FaFileAlt, FaCalendarAlt, FaGift, FaGamepad, FaHome, FaFileSignature, FaFile } from 'react-icons/fa';
+import { LuGroup } from "react-icons/lu";
+import { RiPagesLine } from "react-icons/ri";
+import { MdOutlineSubtitles } from "react-icons/md";
 import Image from "next/image";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
@@ -108,14 +111,43 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                 setSelected={setSelected}
               />
               
-
-              <Item
+              <SubMenu
                 title="จัดการเนื้อหา"
-                to="/admin/contents"
                 icon={<FaFileAlt />}
-                selected={selected}
-                setSelected={setSelected}
-              />
+              >
+                <Item
+                  title="จัดหมวดหมู่"
+                  to="/admin/contents/category"
+                  icon={<RiPagesLine />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+
+                <Item
+                  title="จัดการหมวดหมู่ย่อย"
+                  to="/admin/contents/sub-categories"
+                  icon={<MdOutlineSubtitles />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+
+                <Item
+                  title="จัดการ Groups"
+                  to="/admin/contents/groups"
+                  icon={<LuGroup />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+                
+                <Item
+                  title="จัดการเนื้อหา"
+                  to="/admin/contents"
+                  icon={<FaFileAlt />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+
+              </SubMenu>
               
               <Item
                 title="จัดการ Events"

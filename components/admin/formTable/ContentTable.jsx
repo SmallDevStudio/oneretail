@@ -10,6 +10,8 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import RemoveBtn from "@/components/btn/removePage";
 import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
+import AvatarUsers from "@/components/AvatarUsers";
+import TimeDisplay from "@/components/TimeDisplay";
 
 const fetcher = (url) => fetch(url).then((res) => res.json())
 export const ContentTable = () => {
@@ -109,10 +111,19 @@ export const ContentTable = () => {
                                     SubCategory
                                 </th>
                                 <th scope="col" className="px-6 py-3">
+                                    Groups
+                                </th>
+                                <th scope="col" className="px-6 py-3">
                                     Publisher
                                 </th>
                                 <th scope="col" className="px-6 py-3">
                                    Points Coin
+                                </th>
+                                <th>
+                                    Creator
+                                </th>
+                                <th>
+                                    Date Created
                                 </th>
                                 <th scope="col" className="px-6 py-3">
                                     Action
@@ -154,6 +165,9 @@ export const ContentTable = () => {
                                 <td className="px-6 py-4" key={index}>
                                     {contents.subCategory}
                                 </td>
+                                <td className="px-6 py-4" key={index}>
+                                    {contents.groups}
+                                </td>
                                 <td className="px-6 py-4">
                                     <div className="flex items-center">
                                         
@@ -169,8 +183,14 @@ export const ContentTable = () => {
                                     Point: {contents.point} Coin: {contents.coin}
                                 </td>
                                 <td className="px-6 py-4" key={index}>
+                                    {contents.author ? <AvatarUsers name={contents.author} /> : "No Author"}
+                                </td>
+                                <td className="px-6 py-4" key={index}>
+                                    <TimeDisplay time={contents.createdAt} />
+                                </td>
+                                <td className="px-6 py-4" key={index}>
                                    <div className="flex w-20 items-center justify-between">
-                                        <button onClick={() => router.push(`/admin/pagedata/${contents._id}`)}>
+                                        <button onClick={() => router.push(`/admin/contents/${contents._id}`)}>
                                             <BorderColorOutlinedIcon/>
                                         </button>
                                         <RemoveBtn id={contents._id} />

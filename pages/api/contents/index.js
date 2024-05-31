@@ -7,9 +7,9 @@ export default async function handler(req, res) {
         const contents = await Contents.find();
         res.status(200).json({ contents });
     } else if (req.method === "POST") {
-        const { title, description, youtubeUrl, videoId, slug, thumbnailUrl, duration, durationMinutes, caterogy, subcaterogy } = req.body;
+        const { title, description, youtubeUrl, videoId, slug, thumbnailUrl, duration, categories, subcategories, author, group } = req.body;
         await connetMongoDB();
-        await Contents.create({ title, description, youtubeUrl, videoId, slug, thumbnailUrl, duration, durationMinutes, caterogy, subcaterogy });
+        await Contents.create({ title, description, youtubeUrl, videoId, slug, thumbnailUrl, duration, categories, subcategories, author, group });
         res.status(201).json({ message: "Content created successfully" });
     }
 }

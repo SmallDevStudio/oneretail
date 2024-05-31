@@ -2,7 +2,7 @@ import { AdminLayout } from "@/themes";
 import Header from "@/components/admin/global/Header";
 import { Suspense } from "react";
 import Loading from "@/components/Loading";
-import ContentForm from "@/components/admin/formTable/ContentForm";
+import ContentFormAdd from "@/components/admin/formTable/ContentFormAdd";
 
 const AddContents = () => {
     return (
@@ -10,7 +10,7 @@ const AddContents = () => {
             <Header title="เพิ่มเนื้อหา" subtitle="ข้อมูลเนื้อหา เพิ่มเนื้อหา ลบเนื้อหา แก้ไขเนื้อหา" />
             <div className="p-5">
                 <Suspense fallback={<Loading />}>
-                   <ContentForm />
+                   <ContentFormAdd />
                 </Suspense>
             </div>
         </div>

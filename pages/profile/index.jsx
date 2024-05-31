@@ -4,10 +4,13 @@ import AppMenu from "@/components/menu/AppMenu";
 import CoinPointIcon from "@/resources/icons/CoinPointIcon";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import RequireAuth from "@/components/RequireAuth";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
 export default function Profile() {
+    const { data: session } = useSession();
     return (
         <main className="flex flex-col w-[100vw] overflow-x-scroll dark:bg-gray-900">
 
@@ -193,3 +196,5 @@ export default function Profile() {
         </main>
     );
 }
+
+Profile.auth = true

@@ -4,10 +4,11 @@
       "@/*": ["./*"],
       "@/api/*": ["./api/*"],
       "@/database/*": ["./database/*"],
+      "@/database/models/*": ["./database/models/*"],
       "@/lib/*": ["./lib/*"],
       "@/components/*": ["./components/*"],
       "@/pages/*": ["./pages/*"],
       "@/styles/*": ["./styles/*"]
-    }
+    },
   }
 }

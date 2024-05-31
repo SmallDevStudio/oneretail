@@ -3,22 +3,17 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import Image from 'next/image';
 import Alert from '@/components/notification/Alert';
-import useSession from '@/lib/hook/useSession';
-import useLine from '@/lib/hook/useLine';
+import { useSession } from 'next-auth/react';
+
 
 export default function Register() {
+    const { data: session } = useSession();
     const { register, handleSubmit, formState: { errors } } = useForm();
     const [loadingForm, setLoadingForm] = useState(false);
-    const { profile } = useLine();
     const router = useRouter();
 
-    const userId = profile?.userId;
-    const pictureUrl = profile?.pictureUrl;
-    console.log('Profile:', profile);
-
-    useEffect(() => {
-       
-      }, []);
+    const userId = session?.user?.id;
+    const pictureUrl = session?.user?.image;
 
     const onSubmit = async (data) => {
         setLoadingForm(true);

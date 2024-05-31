@@ -7,8 +7,8 @@ const userSchema = new Schema({
     pictureUrl: { type: String, required: true },
     role: { type: String },
     active: { type: Boolean, default: true },
-    empId: { type: String, required: true },
-    userId: { type: String },
+    empId: { type: String, required: true, unique: true },
+    userId: { type: String, required: true, unique: true },
 }, {
     timestamps: true
 });

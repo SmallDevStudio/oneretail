@@ -1,4 +1,3 @@
-import { duration } from "@mui/material";
 import mongoose, { Schema } from "mongoose";
 
 const contentSchema = new Schema({
@@ -10,16 +9,17 @@ const contentSchema = new Schema({
     thumbnailUrl: { type: String },
     duration: { type: String },
     durationMinutes: { type: Number },
-    caterogy: { type: String },
-    subcaterogy: { type: String },
+    category: { type: Schema.Types.ObjectId, ref: 'categories' },
+    subcategory: { type: Schema.Types.ObjectId, ref: 'subcategories' },
+    group: { type: Schema.Types.ObjectId, ref: 'groups' },
     options: { type: Array },
-    author: { type: Schema.Types.ObjectId, ref: 'users' },
+    author: { type: String, required: true },
     publisher: { type: Boolean, default: true },
     point: { type: Number, default: 0 },
     coins: { type: Number, default: 0 },
     views: { type: Number, default: 0 },
     like: { type: Number, default: 0 },
-    tags: { type: Array },
+    tags: { type: String },
 }, {
     timestamps: true
 });
