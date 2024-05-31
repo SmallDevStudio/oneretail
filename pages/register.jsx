@@ -4,56 +4,59 @@ import { useRouter } from "next/router";
 import Image from 'next/image';
 import Alert from '@/components/notification/Alert';
 import { useSession } from 'next-auth/react';
-
+import Loading from '@/components/Loading';
 
 export default function Register() {
     const { data: session } = useSession();
-    const { register, handleSubmit, formState: { errors } } = useForm();
+    const { register, handleSubmit, formState: { errors }, setValue } = useForm();
     const [loadingForm, setLoadingForm] = useState(false);
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
 
-    const userId = session?.user?.id;
-    const pictureUrl = session?.user?.image;
-
     const onSubmit = async (data) => {
+        setLoading(true);
+        console.log('data:', data);
         setLoadingForm(true);
         try {
             if (!data.agree) {
+                setLoading(false);
                 setLoadingForm(false);
                 Alert.error('กรุณายอมรับเงื่อนไขการใช้งาน');
                 return;
             }
 
-            const response = await fetch('/api/users', {
+            const registerData = {
+                ...data,
+                userId: session?.user?.id,
+                pictureUrl: session?.user?.image,
+                role: 'admin',
+                active: true,
+            };
+
+            console.log('registerData:', registerData);
+
+            const response = await fetch('/api/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    ...data,
-                    userId: userId,
-                    pictureUrl: pictureUrl,
-                    role: 'admin', // set default role
-                    active: true,
-                }),
+                body: JSON.stringify(registerData),
             });
+            console.log('response data:', response.data);
 
             if (!response.ok) {
+                setLoading(false);
                 setLoadingForm(false);
                 Alert.error('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
                 return;
             }
-
-            const responseData = await response.json();
-            localStorage.setItem('ONE_SESSION', JSON.stringify({
-                isLoggedIn: true,
-                isRegistered: true,
-                ...responseData,
-            }));
-            router.push('/main'); // ไปที่หน้าแอปหลักหลังลงทะเบียน
+            setLoading(false);
+            setLoadingForm(false);
+            router.push('/admin'); // ไปที่หน้าแอปหลักหลังลงทะเบียน
             Alert.success('ลงทะเบียนสําเร็จ');
         } catch (error) {
             console.log(error);
+            setLoading(false);
             setLoadingForm(false);
             Alert.error('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
         }
@@ -83,14 +86,14 @@ export default function Register() {
                             <div className="flex flex-col justify-center items-center text-center mb-2" style={{ width: 150, height: 150 }}>
                                 <Image
                                     className="flex rounded-full overflow-hidden border-2 border-[#0056FF]"
-                                    src={pictureUrl ? pictureUrl : '/dist/img/avatar.png'}
+                                    src={session?.user?.image ? session?.user?.image : '/dist/img/avatar.png'}
                                     alt="Profile Avatar"
                                     width={150}
                                     height={150}
                                     priority
                                 />
-                                <input type="hidden" {...register("pictureUrl", { value: pictureUrl })} />
-                                <input type="hidden" {...register("userId", { value: userId })} />
+                                {/* <input type="hidden" {...register("pictureUrl", { value: session?.user?.image })} setValue={session?.user?.image}/>
+                                <input type="hidden" {...register("userId", { value: session?.user?.id })} setValue={session?.user?.id}/> */}
                             </div>
                             <span className="text-xl font-black text-[#1E3060]" style={{ fontFamily: 'Ekachon' }}>
                                 website

@@ -43,12 +43,6 @@ export default function Home() {
                     onClick={() => router.push("/register")}
                 >register</button>
             </div>
-            <div className="mt-5">
-                <button 
-                className="bg-red-500 text-white font-bold py-2 px-4 rounded"
-                onClick={() => router.push("/admin")}
-                >Admin</button>
-            </div>
         </div>
     );
 };

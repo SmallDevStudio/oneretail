@@ -3,6 +3,7 @@ import Users from "@/database/models/users";
 import Emp from "@/database/models/emp";
 
 export default async function handler(req, res) {
+    await connetMongoDB();
     if (req.method === "POST") {
         const { fullname, phone, address, pictureUrl, role, active, empId, userId } = req.body;
 
