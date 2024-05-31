@@ -6,6 +6,6 @@ const groupSchema = new Schema({
     createdAt: { type: Date, default: Date.now },
 });
 
-const Groups = mongoose.models.groups || mongoose.model('groups', groupSchema);
+const Group = mongoose.models.groups || mongoose.model('groups', groupSchema);
 
-export default Groups;
+export default Group;
