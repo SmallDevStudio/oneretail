@@ -1,32 +1,43 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import RequireAuth from "@/components/RequireAuth";
 import Image from "next/image";
+import Loading from "@/components/Loading";
 
 export default function Home() {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
     const router = useRouter();
 
     useEffect(() => {
-        if (session) {
+        if (status === "unauthenticated"){
+            setLoading(false);
+            router.push("/login");
+        } else if (status === "authenticated") {
             const userId = session.user.id;
             const fetchUser = async () => {
-                const res = await fetch(`/api/user/get/${userId}`);
-                if (!res) {
+                const res = await fetch(`/api/users/get/${userId}`);
+                const data = await res.json();
+                if (data === null) {
+                    setLoading(false);
                     return router.push("/register");
                 }
+                localStorage.setItem("user", JSON.stringify(data));
+                setUser(data);
+                setLoading(false);
                 return router.push("/main");
-            }
-
+            };
             fetchUser();
         }
-    }, [router, session]);
+    }, [router, session.user.id, status]);
 
-    if (!session) {
-        return router.push("/login");
-    }
+    if (!session) return router.push("/login");
+    if (!user) return <Loading />;
+    if (loading) return <Loading />;
+    
     return (
         <div className="flex flex-col justify-center items-center text-center mt-10">
             <div>

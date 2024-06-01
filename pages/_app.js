@@ -1,5 +1,6 @@
 import { SessionProvider, getSession } from "next-auth/react";
 import RequireAuth from "@/components/RequireAuth";
+import { UserContext } from "@/lib/context/UserContext";
 import "@/styles/globals.css";
 
 function App({ Component, pageProps: { session, ...pageProps } }) {
@@ -12,10 +13,10 @@ function App({ Component, pageProps: { session, ...pageProps } }) {
 
         {Component.auth ? (
                 <RequireAuth>
-                    <Component {...pageProps} />
+                  <Component {...pageProps} />
                 </RequireAuth>
             ) : (
-                <Component {...pageProps} />
+                  <Component {...pageProps} />
             )}
 
     </SessionProvider>

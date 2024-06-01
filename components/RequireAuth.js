@@ -1,6 +1,7 @@
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
+import Loading from "@/components/Loading";
 
 export default function RequireAuth({ children }) {
     const { data: session, status } = useSession();
@@ -12,7 +13,7 @@ export default function RequireAuth({ children }) {
     }, [session, status, router]);
 
     if (status === "loading") {
-        return <div>Loading...</div>; // Show a loading state while checking auth status
+        return <Loading />; // Show a loading state while checking auth status
     }
 
     if (!session) {

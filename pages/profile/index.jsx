@@ -13,30 +13,7 @@ import Loading from "@/components/Loading";
 
 export default function Profile() {
     const { data: session } = useSession();
-    const [profile, setProfile] = useState(null);
-    const [Loading, setLoading] = useState(false);
-
-    console.log('session:', session);
-    console.log('profile:', profile);
-
-    useEffect(() => {
-        setLoading(true);
-        if (session) {
-            const userId = session.user.id;
-            const fetchUser = async () => {
-                const res = await fetch(`/api/users/${userId}`);
-                if (!res) {
-                    return;
-                }
-                const data = await res.json();
-                setProfile(data);
-                setLoading(false);
-            };
-            fetchUser();
-        }
-    }, [session]);
-
-
+    const profile = JSON.parse(localStorage.getItem('user'));
     return (
         <>
         <main className="flex flex-col w-[100vw] overflow-x-scroll dark:bg-gray-900 mt-5" style={{
@@ -58,7 +35,7 @@ export default function Profile() {
                         </div>
                         <div className="flex flex-col ml-3 flex-1">
                             <div className="flex flex-row justify-between">
-                                <h1 className="text-lg font-black mb-[-5px] text-[#0056FF] dark:text-white">{profile?.user?.fullname}</h1>
+                                <h1 className="text-lg font-black mb-[-5px] text-[#0056FF] dark:text-white">{profile.user.fullname}</h1>
                                 <h1 className="text-lg font-semibold text-[#F2871F]">Level.1</h1>
                             </div>
                             <ProgressBar 
