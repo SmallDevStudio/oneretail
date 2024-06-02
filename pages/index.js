@@ -16,13 +16,25 @@ export default function Home() {
     console.log('isRegisterd:', isRegisterd);
 
     useEffect(() => {
-        const register = localStorage.getItem('isRegisterd');
-        if (register === 'true') {
-            router.push('/main');
-        } else {
+        const userStorager = localStorage.getItem('user');
+        if (userStorager === null) {
+            const userId = session.user.id;
+            const fetchUser = async () => {
+                const res = await fetch(`/api/users/${userId}`);
+                const data = await res.json();
+                localStorage.setItem('user', JSON.stringify(data));
+            };
+            fetchUser();
+            } else {
+              router.push('/main');  
+        }
+    }, [router, session.user.id]);
+
+    useEffect(() => {
+        if (!isRegisterd) {
             router.push('/register');
         }
-    }, [router]);
+    }, [isRegisterd, router]);
 
     return (
         <>
