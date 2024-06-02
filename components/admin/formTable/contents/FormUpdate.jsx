@@ -32,15 +32,6 @@ const FormAdd = () => {
         fetchGroups();
     }, []);
 
-    useEffect(() => {
-        const userStorage = JSON.parse(localStorage.getItem('user'));
-        if (userStorage === null || userStorage === undefined) {
-            return;
-        }
-        setProfile(userStorage);
-    }, []);
-
-    
 
     const fetchCategories = async () => {
         const response = await axios.get('/api/categories');
@@ -76,14 +67,14 @@ const FormAdd = () => {
                     <form className="flex flex-col space-y-2" onSubmit={handleSubmit}>
                         <input type="text" className="border-2 border-gray-300 rounded-lg p-2" id="youtubeUrl" />
                         <input type="text" className="border-2 border-gray-300 rounded-lg p-2" placeholder="ชื่อเนื้อหา" id="title" 
-                            onChange={(e) => setFormData({...formData, title: e.target.value})} ref={titleRef}
+                            
                         />
                         <textarea className="border-2 border-gray-300 rounded-lg p-2" placeholder="รายละเอียดเนื้อหา" id="description" 
-                            onChange={(e) => setFormData({...formData, description: e.target.value})} ref={descriptionRef} onFocus={() => setYoutubeData(null)}
+                            
                         />
                         <div className="flex flex-row">
                             <select className="border-2 border-gray-300 rounded-lg p-2" id="caterogy"
-                                onChange={(e) => setFormData({...formData, categories: e.target.value})}
+                                
                             >
                                 <option value="">เลือกหมวดหมู่</option>
                                 {categorys.length > 0 && categorys.map((category) => (
@@ -111,14 +102,14 @@ const FormAdd = () => {
                         </div>
                         <div className="flex flex-row">
                             <input type="text" className="border-2 border-gray-300 rounded-lg p-2" placeholder="Point" id="Point"
-                                onChange={(e) => setFormData({...formData, point: e.target.value})}
+                            
                             />
                             <input type="text" className="border-2 border-gray-300 rounded-lg p-2" placeholder="Coin" id="Coin"
-                                onChange={(e) => setFormData({...formData, coins: e.target.value})}
+                               
                             />
                         </div>
                             <input type="text" className="border-2 border-gray-300 rounded-lg p-2" placeholder="Tags" id="Tags"
-                                onChange={(e) => setFormData({...formData, tags: e.target.value})}
+                                
                             />
                             <button className="border-2 border-gray-300 rounded-lg p-2 bg-blue-500">บันทึก</button>
                     </form>

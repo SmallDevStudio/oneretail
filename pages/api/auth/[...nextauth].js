@@ -10,8 +10,9 @@ export const authOptions = {
     ],
     pages: {
         signIn: "/login",
+        register: "/register",
+        error: "/auth/error",
     },
-
     secret: process.env.NEXTAUTH_SECRET,
     session: {
         strategy: "jwt",
@@ -28,13 +29,14 @@ export const authOptions = {
         },
         async session({ session, token, user }) {
             session.user = token.user;
+
             return session;
         },
-
         async redirect({ url, baseUrl }) {
             return baseUrl;
         },
     },
+   
 
 };
 

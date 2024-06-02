@@ -12,7 +12,7 @@ export default function Register() {
     const [loadingForm, setLoadingForm] = useState(false);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
-
+    
     const onSubmit = async (data) => {
         setLoading(true);
         console.log('data:', data);
@@ -52,7 +52,7 @@ export default function Register() {
             }
             setLoading(false);
             setLoadingForm(false);
-            router.push('/admin'); // ไปที่หน้าแอปหลักหลังลงทะเบียน
+            router.push('/'); // ไปที่หน้าแอปหลักหลังลงทะเบียน
             Alert.success('ลงทะเบียนสําเร็จ');
         } catch (error) {
             console.log(error);

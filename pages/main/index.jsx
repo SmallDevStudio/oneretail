@@ -7,12 +7,16 @@ import Loading from "@/components/Loading";
 import dynamic from "next/dynamic";
 import { AppLayout } from "@/themes";
 import Head from "next/head";
+import { useSession } from "next-auth/react";
 
 export default function MainPage() {
     const Carousel = dynamic(() => import("@/components/Carousel"), {
         ssr: false,
         loading: () => <Loading />,
-    })
+    });
+
+    const { data: session, status } = useSession();
+    console.log('session:', session);
     
     return (
         <>

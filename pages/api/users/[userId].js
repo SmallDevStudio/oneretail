@@ -7,8 +7,7 @@ export default async function handler(req, res) {
         const { userId } = req.query;
         await connetMongoDB();
         const user = await Users.findOne({ userId });
-        const emp = await Emp.findOne({ empId: user.empId });
-        res.status(200).json({ user, emp });
+        res.status(200).json({ user });
     } else {
         res.status(405).json({ error: "Method not allowed" });
     }
