@@ -125,7 +125,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                 />
 
                 <Item
-                  title="จัดหมวดหมู่"
+                  title="จัดการหมวดหมู่"
                   to="/admin/contents/category"
                   icon={<RiPagesLine />}
                   selected={selected}

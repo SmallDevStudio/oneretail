@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import Loading from "@/components/Loading";
 import dynamic from "next/dynamic";
 import { AppLayout } from "@/themes";
+import Head from "next/head";
 
 export default function MainPage() {
     const Carousel = dynamic(() => import("@/components/Carousel"), {
@@ -15,6 +16,10 @@ export default function MainPage() {
     
     return (
         <>
+            <Head>
+                <title>One Retail</title>
+                <meta http-equiv="Permissions-Policy" content="interest-cohort=()" />
+            </Head>
             <main className="flex flex-col w-[100vw] h-[100vh] bg-gray-100 dark:bg-gray-900">
                 <div >
                    <Carousel />

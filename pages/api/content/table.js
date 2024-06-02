@@ -17,10 +17,11 @@ export default async function handler(req, res) {
             const users = await Users.find({userId: { $in: contents.author }});
             const content = {
                 ...contents._doc,
-                categories,
-                groups,
-                subcategories,
-                users
+                categories: categories.title,
+                subcategories: subcategories.title,
+                groups: groups.name,
+                usersImage: users.pictureUrl,
+                usersId: users.userId
             }
             res.status(200).json(content);
         } catch (error) {

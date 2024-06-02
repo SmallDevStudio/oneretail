@@ -1,5 +1,5 @@
 import { useSession } from "next-auth/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Loading from "@/components/Loading";
 
@@ -9,7 +9,11 @@ export default function RequireAuth({ children }) {
 
     useEffect(() => {
         if (status === "loading") return; // Do nothing while loading
-        if (status === "unauthenticated") router.push("/login"); // Redirect to login if not authenticated
+        if (status === "unauthenticated") {
+            router.push("/login"); // Redirect to login if not authenticated   
+        } else {
+        }
+         // Redirect to login if not authenticated
     }, [session, status, router]);
 
     if (status === "loading") {

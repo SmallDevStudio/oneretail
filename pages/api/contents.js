@@ -1,6 +1,9 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
 import Content from "@/database/models/Content";
 import Users from "@/database/models/users";
+import Category from "@/database/models/Category";
+import Subcategory from "@/database/models/Subcategory";
+import Group from "@/database/models/Group";
 
 export default async function handler(req, res) {
     await connetMongoDB();

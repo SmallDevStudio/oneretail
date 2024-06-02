@@ -8,14 +8,15 @@ export default function Carousel() {
   const settings = {
     accessibility: true,
     autoplay: true,
-    autoplaySpeed: 5000,
+    autoplaySpeed: 3500,
     arrows: false,
     dots: false,
-    infinite: false,
+    infinite: true,
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
     cssEase: 'linear',
+    lazyLoad: 'ondemand',
   };
 
   return (

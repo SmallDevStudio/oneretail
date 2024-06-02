@@ -13,7 +13,9 @@ function App({ Component, pageProps: { session, ...pageProps } }) {
 
         {Component.auth ? (
                 <RequireAuth>
-                  <Component {...pageProps} />
+                  <UserContext.Provider value={pageProps.user}>
+                    <Component {...pageProps} />
+                  </UserContext.Provider>
                 </RequireAuth>
             ) : (
                   <Component {...pageProps} />
