@@ -34,7 +34,7 @@ export default function Stores() {
             <div className="flex flex-col justify-center items-center w-[100vw] p-2">
                 <div className="flex flex-col w-[100vw]">
                     <div className="relative justify-center items-center">
-                       <ReactPlayer url="https://www.youtube.com/watch?v=nrBdA4mNJpQ" loop={true} width={430} height={250}/>
+                       <ReactPlayer url="https://www.youtube.com/watch?v=nrBdA4mNJpQ" loop={true} width={430} height={250} playing={true}/>
                     </div>
 
                     <div className="relative w-full justify-center items-center mt-2">

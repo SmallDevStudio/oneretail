@@ -4,7 +4,7 @@ import ReactPlayer from "react-player/youtube";
 export default function FooterContant() {
     return (
         <div className="w-full justify-center items-center">
-            <ReactPlayer url="https://www.youtube.com/watch?v=LpW8cTkt7rk" loop={true} width={430} height={250}/>
+            <ReactPlayer url="https://www.youtube.com/watch?v=LpW8cTkt7rk" loop={true} width={430} height={250} playing={true}/>
         </div>
     );
 
