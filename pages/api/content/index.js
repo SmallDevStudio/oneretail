@@ -10,19 +10,8 @@ export default async function handler(req, res) {
 
     if (req.method === "GET") {
         try {
-            const contents = await Content.findOne({});
-            const categories = await Category.find({_id: { $in: contents.categories }});
-            const groups = await Group.find({_id: { $in: contents.groups }});
-            const subcategories = await Subcategory.find({_id: { $in: contents.subcategories }});
-            const users = await Users.find({userId: { $in: contents.author }});
-            const content = {
-                ...contents._doc,
-                categories,
-                groups,
-                subcategories,
-                users
-            }
-            res.status(200).json(content);
+            const contents = await Content.find({})
+            res.status(200).json(contents);
         } catch (error) {
             res.status(400).json({ success: false });
         }

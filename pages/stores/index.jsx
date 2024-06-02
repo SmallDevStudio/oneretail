@@ -1,20 +1,9 @@
 import { AppLayout } from "@/themes";
 import React from "react";
-import YouTube from "react-youtube";
+import ReactPlayer from "react-player/youtube";
+import Feed from "@/components/success/feed";
 import Link from "next/link";
 export default function Stores() {
-    const opts = {
-        height: "250px",
-        width: "100%",
-        playerVars: {
-            autoplay: 1,
-            loop: 1,
-            autohide: 1,
-            modestbranding: 1,
-            controls: 0,
-            showinfo: 0,
-        },
-    };
 
     return (
         <main className="flex flex-col dark:bg-gray-900">
@@ -27,15 +16,29 @@ export default function Stores() {
                     </span>
                 </div>
             </div>
-            <div className="flex flex-row justify-between w-[100vw] px-20 font-bold">
-                <span>Secret Sauce</span>
-                <span>Share your story</span>
+            <div className="flex text-sm font-medium text-center items-center justify-center text-gray-500 border-b border-gray-200" >
+            <ul class="flex flex-wrap -mb-px">
+                <li class="me-2">
+                    <a href="#" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-[#0056FF] hover:border-[#F2871F] font-bold">
+                        Secret Sauce
+                    </a>
+                </li>
+                <li class="me-2">
+                    <a href="#" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-[#0056FF] hover:border-[#F2871F] font-bold">
+                        Share your story
+                    </a>
+                </li>
+            </ul>
             </div>
 
             <div className="flex flex-col justify-center items-center w-[100vw] p-2">
                 <div className="flex flex-col w-[100vw]">
-                    <div className="relative w-full justify-center items-center">
-                        <YouTube videoId="PjLrrwuGYoU" opts={opts} />
+                    <div className="relative justify-center items-center">
+                       <ReactPlayer url="https://www.youtube.com/watch?v=nrBdA4mNJpQ" loop={true} width={430} height={250}/>
+                    </div>
+
+                    <div className="relative w-full justify-center items-center mt-2">
+                        <Feed />
                     </div>
                         
                 </div>

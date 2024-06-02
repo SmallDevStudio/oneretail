@@ -31,6 +31,7 @@ const FormAdd = () => {
     const [groups, setGroups] = useState([]);
     const [profile, setProfile] = useState(null);
     const router = useRouter();
+    const [loading, setLoading] = useState(false);
 
     const titleRef = useRef();
     const descriptionRef = useRef();
