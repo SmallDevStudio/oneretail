@@ -8,14 +8,15 @@ import dynamic from "next/dynamic";
 import { AppLayout } from "@/themes";
 import Head from "next/head";
 import { useSession } from "next-auth/react";
+import CheckUser from "@/lib/hook/chckUsers";
 
 export default function MainPage() {
     const Carousel = dynamic(() => import("@/components/Carousel"), {
         ssr: false,
         loading: () => <Loading />,
     });
-
     const { data: session, status } = useSession();
+    const { isRegisterd } = CheckUser();
     console.log('session:', session);
     
     return (
