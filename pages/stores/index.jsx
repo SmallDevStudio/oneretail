@@ -3,6 +3,8 @@ import React from "react";
 import ReactPlayer from "react-player/youtube";
 import Feed from "@/components/success/feed";
 import Link from "next/link";
+import { Suspense } from "react";
+import LoadingFeed from "@/components/LoadingFeed";
 export default function Stores() {
 
     return (
