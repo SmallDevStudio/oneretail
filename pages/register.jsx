@@ -12,6 +12,13 @@ export default function Register() {
     const [loadingForm, setLoadingForm] = useState(false);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+
+    useEffect(() => {
+        const register = localStorage.getItem('isRegisterd');
+        if (register === 'true') {
+            router.push('/main');
+        } return () => {};
+    }, [router]);
     
     const onSubmit = async (data) => {
         setLoading(true);
