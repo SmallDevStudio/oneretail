@@ -19,7 +19,15 @@ const HomePage = () => {
     console.log('data home:', data);
 
     useEffect(() => {
-       
+       const storage = localStorage.getItem('isRegisterd');
+       if (storage === 'true') {
+        router.push('/main');
+       }else{
+        setIsLoading(false);
+        router.push('/register');
+       }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     
@@ -29,4 +37,6 @@ const HomePage = () => {
     
     return <div>Home</div>;
 }
-export default HomePage
+export default HomePage;
+
+HomePage.auth = true
