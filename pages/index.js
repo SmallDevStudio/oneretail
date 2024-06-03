@@ -1,20 +1,16 @@
 "use client";
 import React from "react";
 import { useState, useEffect } from "react";
+import useSWR from "swr";
 
 const HomePage = () => {
     const [user, setUser] = useState(null);
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            const res = await fetch("/api/users");
-            const data = await res.json();
-            setUser(data);
-        };
-        fetchUser();
-    }, []);
+    const fetcher = (url) => fetch(url).then((res) => res.json());
 
-    console.log('user',user);
+    const { data, error } = useSWR("/api/users", fetcher);
+
+    console.log('user',data);
     
 
 
