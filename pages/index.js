@@ -1,4 +1,3 @@
-"use client"
 import React, { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -17,8 +16,6 @@ export default function Home() {
     const userId = session?.user?.id;
     const { data, error, isLoading } = useSWR('/api/users/'+userId, fetcher, { refreshInterval: 0 });
 
-    console.log('userId:', userId);
-    console.log('session:', session);
     console.log('data:', data);
 
 
