@@ -18,15 +18,26 @@ const HomePage = () => {
     const router = useRouter();
 
     useEffect(() => {
-        const storege = localStorage.getItem('isRegisterd');
-        if (storege === 'true') {
+        try {
+            if (data == null) {
             setIsLoading(false);
-            router.push('/main');
-        } else {
-            setIsLoading(false);
-            router.push('/register');
-        }
-    }, [router])
+             router.push('/register');
+            }
+            const user = data.user;
+            if (user === null) {
+              setIsLoading(false);
+              router.push('/register');
+            } else {
+              setIsLoading(false);
+                localStorage.setItem('user', JSON.stringify(user));
+                localStorage.setItem('isRegisterd', true);
+                router.push('/main');
+            }
+          } catch (error) {
+            console.log(error);
+          }
+       
+    }, [data, router])
 
     
     if (error) return <div>Failed to load</div>;
