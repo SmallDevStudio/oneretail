@@ -9,7 +9,6 @@ const CommentBar = (id) => {
     // const user = localStorage.getItem('user');
    // const { userId, fullname, pictureUrl } = JSON.parse(user);
     const contentId = id.id;
-    console.log('data:', fullname);
 
     const handleClick = async () => {
         const input = document.getElementById('input');
