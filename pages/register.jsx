@@ -5,16 +5,33 @@ import Image from 'next/image';
 import Alert from '@/components/notification/Alert';
 import { useSession } from 'next-auth/react';
 import Loading from '@/components/Loading';
+import useSWR from 'swr';
 
-
+const fetcher = (url) => fetch(url).then((res) => res.json());
 export default function Register() {
     const { data: session } = useSession();
     const { register, handleSubmit, formState: { errors }, setValue } = useForm();
     const [loadingForm, setLoadingForm] = useState(false);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const userId = session?.user?.id;
 
+    const { data, error } = useSWR(`/api/users/${userId}`, fetcher);
 
+    useEffect(() => {
+        if (data === null && !data) {
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('user');
+                localStorage.setItem('isRegisterd', false);
+            } else {
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem('user', data);
+                    localStorage.setItem('isRegisterd', true);
+                    router.push('/main');
+                }
+            }
+        }
+    }, []);
 
     const onSubmit = async (data) => {
         setLoading(true);
