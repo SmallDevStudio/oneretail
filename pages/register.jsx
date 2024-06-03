@@ -6,6 +6,7 @@ import Alert from '@/components/notification/Alert';
 import { useSession } from 'next-auth/react';
 import Loading from '@/components/Loading';
 import useSWR from 'swr';
+import CheckUser from '@/lib/hook/chckUsers';
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 export default function Register() {
@@ -13,6 +14,7 @@ export default function Register() {
     const { register, handleSubmit, formState: { errors }, setValue } = useForm();
     const [loadingForm, setLoadingForm] = useState(false);
     const [loading, setLoading] = useState(false);
+    const { isRegisterd } = CheckUser();
     const router = useRouter();
     const userId = session?.user?.id;
 
