@@ -21,7 +21,12 @@ export default function Home() {
     const { data, error } = useSWR(`/api/users/${userId}`, fetcher);
     const user = data?.user;
 
-    
+    console.log('user:', user);
+    console.log('userId:', userId);
+    console.log('session:', session);
+    console.log('data:', data);
+
+
     return (
         <>
             <Head>
