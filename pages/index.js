@@ -12,11 +12,19 @@ export default function Home() {
     const { data: session} = useSession();
     const router = useRouter();
     const userId = session?.user?.id;
-    const fetcher = (...args) => fetch(...args).then((res) => res.json());
-    
-    const { data, error, isLoading } = useSWR('/api/users/'+userId, fetcher, { refreshInterval: 1000 });
-
-    console.log('data:', data);
+   
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const response = await fetch(`/api/users/${userId}`);
+                const data = await response.json();
+                console.log(data);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        fetchUser();
+    }, []);
 
 
     return (
