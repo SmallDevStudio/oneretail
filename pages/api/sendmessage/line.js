@@ -21,7 +21,7 @@ export default async function handler(req, res) {
             url: "https://api.line.me/v2/bot/message/push",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + process.env.LINE_ACCESS_TOKEN
+                "Authorization": "Bearer " + process.env.LIFF_CHANNEL_ACCESS_TOKEN
             },
             data: reqBody
         })

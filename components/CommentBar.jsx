@@ -6,8 +6,8 @@ import { FiSend } from "react-icons/fi";
 
 const CommentBar = (id) => {
     const [comment, setComment] = useState('');
-    // const user = localStorage.getItem('user');
-   // const { userId, fullname, pictureUrl } = JSON.parse(user);
+    const user = localStorage.getItem('user');
+    const { userId, fullname, pictureUrl } = JSON.parse(user);
     const contentId = id.id;
 
     const handleClick = async () => {
