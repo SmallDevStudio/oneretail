@@ -8,12 +8,12 @@ import Head from "next/head";
 import CheckUser from "@/lib/hook/chckUsers";
 import useSWR from "swr";
 
-const fetcher = (...args) => fetch(...args).then((res) => res.json());
-
 export default function Home() {
     const { data: session} = useSession();
     const router = useRouter();
     const userId = session?.user?.id;
+    const fetcher = (...args) => fetch(...args).then((res) => res.json());
+    
     const { data, error, isLoading } = useSWR('/api/users/'+userId, fetcher, { refreshInterval: 1000 });
 
     console.log('data:', data);
