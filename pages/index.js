@@ -21,21 +21,7 @@ export default function Home() {
     const { data, error } = useSWR(`/api/users/${userId}`, fetcher);
     const user = data?.user;
 
-    useEffect(() => {
-        const storage = localStorage.getItem('isRegisterd');
-        if (storage === 'true') {
-            if (typeof window !== 'undefined'){
-            localStorage.setItem('user', JSON.stringify(user));
-            setIsLogin(false);
-            router.push('/main');
-            }
-        } else {
-            setIsLogin(false);
-            router.push('/register');
-        }
-        }, [router, user])
-   
-
+    
     return (
         <>
             <Head>
