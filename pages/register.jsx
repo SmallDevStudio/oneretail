@@ -31,7 +31,7 @@ export default function Register() {
                 }
             }
         }
-    }, []);
+    }, [data, router]);
 
     const onSubmit = async (data) => {
         setLoading(true);
