@@ -14,7 +14,7 @@ export default function Home() {
     const { data: session} = useSession();
     const router = useRouter();
     const userId = session?.user?.id;
-    const { data, error, isLoading } = useSWR('/api/users/'+userId, fetcher, { refreshInterval: 0 });
+    const { data, error, isLoading } = useSWR('/api/users/'+userId, fetcher, { refreshInterval: 1000 });
 
     console.log('data:', data);
 
