@@ -9,7 +9,7 @@ const HomePage = () => {
 
     const userId = session?.user?.id;
     const fetcher = (url) => fetch(url).then((res) => res.json());
-    const { data, error } = useSWR("/api/users"+userId, fetcher);
+    const { data, error } = useSWR("/api/users/"+userId, fetcher);
 
     console.log('user',data);
     
