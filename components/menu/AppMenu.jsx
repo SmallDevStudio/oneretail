@@ -43,7 +43,7 @@ export default function AppMenu() {
                         onClick={() => window.location.href = "/club"}
                     >
                         <OneRetailIcon className="w-6 h-6 mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-500 group-hover:w-9 group-hover:h-9" />
-                        <span class="text-sm  group-hover:text-blue-600 dark:group-hover:text-blue-500 text-nowrap">One Retail Club</span>
+                        <span className="text-sm  group-hover:text-blue-600 dark:group-hover:text-blue-500 text-nowrap">One Retail Club</span>
                     </button>
 
 

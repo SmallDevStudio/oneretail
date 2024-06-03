@@ -1,5 +1,7 @@
 import { SessionProvider } from "next-auth/react";
 import RequireAuth from "@/components/RequireAuth";
+import { Provider } from "react-redux";
+import store from "@/lib/redux/store";
 import "@/styles/globals.css";
 
 function App({ Component, pageProps: { session, ...pageProps } }) {
@@ -9,7 +11,9 @@ function App({ Component, pageProps: { session, ...pageProps } }) {
     <SessionProvider session={session}>
         {Component.auth ? (
                 <RequireAuth>
+                   
                       <Component {...pageProps} />
+ 
                 </RequireAuth>
             ) : (
                     <Component {...pageProps} />

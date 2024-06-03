@@ -16,11 +16,12 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 export default function Profile() {
     const { data: session } = useSession();
     console.log(session);
-    const { data, error, isLoading } = useSWR('/api/users/'+session?.user?.id, fetcher);
-    console.log('data:', data); 
-
-    if (isLoading) return <Loading />;
-    if (error) return <div>Error loading user data</div>;
+    const { data: user } = useSWR('/api/users/'+session?.user?.id, fetcher);
+    const { data: level } = useSWR('/api/level/'+session?.user?.id, fetcher);
+    const { data: levelup } = useSWR('/api/level/state/'+level.level, fetcher);
+    const nextPoint = (levelup.requiredPoints - level.points);
+    const percent = (level.points / levelup.requiredPoints) * 100;
+    console.log ('percent', percent);
 
     return (
         <>
@@ -43,18 +44,18 @@ export default function Profile() {
                         </div>
                         <div className="flex flex-col ml-3 flex-1">
                             <div className="flex flex-row justify-between">
-                                <h1 className="text-lg font-black mb-[-5px] text-[#0056FF] dark:text-white">{data.user.fullname}</h1>
-                                <h1 className="text-lg font-semibold text-[#F2871F]">Level.1</h1>
+                                <h1 className="text-lg font-black mb-[-5px] text-[#0056FF] dark:text-white">{user.user.fullname}</h1>
+                                <h1 className="text-lg font-semibold text-[#F2871F]">Level.{level.level}</h1>
                             </div>
                             <ProgressBar 
                                 animated 
-                                now={10} 
+                                now={percent} 
                                 variant="warning"
                                 className="w-[290px] h-2 rounded-3xl"
                             />
                             <div className="flex flex-row justify-end mt-1">
                                 <span className="text-sm font-semibold text-[#0056FF] dark:text-white">
-                                    Next: 60 Point
+                                    Next: {nextPoint} Point
                                 </span>
                             </div>
                         </div>
@@ -81,7 +82,7 @@ export default function Profile() {
                                 Total Point
                             </span>
                             <span className="text-xl font-black text-black dark:text-white">
-                                {data.user.point}
+                                {level.points}
                             </span>
                         </button>
 
@@ -96,7 +97,7 @@ export default function Profile() {
                                 Coin
                             </span>
                             <span className="text-xl font-black text-black dark:text-white">
-                                {data.user.coins}
+                                0
                             </span>
                         </button>
 
