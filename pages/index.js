@@ -13,14 +13,10 @@ const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
 export default function Home() {
     const { data: session} = useSession();
-    const {isRegisterd} = CheckUser();
     const router = useRouter();
-    console.log('isRegisterd:', isRegisterd);
     const userId = session?.user?.id;
-    const { data, error, isLoading } = useSWR('/api/users/'+userId, fetcher);
-    const user = data?.user;
+    const { data, error, isLoading } = useSWR('/api/users/'+userId, fetcher, { refreshInterval: 0 });
 
-    console.log('user:', user);
     console.log('userId:', userId);
     console.log('session:', session);
     console.log('data:', data);
