@@ -8,9 +8,9 @@ export default async function handler(req, res) {
         const comments = await Comments.find({ contentId: contentId });
         res.status(200).json(comments);
     } else if (req.method === "DELETE") {
-        const { contentId } = req.query;
+        const { id } = req.query;
         await connetMongoDB();
-        const deletedComments = await Comments.deleteMany({ contentId: contentId });
+        const deletedComments = await Comments.findByIdAndDelete(id);
         res.status(200).json(deletedComments);
     }
 }

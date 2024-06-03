@@ -6,6 +6,7 @@ import Alert from '@/components/notification/Alert';
 import { useSession } from 'next-auth/react';
 import Loading from '@/components/Loading';
 
+
 export default function Register() {
     const { data: session } = useSession();
     const { register, handleSubmit, formState: { errors }, setValue } = useForm();
@@ -13,15 +14,8 @@ export default function Register() {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
-    useEffect(() => {
-        setLoading(true);
-        const register = localStorage.getItem('isRegisterd');
-        if (register === 'true') {
-            setLoading(false);
-            router.push('/main');
-        } return () => {};
-    }, [router, session?.user?.id]);
-    
+
+
     const onSubmit = async (data) => {
         setLoading(true);
         console.log('data:', data);
@@ -61,7 +55,8 @@ export default function Register() {
             }
             setLoading(false);
             setLoadingForm(false);
-            router.push('/'); // ไปที่หน้าแอปหลักหลังลงทะเบียน
+            localStorage.setItem('isRegisterd', true);
+            router.push('/main'); // ไปที่หน้าแอปหลักหลังลงทะเบียน
             Alert.success('ลงทะเบียนสําเร็จ');
         } catch (error) {
             console.log(error);

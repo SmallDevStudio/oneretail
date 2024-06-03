@@ -10,35 +10,17 @@ import RequireAuth from "@/components/RequireAuth";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@/styles/profile.module.css";
 import Loading from "@/components/Loading";
+import useSWR from "swr";
 
+const fetcher = (url) => fetch(url).then((res) => res.json());
 export default function Profile() {
     const { data: session } = useSession();
-    const [user, setUser] = useState({});
-    const [isLoading, setIsLoading] = useState(true);
-
     console.log(session);
-    console.log(user);
-
-    const userId = session?.user?.id;
-
-    useEffect(() => {
-        if(userId) {
-            const fetchUser = async () => {
-            const res = await fetch(`/api/users/${userId}`);
-            const data = await res.json();
-            localStorage.setItem('user', JSON.stringify(data));
-            setUser(data);
-        };
-
-        fetchUser();
-        setIsLoading(false);
-    }     
-
-    }, [userId]);
-
-    
+    const { data, error, isLoading } = useSWR('/api/users/'+session?.user?.id, fetcher);
+    console.log('data:', data); 
 
     if (isLoading) return <Loading />;
+    if (error) return <div>Error loading user data</div>;
 
     return (
         <>
@@ -61,7 +43,7 @@ export default function Profile() {
                         </div>
                         <div className="flex flex-col ml-3 flex-1">
                             <div className="flex flex-row justify-between">
-                                <h1 className="text-lg font-black mb-[-5px] text-[#0056FF] dark:text-white">{user.user.fullname}</h1>
+                                <h1 className="text-lg font-black mb-[-5px] text-[#0056FF] dark:text-white">{data.user.fullname}</h1>
                                 <h1 className="text-lg font-semibold text-[#F2871F]">Level.1</h1>
                             </div>
                             <ProgressBar 
@@ -99,7 +81,7 @@ export default function Profile() {
                                 Total Point
                             </span>
                             <span className="text-xl font-black text-black dark:text-white">
-                                {user.user.point}
+                                {data.user.point}
                             </span>
                         </button>
 
@@ -114,7 +96,7 @@ export default function Profile() {
                                 Coin
                             </span>
                             <span className="text-xl font-black text-black dark:text-white">
-                                {user.user.coins}
+                                {data.user.coins}
                             </span>
                         </button>
 

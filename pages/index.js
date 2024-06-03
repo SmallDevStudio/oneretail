@@ -7,40 +7,32 @@ import Loading from "@/components/Loading";
 import CircularProgress from '@mui/material/CircularProgress';
 import Head from "next/head";
 import CheckUser from "@/lib/hook/chckUsers";
+import useSWR from "swr";
+
+const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
 export default function Home() {
     const { data: session} = useSession();
     const {isRegisterd} = CheckUser();
+    const [isLogin, setIsLogin] = useState(true);
     const router = useRouter();
-
     console.log('isRegisterd:', isRegisterd);
+    const userId = session?.user?.id;
+    const { data, error } = useSWR(`/api/users/${userId}`, fetcher);
+    const user = data?.user;
 
     useEffect(() => {
-        const userStorager = localStorage.getItem('user');
-        if (userStorager === null) {
-            const userId = session.user.id;
-            const fetchUser = async () => {
-                const res = await fetch('/api/users/'+userId);
-                const data = await res.json();
-                if (data) {
-                    localStorage.setItem('user', JSON.stringify(data));
-                    router.push('/main');
-                } else {
-                    localStorage.setItem('isRegisterd', false);
-                    router.push('/register');
-                }
-            };
-            fetchUser();
-            } else {
-              router.push('/main');  
-        }
-    }, [router, session.user.id]);
-
-    useEffect(() => {
-        if (!isRegisterd) {
+        const storage = localStorage.getItem('isRegisterd');
+        if (storage === 'true') {
+            localStorage.setItem('user', JSON.stringify(user));
+            setIsLogin(false);
+            router.push('/main');
+        } else {
+            setIsLogin(false);
             router.push('/register');
         }
-    }, [isRegisterd, router]);
+        }, [router, user])
+   
 
     return (
         <>

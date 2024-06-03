@@ -10,7 +10,6 @@ import CommentBar from "@/components/CommentBar";
 
 const SlugPage = () => {
     const [content, setContent] = useState({});
-    const [comments, setComments] = useState([]);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
@@ -27,13 +26,6 @@ const SlugPage = () => {
         setContent(data);
         setLoading(false);
     };
-    const fetchComments = async () => {
-        setLoading(true);
-        const res = await fetch(`/api/comments/${id}`);
-        const data = await res.json();
-        setComments(data);
-        setLoading(false);
-    }
 
     useEffect(() => {
         fetchVideo();
@@ -97,14 +89,14 @@ const SlugPage = () => {
                         </div>
                     </div>
 
-                    <div className="relative w-full justify-center items-center" style={{ height: "100%", width: "100%" }}>
-                        <Comments id={id}/>
+                    <div className="flex w-full justify-center items-center mb-20">
+                        <Comments id={content._id}/>
                     </div>
                         
                 </div>
             </div>
             <div className="flex flex-col justify-center items-center">
-                <CommentBar/>
+                <CommentBar id={content._id}/>
             </div>
         </main>
     )
