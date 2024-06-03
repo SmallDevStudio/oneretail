@@ -32,7 +32,10 @@ const Feed = () => {
             <div className="flex flex-row ">
                 
                     <div className="relative w-5/6" key={i}>
-                        <Link href={`/contents/${contents.id}`}>
+                        <Link href={{
+                            pathname: '/stores/view/[slug]',
+                            query: { slug: contents.slug },
+                        }}>
                             <Image
                                 src={contents.thumbnailUrl}
                                 alt="Avatar"
@@ -44,9 +47,13 @@ const Feed = () => {
                     </div>
                
         
-                <div className="flex flex-col ml-2">
-                    <div className="flex flex-col" key={i}>
-                        <span className="text-md font-bold text-[#0056FF] inline">{contents.title}</span>
+                <div className="flex flex-col ml-2" key={i}>
+                    <Link href={{
+                        pathname: '/stores/view/[slug]',
+                        query: { slug: contents.slug },
+                    }}>
+                    <div className="flex flex-col">
+                        <span className="text-sm font-bold text-[#0056FF] inline">{contents.title}</span>
                         <span className="font-light text-black leading-tight inline-block" style={{
                             fontSize: "10px"
                         }}>
@@ -54,14 +61,14 @@ const Feed = () => {
                         </span>
                     </div>
 
-                        <div className="ralative flex flex-row gap-10 px-2 items-end w-full mt-2">
-                            <div className="flex ml-2" key={i}>
+                        <div className="ralative flex flex-row gap-10 px-2 items-end w-full mt-3">
+                            <div className="flex ml-2" >
                                 <span className="font-light text-black" style={{
                                     fontSize: "10px"
                                 }}>การดู {contents.views} ครั้ง</span>
                             </div>
                             
-                            <div className="flex ml-2" key={i}>
+                            <div className="flex ml-2" >
                                 <GrLike />
                                 <span className="font-light text-black ml-1" style={{
                                     fontSize: "10px"
@@ -79,6 +86,7 @@ const Feed = () => {
                                 </span>
                             </div>
                     </div>
+                    </Link>
                 </div>
               
             </div>

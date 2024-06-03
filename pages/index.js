@@ -20,9 +20,15 @@ export default function Home() {
         if (userStorager === null) {
             const userId = session.user.id;
             const fetchUser = async () => {
-                const res = await fetch(`/api/users/${userId}`);
+                const res = await fetch('/api/users/'+userId);
                 const data = await res.json();
-                localStorage.setItem('user', JSON.stringify(data));
+                if (data) {
+                    localStorage.setItem('user', JSON.stringify(data));
+                    router.push('/main');
+                } else {
+                    localStorage.setItem('isRegisterd', false);
+                    router.push('/register');
+                }
             };
             fetchUser();
             } else {

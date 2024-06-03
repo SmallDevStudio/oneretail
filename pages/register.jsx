@@ -14,11 +14,13 @@ export default function Register() {
     const router = useRouter();
 
     useEffect(() => {
+        setLoading(true);
         const register = localStorage.getItem('isRegisterd');
         if (register === 'true') {
+            setLoading(false);
             router.push('/main');
         } return () => {};
-    }, [router]);
+    }, [router, session?.user?.id]);
     
     const onSubmit = async (data) => {
         setLoading(true);
@@ -68,6 +70,10 @@ export default function Register() {
             Alert.error('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
         }
     };
+
+    if (loading) {
+        return <Loading />;
+    }
 
     return (
         <>

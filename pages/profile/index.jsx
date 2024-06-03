@@ -13,7 +13,33 @@ import Loading from "@/components/Loading";
 
 export default function Profile() {
     const { data: session } = useSession();
-    const profile = JSON.parse(localStorage.getItem('user'));
+    const [user, setUser] = useState({});
+    const [isLoading, setIsLoading] = useState(true);
+
+    console.log(session);
+    console.log(user);
+
+    const userId = session?.user?.id;
+
+    useEffect(() => {
+        if(userId) {
+            const fetchUser = async () => {
+            const res = await fetch(`/api/users/${userId}`);
+            const data = await res.json();
+            localStorage.setItem('user', JSON.stringify(data));
+            setUser(data);
+        };
+
+        fetchUser();
+        setIsLoading(false);
+    }     
+
+    }, [userId]);
+
+    
+
+    if (isLoading) return <Loading />;
+
     return (
         <>
         <main className="flex flex-col w-[100vw] overflow-x-scroll dark:bg-gray-900 mt-5" style={{
@@ -35,7 +61,7 @@ export default function Profile() {
                         </div>
                         <div className="flex flex-col ml-3 flex-1">
                             <div className="flex flex-row justify-between">
-                                <h1 className="text-lg font-black mb-[-5px] text-[#0056FF] dark:text-white">{profile.user.fullname}</h1>
+                                <h1 className="text-lg font-black mb-[-5px] text-[#0056FF] dark:text-white">{user.user.fullname}</h1>
                                 <h1 className="text-lg font-semibold text-[#F2871F]">Level.1</h1>
                             </div>
                             <ProgressBar 
@@ -73,7 +99,7 @@ export default function Profile() {
                                 Total Point
                             </span>
                             <span className="text-xl font-black text-black dark:text-white">
-                                0
+                                {user.user.point}
                             </span>
                         </button>
 
@@ -88,7 +114,7 @@ export default function Profile() {
                                 Coin
                             </span>
                             <span className="text-xl font-black text-black dark:text-white">
-                                0
+                                {user.user.coins}
                             </span>
                         </button>
 
