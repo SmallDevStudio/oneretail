@@ -1,6 +1,7 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
 import Users from "@/database/models/users";
 import Point from "@/database/models/Point";
+import sendLineMessage from "@/lib/sendLineMessage";
 
 export default async function handler(req, res) {
     await connetMongoDB();
@@ -20,6 +21,10 @@ export default async function handler(req, res) {
             point: points,
           });
           await pointEntry.save();
+
+          // ส่งข้อความไปที่ LINE
+          const message = `คุณได้รับ ${points} คะแนนจากการเล่น Quiz Game!`;
+          sendLineMessage(userId, message);
     
           res.status(201).json({ success: true, data: pointEntry });
         } catch (error) {

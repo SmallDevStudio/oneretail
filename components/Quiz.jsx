@@ -19,12 +19,13 @@ const Quiz = ({ userId }) => {
     fetchQuestions();
   }, [dispatch]);
 
-  if (questions.length === 0) return <div>Loading...</div>;
+  if (questions.length === 0) return <Loading />;
 
   const question = questions[currentQuestionIndex];
 
   const handleAnswer = (index) => {
-    dispatch(answerQuestion({ isCorrect: index === question.correctAnswer }));
+    const isCorrect = index === question.correctAnswer;
+    dispatch(answerQuestion({ isCorrect }));
   };
 
   const handleNext = async () => {
@@ -53,7 +54,7 @@ const Quiz = ({ userId }) => {
         {showAnswer && (
           <div>
             <p className="text-sm font-bold mb-2 mt-2">
-              {question.correctAnswer === question.correctAnswer ? 'ถูกต้อง!' : 'ผิด!'}
+              {questions[currentQuestionIndex].correctAnswer === questions[currentQuestionIndex].index ? 'ถูกต้อง!' : 'ผิด!'}
             </p>
             <button
              className="border-2 p-3 rounded-xl w-[150px] bg-[#FF9800] hover:text-white"
