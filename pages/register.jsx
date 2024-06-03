@@ -55,7 +55,9 @@ export default function Register() {
             }
             setLoading(false);
             setLoadingForm(false);
-            localStorage.setItem('isRegisterd', true);
+            if (typeof window !== 'undefined'){
+                localStorage.setItem('isRegisterd', true);
+            }
             router.push('/main'); // ไปที่หน้าแอปหลักหลังลงทะเบียน
             Alert.success('ลงทะเบียนสําเร็จ');
         } catch (error) {

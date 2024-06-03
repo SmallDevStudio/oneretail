@@ -24,9 +24,11 @@ export default function Home() {
     useEffect(() => {
         const storage = localStorage.getItem('isRegisterd');
         if (storage === 'true') {
+            if (typeof window !== 'undefined'){
             localStorage.setItem('user', JSON.stringify(user));
             setIsLogin(false);
             router.push('/main');
+            }
         } else {
             setIsLogin(false);
             router.push('/register');
@@ -59,5 +61,7 @@ export default function Home() {
 }
 
 Home.auth = true;
+
+
 
     
