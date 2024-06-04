@@ -11,8 +11,8 @@ export default function LeaderBoard() {
     if (error) return <div>Failed to load</div>;
     if (!data) return <div>Loading...</div>;
 
-    const topThree = data.data.slice(0, 3);
-    const others = data.data.slice(3);
+    const topThree = data?.data?.slice(0, 3);
+    const others = data?.data?.slice(3);
 
     return (
         <div>

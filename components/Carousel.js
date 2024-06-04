@@ -1,4 +1,5 @@
 import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 import React from "react";
 import Slider from "react-slick";
 import Image from "next/image";
@@ -20,7 +21,7 @@ export default function Carousel() {
   };
 
   return (
-    <div className="slider-container">
+    <div className="relative w-full">
       <Slider {...settings}>
         <div>
           <Image

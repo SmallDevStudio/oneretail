@@ -7,7 +7,7 @@ import CampaignIcon from "@/resources/icons/CampaignIcon";
 
 export default function MainIconMenu() {
     return (
-        <div className="flex w-full mt-1 justify-center items-center ">
+        <div className="flex justify-center items-center p-5 ">
                     <div className="grid grid-cols-3 gap-4 p-2">
                             <button 
                                 className="flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden text-sm font-bold text-gray-900 rounded-2xl dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800 hover:text-white border-4 border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 "

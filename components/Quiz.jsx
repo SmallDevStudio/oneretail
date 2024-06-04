@@ -32,37 +32,48 @@ const Quiz = ({ userId }) => {
     if (currentQuestionIndex < questions.length - 1) {
       dispatch(nextQuestion());
     } else {
-      alert(`Quiz complete! Your score is: ${score}`);
+      const totalScore = score === 3 ? 5 : score; // ให้ 5 คะแนนถ้าตอบถูก 3 ข้อ
+      alert(`Quiz complete! Your score is: ${totalScore}`);
       // บันทึกคะแนนผู้ใช้
-      await dispatch(savePoints({ userId, points: score }));
+      await dispatch(savePoints({ userId, points: totalScore }));
       dispatch(resetQuiz());
       router.push('/games');
     }
   };
 
     return (
-      <div className="flex flex-col items-center text-center bg-white">
-        <h1 className="text-xl font-bold mb-4 mt-4">{question.question}</h1>
-        <ul className="mt-5">
-          {question.options.map((option, index) => (
-            <li 
-              className={`cursor-pointer mb-4 border-2 w-[300px] p-3 rounded-full bg-gray-200 hover:bg-[#0056FF] hover:text-white`}
-              key={index} onClick={() => handleAnswer(index)}>{option}
-            </li>
-          ))}
+      <div className="flex flex-col items-center text-center bg-white p-2">
+        <h1 className="text-lg font-bold mt-4">{question.question}</h1>
+        <ul className="mt-4">
+            {question.options.map((option, index) => (
+                <li 
+                    className={`cursor-pointer mb-4 border-1 text-sm p-2 rounded-xl bg-gray-200 hover:bg-[#0056FF] hover:text-white shadow-md`}
+                    key={index} 
+                    onClick={() => handleAnswer(index)}
+                >
+                    {option}
+                </li>
+            ))}
         </ul>
         {showAnswer && (
-          <div>
-            <p className="text-sm font-bold mb-2 mt-2">
-              {questions[currentQuestionIndex].correctAnswer === questions[currentQuestionIndex].index ? 'ถูกต้อง!' : 'ผิด!'}
-            </p>
-            <button
-             className="border-2 p-3 rounded-xl w-[150px] bg-[#FF9800] hover:text-white"
-             onClick={handleNext}>Next
-             </button>
-          </div>
+            <div>
+                <p className="text-sm font-bold inline-block">
+                    {questions[currentQuestionIndex].correctAnswer === currentQuestionIndex ? 'ถูกต้อง!' : 'ผิด!'} 
+                </p>
+                <span className="text-sm font-bold inline-block">
+                  คำตอบที่ถูกคือ: <span className='text-[#0056FF]'>{question.options[question.correctAnswer]}</span>
+                </span>
+                <div className="flex justify-center">
+                  <button
+                      className="border-2 p-3 rounded-xl w-[150px] bg-[#FF9800] hover:text-white mt-3"
+                      onClick={handleNext}
+                  >
+                      ถัดไป
+                  </button>
+                </div>
+            </div>
         )}
-      </div>
+    </div>
     );
   };
   

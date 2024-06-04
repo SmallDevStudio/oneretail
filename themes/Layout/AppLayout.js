@@ -4,7 +4,7 @@ import AppMenu from '@/components/menu/AppMenu';
 export default function AppLayout({ children }) {
     return (
         <>
-            <div className="app">
+            <div className="flex flex-col h-full">
                 {children}
             </div>
             <nav className="nav">

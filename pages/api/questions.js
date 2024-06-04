@@ -3,6 +3,6 @@ import Question from "@/database/models/Question";
 
 export default async function handler(req, res) {
     await connetMongoDB();
-    const questions = await Question.find({}).limit(5);
+    const questions = await Question.aggregate([{ $sample: { size: 3 } }]);
     res.status(200).json(questions);
 }

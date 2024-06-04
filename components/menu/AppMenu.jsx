@@ -4,7 +4,10 @@ import Link from "next/link";
 
 export default function AppMenu() {
     return (
-        <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-white border-t border-gray-200 dark:bg-gray-700 dark:border-gray-600 shadow-lg">
+        <nav className="fixed bottom-0 left-0 z-50 w-full h-16 bg-white border-t border-gray-200 dark:bg-gray-700 dark:border-gray-600 shadow-lg" style={{
+            boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)",
+            fontFamily: "ttb"
+        }}>
             <div className="grid h-full max-w-lg grid-cols-5 mx-auto font-medium">
                 
                     <button type="button" className="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group" 
@@ -59,7 +62,7 @@ export default function AppMenu() {
                 </button>
 
             </div>
-        </div>
+        </nav>
     )
 }
 

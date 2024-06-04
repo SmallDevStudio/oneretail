@@ -1,45 +1,44 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import ProgressBar from 'react-bootstrap/ProgressBar';
-import AppMenu from "@/components/menu/AppMenu";
 import CoinPointIcon from "@/resources/icons/CoinPointIcon";
-import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import RequireAuth from "@/components/RequireAuth";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@/styles/profile.module.css";
 import Loading from "@/components/Loading";
+import { AppLayout } from "@/themes";
 import useSWR from "swr";
+import dynamic from "next/dynamic";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 export default function Profile() {
     const { data: session } = useSession();
-    console.log(session);
     const { data: user } = useSWR('/api/users/'+session?.user?.id, fetcher);
     const { data: level } = useSWR('/api/level/'+session?.user?.id, fetcher);
     const { data: levelup } = useSWR('/api/level/state/'+level?.level, fetcher);
     const nextPoint = (levelup?.requiredPoints - level?.points);
     const percent = (level?.points / levelup?.requiredPoints) * 100;
-    console.log ('percent', percent);
+    const [percentage, setPercentage] = useState(50);
+    const HalfCircleProgressBar = dynamic(() => import('@/components/main/HalfCircleProgressBar'), { ssr: false });
 
     return (
         <>
-        <main className="flex flex-col w-[100vw] overflow-x-scroll dark:bg-gray-900 mt-5" style={{
+        <main className="flex flex-col overflow-x-scroll mt-5" style={{
             fontFamily: "ttb"
         }}>
 
-            <div className="flex pl-5 pr-5 pb-5 w-[100vw]">
+            <div className="flex pl-5 pr-5 pb-5">
                 <div className="flex flex-col">
                     {/* profile card */}
                     <div className="flex flew-row mt-1 w-full">
-                        <div className="items-center justify-center flex flex-1">
+                        <div className="relative" style={{ width: "50px", height: "50px" }}>
                             <Image
                                 src={session?.user?.image}
                                 alt="profile"
-                                width={80}
-                                height={80}
-                                className="rounded-full border-3 border-[#0056FF] dark:border-white"
+                                width={200}
+                                height={200}
+                                className="rounded-full border-2 border-[#0056FF] dark:border-white"
                             />
                         </div>
                         <div className="flex flex-col ml-3 flex-1">
@@ -51,7 +50,7 @@ export default function Profile() {
                                 animated 
                                 now={percent} 
                                 variant="warning"
-                                className="w-[290px] h-2 rounded-3xl"
+                                className="w-[22em] h-2 rounded-3xl"
                             />
                             <div className="flex flex-row justify-end mt-1">
                                 <span className="text-sm font-semibold text-[#0056FF] dark:text-white">
@@ -82,7 +81,7 @@ export default function Profile() {
                                 Total Point
                             </span>
                             <span className="text-xl font-black text-black dark:text-white">
-                                {level?.points}
+                                {level?.points ? level?.points : 0}
                             </span>
                         </button>
 
@@ -104,7 +103,7 @@ export default function Profile() {
                     </div>
                 </div>
 
-                <div className="flex flex-col justify-center items-center w-full ml-5 mr-7">
+                <div className="relative flex flex-col justify-center items-center">
                     <Link href="/redeem">
                         <button className="w-40 h-10 bg-[#F2871F] text-white rounded-3xl font-semibold text-xl mb-4 mt-3">
                             <span>
@@ -124,67 +123,17 @@ export default function Profile() {
 
                 </div>
 
-                <div className="flex flex-col items-center justify-center w-full ml-3 mt-3">
-                    <div className="flex justify-center items-center w-full " style={{
-                        width: 350,
-                        height: 350
-                    }}>
-                        <CircularProgressbar 
-                            value={60}
-                            circleRatio={0.5}
-                            strokeWidth={10}
-                            styles={{
-                                root: {
-                                    transform: 'rotate(-90deg)',
-
-                                },
-                                path: {
-                                    stroke: '#FFCA0C',
-                                    strokeLinecap: 'round',
-                                },
-                                trail: {
-                                    stroke: '#C4C4C4',
-                                    strokeLinecap: 'round',
-                                    
-                                },
-                                trailColor: "#C4C4C4",
-                                text: {
-                                    fontSize: '14px',
-                                    fontWeight: 'bold',
-                                    textAnchor: 'middle',
-                                    dominantBaseline: 'middle',
-                                    fontFamily: 'ttb',
-                                    transformBox: 'fill-box',
-                                    transform: 'rotate(90deg)',
-                                    transformOrigin: '60% 80%',
-                                    fill: '#000000',       
-                                },
-                            }}
-                            text="60.00%"
-                            initialAnimation
-                        />
-                    </div>
-                        <div className="flex relative justify-center items-center w-full top-[-180px]">
-                            <div className="flex flex-col justify-center items-center">
-                                <span className="text-xl font-black text-gray-900 dark:text-white">
-                                    ภาพรวมอุณหภูมิความสุข 
-                                </span>
-                                <span className="text-xl font-black text-gray-900 dark:text-white">
-                                    ในการทำงานของคุณ
-                                </span>
-                            </div>
-                        </div>
+                <div className="relative p-5 mb-10">
+                    <HalfCircleProgressBar percentage={percentage} style={{ height: 200 }}/>
                 </div>
-
-                
-
+              
             
         </main>
-        <nav>
-            <AppMenu />
-        </nav>
+       
+          
         </>
     );
 }
 
+Profile.getLayout = (page) => <AppLayout>{page}</AppLayout>;
 Profile.auth = true

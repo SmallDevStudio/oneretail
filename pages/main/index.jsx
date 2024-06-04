@@ -25,17 +25,15 @@ export default function MainPage() {
                 <title>One Retail</title>
                 <meta http-equiv="Permissions-Policy" content="interest-cohort=()" />
             </Head>
-            <main className="flex flex-col bg-gray-10">
-                <div className="relative">
-                   <Carousel />
-                </div>
-                <div className="relative p-5 flex items-center text-center justify-center mt-2 ">
-                    <MainIconMenu />
-                </div>
-                <div className="mt-2">
-                    <FooterContant />
-                </div>
+
+            <main className="flex-1 flex-col bg-gray-10 justify-between items-center text-center h-full">
+                <Carousel />
+                <MainIconMenu />
             </main>
+            <div className="flex-1 pb-16">
+                <FooterContant />
+            </div>
+            
         </>
     );
 }
