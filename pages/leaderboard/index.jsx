@@ -1,3 +1,4 @@
+"use client";
 import { AppLayout } from "@/themes";
 import useSWR from 'swr';
 import Image from 'next/image';
