@@ -20,7 +20,7 @@ const HomePage = () => {
         const checkUserRegistration = async () => {
             const storage = localStorage.getItem('isRegisterd');
             if (storage === 'true') {
-                router.push('/loginreward');
+                router.push('/admin');
             } else {
                 router.push('/register');
             }
