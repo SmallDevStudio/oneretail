@@ -29,7 +29,7 @@ export default function Register() {
                 if (typeof window !== 'undefined') {
                     localStorage.setItem('user', data);
                     localStorage.setItem('isRegisterd', true);
-                    router.push('/main');
+                    router.push('/loginreward');
                 }
             }
         }
@@ -77,7 +77,7 @@ export default function Register() {
             if (typeof window !== 'undefined'){
                 localStorage.setItem('isRegisterd', true);
             }
-            router.push('/main'); // ไปที่หน้าแอปหลักหลังลงทะเบียน
+            router.push('/loginreward'); // ไปที่หน้าแอปหลักหลังลงทะเบียน
             Alert.success('ลงทะเบียนสําเร็จ');
         } catch (error) {
             console.log(error);

@@ -1,42 +1,39 @@
 "use client";
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import useSWR from "swr";
 import { useSession } from "next-auth/react";
-import CheckUser from "@/lib/hook/chckUsers";
-import Loading from "@/components/Loading";
 import { useRouter } from "next/router";
-
+import Loading from "@/components/Loading";
+import CheckUser from "@/lib/hook/chckUsers";
 
 const HomePage = () => {
     const { data: session, status } = useSession();
-    const [isLoading, setIsLoading] = useState(true);
-    const { isRegisterd } = CheckUser();
+    const router = useRouter();
     const userId = session?.user?.id;
+    const { isRegisterd } = CheckUser();
+
     const fetcher = (url) => fetch(url).then((res) => res.json());
     const { data, error } = useSWR(`/api/users/${userId}`, fetcher);
-    const router = useRouter();
-    console.log('data home:', data);
 
     useEffect(() => {
-       const storage = localStorage.getItem('isRegisterd');
-       if (storage === 'true') {
-        router.push('/main');
-       }else{
-        setIsLoading(false);
-        router.push('/register');
-       }
+        if (!session) return; // Wait for session data to be available
+        const checkUserRegistration = async () => {
+            const storage = localStorage.getItem('isRegisterd');
+            if (storage === 'true') {
+                router.push('/loginreward');
+            } else {
+                router.push('/register');
+            }
+        };
+        checkUserRegistration();
+    }, [session, router]);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
-    
     if (error) return <div>Failed to load</div>;
     if (!data) return <Loading />;
-    if (isLoading) return <Loading />
-    
-    return <div>Home</div>;
+
+    return <Loading />;
 }
+
 export default HomePage;
 
-HomePage.auth = true
+HomePage.auth = true;

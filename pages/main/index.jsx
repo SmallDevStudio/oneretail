@@ -2,13 +2,13 @@
 import React from "react";
 import MainIconMenu from "@/components/MainIconMenu";
 import FooterContant from "@/components/main/footContent";
-import { Suspense } from "react";
 import Loading from "@/components/Loading";
 import dynamic from "next/dynamic";
 import { AppLayout } from "@/themes";
 import Head from "next/head";
 import { useSession } from "next-auth/react";
 import CheckUser from "@/lib/hook/chckUsers";
+import withAuthCheck from "@/lib/hook/withAuthCheck";
 
 export default function MainPage() {
     const Carousel = dynamic(() => import("@/components/Carousel"), {
@@ -38,5 +38,8 @@ export default function MainPage() {
     );
 }
 
+
 MainPage.getLayout = (page) => <AppLayout>{page}</AppLayout>;
 MainPage.auth = true;
+
+

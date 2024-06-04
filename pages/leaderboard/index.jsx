@@ -25,55 +25,133 @@ export default function LeaderBoard() {
                     </div>
                 </div>
 
-                <ul className="flex bg-[#0056FF] mb-5 p-5">
-                    {topThree.map((user, index) => (
-                    <li key={user.userId} className="flex flex-col text-white text-center items-center">
-                        <span className="font-bold" style={{ fontSize: "12px" }}>
-                            {user.fullname}
-                        </span>
-                        <span className="font-bold" style={{ fontSize: "22px" }}>
-                            {user.totalPoints}
-                        </span>
-                        <span>#{index + 1}</span>
-                        <Image 
-                            src={user.pictureUrl} 
-                            alt={user.fullname} 
-                            width="50" 
-                            height="50"
-                            className="rounded-full border-3 border-[#0056FF] dark:border-white"
-                        />
-                        
-                    </li>
-                    ))}
-                </ul>
+                <div className="flex bg-[#0056FF] mb-5 p-5 justify-center">
+                    <ul className="flex flex-col items-center">
+                        {topThree.length > 1 && (
+                            <li key={topThree[1].userId} className="flex flex-col text-white text-center items-center">
+                                <span className="font-bold" style={{ fontSize: "12px" }}>
+                                    {topThree[1].fullname}
+                                </span>
+                                <span className="font-bold" style={{ fontSize: "22px" }}>
+                                    {topThree[1].totalPoints}
+                                </span>
+                                <span>#2</span>
+                                {topThree[1].pictureUrl ? (
+                                    <Image 
+                                        src={topThree[1].pictureUrl} 
+                                        alt={topThree[1].fullname} 
+                                        width="50" 
+                                        height="50"
+                                        className="rounded-full border-3 border-[#0056FF] dark:border-white"
+                                    />
+                                ) : (
+                                    <div 
+                                        style={{ width: '50px', height: '50px' }} 
+                                        className="rounded-full border-3 border-[#0056FF] dark:border-white bg-gray-300"
+                                    />
+                                )}
+                            </li>
+                        )}
+                    </ul>
+                    
+                    <ul className="flex flex-col items-center mx-5">
+                        {topThree.length > 0 && (
+                            <li key={topThree[0].userId} className="flex flex-col text-white text-center items-center">
+                                <span className="font-bold" style={{ fontSize: "12px" }}>
+                                    {topThree[0].fullname}
+                                </span>
+                                <span className="font-bold" style={{ fontSize: "22px" }}>
+                                    {topThree[0].totalPoints}
+                                </span>
+                                <span>#1</span>
+                                {topThree[0].pictureUrl ? (
+                                    <Image 
+                                        src={topThree[0].pictureUrl} 
+                                        alt={topThree[0].fullname} 
+                                        width="50" 
+                                        height="50"
+                                        className="rounded-full border-3 border-[#0056FF] dark:border-white"
+                                    />
+                                ) : (
+                                    <div 
+                                        style={{ width: '50px', height: '50px' }} 
+                                        className="rounded-full border-3 border-[#0056FF] dark:border-white bg-gray-300"
+                                    />
+                                )}
+                            </li>
+                        )}
+                    </ul>
+
+                    <ul className="flex flex-col items-center">
+                        {topThree.length > 2 && (
+                            <li key={topThree[2].userId} className="flex flex-col text-white text-center items-center">
+                                <span className="font-bold" style={{ fontSize: "12px" }}>
+                                    {topThree[2].fullname}
+                                </span>
+                                <span className="font-bold" style={{ fontSize: "22px" }}>
+                                    {topThree[2].totalPoints}
+                                </span>
+                                <span>#3</span>
+                                {topThree[2].pictureUrl ? (
+                                    <Image 
+                                        src={topThree[2].pictureUrl} 
+                                        alt={topThree[2].fullname} 
+                                        width="50" 
+                                        height="50"
+                                        className="rounded-full border-3 border-[#0056FF] dark:border-white"
+                                    />
+                                ) : (
+                                    <div 
+                                        style={{ width: '50px', height: '50px' }} 
+                                        className="rounded-full border-3 border-[#0056FF] dark:border-white bg-gray-300"
+                                    />
+                                )}
+                            </li>
+                        )}
+                    </ul>
+                </div>
 
                 <table className="flex-row w-full">
                     <thead>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Picture</th>
-                        <th>Fullname</th>
-                        <th>Points</th>
-                    </tr>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Picture</th>
+                            <th>Fullname</th>
+                            <th>Points</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    {others.map((user, index) => (
-                        <tr key={user.userId}>
-                        <td>#{index + 4}</td>
-                        <td><Image src={user.pictureUrl} alt={user.fullname} width="50" height="50"/></td>
-                        <td>{user.fullname}</td>
-                        <td>{user.totalPoints}</td>
-                        </tr>
-                    ))}
+                        {others.map((user, index) => (
+                            <tr key={user.userId}>
+                                <td>#{index + 4}</td>
+                                <td>
+                                    {user.pictureUrl ? (
+                                        <Image 
+                                            src={user.pictureUrl} 
+                                            alt={user.fullname} 
+                                            width="50" 
+                                            height="50"
+                                        />
+                                    ) : (
+                                        <div 
+                                            style={{ width: '50px', height: '50px' }} 
+                                            className="rounded-full border-3 border-[#0056FF] dark:border-white bg-gray-300"
+                                        />
+                                    )}
+                                </td>
+                                <td>{user.fullname}</td>
+                                <td>{user.totalPoints}</td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>
         </div>
-  );
+    );
 }
 
 LeaderBoard.getLayout = function getLayout(page) {
     return <AppLayout>{page}</AppLayout>;
 }
 
-LeaderBoard.auth = true
+LeaderBoard.auth = true;
