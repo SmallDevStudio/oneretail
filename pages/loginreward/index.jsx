@@ -25,7 +25,7 @@ import Swal from "sweetalert2";
           icon: 'success',
           confirmButtonText: 'OK',
         }).then(() => {
-          window.location.href = '/main';
+          window.location.href = '/pulsesurvey';
         });
       } else {
         Swal.fire({
@@ -88,7 +88,7 @@ const loginreward = () => {
     };
   
     const handleGoToMain = () => {
-      window.location.href = '/main';
+      window.location.href = '/pulsesurvey';
     };
 
     const LineProgressBar = dynamic(() => import("@/components/LineProgressBar"), {ssr: false});
