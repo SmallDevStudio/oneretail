@@ -1,6 +1,7 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
 import LoginReward from "@/database/models/LoginReward";
 import Point from "@/database/models/Point";
+import sendLineMessage from "@/lib/sendLineMessage";
 
 export default async function handler(req, res) {
     await connetMongoDB();
@@ -48,12 +49,13 @@ export default async function handler(req, res) {
             day = existingReward.day >= 30 ? 1 : existingReward.day + 1;
             await LoginReward.updateOne({ userId }, { day, lastLogin: today });
         }
+        console.log('newPoints:', newPoints);
 
-        await Points.create({
+        await Point.create({
             userId,
             description: 'Login Reward',
             type: 'earn',
-            points: newPoints,
+            point: newPoints,
         });
 
         // ส่งข้อความไปที่ LINE

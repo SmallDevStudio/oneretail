@@ -1,11 +1,11 @@
 "use client";
 import React from "react";
 import { useState, useEffect } from "react";
-import { getSession } from 'next-auth/react';
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useSession } from "next-auth/react";
 import Swal from "sweetalert2";
+
 
   const fetchPoints = async (userId) => {
     try {
@@ -21,7 +21,7 @@ import Swal from "sweetalert2";
       if (response.ok) {
         Swal.fire({
           title: 'WELCOME LOGIN',
-          text: `You have received ${data.points} points`,
+          text: `คุณได้รับ ${data.points} points`,
           icon: 'success',
           confirmButtonText: 'OK',
         }).then(() => {

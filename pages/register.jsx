@@ -29,7 +29,7 @@ export default function Register() {
                 if (typeof window !== 'undefined') {
                     localStorage.setItem('user', data);
                     localStorage.setItem('isRegisterd', true);
-                    router.push('/main');
+                    router.push('/loginreward');
                 }
             }
         }
@@ -51,7 +51,7 @@ export default function Register() {
                 ...data,
                 userId: session?.user?.id,
                 pictureUrl: session?.user?.image,
-                role: 'admin',
+                role: 'user',
                 active: true,
             };
 
