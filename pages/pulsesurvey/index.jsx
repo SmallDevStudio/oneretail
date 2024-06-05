@@ -3,16 +3,22 @@ import { useState } from "react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
+import Loading from "@/components/Loading";
 
 const PulseSurvey = () => {
     const [loading, setLoading] = useState(false);
-    const [survey, setSurvey] = useState({ values: 1, memo: "" });
+    const [appLoading, setAppLoading] = useState(false);
+    const [survey, setSurvey] = useState({ value: 1, memo: "" });
     const { data: session } = useSession();
     const userId = session?.user?.id;
     const router = useRouter();
         const handleSubmit = async (e) => {
         e.preventDefault();
+        setAppLoading(true);
         setLoading(true);
+
+        console.log(survey);
+        console.log(userId);
 
         try {
             const response = await fetch('/api/survey', {
@@ -25,14 +31,17 @@ const PulseSurvey = () => {
 
             if (response.ok) {
                 const data = await response.json();
+                setAppLoading(false);
                 router.push('/main');
                 // Handle success (e.g., show a success message, clear the form, etc.)
             } else {
                 console.error('Error submitting survey:', response.statusText);
+                setAppLoading(false);
                 // Handle error (e.g., show an error message)
             }
         } catch (error) {
             console.error('Error submitting survey:', error);
+            setAppLoading(false);
         }
 
         setLoading(false);
@@ -46,6 +55,10 @@ const PulseSurvey = () => {
     const handleValueChange = (value) => {
         setSurvey({ ...survey, value });
     };
+
+    if (appLoading) {
+        return <Loading />;
+    }
 
 
     return (
@@ -69,6 +82,7 @@ const PulseSurvey = () => {
                                         <li
                                             key={val}
                                             className="relative w-full mb-3"
+                                            name="value"
                                             onClick={() => handleValueChange(val)}
                                         >
                                             <div className="relative grid grid-cols-4 justify-center items-center text-left p-2">

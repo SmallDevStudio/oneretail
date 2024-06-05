@@ -21,80 +21,67 @@ const Feed = () => {
         setContents(data);
     }
 
-
     return (
-        <>
+        <div className="flex flex-col w-full mb-20">
     {contents &&
         contents.map((contents, i) => (
         <>
-        <Suspense fallback={<LoadingFeed />}>
-        <div className="flex flex-row bg-gray-200 m-3 rounded-md p-2">
-            <div className="flex flex-row ">
-                
-                    <div className="relative w-5/6" key={i}>
-                        <Link href={{
-                            pathname: '/stores/view/[slug]',
-                            query: { slug: contents.slug },
-                        }}>
+            <Suspense fallback={<LoadingFeed />}>
+                <div className="flex flex-row bg-gray-200 m-2 rounded-md p-2">
+                    <Link href={{
+                                pathname: '/stores/view/[slug]',
+                                query: { slug: contents.slug },
+                            }}>
+                        <div className="flex w-[150px]" key={i}>
                             <Image
                                 src={contents.thumbnailUrl}
                                 alt="Avatar"
                                 width={150}
                                 height={150}
-                                className="rounded-md"
+                                className="rounded-lg"
                             />
-                        </Link>
-                    </div>
-               
-        
-                <div className="flex flex-col ml-2" key={i}>
+                        </div>
+                    </Link>
+                    
                     <Link href={{
                         pathname: '/stores/view/[slug]',
                         query: { slug: contents.slug },
                     }}>
-                    <div className="flex flex-col">
-                        <span className="text-sm font-bold text-[#0056FF] inline">{contents.title}</span>
-                        <span className="font-light text-black leading-tight inline-block" style={{
-                            fontSize: "10px"
-                        }}>
-                            {contents.description}
-                        </span>
-                    </div>
+                    <div className="flex flex-col w-full text-left ml-2">
+                        <div>
+                            <span className="inline-block text-sm font-bold text-[#0056FF]">{contents.title}</span>
+                        </div>
+                        <div className="mr-2">
+                            <span className="font-light text-black leading-tight inline-block min-h-[55px]" style={{
+                                fontSize: "11px"
+                            }}>
+                                {contents.description}
+                            </span>
+                        </div>
 
-                        <div className="ralative flex flex-row gap-10 px-2 items-end w-full mt-3">
-                            <div className="flex ml-2" >
+                        <div className="flex flex-row justify-end mt-2 mr-4 space-x-5">
+                            <div className="flex flex-row items-center">
                                 <span className="font-light text-black" style={{
-                                    fontSize: "10px"
-                                }}>การดู {contents.views} ครั้ง</span>
-                            </div>
-                            
-                            <div className="flex ml-2" >
-                                <GrLike />
-                                <span className="font-light text-black ml-1" style={{
-                                    fontSize: "10px"
-                                }}>
-                                   {contents.likes}
+                                        fontSize: "12px"
+                                    }}>การดู {contents.views} ครั้ง
                                 </span>
                             </div>
-
-                            <div className="flex ml-2">
-                                <LuMessageCircle />
-                                <span className="font-light text-black ml-1" style={{
-                                    fontSize: "10px"
-                                }}>
-                                     
-                                </span>
+                            <div className="flex flex-row items-center">
+                                <GrLike className="mr-1" />
+                                <span className="text-xs">{contents.like}</span>
                             </div>
+                            <div className="flex flex-row items-center">
+                                <LuMessageCircle className="mr-1" />
+                                <span className="text-xs">{contents.comment ? contents.comment.length : 0}</span>
+                            </div>
+                        </div>
                     </div>
                     </Link>
                 </div>
-              
-            </div>
-        </div>
-        </Suspense>
+            </Suspense>
         </>
         ))}
-        </>
+        </div>
     )
 }
 

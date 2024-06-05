@@ -19,6 +19,7 @@ export default async function handler(req, res) {
         case 'POST':
             try {
                 const survey = await Survey.create(req.body);
+                console.log('survey:', survey)
                 res.status(201).json({ success: true, data: survey });
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });

@@ -10,10 +10,16 @@ import { AppLayout } from "@/themes";
 import CommentBar from "@/components/CommentBar";
 import axios from "axios";
 import Loading from "@/components/Loading";
+import ShareYourStory from "@/components/ShareYourStory";
+import { Suspense } from "react";
+import dynamic from "next/dynamic";
+import LoadingFeed from "@/components/LoadingFeed";
+import { IoMdTimer } from "react-icons/io";
 
 const SlugPage = () => {
     const [content, setContent] = useState({});
     const [loading, setLoading] = useState(false);
+    const [activeTab, setActiveTab] = useState("secret-sauce");
     const [countdown, setCountdown] = useState(0);
     const [seen60Percent, setSeen60Percent] = useState(false);
     const router = useRouter();
@@ -25,9 +31,6 @@ const SlugPage = () => {
     const playerRef = useRef(null);
     const userStore = localStorage.getItem('user');
     const userId = JSON.parse(userStore).userId;
-    console.log (userId);
-    console.log (id);
-   
 
     const fetchVideo = async () => {
         setLoading(true);
@@ -94,13 +97,15 @@ const SlugPage = () => {
         return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
       };
 
+      const handleTabClick = (tab) => {
+        setActiveTab(tab);
+    };
+      
+
+
     return (
-        <main className="flex flex-col bg-gray-200" style={{
-            height: "100%",
-            width: "100%",
-        }}>
-        
-            <div className="flex p-3 w-full bg-white">
+        <main className="flex-1 flex-col bg-gray-10 justify-between items-center text-center h-full mb-[100px]">
+            <div>
                 <div className="flex items-center text-center justify-center mt-[20px] p-2 px-1 pz-1">
                     <span className="text-[35px] font-black text-[#0056FF] dark:text-white">Success</span>
                     <span className="text-[35px] font-black text-[#F2871F] dark:text-white ml-2">
@@ -108,60 +113,98 @@ const SlugPage = () => {
                     </span>
                 </div>
             </div>
-            <div className="flex text-sm font-medium text-center items-center justify-center text-gray-500 border-b border-gray-200 bg-white" >
-            <ul className="flex flex-wrap -mb-px">
-                <li className="me-2">
-                    <a href="#" className="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-[#0056FF] hover:border-[#F2871F] font-bold">
-                        Secret Sauce
-                    </a>
-                </li>
-                <li className="me-2">
-                    <a href="#" className="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-[#0056FF] hover:border-[#F2871F] font-bold">
-                        Share your story
-                    </a>
-                </li>
-            </ul>
+
+            {/* Tabs */}
+            <div className="flex justify-center mb-4 text-sm">
+                <ul className="flex flex-wrap -mb-px">
+                    <li className="me-2">
+                        <a
+                            href="#"
+                            className={`inline-block p-4 border-b-2 rounded-t-lg font-bold ${activeTab === 'secret-sauce' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
+                            onClick={() => handleTabClick('secret-sauce')}
+                        >
+                            Secret Sauce
+                        </a>
+                    </li>
+                    <li className="me-2">
+                        <a
+                            href="#"
+                            className={`inline-block p-4 border-b-2 rounded-t-lg font-bold ${activeTab === 'share-your-story' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
+                            onClick={() => handleTabClick('share-your-story')}
+                        >
+                            Share your story
+                        </a>
+                    </li>
+                </ul>
             </div>
 
-            <div className="flex flex-col justify-center items-center p-2 bg-white">
-                <div className="flex flex-col">
-                    <div className="relative justify-center items-center">
-                       <ReactPlayer url={youtube} loop={false} width={430} height={250} playing={true} ref={playerRef} onProgress={handleProgress}/>
-                    </div>
-                    <div className="relative w-full p-4">
-                        <h1 className="text-[16px] font-bold text-[#0056FF]" style={{ fontFamily: "Ekachon", fontSmoothing: "auto", fontWeight: "black" }}>{content?.title}</h1>
-                        <p className="text-[13px] font-light" >{content?.description}</p>
-                        <div >
-                            <div className="w-full p-2 h-10">
-                                <button type="button" className="text-white bg-[#F2871F] hover:bg-gray-100 border border-gray-200 font-medium rounded-full text-sm px-5 py-2.5 text-center inline-flex items-center me-1 mb-1">
-                                    <GrLike className="w-5 h-3 me-2 -ms-1"/>
+            {/* Tabs Content */}
+            <div className="flex flex-col items-center w-full">
+                
+                {activeTab === 'secret-sauce' && (
+                    <>
+                        <div className="justify-center flex min-w-[100vw]">
+                            <ReactPlayer
+                                url={youtube}
+                                loop={false}
+                                width="100%"
+                                height="250px"
+                                playing={true}
+                                ref={playerRef} 
+                                onProgress={handleProgress}
+                                
+                            />
+                        </div>
+                        <div className="absolute right-0 top-80 mt-20 mb-20 bg-[#0056FF] text-white h-6 w-20 rounded-full">
+                            <span className="relative inline-flex items-center justify-center">
+                                <IoMdTimer className="mr-2"/>
+                                {formatTime(countdown)}
+                            </span>
+                        </div>
+                        
+                        <div className="flex flex-col p-4">
+                            <div className="flex text-left">
+                                <span className="text-[15px] font-bold text-[#0056FF]" >
+                                    {content?.title}
+                                </span>
+                            </div>
+                            <div className="inline-block text-left text-[13px] font-light ">
+                                {content?.description}
+                            </div>
+
+                            <div className="flex flex-row mt-2 justify-left items-baseline space-x-4 h-8" style={{ textSizeAdjust: '100%', fontSize: '12px'}}>
+                                <div className="relative inline-flex items-center columns-2 justify-center p-3 bg-[#F2871F] text-white rounded-full h-6 w-15">
+                                    <GrLike className="mr-2"/>
                                     {content?.like}
-                                </button>
-                                <div className="text-gray-900 hover:bg-gray-100 font-medium rounded-full text-sm px-5 py-2.5 text-center inline-flex items-center me-1 mb-1 ms-3">
-                                    <span>การดู {content?.views ? content?.views : 0} ครั้ง</span>
                                 </div>
-                                <div className="text-gray-900 hover:bg-gray-100 font-medium rounded-full text-sm px-5 py-2.5 text-center inline-flex items-center me-1 mb-1 ms-3">
-                                    <LuMessageCircle className="w-5 h-3 me-2 -ms-1"/>
+                                <span>การดู {content?.views ? content?.views : 0} ครั้ง</span>
+                                <div className="relative inline-flex columns-2 p-3 justify-center h-8 items-baseline">
+                                    <LuMessageCircle className="mr-2"/>
                                     <span>แสดงความคิดเห็น</span>
                                 </div>
                             </div>
                         </div>
-                        Remaining Time: {formatTime(countdown)}
-                    </div>
-                    <hr />
 
-                    <div className="flex w-full justify-center items-center mt-3 mb-[120px]">
-                        <Comments id={content._id}/>
-                    </div>
-                        
-                </div>
-            </div>
-            <div className="flex flex-col justify-center items-center">
-                <CommentBar id={content._id}/>
+                        <div className="flex flex-col p-4 w-full">
+                            <Suspense fallback={<LoadingFeed />}>
+                                <Comments id={content._id}/>
+                            </Suspense>
+                        </div>
+                        <div className="flex flex-col w-full">
+                            <CommentBar id={content._id}/>
+                        </div>
+                    </>
+                )}
+                {activeTab === 'share-your-story' && (
+                    <Suspense fallback={<LoadingFeed />}>
+                        <ShareYourStory />
+                    </Suspense>
+                )}
             </div>
         </main>
     )
 }
+
 
 export default SlugPage;
 

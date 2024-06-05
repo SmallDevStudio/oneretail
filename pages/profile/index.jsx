@@ -10,6 +10,9 @@ import Loading from "@/components/Loading";
 import { AppLayout } from "@/themes";
 import useSWR from "swr";
 import dynamic from "next/dynamic";
+import { BsQrCodeScan } from "react-icons/bs";
+import { IoMdNotificationsOutline } from "react-icons/io";
+import { IoCreateOutline } from "react-icons/io5";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 export default function Profile() {
@@ -23,13 +26,18 @@ export default function Profile() {
     const HalfCircleProgressBar = dynamic(() => import('@/components/main/HalfCircleProgressBar'), { ssr: false });
 
     return (
-        <>
-        <main className="flex flex-col overflow-x-scroll mt-5" style={{
+        <> 
+        <main className="flex flex-col overflow-x-scroll mt-2 mb-20" style={{
             fontFamily: "ttb"
         }}>
 
             <div className="flex pl-5 pr-5 pb-5">
                 <div className="flex flex-col">
+                    <div className="flex flex-row justify-end space-x-3 text-gray-500 text-sm">
+                        <IoCreateOutline />
+                        <IoMdNotificationsOutline />
+                        <BsQrCodeScan />
+                    </div>
                     {/* profile card */}
                     <div className="flex flew-row mt-1 w-full">
                         <div className="relative" style={{ width: "50px", height: "50px" }}>
@@ -74,8 +82,11 @@ export default function Profile() {
                             className="flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden text-sm font-bold text-gray-900 rounded-2xl dark:bg-white dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800 hover:text-white border-4 border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 "
                             style={{ width: 110, height: 110 }}
                         >
-                            <CoinPointIcon 
-                                className="w-10 h-10 mb-1 mt-1"
+                            <Image 
+                                src="/images/profile/Point.svg"
+                                alt="point"
+                                width={30}
+                                height={30}
                             />
                             <span className="text-sm font-black text-black dark:text-white">
                                 Total Point
@@ -89,8 +100,11 @@ export default function Profile() {
                             className="flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden text-sm font-bold dark:bg-white text-gray-900 rounded-2xl dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800 hover:text-white border-4 border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 "
                             style={{ width: 110, height: 110 }}
                         >
-                            <CoinPointIcon 
-                                className="w-10 h-10 mb-1 mt-1"
+                            <Image 
+                                src="/images/profile/Coin.svg"
+                                alt="point"
+                                width={32}
+                                height={32}
                             />
                             <span className="text-sm font-black text-black dark:text-white">
                                 Coin
@@ -123,7 +137,7 @@ export default function Profile() {
 
                 </div>
 
-                <div className="relative p-5 mb-10">
+                <div className="relative p-5 mb-3">
                     <HalfCircleProgressBar percentage={percentage} style={{ height: 200 }}/>
                 </div>
               

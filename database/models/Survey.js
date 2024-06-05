@@ -7,6 +7,4 @@ const surveySchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 
-const Survey = mongoose.model('Survey', surveySchema);
-
-export default Survey;
+export default mongoose.models.Survey || mongoose.model('Survey', surveySchema);

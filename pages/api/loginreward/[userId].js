@@ -37,7 +37,7 @@ export default async function handler(req, res) {
 
         if (!existingReward) {
             await LoginReward.create({ userId, day, lastLogin: new Date() });
-            newPoints = 50;
+            newPoints = Math.floor(Math.random() * 16) + 15;
         } else {
             const lastLogin = new Date(existingReward.lastLogin);
             const today = new Date();

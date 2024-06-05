@@ -33,7 +33,7 @@ const Comments = (id) => {
     };
    
     return (
-        <div className="w-full flex flex-col ml-5 mr-5 justify-center">
+        <div className="flex flex-col">
             {data && data.map((com, i) => (
             <>
             <div className="relative ml-5 mr-5 me-2 h-20" >

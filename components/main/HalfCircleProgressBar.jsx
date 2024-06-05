@@ -16,11 +16,14 @@ const HalfCircleProgressBar = ({ percentage }) => {
         duration: 1400,
         svgStyle: { strokeLinecap: 'round',
                     strokeWidth: 15,
-         },
+                    
+      },
+
+
         text: {
           value: '',
           alignToBottom: false,
-          className: "progressbar__label"
+          className: "progressbar__label",
         },
         from: { color: '#ffde05' },
         to: { color: '#fce803' },
@@ -34,13 +37,10 @@ const HalfCircleProgressBar = ({ percentage }) => {
             bar.setText(value + '%');
           }
           bar.text.style.color = state.color;
-        }
+        },
+         
       });
-
-      const trailPath = containerRef.current.querySelector('.progressbar-trail');
-      if (trailPath) {
-        trailPath.setAttribute('stroke-linecap', 'round');
-      }
+      
 
       bar.animate(percentage / 100);  // Convert percentage to value between 0.0 to 1.0
     }
