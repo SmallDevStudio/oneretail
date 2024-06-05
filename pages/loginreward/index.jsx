@@ -91,6 +91,9 @@ const loginreward = () => {
       window.location.href = '/pulsesurvey';
     };
 
+    const loginPercent = receivedPointsToday /30 * 100;
+
+
     const LineProgressBar = dynamic(() => import("@/components/LineProgressBar"), {ssr: false});
 
     const items = Array.from({ length: 30 }, (_, i) => i + 1);
@@ -112,14 +115,14 @@ const loginreward = () => {
                         </div>
 
                         <div className="relative mb-8 mt-10">
-                            <LineProgressBar percent={10} />
+                            <LineProgressBar percent={loginPercent} />
                         </div>
 
                         <div className="grid grid-cols-5 gap-1 mb-3">
                         {items.map((item) => (
                             <div
                             key={item}
-                            className="flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden border-2 border-[#C7DFF5] rounded-lg"
+                            className={`flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden border-2 border-[#C7DFF5] rounded-lg ${item <= receivedPointsToday ? 'bg-[#C7DFF5]/80' : ''}`}
                             style={{ width: 60, height: 60 }}
                             id={item.toString()}
                             >
