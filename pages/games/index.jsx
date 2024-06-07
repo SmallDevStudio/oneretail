@@ -6,77 +6,96 @@ import Link from "next/link";
 export default function Games() {
     return (
         <>
-            <div className="relative p-3 w-full h-full mb-20">
-                <div className="flex flex-col items-center text-center justify-center p-2 px-1 pz-1">
+            <div className="relative p-3 mb-20 max-h-[100vh]">
+                <div className="flex flex-col items-center text-center justify-center p-2 px-1 pz-1 gap-14">
                     <div className="relative p-3 ">
-                        <div className="flex items-center text-center justify-center p-2 px-1 pz-1">
+                        <div className="flex items-center text-center justify-center p-2 px-1 pz-1 ">
                             <span className="text-[35px] font-black text-[#0056FF] dark:text-white">Games Center</span>
                         </div>
                     </div>
-                    <div className="flex items-center text-center justify-center p-2 px-1 pz-1 mt-5">
+                    <div className="flex items-center text-center justify-center" style={{
+                        width: "100%",
+                    }}>
                         <Link href="/games/quiz">
                             <Image 
-                                src={'/images/gamecenter/Asset25.svg' }
+                                src={'/images/gamecenter/Asset25.png' }
                                 alt="games" 
-                                width={300} 
-                                height={300} 
-                                className="relative w-full h-full"
+                                width={100} 
+                                height={100} 
                                 priority
+                                style={{
+                                    position: "absolute",
+                                    top: "14%",
+                                    left: "50%",
+                                    zIndex: "1",
+                                    width: "120px",
+                                    height: "120px",
+                                    transform: "translateX(-50%)",
+                                }}
                             />
-                            <div style={{
-                                position: "absolute",
-                                top: "35%",
-                                left: "20%",
-                                zIndex: "1",
-
-                            }} > 
-                                <span className="text-xl font-black text-white">
+                            <div className="flex bg-[#0056FF] rounded-3xl items-center justify-center" style={{
+                                width: "320px",
+                                height: "150px",
+                            }}> 
+                                <span className="text-xl font-black text-white mt-10">
                                     ตอบคำถามรับพอยท์ประจำวัน
                                 </span>
                             </div>
                         </Link>
                     </div>
-                    <div className="flex items-center text-center justify-center p-2 px-1 pz-1 mt-3">
+                    <div className="flex items-center text-center justify-center p-2 px-1 pz-1">
                         <Link href="#">
                             <Image 
-                                src={'/images/gamecenter/Asset24.svg'}
+                                src={'/images/gamecenter/Asset24.png'}
                                 alt="games" 
-                                width={300} 
-                                height={300} 
+                                width={150} 
+                                height={150} 
                                 className="relative w-full h-full"
                                 priority
+                                style={{
+                                    position: "absolute",
+                                    top: "42%",
+                                    left: "50%",
+                                    zIndex: "1",
+                                    width: "120px",
+                                    height: "120px",
+                                    transform: "translateX(-50%)",
+                                }}
                             />
-                            <div style={{
-                                position: "absolute",
-                                top: "62%",
-                                left: "37%",
-                                zIndex: "1",
-
-                            }} > 
-                                <span className="text-xl font-black text-white">
+                            <div className="flex bg-[#f68b1f] rounded-3xl items-center justify-center " style={{
+                                width: "320px",
+                                height: "150px",
+                            }}> 
+                                <span className="text-xl font-black text-white mt-10">
                                     จับคู่รับพอยท์ 
                                 </span>
                             </div>
                         </Link>
                     </div>
-                    <div className="flex items-center text-center justify-center p-2 px-1 pz-1 mt-3">
+                    <div className="flex items-center text-center justify-center p-2 px-1 pz-1">
                         <Link href="#">
                             <Image 
-                                src={'/images/gamecenter/Asset23.svg'} 
+                                src={'/images/gamecenter/Asset23.png'} 
                                 alt="games" 
-                                width={300} 
-                                height={300} 
+                                width={150} 
+                                height={150} 
                                 className="relative w-full h-full"
                                 priority
+                                style={{
+                                    position: "absolute",
+                                    bottom: "14%",
+                                    left: "50%",
+                                    zIndex: "1",
+                                    width: "120px",
+                                    height: "120px",
+                                    transform: "translateX(-50%)",
+                                }}
                             />
-                            <div style={{
-                                position: "absolute",
-                                top: "90%",
-                                left: "45%",
-                                zIndex: "1",
-
-                            }} > 
-                                <span className="text-xl font-black text-white">
+                            <div className="flex bg-[#29345f] rounded-3xl items-center justify-center" style={{
+                                width: "320px",
+                                height: "150px",
+                            }}> 
+                                <span className="text-xl font-black text-white mt-10">
                                     เร็วๆนี้ 
                                 </span>
                             </div>
