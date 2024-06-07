@@ -1,3 +1,4 @@
+"use client"
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
@@ -35,27 +36,30 @@ const RedeemPage = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleUpload = (url) => {
-    setForm({ ...form, image: url });
+  const handleUpload = (result) => {
+    if (result.event === 'success') {
+      setForm({ ...form, image: result.info.secure_url });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('form:', form);
 
-   
     if (isEdit) {
-      await axios.put('/api/redeem', { ...form, image: imageUrl, id: editId });
-    } else {
-      await axios.post('/api/redeem', {
-        ...form,
-        creator: userId,
-      });
-    }
-    fetchRedeems();
-    setForm({ name: '', description: '', image: '', stock: 0, expire: '', coins: 0, point: 0, creator: userId });
-    setIsEdit(false);
-    setEditId(null);
-  };
+        await axios.put('/api/redeem', { ...form, id: editId });
+      } else {
+        await axios.post('/api/redeem', {
+          ...form,
+          creator: userId,
+        });
+      }
+      fetchRedeems();
+      setForm({ name: '', description: '', image: '', stock: 0, expire: '', coins: 0, point: 0 });
+      setIsEdit(false);
+      setEditId(null);
+    };
+
 
   const handleEdit = (redeem) => {
     setForm({
@@ -84,7 +88,7 @@ const RedeemPage = () => {
         <input type="text" name="description" value={form.description} onChange={handleInputChange} placeholder="Description" required />
         <CldUploadWidget
           uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
-          onSuccess={handleUpload}
+          onUpload={handleUpload}
         >
           {({ open }) => (
             <button type="button" onClick={open}>

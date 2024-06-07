@@ -16,7 +16,7 @@ export default function Games() {
                     <div className="flex items-center text-center justify-center p-2 px-1 pz-1 mt-5">
                         <Link href="/games/quiz">
                             <Image 
-                                src="/images/gamecenter/Asset 25.svg" 
+                                src={'/images/gamecenter/Asset 25.svg' }
                                 alt="games" 
                                 width={300} 
                                 height={300} 
@@ -39,7 +39,7 @@ export default function Games() {
                     <div className="flex items-center text-center justify-center p-2 px-1 pz-1 mt-3">
                         <Link href="#">
                             <Image 
-                                src="/images/gamecenter/Asset 24.svg" 
+                                src={'/images/gamecenter/Asset 24.svg'}
                                 alt="games" 
                                 width={300} 
                                 height={300} 
@@ -62,7 +62,7 @@ export default function Games() {
                     <div className="flex items-center text-center justify-center p-2 px-1 pz-1 mt-3">
                         <Link href="#">
                             <Image 
-                                src="/images/gamecenter/Asset 23.svg" 
+                                src={'/images/gamecenter/Asset 23.svg'} 
                                 alt="games" 
                                 width={300} 
                                 height={300} 
