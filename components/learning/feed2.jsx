@@ -45,11 +45,12 @@ const Feed2 = () => {
                         </div>
                     </Link>
                     
+                    
+                    <div className="flex flex-col w-full text-left ml-2">
                     <Link href={{
                         pathname: '/view/[slug]',
                         query: { slug: contents.slug },
                     }}>
-                    <div className="flex flex-col w-full text-left ml-2">
                         <div className="mr-1">
                             <span className="inline-block text-sm font-bold text-[#0056FF]">{contents.title}</span>
                         </div>
@@ -61,6 +62,7 @@ const Feed2 = () => {
                                 {contents.description}
                             </span>
                         </div>
+                        </Link>
 
                         <div className="flex flex-row justify-end mt-2 mr-4 space-x-5">
                             <div className="flex flex-row items-center">
@@ -79,7 +81,7 @@ const Feed2 = () => {
                             </div>
                         </div>
                     </div>
-                    </Link>
+                    
                 </div>
             </Suspense>
         </>

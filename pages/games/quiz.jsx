@@ -7,7 +7,6 @@ import { useSession } from "next-auth/react";
 export default function QuizGame() {
     const { data: session, status } = useSession();
     const userId = session?.user?.id;
-    console.log('userId:', userId);
 
     return (
         <Provider store={store}>

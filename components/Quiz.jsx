@@ -1,23 +1,27 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { setQuestions, answerQuestion, nextQuestion, resetQuiz, savePoints } from '@/lib/redux/quizSlice';
 import Loading from './Loading';
 import Swal from 'sweetalert2'
+import useSWR from 'swr';
+
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const Quiz = ({ userId }) => {
+  const [appLoading, setAppLoading] = useState(true);
   const dispatch = useDispatch();
   const router = useRouter();
   const { questions, currentQuestionIndex, score, showAnswer, status } = useSelector((state) => state.quiz);
 
+  const { data, error } = useSWR('/api/questions', fetcher);
+
   useEffect(() => {
-    const fetchQuestions = async () => {
-      const res = await fetch('/api/questions');
-      const data = await res.json();
+    if (data) {
       dispatch(setQuestions(data));
-    };
-    fetchQuestions();
-  }, [dispatch]);
+      setAppLoading(false);
+    } 
+  }, [data, dispatch]);
 
   if (questions.length === 0) return <Loading />;
 
@@ -41,6 +45,10 @@ const Quiz = ({ userId }) => {
     }
   };
 
+  if (appLoading) {
+    return <Loading />;
+  }
+
     return (
       <div className="flex flex-col items-center text-center bg-white p-2">
         <h1 className="text-lg font-bold mt-4">{question.question}</h1>
@@ -56,10 +64,10 @@ const Quiz = ({ userId }) => {
             ))}
         </ul>
         {showAnswer && (
-            <div>
-                <p className="text-sm font-bold inline-block">
+            <div className="mt-4">
+                <span className="text-sm font-bold inline-block">
                     {questions[currentQuestionIndex].correctAnswer === currentQuestionIndex ? 'ถูกต้อง!' : 'ผิด!'} 
-                </p>
+                </span><br />
                 <span className="text-sm font-bold inline-block">
                   คำตอบที่ถูกคือ: <span className='text-[#0056FF]'>{question.options[question.correctAnswer]}</span>
                 </span>
