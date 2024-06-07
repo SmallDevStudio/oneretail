@@ -3,8 +3,8 @@ import { Analytics } from '@vercel/analytics/react';
 
 export default function Document() {
   return (
-    <Html lang="en">
-      <Head />
+    <Html lang="th">
+      <Head/>
       <body>
         <Main/>
         <NextScript />

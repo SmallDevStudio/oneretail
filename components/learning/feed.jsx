@@ -6,20 +6,19 @@ import { GrLike } from "react-icons/gr";
 import { LuMessageCircle } from "react-icons/lu";
 import { Suspense } from "react";
 import LoadingFeed from "@/components/LoadingFeed";
-import TimeDisplay from "../TimeDisplay";
+import TimeDisplay from "@/components/TimeDisplay";
 
 const Feed = () => {
-    const subcategory = "665c4c95013c2e4b13669c98";
+    const category = "665c561146d171292cbda9eb";
     const [contents, setContents] = useState([]);
-    const time = contents?.data?.createdAt;
-    console.log("time:", time);
+    console.log(contents);
 
     useEffect(() => {
         fetchContent();
     }, []);
 
     const fetchContent = async () => {
-        const res = await fetch('/api/content/subcategory?subcategories='+subcategory);
+        const res = await fetch('/api/content/category?categories='+category);
         const data = await res.json();
         setContents(data);
     }
@@ -51,9 +50,10 @@ const Feed = () => {
                         query: { slug: contents.slug },
                     }}>
                     <div className="flex flex-col w-full text-left ml-2">
-                        <div>
+                        <div className="mr-1">
                             <span className="inline-block text-sm font-bold text-[#0056FF]">{contents.title}</span>
                         </div>
+
                         <div className="mr-2">
                             <span className="font-light text-black leading-tight inline-block min-h-[55px]" style={{
                                 fontSize: "11px"

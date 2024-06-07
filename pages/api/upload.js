@@ -1,33 +1,43 @@
-import fs from "fs";
-import path from "path";
-import connectMongoDB from "@/lib/services/database/mongodb";
-import Image from "@/database/models/Image";
+import nextConnect from 'next-connect';
+import multer from 'multer';
+import streamifier from 'streamifier';
+import cloudinary from '@/utils/cloudinary';
 
-export default async function handler(req, res) {
-  if (req.method === "POST") {
-    const file = req.files.image;
-    const filename = Date.now() + path.extname(file.name);
-    const filepath = path.join(process.cwd(), "public", "images", filename);
+const upload = multer();
 
-    try {
-      await fs.promises.writeFile(filepath, file.data);
+const apiRoute = nextConnect({
+  onError(error, req, res) {
+    console.error('Upload error:', error); // เพิ่มการ log ข้อผิดพลาด
+    res.status(501).json({ error: `Sorry something happened! ${error.message}` });
+  },
+  onNoMatch(req, res) {
+    res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
+  },
+});
 
-      // บันทึกข้อมูลลง MongoDB
-      const newImage = new Image({
-        name: filename,
-        url: `/images/${filename}`,
-      });
-      await newImage.save();
+apiRoute.use(upload.single('image'));
 
-      res.status(200).json({
-        message: 'File uploaded and saved to database successfully!',
-        name: filename,
-        url: `/images/${filename}`,
-      });
-    } catch (error) {
-      res.status(500).json({ message: 'Error uploading file', error });
-    }
-  } else {
-    res.status(400).json({ message: 'Invalid request' });
+apiRoute.post((req, res) => {
+  const { file } = req;
+
+  if (!file) {
+    return res.status(400).json({ error: 'No file uploaded' });
   }
-}
+
+  const stream = cloudinary.uploader.upload_stream((error, result) => {
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+    res.status(200).json({ filePath: result.secure_url });
+  });
+
+  streamifier.createReadStream(file.buffer).pipe(stream);
+});
+
+export default apiRoute;
+
+export const config = {
+  api: {
+    bodyParser: false, // ปิด bodyParser เพื่อให้ multer ทำงานได้
+  },
+};

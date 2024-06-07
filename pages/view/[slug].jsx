@@ -15,6 +15,7 @@ import { Suspense } from "react";
 import dynamic from "next/dynamic";
 import LoadingFeed from "@/components/LoadingFeed";
 import { IoMdTimer } from "react-icons/io";
+import TimeDisplay from "@/components/TimeDisplay";
 
 const SlugPage = () => {
     const [content, setContent] = useState({});
@@ -139,7 +140,7 @@ const SlugPage = () => {
             </div>
 
             {/* Tabs Content */}
-            <div className="flex flex-col items-center w-full">
+            <div className="flex flex-col items-center">
                 
                 {activeTab === 'secret-sauce' && (
                     <>
@@ -162,10 +163,13 @@ const SlugPage = () => {
                             </span>
                         </div>
                         
-                        <div className="flex flex-col p-4">
-                            <div className="flex text-left">
+                        <div className="flex flex-col p-4 w-full">
+                            <div className="flex flex-col text-left mb-2">
                                 <span className="text-[15px] font-bold text-[#0056FF]" >
                                     {content?.title}
+                                </span>
+                                <span className="text-[12px] font-light text-black">
+                                    <TimeDisplay time={content?.createdAt} />
                                 </span>
                             </div>
                             <div className="inline-block text-left text-[13px] font-light ">

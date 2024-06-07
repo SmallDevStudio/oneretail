@@ -1,7 +1,7 @@
 import './dist/css/app.module.css';
-import AppMenu from '@/components/menu/AppMenu';
+import AppMenu from '@/components/AppMenu';
 
-export default function AppLayout({ children }) {
+const AppLayout = ({ children }) => {
     return (
         <>
             <div className="flex flex-col h-full">
@@ -13,3 +13,5 @@ export default function AppLayout({ children }) {
         </>
     )
 }
+
+export default AppLayout;

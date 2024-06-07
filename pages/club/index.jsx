@@ -1,4 +1,5 @@
-import AppMenu from "@/components/menu/AppMenu";
+import AppLayout from "@/themes/Layout/AppLayout";
+
 export default function Club() {
     return (
         <>
@@ -7,9 +8,9 @@ export default function Club() {
                     Coming Soon
                 </h1>
             </div>
-            <nav>
-                <AppMenu />
-            </nav>
         </>
     );
 }
+
+Club.getLayout = (page) => <AppLayout>{page}</AppLayout>;
+Club.auth = true;

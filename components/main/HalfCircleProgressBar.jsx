@@ -14,16 +14,23 @@ const HalfCircleProgressBar = ({ percentage }) => {
         trailWidth: 12,
         easing: 'easeInOut',
         duration: 1400,
-        svgStyle: { strokeLinecap: 'round',
-                    strokeWidth: 15,
-                    
-      },
-
-
+        svgStyle: {
+          strokeLinecap: 'round',
+          strokeWidth: 15,
+        },
         text: {
-          value: '',
-          alignToBottom: false,
-          className: "progressbar__label",
+          style: {
+            color: '#000',
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            padding: 0,
+            margin: 0,
+            transform: 'translate(-50%, -50%)',
+            fontWeight: 'bold',
+            fontSize: '3em',
+          },
+          autoStyleContainer: false,
         },
         from: { color: '#ffde05' },
         to: { color: '#fce803' },
@@ -36,27 +43,34 @@ const HalfCircleProgressBar = ({ percentage }) => {
           } else {
             bar.setText(value + '%');
           }
-          bar.text.style.color = state.color;
+          bar.text.style.color = '#000'; // สีข้อความเป็นสีดำ
+          bar.text.style.fontWeight = 'bold'; // ตัวหนา
+          bar.text.style.top = '50%';
+          bar.text.style.weight = '25%'; 
         },
-         
       });
-      
 
-      bar.animate(percentage / 100);  // Convert percentage to value between 0.0 to 1.0
+      bar.animate(percentage / 100); // Convert percentage to value between 0.0 to 1.0
     }
-
     return () => {
-      if (bar) bar.destroy();
-    };
+      if (bar) {
+          try {
+              bar.destroy();
+          } catch (error) {
+              console.error('Error destroying bar:', error);
+          }
+      }
+  };
   }, [percentage]);
+
+  
 
   return (
     <div>
-      <div ref={containerRef} className='rounded-full '
-      style={{
-        margin: '0 auto',
-      }}
-        ></div>
+      <div
+        ref={containerRef}
+        className='rounded-full'
+      ></div>
     </div>
   );
 };

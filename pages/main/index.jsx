@@ -1,45 +1,34 @@
-"use client"
 import React from "react";
 import MainIconMenu from "@/components/MainIconMenu";
 import FooterContant from "@/components/main/footContent";
 import Loading from "@/components/Loading";
+import AppLayout from "@/themes/Layout/AppLayout";
 import dynamic from "next/dynamic";
-import { AppLayout } from "@/themes";
-import Head from "next/head";
-import { useSession } from "next-auth/react";
-import CheckUser from "@/lib/hook/chckUsers";
-import withAuthCheck from "@/lib/hook/withAuthCheck";
 
-export default function MainPage() {
+const MainPage = () => {
     const Carousel = dynamic(() => import("@/components/Carousel"), {
         ssr: false,
         loading: () => <Loading />,
     });
-    const { data: session, status } = useSession();
-    const { isRegisterd } = CheckUser();
-    console.log('session:', session);
-    
+   
     return (
         <>
-            <Head>
-                <title>One Retail</title>
-                <meta http-equiv="Permissions-Policy" content="interest-cohort=()" />
-            </Head>
-
-            <main className="flex-1 flex-col bg-gray-10 justify-between items-center text-center h-full">
+            <main className="flex-1 flex-col bg-gray-10 justify-between items-center text-center min-h-[94vh] mb-20">
                 <Carousel />
                 <MainIconMenu />
+                <div className="relative bottom-0">
+                    <FooterContant />
+                </div>
             </main>
-            <div className="flex-1 pb-16">
-                <FooterContant />
-            </div>
+            
             
         </>
     );
 }
 
-
 MainPage.getLayout = (page) => <AppLayout>{page}</AppLayout>;
+
 MainPage.auth = true;
 
+export default MainPage;
 

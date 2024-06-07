@@ -12,9 +12,6 @@ const HomePage = () => {
     const userId = session?.user?.id;
     const { isRegisterd } = CheckUser();
 
-    const fetcher = (url) => fetch(url).then((res) => res.json());
-    const { data, error } = useSWR(`/api/users/${userId}`, fetcher);
-
     useEffect(() => {
         if (!session) return; // Wait for session data to be available
         const checkUserRegistration = async () => {
@@ -27,9 +24,6 @@ const HomePage = () => {
         };
         checkUserRegistration();
     }, [session, router]);
-
-    if (error) return <div>Failed to load</div>;
-    if (!data) return <Loading />;
 
     return <Loading />;
 }

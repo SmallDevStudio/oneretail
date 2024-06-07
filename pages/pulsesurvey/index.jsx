@@ -1,5 +1,5 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -12,7 +12,8 @@ const PulseSurvey = () => {
     const { data: session } = useSession();
     const userId = session?.user?.id;
     const router = useRouter();
-        const handleSubmit = async (e) => {
+    
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setAppLoading(true);
         setLoading(true);
@@ -47,6 +48,23 @@ const PulseSurvey = () => {
         setLoading(false);
     };
 
+    useEffect(() => {
+        const checkSurveyCompletion = async () => {
+            try {
+                const response = await fetch(`/api/survey/checkSurvey?userId=${userId}`); // replace 'USER_ID' with actual user ID
+                const data = await response.json();
+
+                if (data.completed) {
+                    router.push('/main');
+                }
+            } catch (error) {
+                console.error('Error checking survey completion:', error);
+            }
+        };
+
+        checkSurveyCompletion();
+    }, [router, userId]);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setSurvey({ ...survey, [name]: value });
@@ -60,9 +78,16 @@ const PulseSurvey = () => {
         return <Loading />;
     }
 
+    const options = [
+        { value: 5, label: 'เยี่ยมสุดๆ', color: '#00D655' },
+        { value: 4, label: 'ดี', color: '#B9D21E' },
+        { value: 3, label: 'ปานกลาง', color: '#FFC700' },
+        { value: 2, label: 'พอใช้', color: '#FF8A00' },
+        { value: 1, label: 'แย่', color: '#FF0000' },
+    ];
 
     return (
-        <main className="flex items-center justify-center bg-[#0056FF]" style={{ minheight: "100vh", width: "100%" }}>
+        <main className="flex items-center justify-center bg-[#0056FF]" style={{ minHeight: "100vh", width: "100%" }}>
             <div className="flex items-center text-center justify-center p-4 min-h-[100vh]">
                 <div className="relative bg-white p-2 rounded-xl">
                     <div className="flex flex-col p-2">
@@ -78,44 +103,31 @@ const PulseSurvey = () => {
                         <div>
                             <form onSubmit={handleSubmit} className="">
                                 <ul className="flex flex-col mt-5">
-                                {[1, 2, 3, 4, 5].map((val, idx) => (
+                                    {options.map((option, idx) => (
                                         <li
-                                            key={val}
+                                            key={option.value}
                                             className="relative w-full mb-3"
-                                            name="value"
-                                            onClick={() => handleValueChange(val)}
+                                            onClick={() => handleValueChange(option.value)}
                                         >
                                             <div className="relative grid grid-cols-4 justify-center items-center text-left p-2">
                                                 <Image
-                                                    src={`/images/survey/${val}.svg`}
-                                                    alt={`Survey Icon ${val}`}
+                                                    src={`/images/survey/${option.value}.svg`}
+                                                    alt={`Survey Icon ${option.value}`}
                                                     width={50}
                                                     height={50}
                                                     className="absolute mb-3 ml-3"
                                                     style={{ width: "50px", height: "50px" }}
                                                 />
-                                                <div className={`inline-block w-full col-span-3 ml-8 rounded-xl h-6 hover:ring-2 ${val === 1 ? 'bg-[#00D655]' : val === 2 ? 'bg-[#B9D21E]' : val === 3 ? 'bg-[#FFC700]' : val === 4 ? 'bg-[#FF8A00]' : 'bg-[#FF0000]'} ${survey.value === val ? 'ring-2' : ''}`}>
-                                                    <span className="inline-block ml-6 text-white font-bold">
-                                                        {val === 1 ? 'เยี่ยมสุดๆ' : val === 2 ? 'ดี' : val === 3 ? 'ปานกลาง' : val === 4 ? 'พอใช้' : 'แย่'}
+                                                <div className={`col-span-3 ml-8 rounded-xl h-8 hover:ring-2 hover:ring-gray-300 flex items-center`} style={{ backgroundColor: option.color, ring: survey.value === option.value ? '2px solid #000' : 'none', width: "280px" }}>
+                                                    <span className="inline-block ml-8 text-white font-bold">
+                                                        {option.label}
                                                     </span>
                                                 </div>
                                             </div>
                                         </li>
                                     ))}
-
                                 </ul>
-                               <div className="flex-col mt-2 text-center w-full">
-                                    <label className="font-bold">
-                                        Lorem ipsum dolor sit amet
-                                    </label>
-                                    <textarea 
-                                        rows="4" 
-                                        name="memo"
-                                        className="border border-gray-300 rounded-md p-2 w-full bg-gray-100"
-                                        value={survey.memo}
-                                        onChange={handleChange}
-                                    />
-                               </div>
+                                
                                 <div>
                                     <button
                                         type="submit"
@@ -127,16 +139,10 @@ const PulseSurvey = () => {
                                 </div>
                             </form>
                         </div>
-
-                       
-
-                       
-                        
-                        </div>
+                    </div>
                 </div>
             </div>
         </main>
-
     );
 };
 

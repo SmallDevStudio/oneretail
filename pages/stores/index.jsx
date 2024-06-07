@@ -5,6 +5,10 @@ import Link from "next/link";
 import { Suspense } from "react";
 import LoadingFeed from "@/components/LoadingFeed";
 import dynamic from 'next/dynamic';
+import useSWR from "swr";
+
+
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
 // Dynamically import ShareYourStory component
 const ShareYourStory = dynamic(() => import('@/components/ShareYourStory'), {
@@ -18,6 +22,13 @@ const Feed = dynamic(() => import('@/components/success/feed'), {
 export default function Stores() {
     const category = "665c4c51013c2e4b13669c90";
     const [activeTab, setActiveTab] = useState("secret-sauce");
+
+    const { data: video, error } = useSWR(`/api/content/video?categories=${category}`, fetcher);
+    const videoUrl = 'https://www.youtube.com/watch?v='+video?.data?.slug
+
+    console.log('video:', videoUrl);
+
+
 
     const handleTabClick = (tab) => {
         setActiveTab(tab);
@@ -64,7 +75,7 @@ export default function Stores() {
                     <>
                         <div className="justify-center flex min-w-[100vw]">
                             <ReactPlayer
-                                url="https://www.youtube.com/watch?v=nrBdA4mNJpQ"
+                                url={videoUrl}
                                 loop={true}
                                 width="100%"
                                 height="250px"

@@ -1,4 +1,5 @@
 import { AppLayout } from "@/themes";
+import Image from "next/image";
 
 export default function Campaign() {
     return (
@@ -10,10 +11,41 @@ export default function Campaign() {
                 </div>
             </div>
 
-            <div className="flex flex-col justify-center items-center w-[100vw] p-2">
-                <div className="flex flex-col w-[100vw]">
-                    <div className="relative w-full justify-center items-center">
-                        
+            <div className="flex flex-col justify-center items-center max-w-[100vw] p-2">
+                <div className="flex flex-col w-full">
+                    <div className="relative flex-col w-full justify-center items-center">
+                        <Image
+                            src="/images/campaign/1.jpg"
+                            alt="Campaign"
+                            width={600}
+                            height={600}
+                            priority
+                            className="w-full rounded-2xl mb-2"
+                        />
+                        <Image
+                            src="/images/campaign/2.jpg"
+                            alt="Campaign"
+                            width={600}
+                            height={600}
+                            priority
+                            className="w-full rounded-2xl mb-2"
+                        />
+                        <Image
+                            src="/images/campaign/3.jpg"
+                            alt="Campaign"
+                            width={600}
+                            height={600}
+                            priority
+                            className="w-full rounded-2xl mb-2"
+                        />
+                        <Image
+                            src="/images/campaign/4.jpg"
+                            alt="Campaign"
+                            width={600}
+                            height={600}
+                            priority
+                            className="w-full rounded-2xl mb-2"
+                        />
                     </div>
                         
                 </div>

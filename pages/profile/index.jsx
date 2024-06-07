@@ -1,123 +1,131 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import ProgressBar from 'react-bootstrap/ProgressBar';
-import CoinPointIcon from "@/resources/icons/CoinPointIcon";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import "bootstrap/dist/css/bootstrap.min.css";
 import "@/styles/profile.module.css";
 import Loading from "@/components/Loading";
 import { AppLayout } from "@/themes";
 import useSWR from "swr";
 import dynamic from "next/dynamic";
-import { BsQrCodeScan } from "react-icons/bs";
-import { IoMdNotificationsOutline } from "react-icons/io";
-import { IoCreateOutline } from "react-icons/io5";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 export default function Profile() {
+    const [levels, setLevels] = useState([]);
     const { data: session } = useSession();
     const { data: user } = useSWR('/api/users/'+session?.user?.id, fetcher);
-    const { data: level } = useSWR('/api/level/'+session?.user?.id, fetcher);
-    const { data: levelup } = useSWR('/api/level/state/'+level?.level, fetcher);
+    const { data: level } = useSWR('/api/level/'+session?.user?.id, fetcher, {refreshInterval: 1000});
+    const { data: levelup} = useSWR('/api/level/state/'+level?.level, fetcher, {refreshInterval: 1000});
     const nextPoint = (levelup?.requiredPoints - level?.points);
-    const percent = (level?.points / levelup?.requiredPoints) * 100;
-    const [percentage, setPercentage] = useState(50);
+    const [percentage, setPercentage] = useState(0);
+    const [percent, setPercent] = useState(0);
     const HalfCircleProgressBar = dynamic(() => import('@/components/main/HalfCircleProgressBar'), { ssr: false });
+    const LineProgressBar = dynamic(() => import("@/components/ProfileLineProgressBar"), {ssr: false});
+
+    useEffect(() => {
+        if (level) {
+            setPercent((level?.points / levelup?.requiredPoints) * 100);
+            setLevels({...level});
+        }
+    }, [level, levelup?.requiredPoints]);
 
     return (
         <> 
-        <main className="flex flex-col overflow-x-scroll mt-2 mb-20" style={{
-            fontFamily: "ttb"
-        }}>
-
-            <div className="flex pl-5 pr-5 pb-5">
-                <div className="flex flex-col">
-                    <div className="flex flex-row justify-end space-x-3 text-gray-500 text-sm">
-                        <IoCreateOutline />
-                        <IoMdNotificationsOutline />
-                        <BsQrCodeScan />
+            <main className="flex flex-col mb-20">
+                <div className="flex p-2 flex-row items-center justify-center">
+                    <div className="flex flex-col">
+                        <div className="items-center text-center" style={{ width: "auto", height: "140px" }}>
+                            {/* Avatar */}
+                            <div className="mt-6 ml-5">
+                                <Image
+                                    src={user?.user?.pictureUrl}
+                                    alt="User Avartar"
+                                    width={100}
+                                    height={100}
+                                    className="rounded-full"
+                                />
+                            </div>
+                            
+                            <div className="absolute top-0 mt-2 z-0">
+                                <Image
+                                    src="/images/profile/Badge.svg"
+                                    alt="Badge"
+                                    width={140}
+                                    height={140}
+                                />
+                            </div>
+                            <span className="absolute z-50 text-white font-bold mt-2.5 ml-[-5px] text-[10px]">LEVEL {level?.level}</span>  
+                        </div>
                     </div>
-                    {/* profile card */}
-                    <div className="flex flew-row mt-1 w-full">
-                        <div className="relative" style={{ width: "50px", height: "50px" }}>
+                    {/* Progress Bar */}
+                    <div className="flex-1 flex-col items-center justify-center ml-10 mr-5">
+                        <span className="text-2xl font-semibold text-[#0056FF]">{user?.user?.fullname}</span>
+                        <div className="relative mt-3">
+                            <LineProgressBar percent={percent} />
+                        </div>
+                        <div style={{
+                            width: "auto",
+                            height: "auto",
+                            position: "absolute",
+                            top: "70px",
+                            left: "155px",
+                        }}>
                             <Image
-                                src={session?.user?.image}
-                                alt="profile"
-                                width={200}
-                                height={200}
-                                className="rounded-full border-2 border-[#0056FF] dark:border-white"
-                            />
-                        </div>
-                        <div className="flex flex-col ml-3 flex-1">
-                            <div className="flex flex-row justify-between">
-                                <h1 className="text-lg font-black mb-[-5px] text-[#0056FF] dark:text-white">{user?.user?.fullname}</h1>
-                                <h1 className="text-lg font-semibold text-[#F2871F]">Level.{level?.level}</h1>
-                            </div>
-                            <ProgressBar 
-                                animated 
-                                now={percent} 
-                                variant="warning"
-                                className="w-[22em] h-2 rounded-3xl"
-                            />
-                            <div className="flex flex-row justify-end mt-1">
-                                <span className="text-sm font-semibold text-[#0056FF] dark:text-white">
-                                    Next: {nextPoint} Point
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    {/* End profile card */}
-                </div>
-            </div>
-
-            <div className="flex flex-col justify-center items-center mt-[-20px]">
-                <h1 className="text-xl font-black text-[#0056FF] dark:text-white">ข้อมูลทั้งหมด</h1>
-            </div>
-
-            <div className="flex flex-row items-center justify-center w-full">
-                    <div className="items-center p-2 ">
-                       
-                        <button 
-                            className="flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden text-sm font-bold text-gray-900 rounded-2xl dark:bg-white dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800 hover:text-white border-4 border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 "
-                            style={{ width: 110, height: 110 }}
-                        >
-                            <Image 
                                 src="/images/profile/Point.svg"
-                                alt="point"
+                                alt="Coin"
                                 width={30}
                                 height={30}
                             />
-                            <span className="text-sm font-black text-black dark:text-white">
-                                Total Point
-                            </span>
-                            <span className="text-xl font-black text-black dark:text-white">
-                                {level?.points ? level?.points : 0}
-                            </span>
-                        </button>
-
-                        <button 
-                            className="flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden text-sm font-bold dark:bg-white text-gray-900 rounded-2xl dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800 hover:text-white border-4 border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 "
-                            style={{ width: 110, height: 110 }}
-                        >
-                            <Image 
-                                src="/images/profile/Coin.svg"
-                                alt="point"
-                                width={32}
-                                height={32}
-                            />
-                            <span className="text-sm font-black text-black dark:text-white">
-                                Coin
-                            </span>
-                            <span className="text-xl font-black text-black dark:text-white">
-                                0
-                            </span>
-                        </button>
-
+                        </div>
+                        <span className="flex text-sm font-semibold text-[#0056FF] justify-end">
+                            {level?.points} / {levelup?.requiredPoints}
+                        </span>
                     </div>
                 </div>
+                {/* Point & Coin */}
+                <div className="flex p-2 flex-col items-center justify-center text-center mt-3">
+                    <span className="text-xl font-black text-[#0056FF] mb-2">
+                        ข้อมูลทั้งหมด
+                    </span>
+                    <div>
+                        <button 
+                                className="flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden text-sm font-bold text-gray-900 rounded-2xl hover:text-white border-4 border-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 "
+                                style={{ width: 110, height: 110 }}
+                            >
+                                <Image 
+                                    src="/images/profile/Point.svg"
+                                    alt="point"
+                                    width={30}
+                                    height={30}
+                                />
+                                <span className="text-sm font-black text-[#0056FF] dark:text-white">
+                                    Total Point
+                                </span>
+                                <span className="text-xl font-black text-[#0056FF] dark:text-white">
+                                    {level?.points ? level?.points : 0}
+                                </span>
+                            </button>
 
-                <div className="relative flex flex-col justify-center items-center">
+                            <button 
+                                className="flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden text-sm font-bold text-gray-900 rounded-2xl hover:text-white border-4 border-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 "
+                                style={{ width: 110, height: 110 }}
+                            >
+                                <Image 
+                                    src="/images/profile/Coin.svg"
+                                    alt="point"
+                                    width={32}
+                                    height={32}
+                                />
+                                <span className="text-sm font-black text-[#0056FF] dark:text-white">
+                                    Coin
+                                </span>
+                                <span className="text-xl font-black text-[#0056FF] dark:text-white">
+                                    0
+                                </span>
+                            </button>
+                    </div>
+                </div>
+                {/* Button panel */}
+                <div className="flex p-2 flex-col items-center justify-center text-center mt-3 mb-5">
                     <Link href="/redeem">
                         <button className="w-40 h-10 bg-[#F2871F] text-white rounded-3xl font-semibold text-xl mb-4 mt-3">
                             <span>
@@ -126,7 +134,7 @@ export default function Profile() {
                         </button>
                     </Link>
 
-                    <button className="bg-[#0056FF] text-white rounded-3xl font-semibold text-xl mb-3" style={{
+                    <button className="bg-[#0056FF] text-white rounded-3xl font-semibold text-lg mb-3" style={{
                         width: 320,
                         height: 50
                     }}>
@@ -134,17 +142,29 @@ export default function Profile() {
                             ข้อมูลความสุขในการทำงานของคุณ
                         </span>
                     </button>
-
                 </div>
 
-                <div className="relative p-5 mb-3">
-                    <HalfCircleProgressBar percentage={percentage} style={{ height: 200 }}/>
+                <div className="items-center justify-center text-center mt-3"
+                    style={{ 
+                        width: 300, 
+                        height: 'auto', 
+                        position: "relative",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        display: "block",
+                        margin: "auto"
+                    }}
+                >
+                    <HalfCircleProgressBar percentage={50}/>
                 </div>
-              
-            
-        </main>
-       
-          
+                <div className="flex p-2 flex-col items-center justify-center text-center">
+                    <span className="relative text-xl text-center font-black text-black w-2/3">
+                    ภาพรวมอุณหภูมิความสุข<br/>
+                    ในการทำงานของคุณ
+                    </span>
+                </div>
+                
+            </main>
         </>
     );
 }
