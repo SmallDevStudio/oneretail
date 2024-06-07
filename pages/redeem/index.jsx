@@ -6,6 +6,7 @@ import LoadingFeed from "@/components/LoadingFeed";
 import useSWR from "swr";
 import Loading from "@/components/Loading";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 export default function Redeem() {
@@ -14,10 +15,6 @@ export default function Redeem() {
     const {image, id} = session?.user;
 
     const { data: level } = useSWR('/api/level/'+session?.user?.id, fetcher, {refreshInterval: 1000});
-
-    console.log(image);
-
-    
 
     const handleTabClick = (tab) => {
         setActiveTab(tab);
@@ -105,7 +102,9 @@ export default function Redeem() {
             <div className="flex items-center justify-end mr-5 mb-2">
                 <span className="text-[10px] text-[#1E3060] font-bold">
                     เปลี่ยนคะแนน เป็น คอยล์ 
-                    <span className="text-[#F68B1F] font-bold ml-1">คลิก</span>
+                    <button>
+                        <span className="text-[#F68B1F] font-bold ml-1">คลิก</span>
+                    </button>
                 </span>
             </div>
             {/* Tabs */}
@@ -133,18 +132,30 @@ export default function Redeem() {
             {activeTab === 'redeem1' && (
                 <Suspense fallback={<LoadingFeed />}>
                     <div className="flex flex-row w-full bg-gray-300 rounded-xl p-1">
-                        <Image 
-                            src="/images/redeem/1.png"
-                            alt="point"
-                            width={150}
-                            height={150}
-                            className="flex p-2"
-                            style={{
-                                minWidth: "150px",
-                                maxHeight: "120px",
-                                objectFit: "contain",
-                            }}
-                        />
+                        <div className="flex flex-col items-center justify-center">
+                            <Image 
+                                src="/images/redeem/1.png"
+                                alt="point"
+                                width={150}
+                                height={150}
+                                className="flex p-2"
+                                style={{
+                                    minWidth: "150px",
+                                    maxHeight: "120px",
+                                    objectFit: "contain",
+                                }}
+                            />
+                            <div style={{
+                                position: "relative",
+                                bottom: "10px",
+                                left: "35px",
+                                zIndex: "10",
+                            }}>
+                                <div className="flex bg-[#0056FF] rounded-full text-white font-bold h-6 w-[70px] p-1 text-center justify-center items-center">
+                                    <span>50 🪙 </span>
+                                </div>
+                            </div>
+                        </div>
                     <div className="flex-col">
                         <div className="text-lg font-bold text-[#0056FF]">
                             Test
@@ -171,6 +182,7 @@ export default function Redeem() {
                 </div>
 
                 <div className="flex flex-row w-full bg-gray-300 rounded-xl p-1">
+                    <div className="flex flex-col items-center justify-center">
                         <Image 
                             src="/images/redeem/2.png"
                             alt="point"
@@ -183,6 +195,17 @@ export default function Redeem() {
                                 objectFit: "contain",
                             }}
                         />
+                        <div style={{
+                                position: "relative",
+                                bottom: "10px",
+                                left: "35px",
+                                zIndex: "10",
+                            }}>
+                                <div className="flex bg-[#0056FF] rounded-full text-white font-bold h-6 w-[70px] p-1 text-center justify-center items-center">
+                                    <span>300 🪙 </span>
+                                </div>
+                        </div>
+                    </div>
                     <div className="flex-col">
                         <div className="text-lg font-bold text-[#0056FF]">
                             Test
