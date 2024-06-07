@@ -7,11 +7,17 @@ import dynamic from 'next/dynamic';
 import useSWR from "swr";
 
 // Dynamically import ShareYourStory component
-const ShareYourStory = dynamic(() => import('@/components/ShareYourStory'), {
+const Feed = dynamic(() => import('@/components/learning/feed'), {
     suspense: true,
     ssr: false
 });
-const Feed = dynamic(() => import('@/components/learning/feed'), {
+
+const Feed1 = dynamic(() => import('@/components/learning/feed1'), {
+    suspense: true,
+    ssr: false
+});
+
+const Feed2 = dynamic(() => import('@/components/learning/feed2'), {
     suspense: true,
     ssr: false
 });
@@ -95,17 +101,13 @@ export default function Learning() {
                 )}
                 {activeTab === 'learn' && (
                     <Suspense fallback={<LoadingFeed />}>
-                        <div>
-                            เรื่องน่าเรียน
-                        </div>
+                        <Feed1 />
                     </Suspense>
                 )}
 
                 {activeTab === 'learn2' && (
                     <Suspense fallback={<LoadingFeed />}>
-                        <div>
-                            เรื่องน่ารู่
-                        </div>
+                        <Feed2 />
                     </Suspense>
                 )}
             </div>
