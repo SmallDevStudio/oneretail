@@ -1,16 +1,19 @@
 import mongoose from 'mongoose';
 
 const eventSchema = new mongoose.Schema({
-  startdate: Date,
-  time: String,
-  enddate: Date,
-  name: String,
+  title: String,
   description: String,
+  startDate: Date,
+  endDate: Date,
+  startTime: String,
+  endTime: String,
   group: String,
   position: String,
-  location: String,
-  maplocation: String,
+  place: String,
+  mapLocation: String,
   note: String,
+  status: String,
+  creator: String,
 }, {
   timestamps: true
 });
