@@ -3,8 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { GrLike } from "react-icons/gr";
 import { LuMessageCircle } from "react-icons/lu";
-import { Suspense } from "react";
-import LoadingFeed from "@/components/LoadingFeed";
 
 const LearnFeed1 = ({ contents }) => {
 
@@ -12,7 +10,6 @@ const LearnFeed1 = ({ contents }) => {
         <div className="flex flex-col w-full mb-20">
     {contents.map(content => (
         <>
-            <Suspense fallback={<LoadingFeed />}>
                 <div className="flex flex-row bg-gray-200 m-2 rounded-md p-2">
                     <Link href={`/learning/${content._id}`}>
                         <div className="flex min-h-[120px] min-w-[120px]">
@@ -65,7 +62,6 @@ const LearnFeed1 = ({ contents }) => {
                     </div>
                     
                 </div>
-            </Suspense>
         </>
         ))}
         </div>
