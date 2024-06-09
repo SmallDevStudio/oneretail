@@ -5,8 +5,8 @@ export default async function handler(req, res) {
     await connetMongoDB();
     if (req.method === 'PUT') {
         try {
-          const { id, question, options, correctAnswer } = req.body;
-          await Question.findByIdAndUpdate(id, { question, options, correctAnswer });
+          const { id, question, options, correctAnswer, group } = req.body;
+          await Question.findByIdAndUpdate(id, { question, options, correctAnswer, group });
           res.status(200).json({ success: true });
         } catch (error) {
           res.status(400).json({ success: false, error });

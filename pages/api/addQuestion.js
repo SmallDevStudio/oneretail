@@ -6,8 +6,8 @@ export default async function handler(req, res) {
 
     if (req.method === 'POST') {
         try {
-          const { question, options, correctAnswer } = req.body;
-          const newQuestion = new Question({ question, options, correctAnswer });
+          const { question, options, correctAnswer, group } = req.body;
+          const newQuestion = new Question({ question, options, correctAnswer, group });
           await newQuestion.save();
           res.status(201).json({ success: true, data: newQuestion });
         } catch (error) {

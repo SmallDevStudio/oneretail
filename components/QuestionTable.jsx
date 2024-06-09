@@ -15,7 +15,7 @@ const QuestionTable = () => {
   }, []);
 
   const fetchQuestions = async () => {
-    const res = await fetch('/api/questions');
+    const res = await fetch('/api/questions1');
     const data = await res.json();
     setQuestions(data);
   };
@@ -84,6 +84,7 @@ const QuestionTable = () => {
             <th className="w-1/3">Question</th>
             <th className="w-1/3">Options</th>
             <th className="w-1/5">Correct Answer</th>
+            <th className="w-1/5">Group</th>
             <th className="w-1/3">Actions</th>
           </tr>
         </thead>
@@ -99,6 +100,7 @@ const QuestionTable = () => {
                 </ul>
               </td>
               <td>{question.options[question.correctAnswer]}</td>
+              <td>{question.group}</td>
               <td>
                 <button 
                     className="mr-4 font-bold text-2xl hover:text-blue-800"
