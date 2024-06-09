@@ -293,3 +293,27 @@ body {
 .comment p {
   margin: 5px 0;
 }
+
+.csvReader {
+  display: 'flex';
+  flex-direction: 'row';
+  margin-bottom: 10;
+}
+.browseFile {
+  width: '20%',
+}
+.acceptedFile {
+  border: '1px solid #ccc';
+  height: 45;
+  line-height: 2.5;
+  padding-left: 10;
+  width: '80%',
+}
+.remove {
+  border-radius: 0;
+  padding: '0 20px';
+}
+
+.progressBarBackgroundColor {
+  background-color: 'red';
+}
