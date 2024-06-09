@@ -5,10 +5,10 @@ import { useRouter } from "next/router";
 import { AppLayout } from "@/themes";
 import axios from "axios";
 import Loading from "@/components/Loading";
-import ShareYourStory from "@/components/ShareYourStory";
 import SecretSauce from "@/components/success/SecretSauce";
 import useSWR from "swr";
 import { useSession } from "next-auth/react";
+import ShareYourStory from "@/components/success/ShareYourStory";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 const SlugPage = () => {
@@ -27,6 +27,11 @@ const SlugPage = () => {
           setUser(data.user);
         },
       });
+
+      useEffect(() => {
+        const tab = router.query.tab || "secret-sauce";
+        setActiveTab(tab);
+    }, [router.query.tab]);
 
       useEffect(() => {
         if (id) {
@@ -48,8 +53,9 @@ const SlugPage = () => {
       if (loading) return <Loading />;
       if (error) return <p>Error: {error}</p>;
     
-    const handleTabClick = (tab) => {
+      const handleTabClick = (tab) => {
         setActiveTab(tab);
+        window.history.pushState(null, "", `?tab=${tab}`);
     };
       
     return (

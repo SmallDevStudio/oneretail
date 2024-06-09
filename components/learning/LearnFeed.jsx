@@ -6,78 +6,61 @@ import { GrLike } from "react-icons/gr";
 import { LuMessageCircle } from "react-icons/lu";
 import { Suspense } from "react";
 import LoadingFeed from "@/components/LoadingFeed";
-import TimeDisplay from "../TimeDisplay";
 
-const Feed = () => {
-    const subcategory = "665c4c95013c2e4b13669c98";
-    const [contents, setContents] = useState([]);
-    const time = contents?.data?.createdAt;
-    console.log("time:", time);
-
-    useEffect(() => {
-        fetchContent();
-    }, []);
-
-    const fetchContent = async () => {
-        const res = await fetch('/api/content/subcategory?subcategories='+subcategory);
-        const data = await res.json();
-        setContents(data);
-    }
+const LearnFeed = ({ contents }) => {
 
     return (
         <div className="flex flex-col w-full mb-20">
-    {contents?.data &&
-        contents?.data.map((contents, i) => (
+    {contents.map(content => (
         <>
             <Suspense fallback={<LoadingFeed />}>
                 <div className="flex flex-row bg-gray-200 m-2 rounded-md p-2">
-                    <Link href={{
-                                pathname: '/view/[slug]',
-                                query: { slug: contents.slug },
-                            }}>
-                        <div className="flex w-[150px]" key={i}>
+                    <Link href={`/learning/${content._id}`}>
+                        <div className="flex min-h-[120px] min-w-[120px]">
                             <Image
-                                src={contents.thumbnailUrl}
+                                src={content.thumbnailUrl}
                                 alt="Avatar"
                                 width={150}
                                 height={150}
                                 className="rounded-lg"
+                                style={{
+                                    objectFit: "cover",
+                                    width: "auto",
+                                    height: "auto",
+                                }}
                             />
                         </div>
                     </Link>
                     
                     
                     <div className="flex flex-col w-full text-left ml-2">
-                        <Link href={{
-                            pathname: '/view/[slug]',
-                            query: { slug: contents.slug },
-                        }}>
+                    <Link href={`/learning/${content._id}`}>
                         <div>
-                            <span className="inline-block text-sm font-bold text-[#0056FF]">{contents.title}</span>
+                            <span className="inline-block text-sm font-bold text-[#0056FF]">{content.title}</span>
                         </div>
                         <div className="mr-2">
                             <span className="font-light text-black leading-tight inline-block min-h-[55px]" style={{
                                 fontSize: "11px"
                             }}>
-                                {contents.description}
+                                {content.description}
                             </span>
                         </div>
                         </Link>
 
-                        <div className="flex flex-row justify-end mt-2 mr-4 space-x-5">
+                        <div className="flex flex-row justify-between space-x-5">
                             <div className="flex flex-row items-center">
                                 <span className="font-light text-black" style={{
                                         fontSize: "12px"
-                                    }}>การดู {contents.views} ครั้ง
+                                    }}>การดู {content.views} ครั้ง
                                 </span>
                             </div>
                             <div className="flex flex-row items-center">
                                 <GrLike className="mr-1" />
-                                <span className="text-xs">{contents.like}</span>
+                                <span className="text-xs">{content.like ? content.like.length : 0}</span>
                             </div>
                             <div className="flex flex-row items-center">
                                 <LuMessageCircle className="mr-1" />
-                                <span className="text-xs">{contents.comment ? contents.comment.length : 0}</span>
+                                <span className="text-xs">{content.comment ? content.comment.length : 0}</span>
                             </div>
                         </div>
                     </div>
@@ -90,4 +73,4 @@ const Feed = () => {
     )
 }
 
-export default Feed;
+export default LearnFeed;

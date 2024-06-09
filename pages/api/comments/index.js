@@ -1,25 +1,28 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
-import Comments from "@/database/models/Comments";
+import Comment from "@/database/models/Comment";
+import Post from "@/database/models/Post";
 
 export default async function handler(req, res) {
-    if (req.method === "GET") {
-        await connetMongoDB();
-        const comments = await Comments.find({});
-        res.status(200).json(comments);
-    } else if (req.method === "POST") {
-        const { comment, contentId, userId, fullname, userImage, username } = req.body;
-        await connetMongoDB();
-        console.log("Received Data: ", { comment, contentId, userId, fullname, userImage, username }); // ตรวจสอบข้อมูลที่ได้รับ
-        const comments = await Comments.create({ comment, contentId, userId, fullname, userImage, username });
-        console.log("Saved Data: ", comments); // ตรวจสอบข้อมูลที่ถูกบันทึก
-        res.status(201).json(comments);
+    const { method } = req;
+    await connetMongoDB();
 
-    } else if (req.method === "PUT") {
-        const { id, ...data } = req.body;
-        await connetMongoDB();
-        const comment = await Comments.findByIdAndUpdate(id, data, { new: true });
-        res.status(200).json(comment);
-    } else {
-        res.status(405).json({ error: "Method not allowed" });
+    switch (method) {
+        case 'POST':
+          try {
+            const { content, user, postId } = req.body;
+            const comment = await Comment.create({ content, user, post: postId });
+    
+            // Update the post to include the new comment
+            await Post.findByIdAndUpdate(postId, { $push: { comments: comment._id } });
+    
+            res.status(201).json({ success: true, data: comment });
+          } catch (error) {
+            console.error('Error creating comment:', error);
+            res.status(400).json({ success: false, error: error.message });
+          }
+          break;
+        default:
+          res.status(400).json({ success: false, error: 'Invalid request method' });
+          break;
+      }
     }
-}

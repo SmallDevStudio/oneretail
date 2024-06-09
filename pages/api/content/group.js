@@ -4,6 +4,7 @@ import Users from "@/database/models/users";
 import Category from "@/database/models/Category";
 import Subcategory from "@/database/models/Subcategory";
 import Group from "@/database/models/Group";
+import mongoose from "mongoose";
 
 
 export default async function handler(req, res) {
@@ -15,10 +16,14 @@ export default async function handler(req, res) {
       }
 
       try {
-        const { subcategoryId } = query;
-        console.log('subcategoryId:', subcategoryId); // Log the subcategoryId
+        const { groupId } = query;
+        console.log('groupId:', groupId); // Log the groupId
     
-        const contents = await Content.find({ subcategories: subcategoryId })
+        // Convert groupId to ObjectId
+        const groupObjectId = new mongoose.Types.ObjectId(groupId);
+        console.log('groupObjectId:', groupObjectId); // Log the ObjectId
+    
+        const contents = await Content.find({ groups: groupObjectId })
           .populate('categories')
           .populate('subcategories')
           .populate('groups');

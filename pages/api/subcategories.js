@@ -9,10 +9,10 @@ export default async function handler(req, res) {
   switch (method) {
     case 'GET':
       try {
-        const subcategories = await Subcategory.find({}).populate('category', 'title');
-        res.status(200).json(subcategories);
+        const subcategories = await Subcategory.find().populate('category');
+        res.status(200).json({ success: true, data: subcategories });
       } catch (error) {
-        res.status(400).json({ success: false });
+        res.status(400).json({ success: false, error: error.message });
       }
       break;
     case 'POST':

@@ -5,28 +5,35 @@ import { useRouter } from "next/router";
 import { AppLayout } from "@/themes";
 import axios from "axios";
 import Loading from "@/components/Loading";
-import ShareYourStory from "@/components/ShareYourStory";
-import SecretSauce from "@/components/success/SecretSauce";
+import LearningContent from "@/components/learning/LearningContent";
 import useSWR from "swr";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 const SlugPage = () => {
     const router = useRouter();
     const { id } = router.query;
     const [content, setContent] = useState({});
+    const [contents, setContents] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [user, setUser] = useState(null);
-    const [activeTab, setActiveTab] = useState("secret-sauce");
+    const [activeTab, setActiveTab] = useState("All");
     const { data: session } = useSession();
     const userId = session?.user?.id;
+
     
     const { data, error: swrError } = useSWR(userId ? `/api/users/${userId}` : null, fetcher, {
         onSuccess: (data) => {
           setUser(data.user);
         },
       });
+
+      useEffect(() => {
+        const tab = router.query.tab || "secret-sauce";
+        setActiveTab(tab);
+    }, [router.query.tab]);
 
       useEffect(() => {
         if (id) {
@@ -48,18 +55,16 @@ const SlugPage = () => {
       if (loading) return <Loading />;
       if (error) return <p>Error: {error}</p>;
     
-    const handleTabClick = (tab) => {
+      const handleTabClick = (tab) => {
         setActiveTab(tab);
+        window.history.pushState(null, "", `?tab=${tab}`);
     };
       
     return (
         <main className="flex-1 flex-col bg-gray-10 justify-between items-center text-center h-full mb-[100px]">
             <div>
                 <div className="flex items-center text-center justify-center mt-[20px] p-2 px-1 pz-1">
-                    <span className="text-[35px] font-black text-[#0056FF] dark:text-white">Success</span>
-                    <span className="text-[35px] font-black text-[#F2871F] dark:text-white ml-2">
-                        Story
-                    </span>
+                    <span className="text-[35px] font-black text-[#0056FF] dark:text-white">Learning</span>
                 </div>
             </div>
 
@@ -67,34 +72,48 @@ const SlugPage = () => {
             <div className="flex justify-center mb-4 text-sm">
                 <ul className="flex flex-wrap -mb-px">
                     <li className="me-2">
-                        <a
-                            href="#"
-                            className={`inline-block p-4 border-b-2 rounded-t-lg font-bold ${activeTab === 'secret-sauce' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
-                            onClick={() => handleTabClick('secret-sauce')}
+                        <Link
+                            href={"#"}
+                            className={`inline-block p-4 border-b-2 rounded-t-lg font-bold ${activeTab === 'All' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
+                            onClick={() => handleTabClick('All')}
                         >
-                            Secret Sauce
-                        </a>
+                            ทั้งหมด
+                        </Link>
+                    </li>
+                    <li className="me-2">
+                        <Link
+                            href={"/learning"}
+                            className={`inline-block p-4 border-b-2 rounded-t-lg font-bold ${activeTab === 'learn' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
+                            onClick={() => handleTabClick('learn')}
+                        >
+                            เรื่องน่าเรียน
+                        </Link>
                     </li>
                     <li className="me-2">
                         <a
-                            href="#"
-                            className={`inline-block p-4 border-b-2 rounded-t-lg font-bold ${activeTab === 'share-your-story' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
-                            onClick={() => handleTabClick('share-your-story')}
+                            href={"/learning"}
+                            className={`inline-block p-4 border-b-2 rounded-t-lg font-bold ${activeTab === 'learn2' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
+                            onClick={() => handleTabClick('learn2')}
                         >
-                            Share your story
+                            เรื่องน่ารู้
                         </a>
                     </li>
+
+                    
                 </ul>
             </div>
-
             {/* Tabs Content */}
             <div className="flex flex-col items-center">
                 
-                {activeTab === 'secret-sauce' && (
-                    <SecretSauce content={content} user={user} />
+                {activeTab === 'All' && (
+                    <LearningContent content={content} user={user} />
                 )}
-                {activeTab === 'share-your-story' && (
-                    <ShareYourStory />
+                {activeTab === 'learn' && (
+                    <></>
+                )}
+
+                {activeTab === 'learn2' && (
+                    <></>
                 )}
             </div>
         </main>

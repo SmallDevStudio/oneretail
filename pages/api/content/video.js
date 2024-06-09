@@ -9,8 +9,9 @@ export default async function handler(req, res) {
     switch (method) {
         case 'GET':
             try {
-                const { categories } = req.query;
-                const contents = await Content.find({ categories });
+                const { categoryId } = req.query;
+                const contents = await Content.find({ categories: categoryId });
+                console.log('contents:', contents);
 
                 if (contents.length === 0) {
                     return res.status(404).json({ success: false, message: 'No content found' });

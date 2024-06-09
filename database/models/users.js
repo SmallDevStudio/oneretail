@@ -9,13 +9,10 @@ const userSchema = new Schema({
     active: { type: Boolean, default: true },
     empId: { type: String, required: true, unique: true },
     userId: { type: String, required: true, unique: true },
-    level: { type: Number, default: 1 },
-    coins: { type: Number, default: 0 },
-    points: { type: Number, default: 0 },
 }, {
     timestamps: true
 });
 
-const Users = mongoose.models.users || mongoose.model('users', userSchema);
+const Users = mongoose.models.Users || mongoose.model('Users', userSchema);
 
 export default Users;

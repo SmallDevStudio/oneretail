@@ -1,4 +1,8 @@
 import mongoose, { Schema } from "mongoose";
+import Category from "@/database/models/Category";
+import Subcategory from "@/database/models/Subcategory";
+import Group from "@/database/models/Group";
+import Users from "@/database/models/users";
 
 const ContentSchema = new Schema({
     title: { type: String, required: true, },
@@ -6,16 +10,16 @@ const ContentSchema = new Schema({
     slug: { type: String, unique: true, },
     youtubeUrl: { type: String, },
     thumbnailUrl: { type: String, },
-    categories: { type: String, },
-    subcategories: { type: String, },
-    groups: { type: String, },
-    author: { type: String, },
+    categories: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
+    subcategories: { type: mongoose.Schema.Types.ObjectId, ref: 'Subcategory', },
+    groups: { type: mongoose.Schema.Types.ObjectId, ref: 'Group', },
+    author: { type: String, ref: 'Users' },
     publisher: { type: Boolean, default: true, },
     point: { type: Number, default: 0, },
     coins: { type: Number, default: 0, },
     views: { type: Number, default: 0,},
-    like: { type: Number, default: 0, },
-    tags: { type: String, },
+    likes: [{ type: String, ref: 'Users', default: [] }],
+    tags: { type: [String], default: [] }, // Store tags as an array of strings
 }, {
     timestamps: true
 });

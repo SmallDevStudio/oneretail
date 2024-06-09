@@ -1,38 +1,47 @@
 import { AppLayout } from "@/themes";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReactPlayer from "react-player/youtube";
-import Link from "next/link";
-import { Suspense } from "react";
-import LoadingFeed from "@/components/LoadingFeed";
-import dynamic from 'next/dynamic';
 import useSWR from "swr";
-
+import Loading from "@/components/Loading";
+import SuccessFeed from "@/components/success/SuccessFeed";
+import ShareYourStory from "@/components/success/ShareYourStory";
+import { useRouter } from "next/router";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
-// Dynamically import ShareYourStory component
-const ShareYourStory = dynamic(() => import('@/components/ShareYourStory'), {
-    suspense: true,
-    ssr: false
-});
-const Feed = dynamic(() => import('@/components/success/feed'), {
-    suspense: true,
-    ssr: false
-})
 export default function Stores() {
     const category = "665c4c51013c2e4b13669c90";
+    const subcategory = "665c4c95013c2e4b13669c98";
     const [activeTab, setActiveTab] = useState("secret-sauce");
+    const [videoUrl, setVideoUrl] = useState('');
+    const [contents, setContents] = useState([]);
 
-    const { data: video, error } = useSWR(`/api/content/video?categories=${category}`, fetcher);
-    const videoUrl = 'https://www.youtube.com/watch?v='+video?.data?.slug
+    const router = useRouter();
 
-    console.log('video:', videoUrl);
+    const { data: video, error: videoError } = useSWR(`/api/content/video?categoryId=${category}`, fetcher, {
+        onSuccess: (data) => {
+            setVideoUrl(data?.data?.slug);
+        }
+    });
 
+    useEffect(() => {
+        const tab = router.query.tab || "secret-sauce";
+        setActiveTab(tab);
+    }, [router.query.tab]);
 
+    const { data: contentsData, error: contentsError, isLoading } = useSWR(`/api/content/category?categoryId=${category}`, fetcher, {
+        onSuccess: (data) => {
+            setContents(data?.data);
+        }
+    });
 
     const handleTabClick = (tab) => {
         setActiveTab(tab);
+        window.history.pushState(null, "", `?tab=${tab}`);
     };
+
+    if (isLoading) return <Loading />;
+    if (contentsError) return <p>Error: {error}</p>;
 
     return (
         <main className="flex-1 flex-col bg-gray-10 justify-between items-center text-center h-full">
@@ -75,7 +84,7 @@ export default function Stores() {
                     <>
                         <div className="justify-center flex min-w-[100vw]">
                             <ReactPlayer
-                                url={videoUrl}
+                                url={`https://www.youtube.com/watch?v=${videoUrl}`}
                                 loop={true}
                                 width="100%"
                                 height="250px"
@@ -84,16 +93,12 @@ export default function Stores() {
                             />
                         </div>
                         <div>
-                            <Suspense fallback={<LoadingFeed />}>
-                                <Feed />
-                            </Suspense>
+                            {contents.length > 0 ? <SuccessFeed contents={contents} /> : <p>No content available.</p>}
                         </div>
                     </>
                 )}
                 {activeTab === 'share-your-story' && (
-                    <Suspense fallback={<LoadingFeed />}>
-                        <ShareYourStory />
-                    </Suspense>
+                    <ShareYourStory />
                 )}
             </div>
         </main>
