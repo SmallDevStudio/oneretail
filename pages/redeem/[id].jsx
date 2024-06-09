@@ -15,6 +15,7 @@ const RedeemDetailPage = () => {
       fetchRedeem();
       fetchUserData();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const fetchRedeem = async () => {

@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import useSWR from "swr";
 import Loading from "@/components/Loading";
 import AllFeed from "@/components/learning/AllFeed";
-import LearnFeed from "@/components/learning/learnFeed";
+import LearnFeed1 from "@/components/learning/learnFeed";
 import LearnFeed2 from "@/components/learning/LearnFeed2";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -123,7 +123,7 @@ export default function Learning() {
                 )}
                 {activeTab === 'learn' && (
                     <>
-                    {contents2.length > 0 ? <LearnFeed contents={contents2} /> : <p>No content available.</p>}
+                    {contents2.length > 0 ? <LearnFeed1 contents={contents2} /> : <p>No content available.</p>}
                     </>
                 )}
 

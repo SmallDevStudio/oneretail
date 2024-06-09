@@ -6,7 +6,7 @@ import { LuMessageCircle } from "react-icons/lu";
 import { Suspense } from "react";
 import LoadingFeed from "@/components/LoadingFeed";
 
-const LearnFeed = ({ contents }) => {
+const LearnFeed1 = ({ contents }) => {
 
     return (
         <div className="flex flex-col w-full mb-20">
@@ -72,4 +72,4 @@ const LearnFeed = ({ contents }) => {
     )
 }
 
-export default LearnFeed;
+export default LearnFeed1;
