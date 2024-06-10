@@ -337,3 +337,40 @@ body {
 .react-calendar__tile--active:enabled:focus {
   background: #0288d1;
 }
+
+.react-calendar__navigation {
+  font-family: 'ttb', 'Ekachon','Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.react-calendar__navigation__arrow {
+  color: #0056FF;
+}
+
+.react-calendar__viewContainer {
+  font-family: 'ttb', 'Ekachon','Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.react-calendar__tile--now {
+  background: #F68B1F;
+  color: white;
+}
+
+.react-calendar__month-view__weekdays__weekday {
+  font-size: 14px;
+}
+
+.react-calendar__tile--active:enabled:hover {
+  background-color: #0056FF !important;
+}
+
+.today {
+  border: 2px solid #1f1b13 !important;
+}
+
+.react-calendar__tile--now {
+  background-color: #F68B1F !important;
+}
+
+.react-calendar__month-view__days__day--neighboringMonth {
+  color: #ccc !important;
+}

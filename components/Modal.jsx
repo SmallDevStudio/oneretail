@@ -25,18 +25,25 @@ const Modal = ({ children, onClose }) => {
                     position: relative;
                     background: white;
                     padding: 20px;
-                    border-radius: 8px;
+                    border-radius: 15px;
                     max-width: 500px;
                     width: 100%;
+                    border: 3px solid #F68B1F;
                 }
                 .modal-close {
                     position: absolute;
-                    top: 10px;
-                    right: 10px;
+                    top: 0px;
+                    right: 0px;
                     background: none;
-                    border: none;
                     font-size: 18px;
                     cursor: pointer;
+                    color: #F68B1F;
+                    border: 2px solid #F68B1F;
+                    border-radius: 20px;
+                    padding: 2px 10px;
+                    scale: 0.5;
+                    transition: all 0.3s ease-in-out;
+                    font-weight: bold;
                 }
             `}</style>
         </div>
