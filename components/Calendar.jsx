@@ -38,6 +38,8 @@ const CustomCalendar = () => {
         setModalVisible(true);
     };
 
+    const WeekStart = 3;
+
     return (
         <div className='flex flex-col items-center justify-center w-full'>
             <Calendar
@@ -48,7 +50,7 @@ const CustomCalendar = () => {
                 style={{ width: '100%' }}
             />
             <div className='min-w-[100%] p-2 border-2 border-[#0056FF]/80 rounded-xl mt-2 pl-5 pr-5'>
-                {weekEvents.map(event => (
+                {weekEvents.length > 0 && weekEvents.map(event => (
                     <div key={event._id} onClick={() => onEventClick(event)}
                         className=''
                     >
@@ -71,6 +73,7 @@ const CustomCalendar = () => {
                     </div>
                 </Modal>
             )}
+
         </div>
     );
 };
