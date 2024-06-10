@@ -63,8 +63,6 @@ const SecretSauce = ({ content, user }) => {
     const handleProgress = (state) => {
         const duration = playerRef.current.getDuration();
         const viewed = state.playedSeconds;
-        console.log('viewd', viewed);
-        console.log('duration', duration - 2);
         if (viewed / duration >= 0.6 && !seen60Percent) {
             axios.post('/api/views/update', { contentId: content._id});
             setSeen60Percent(true); // set a flag to avoid multiple calls

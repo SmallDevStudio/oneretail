@@ -15,103 +15,102 @@ import Loading from "../Loading";
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const LearningContent = ({ content, user }) => {
-    const userId = user?.userId;
-    const [countdown, setCountdown] = useState(0);
-    const [seen60Percent, setSeen60Percent] = useState(false);
-    const [completed, setCompleted] = useState(false);
-    const [likes, setLikes] = useState(content.likes || []);
-    const [userHasLiked, setUserHasLiked] = useState(Array.isArray(likes) && likes.includes(userId));
-    const [comments, setComments] = useState('');
-    const [showInput, setShowInput] = useState(false);
-    const playerRef = useRef(null);
-    const contentId = content?._id;
+  const userId = user?.userId;
+  const [countdown, setCountdown] = useState(0);
+  const [seen60Percent, setSeen60Percent] = useState(false);
+  const [completed, setCompleted] = useState(false);
+  const [likes, setLikes] = useState(content.likes || []);
+  const [userHasLiked, setUserHasLiked] = useState(Array.isArray(likes) && likes.includes(userId));
+  const [comments, setComments] = useState('');
+  const [showInput, setShowInput] = useState(false);
+  const playerRef = useRef(null);
+  const contentId = content?._id;
 
-    const { data , error, isLoading } = useSWR(`/api/content/comments?contentId=${contentId}`, fetcher, {
-            refreshInterval: 2000,
-            onSuccess: (data) => {
-            setComments(data);
+  const { data , error, isLoading } = useSWR(`/api/content/comments?contentId=${contentId}`, fetcher, {
+          // refreshInterval: 2000,
+          onSuccess: (data) => {
+          setComments(data);
+      }
+  });
+
+  const handleCommentAdded = async () => {
+      // Refresh comments
+      const res = await axios.get(`/api/content/comments?contentId=${contentId}`);
+      setComments(res.data.data);
+      // Close comment box
+      setShowInput(false);
+    };
+ 
+  useEffect(() => {
+      const userId = user?.userId;
+      setUserHasLiked(Array.isArray(likes) && likes.includes(userId));
+    }, [likes, user?.userId, userId]);
+
+
+  useEffect(() => {
+      const interval = setInterval(() => {
+        if (playerRef.current) {
+          const duration = playerRef.current.getDuration();
+          const playedSeconds = playerRef.current.getCurrentTime();
+          const remainingTime = Math.max(duration - playedSeconds, 0);
+          setCountdown(remainingTime);
         }
-    });
+      }, 1000);
+  
+      return () => clearInterval(interval);
+    }, []);
 
-    const handleCommentAdded = async () => {
-        // Refresh comments
-        const res = await axios.get(`/api/content/comments?contentId=${contentId}`);
-        setComments(res.data.data);
-        // Close comment box
-        setShowInput(false);
-      };
-   
-    useEffect(() => {
-        const userId = user?.userId;
-        setUserHasLiked(Array.isArray(likes) && likes.includes(userId));
-      }, [likes, user?.userId, userId]);
-
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-          if (playerRef.current) {
-            const duration = playerRef.current.getDuration();
-            const playedSeconds = playerRef.current.getCurrentTime();
-            const remainingTime = Math.max(duration - playedSeconds, 0);
-            setCountdown(remainingTime);
+  const handleProgress = (state) => {
+      const duration = playerRef.current.getDuration();
+      const viewed = state.playedSeconds;
+      if (viewed / duration >= 0.6 && !seen60Percent) {
+          axios.post('/api/views/update', { contentId: content._id});
+          setSeen60Percent(true); // set a flag to avoid multiple calls
+        }
+  
+        if (viewed >= duration - 2 && !completed) { // Check if the video is almost complete
+          if (content.point !== 0) {
+            axios.post('/api/points/earn', {
+              userId,
+              description: `views video ${content._id}`,
+              type: 'earn',
+              points: content.point,
+            });
           }
-        }, 1000);
-    
-        return () => clearInterval(interval);
-      }, []);
-
-    const handleProgress = (state) => {
-        const duration = playerRef.current.getDuration();
-        const viewed = state.playedSeconds;
-    
-        if (viewed / duration >= 0.6 && !seen60Percent) {
-            axios.post('/api/views/update', { contentId: content._id});
-            setSeen60Percent(true); // set a flag to avoid multiple calls
+          if (content.coins !== 0) {
+            axios.post('/api/coins/earn', {
+              userId,
+              description: `views video ${content._id}`,
+              type: 'earn',
+              coins: content.coins,
+            });
           }
-    
-          if (viewed >= duration - 2 && !completed) { // Check if the video is almost complete
-            if (content.point !== 0) {
-              axios.post('/api/points/earn', {
-                userId,
-                description: `views video ${content._id}`,
-                type: 'earn',
-                points: content.point,
-              });
-            }
-            if (content.coins !== 0) {
-              axios.post('/api/coins/earn', {
-                userId,
-                description: `views video ${content._id}`,
-                type: 'earn',
-                coins: content.coins,
-              });
-            }
-            setCompleted(true); // set a flag to avoid multiple calls
-          }
-        };
-
-      const formatTime = (seconds) => {
-        const minutes = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-      };
-
-    const handleLike = async () => {
-        try {
-          const res = await axios.put(`/api/content/${content._id}`, { userId: user.userId });
-          if (res.data.success) {
-            setLikes(res.data.data.likes || []);
-          }
-        } catch (error) {
-          console.error('Error liking content:', error);
+          setCompleted(true); // set a flag to avoid multiple calls
         }
       };
 
-      if (isLoading) return <Loading />;
-      if (error) return <div>Error loading comments</div>;
-      if (!content) return <Loading />;
-      if (!user) return <Loading />;
-      
+    const formatTime = (seconds) => {
+      const minutes = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+    };
+
+  const handleLike = async () => {
+      try {
+        const res = await axios.put(`/api/content/${content._id}`, { userId: user.userId });
+        if (res.data.success) {
+          setLikes(res.data.data.likes || []);
+        }
+      } catch (error) {
+        console.error('Error liking content:', error);
+      }
+    };
+
+    if (isLoading) return <Loading />;
+    if (error) return <div>Error loading comments</div>;
+    if (!content) return <Loading />;
+    if (!user) return <Loading />;
+    
     return (
         <div className="flex flex-col items-center">
             <div className="w-full">

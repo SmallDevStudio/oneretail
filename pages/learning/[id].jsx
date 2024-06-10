@@ -15,45 +15,31 @@ const SlugPage = () => {
     const router = useRouter();
     const { id } = router.query;
     const [content, setContent] = useState({});
-    const [contents, setContents] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
     const [user, setUser] = useState(null);
     const [activeTab, setActiveTab] = useState("All");
     const { data: session } = useSession();
     const userId = session?.user?.id;
 
-    
-    const { data, error: swrError } = useSWR(userId ? `/api/users/${userId}` : null, fetcher, {
+    const { data, error: swrError, isLoading: userloading } = useSWR(userId ? `/api/users/${userId}` : null, fetcher, {
         onSuccess: (data) => {
           setUser(data.user);
         },
       });
+    
+    const { data: contents, error: contentError, isLoading: contentsLoading } = useSWR('/api/content/'+id, fetcher, {
+        onSuccess: (data) => {
+          setContent(data.data);
+        },
+      });
 
       useEffect(() => {
-        const tab = router.query.tab || "secret-sauce";
+        const tab = router.query.tab || "All";
         setActiveTab(tab);
     }, [router.query.tab]);
 
-      useEffect(() => {
-        if (id) {
-          const fetchContent = async () => {
-            try {
-              const res = await axios.get(`/api/content/${id}`);
-              setContent(res.data.data);
-            } catch (error) {
-              setError(error.response ? error.response.data.error : error.message);
-            } finally {
-              setLoading(false);
-            }
-          };
     
-          fetchContent();
-        }
-      }, [id]);
-    
-      if (loading) return <Loading />;
-      if (error) return <p>Error: {error}</p>;
+      if (contentsLoading) return <Loading />;
+      if (contentError) return <p>Error: {error}</p>;
     
       const handleTabClick = (tab) => {
         setActiveTab(tab);

@@ -36,13 +36,14 @@ export default async function handler(req, res) {
                     position: emp.position
                 };
             });
-
-            let filteredUsers = populatedUsers;
-            if (teamGrop) {
-                filteredUsers = populatedUsers.filter(user => user.teamGrop === teamGrop);
+            console.log(populatedUsers);
+            if (!teamGrop) {
+                return res.status(200).json({ success: true, data: populatedUsers });
+            } else {
+                const filteredUsers = populatedUsers.filter(user => user.teamGrop === teamGrop);
+                return res.status(200).json({ success: true, data: filteredUsers });
             }
 
-            return res.status(200).json({ success: true, data: filteredUsers });
         } catch (error) {
             return res.status(400).json({ success: false, error: error.message });
         }
