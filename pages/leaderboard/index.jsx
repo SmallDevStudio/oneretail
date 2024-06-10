@@ -33,7 +33,7 @@ export default function LeaderBoard() {
                 <h1 className="text-[35px] font-black text-[#0056FF]" style={{ fontFamily: "Ekachon" }}>Leaderboard</h1>
             </div>
 
-            <div className="relative  bg-[#0056FF] min-h-[30vh]">
+            <div className="relative  bg-[#0056FF] min-h-[30vh] rounded-b-2xl p-2 shadow-lg">
                 <div className="flex justify-center bg-[#0056FF]">
                     {["All", "Retail", "AL"].map(team => (
                         <button 
@@ -49,7 +49,7 @@ export default function LeaderBoard() {
                 <div className="flex bg-[#0056FF] mb-5 p-5 justify-center text-white min-w-[100px]">
                     {topThree.length > 1 && (
                         <div className="flex flex-col items-center mt-5">
-                            <span className="font-bold" style={{ fontSize: "12px" }}>{topThree[1].fullname}</span>
+                            <span className="font-bold truncate" style={{ fontSize: "12px" }}>{topThree[1].fullname}</span>
                             <span className="font-bold mb-4" style={{ fontSize: "22px" }}>{topThree[1].totalPoints}</span>
                             <div className="relative justify-center items-center text-center w-full ml-10">
                                 {topThree[1].pictureUrl ? (
@@ -78,7 +78,7 @@ export default function LeaderBoard() {
                     )}
                     {topThree.length > 0 && (
                         <div className="flex flex-col items-center mx-3 mt-[-15px] min-w-[100px]">
-                            <span className="font-bold text-sm" style={{ fontSize: "12px" }}>{topThree[0].fullname}</span>
+                            <span className="font-bold text-sm truncate" style={{ fontSize: "12px" }}>{topThree[0].fullname}</span>
                             <span className="font-bold text-md mb-2" style={{ fontSize: "22px" }}>{topThree[0].totalPoints}</span>
                             <div className="relative justify-center items-center text-center w-full">
                             {topThree[0].pictureUrl ? (
@@ -108,7 +108,7 @@ export default function LeaderBoard() {
                     )}
                     {topThree.length > 2 && (
                         <div className="flex flex-col items-center mt-5 min-w-[100px]">
-                            <span className="font-bold" style={{ fontSize: "12px" }}>{topThree[2].fullname}</span>
+                            <span className="font-bold truncate" style={{ fontSize: "12px" }}>{topThree[2].fullname}</span>
                             <span className="font-bold" style={{ fontSize: "22px" }}>{topThree[2].totalPoints}</span>
                             <div className="relative justify-center items-center text-center w-full">
                             {topThree[2].pictureUrl ? (
@@ -160,7 +160,7 @@ export default function LeaderBoard() {
                                 )}
                             </td>
                             <td className="w-full ml-2">
-                                <span className="font-bold text-md">{user.fullname}</span>
+                                <span className="font-bold text-md truncate">{user.fullname}</span>
                             </td>
                             <td className="flex w-25 justify-end items-center align-middle mr-2">
                                 <span className="font-bold bg-[#0056FF] rounded-full p-1 w-20 h-6 text-center text-white text-sm">
