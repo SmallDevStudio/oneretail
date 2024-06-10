@@ -46,7 +46,7 @@ export default function LeaderBoard() {
                     ))}
                 </div>
 
-                <div className="flex bg-[#0056FF] mb-5 p-5 justify-center text-white">
+                <div className="flex bg-[#0056FF] mb-5 p-5 justify-center text-white min-w-[100px]">
                     {topThree.length > 1 && (
                         <div className="flex flex-col items-center mt-5">
                             <span className="font-bold" style={{ fontSize: "12px" }}>{topThree[1].fullname}</span>
@@ -77,28 +77,28 @@ export default function LeaderBoard() {
                         </div>
                     )}
                     {topThree.length > 0 && (
-                        <div className="flex flex-col items-center mx-7 mt-[-15px]">
+                        <div className="flex flex-col items-center mx-3 mt-[-15px] min-w-[100px]">
                             <span className="font-bold text-sm" style={{ fontSize: "12px" }}>{topThree[0].fullname}</span>
-                            <span className="font-bold text-md mb-5" style={{ fontSize: "22px" }}>{topThree[0].totalPoints}</span>
-                            <div className="flex flex-col justify-center items-center text-center w-full">
+                            <span className="font-bold text-md mb-2" style={{ fontSize: "22px" }}>{topThree[0].totalPoints}</span>
+                            <div className="relative justify-center items-center text-center w-full">
                             {topThree[0].pictureUrl ? (
                                 <Image 
                                     src={topThree[0].pictureUrl} 
                                     alt={topThree[0].fullname} 
                                     width="70" 
                                     height="70"
-                                    className="rounded-full border-3 border-[#0056FF] dark:border-white"
+                                    className="relative rounded-full border-3 border-[#0056FF] dark:border-white ml-3 mt-2"
                                 />
                             ) : (
                                 <div className="rounded-full border-3 border-[#0056FF] dark:border-white bg-gray-300" style={{ width: '50px', height: '50px' }} />
                             )}
                             <Image src={"/images/leaderboard/1.svg"} alt="Medal" width="150" height="150" 
                                 className="z-10" style={{ 
-                                    width: '100px',
-                                    height: '100px',
+                                    width: '120px',
+                                    height: '120px',
                                     position: 'absolute',
-                                    top: '100px',
-                                    left: '140px',
+                                    top: '-20px',
+                                    left: '0',
                                     zIndex: 1,
                                     transition: 'all 0.5s ease'
                                     }} 
@@ -107,7 +107,7 @@ export default function LeaderBoard() {
                         </div>
                     )}
                     {topThree.length > 2 && (
-                        <div className="flex flex-col items-center mt-5">
+                        <div className="flex flex-col items-center mt-5 min-w-[100px]">
                             <span className="font-bold" style={{ fontSize: "12px" }}>{topThree[2].fullname}</span>
                             <span className="font-bold" style={{ fontSize: "22px" }}>{topThree[2].totalPoints}</span>
                             <div className="relative justify-center items-center text-center w-full">
