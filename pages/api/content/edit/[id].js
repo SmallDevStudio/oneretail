@@ -1,23 +1,20 @@
-import connetMongoDB from "@/lib/services/database/mongodb";
+import connectMongoDB from "@/lib/services/database/mongodb";
 import Content from "@/database/models/Content";
 
 export default async function handler(req, res) {
     const { method, query } = req;
     const { id } = query;
 
-    await connetMongoDB();
+    await connectMongoDB();
 
     if (method !== 'PUT') {
         return res.status(405).json({ success: false, error: 'Method not allowed' });
-      }
+    }
     
-      try {
+    try {
         const {
-          userId,
           title,
           description,
-          youtubeUrl,
-          thumbnailUrl,
           categories,
           subcategories,
           groups,
@@ -36,22 +33,19 @@ export default async function handler(req, res) {
         // Update content fields, excluding likes
         content.title = title;
         content.description = description;
-        content.youtubeUrl = youtubeUrl;
-        content.thumbnailUrl = thumbnailUrl;
         content.categories = categories;
         content.subcategories = subcategories;
         content.groups = groups;
         content.publisher = publisher;
         content.point = point;
         content.coins = coins;
-        content.tags = tags.split(' ').filter(tag => tag); // Convert space-separated string to array
+        content.tags = typeof tags === 'string' ? tags.split(' ').filter(tag => tag) : tags; // Convert space-separated string to array
 
         await content.save();
 
         res.status(200).json({ success: true, data: content });
-      } catch (error) {
+    } catch (error) {
         console.error('Error updating content:', error);
         res.status(400).json({ success: false, error: error.message });
-      }
-
+    }
 }

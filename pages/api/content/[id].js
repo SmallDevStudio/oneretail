@@ -78,6 +78,19 @@ export default async function handler(req, res) {
         }
         break;
 
+      case 'DELETE':
+        try {
+          const content = await Content.findByIdAndDelete(id);
+          if (!content) {
+            return res.status(404).json({ success: false, error: 'Content not found' });
+          }
+          res.status(200).json({ success: true, data: {} });
+        } catch (error) {
+          console.error('Error deleting content:', error);
+          res.status(400).json({ success: false, error: error.message });
+        }
+        break;
+
     default:
       res.status(400).json({ success: false, error: 'Invalid request method' });
       break;

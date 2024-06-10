@@ -8,10 +8,16 @@ export default async function handler(req, res) {
     const url = new URL(youtubeUrl);
 
     if (url.hostname === 'www.youtube.com' || url.hostname === 'youtube.com') {
-        videoId = url.searchParams.get('v');
-      } else if (url.hostname === 'youtu.be') {
+        if (url.pathname.startsWith('/shorts/')) {
+            videoId = url.pathname.split('/')[2];
+        } else {
+            videoId = url.searchParams.get('v');
+        }
+    } else if (url.hostname === 'youtu.be') {
         videoId = url.pathname.slice(1);
-      }
+    }
+
+
     if (!videoId) {
         res.status(400).json({ error: "Invalid YouTube URL" });
     }
