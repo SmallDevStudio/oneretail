@@ -7,12 +7,18 @@ import useSWR from "swr";
 import Loading from "@/components/Loading";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import ExchangeModal from "@/components/ExchangeModal";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 export default function Redeem() {
     const [activeTab, setActiveTab] = useState("redeem1");
     const { data: session } = useSession();
     const {image, id} = session?.user;
+    const [modalIsOpen, setModalIsOpen] = useState(false);
+    const [conversionRate, setConversionRate] = useState(25);
+
+    const openModal = () => setModalIsOpen(true);
+    const closeModal = () => setModalIsOpen(false);
 
     const { data: level } = useSWR('/api/level/'+session?.user?.id, fetcher, {refreshInterval: 1000});
 
@@ -39,9 +45,9 @@ export default function Redeem() {
                         alt="Badge"
                         width={140}
                         height={140}
-                        className="absolute z-50"
+                        className="absolute z-12"
                     />
-                    <span className="absolute z-50 text-white font-bold mt-3 text-[10px]"
+                    <span className="absolute z-12 text-white font-bold mt-3 text-[10px]"
                     style={{
                         top: "16.5%",
                     }}
@@ -103,7 +109,7 @@ export default function Redeem() {
                 <span className="text-[10px] text-[#1E3060] font-bold">
                     เปลี่ยนคะแนน เป็น คอยล์ 
                     <button>
-                        <span className="text-[#F68B1F] font-bold ml-1">คลิก</span>
+                        <span className="text-[#F68B1F] font-bold ml-1" onClick={openModal}>คลิก</span>
                     </button>
                 </span>
             </div>
@@ -126,6 +132,12 @@ export default function Redeem() {
                     </li>
                 </ul>
             </div>
+            <ExchangeModal 
+                isOpen={modalIsOpen} 
+                onRequestClose={closeModal} 
+                points={""} 
+                conversionRate={conversionRate} 
+            />
             {/* Content */}
             <div className="flex flex-col items-center justify-center p-5 gap-2 mb-20">
                 
@@ -149,7 +161,6 @@ export default function Redeem() {
                                 position: "relative",
                                 bottom: "10px",
                                 left: "35px",
-                                zIndex: "10",
                             }}>
                                 <div className="flex bg-[#0056FF] rounded-full text-white font-bold h-6 w-[70px] p-1 text-center justify-center items-center">
                                     <span>50 🪙 </span>
@@ -199,7 +210,6 @@ export default function Redeem() {
                                 position: "relative",
                                 bottom: "10px",
                                 left: "35px",
-                                zIndex: "10",
                             }}>
                                 <div className="flex bg-[#0056FF] rounded-full text-white font-bold h-6 w-[70px] p-1 text-center justify-center items-center">
                                     <span>300 🪙 </span>
