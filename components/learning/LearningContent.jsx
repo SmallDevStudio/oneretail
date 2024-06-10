@@ -18,6 +18,7 @@ const LearningContent = ({ content, user }) => {
     const userId = user?.userId;
     const [countdown, setCountdown] = useState(0);
     const [seen60Percent, setSeen60Percent] = useState(false);
+    const [completed, setCompleted] = useState(false);
     const [likes, setLikes] = useState(content.likes || []);
     const [userHasLiked, setUserHasLiked] = useState(Array.isArray(likes) && likes.includes(userId));
     const [comments, setComments] = useState('');
@@ -68,25 +69,26 @@ const LearningContent = ({ content, user }) => {
             setSeen60Percent(true); // set a flag to avoid multiple calls
           }
     
-        if (viewed === duration) {
-          if (content.points !== 0 ) {
-                axios.post('/api/points/earn', {
+          if (viewed >= duration - 2 && !completed) { // Check if the video is almost complete
+            if (content.point !== 0) {
+              axios.post('/api/points/earn', {
                 userId,
-                description: `views video ${id}`,
+                description: `views video ${content._id}`,
                 type: 'earn',
                 points: content.point,
               });
-          }
-          if (content.coins !== 0 ) {
-                axios.post('/api/coins/earn', {
+            }
+            if (content.coins !== 0) {
+              axios.post('/api/coins/earn', {
                 userId,
-                description: `views video ${id}`,
+                description: `views video ${content._id}`,
                 type: 'earn',
                 coins: content.coins,
               });
             }
-        }
-      };
+            setCompleted(true); // set a flag to avoid multiple calls
+          }
+        };
 
       const formatTime = (seconds) => {
         const minutes = Math.floor(seconds / 60);
