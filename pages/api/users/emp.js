@@ -36,7 +36,6 @@ export default async function handler(req, res) {
                     position: emp.position
                 };
             });
-            console.log(populatedUsers);
             if (!teamGrop) {
                 return res.status(200).json({ success: true, data: populatedUsers });
             } else {
