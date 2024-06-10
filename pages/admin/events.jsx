@@ -1,217 +1,234 @@
-import { useEffect, useState } from 'react';
+// pages/events.js
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { DataGrid } from '@mui/x-data-grid';
+import { AdminLayout } from '@/themes';
+import moment from 'moment';
+import DatePicker, { registerLocale } from 'react-datepicker';
+import th from 'date-fns/locale/th';
+import 'react-datepicker/dist/react-datepicker.css';
 
-const Manage = () => {
+registerLocale('th', th);
+
+const ManageEvents = () => {
   const [events, setEvents] = useState([]);
   const [form, setForm] = useState({
-    id: '',
-    startdate: '',
-    time: '',
-    enddate: '',
-    name: '',
+    title: '',
     description: '',
+    startDate: '',
+    endDate: '',
+    startTime: '',
+    endTime: '',
     group: '',
     position: '',
-    location: '',
-    maplocation: '',
+    place: '',
+    mapLocation: '',
     note: '',
+    status: '',
+    creator: ''
   });
-  const [editing, setEditing] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const eventsPerPage = 10;
+  const [editId, setEditId] = useState(null);
 
   useEffect(() => {
+    const fetchEvents = async () => {
+      const response = await axios.get('/api/events');
+      setEvents(response.data.data);
+    };
     fetchEvents();
   }, []);
 
-  const fetchEvents = async () => {
-    try {
-      const response = await axios.get('/api/events');
-      setEvents(response.data.data);
-    } catch (error) {
-      console.error('Error fetching events:', error);
-    }
-  };
-
-  const handleInputChange = e => {
-    const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
-  };
-
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editing) {
-      await axios.put('/api/events', form);
+    if (editId) {
+      await axios.put(`/api/events/${editId}`, form);
     } else {
       await axios.post('/api/events', form);
     }
-    fetchEvents();
     setForm({
-      id: '',
-      startdate: '',
-      time: '',
-      enddate: '',
-      name: '',
+      title: '',
       description: '',
+      startDate: '',
+      endDate: '',
+      startTime: '',
+      endTime: '',
       group: '',
       position: '',
-      location: '',
-      maplocation: '',
+      place: '',
+      mapLocation: '',
       note: '',
+      status: '',
+      creator: ''
     });
-    setEditing(false);
+    setEditId(null);
+    const response = await axios.get('/api/events');
+    setEvents(response.data.data);
   };
 
-  const handleEdit = event => {
-    setForm(event);
-    setEditing(true);
+  const handleDelete = async (id) => {
+    await axios.delete(`/api/events/${id}`);
+    const response = await axios.get('/api/events');
+    setEvents(response.data.data);
   };
 
-  const handleDelete = async id => {
-    await axios.delete('/api/events', { data: { id } });
-    fetchEvents();
+  const handleEdit = (event) => {
+    setEditId(event._id);
+    setForm({
+      title: event.title,
+      description: event.description,
+      startDate: new Date(event.startDate).toISOString().split('T')[0],
+      endDate: new Date(event.endDate).toISOString().split('T')[0],
+      startTime: event.startTime,
+      endTime: event.endTime,
+      group: event.group,
+      position: event.position,
+      place: event.place,
+      mapLocation: event.mapLocation,
+      note: event.note,
+      status: event.status,
+      creator: event.creator
+    });
   };
 
-  const indexOfLastEvent = currentPage * eventsPerPage;
-  const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
-  const currentEvents = events.slice(indexOfFirstEvent, indexOfLastEvent);
-
-  const paginate = pageNumber => setCurrentPage(pageNumber);
+  const columns = [
+    { field: 'title', headerName: 'Title', width: 200 },
+    { field: 'description', headerName: 'description', width: 200},
+    { field: 'startDate', headerName: 'Start Date', width: 150, renderCell: (params) => moment(params.value).format('DD/MM/YYYY') },
+    { field: 'endDate', headerName: 'End Date', width: 150, renderCell: (params) => moment(params.value).format('DD/MM/YYYY') },
+    { field: 'startTime', headerName: 'startTime', width: 80 },
+    { field: 'endTime', headerName: 'endTime', width: 80 },
+    { field: 'group', headerName: 'group', width: 80 },
+    { field: 'place', headerName: 'place', width: 150 },
+    { field: 'note', headerName: 'note', width: 150 },
+    { field: 'creator', headerName: 'creator', width: 80 },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      width: 150,
+      renderCell: (params) => (
+        <>
+          <button
+            className="text-blue-600 hover:text-blue-800"
+            onClick={() => handleEdit(params.row)}
+          >
+            Edit
+          </button>
+          <button
+            className="text-red-600 hover:text-red-800 ml-2"
+            onClick={() => handleDelete(params.row._id)}
+          >
+            Delete
+          </button>
+        </>
+      ),
+    },
+  ];
 
   return (
-    <div>
-      <h1>จัดการกิจกรรม</h1>
-      <form onSubmit={handleSubmit}>
-        <input type="hidden" name="id" value={form.id} />
-        <label>วันที่เริ่มต้น:</label>
-        <input
-          type="date"
-          name="startdate"
-          value={form.startdate}
-          onChange={handleInputChange}
-          required
+    <React.Fragment>
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Manage Events</h1>
+      <div className=" mb-2"> 
+      <div style={{ height: 400, width: '100%' }}>
+        <DataGrid
+          rows={events}
+          columns={columns}
+          pageSize={5}
+          rowsPerPageOptions={[5, 10, 20]}
+          checkboxSelection={false}
+          getRowId={(row) => row._id}
         />
-        <label>เวลา:</label>
-        <input
-          type="time"
-          name="time"
-          value={form.time}
-          onChange={handleInputChange}
-          required
-        />
-        <label>วันที่สิ้นสุด:</label>
-        <input
-          type="date"
-          name="enddate"
-          value={form.enddate}
-          onChange={handleInputChange}
-        />
-        <label>ชื่อกิจกรรม:</label>
-        <input
-          type="text"
-          name="name"
-          value={form.name}
-          onChange={handleInputChange}
-          required
-        />
-        <label>รายละเอียด:</label>
-        <textarea
-          name="description"
-          value={form.description}
-          onChange={handleInputChange}
-          required
-        ></textarea>
-        <label>กลุ่ม:</label>
-        <input
-          type="text"
-          name="group"
-          value={form.group}
-          onChange={handleInputChange}
-        />
-        <label>ตำแหน่ง:</label>
-        <input
-          type="text"
-          name="position"
-          value={form.position}
-          onChange={handleInputChange}
-        />
-        <label>สถานที่:</label>
-        <input
-          type="text"
-          name="location"
-          value={form.location}
-          onChange={handleInputChange}
-        />
-        <label>แผนที่:</label>
-        <input
-          type="text"
-          name="maplocation"
-          value={form.maplocation}
-          onChange={handleInputChange}
-        />
-        <label>หมายเหตุ:</label>
-        <input
-          type="text"
-          name="note"
-          value={form.note}
-          onChange={handleInputChange}
-        />
-        <button type="submit">{editing ? 'แก้ไข' : 'เพิ่ม'}</button>
-      </form>
-      <table>
-        <thead>
-          <tr>
-            <th>ชื่อกิจกรรม</th>
-            <th>วันที่เริ่มต้น</th>
-            <th>วันที่สิ้นสุด</th>
-            <th>กลุ่ม</th>
-            <th>การกระทำ</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentEvents.map(event => (
-            <tr key={event._id}>
-              <td>{event.name}</td>
-              <td>{new Date(event.startdate).toLocaleDateString('th-TH')}</td>
-              <td>{new Date(event.enddate).toLocaleDateString('th-TH')}</td>
-              <td>{event.group}</td>
-              <td>
-                <button onClick={() => handleEdit(event)}>แก้ไข</button>
-                <button onClick={() => handleDelete(event._id)}>ลบ</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <Pagination
-        eventsPerPage={eventsPerPage}
-        totalEvents={events.length}
-        paginate={paginate}
-      />
+      </div>
     </div>
+      <form onSubmit={handleSubmit} className="mb-4 p-4 border rounded-lg shadow-md">
+        <div className="grid grid-cols-2 gap-4">
+          {/* Add form fields here */}
+          <input
+            type="text"
+            placeholder="Title"
+            value={form.title}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
+            className="p-2 border rounded"
+          />
+          <input
+            type="text"
+            placeholder="Description"
+            value={form.description}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            className="p-2 border rounded"
+          />
+          <DatePicker
+            selected={form.startDate ? new Date(form.startDate) : null}
+            onChange={(date) => setForm({ ...form, startDate: date.toISOString().split('T')[0] })}
+            className="p-2 border rounded"
+            placeholderText="Start Date"
+            locale="th"
+            dateFormat="dd/MM/yyyy"
+          />
+          <DatePicker
+            selected={form.endDate ? new Date(form.endDate) : null}
+            onChange={(date) => setForm({ ...form, endDate: date.toISOString().split('T')[0] })}
+            className="p-2 border rounded"
+            placeholderText="End Date"
+            locale="th"
+            dateFormat="dd/MM/yyyy"
+          />
+          <input
+            type="text"
+            placeholder="startTime"
+            value={form.startTime}
+            onChange={(e) => setForm({ ...form, startTime: e.target.value })}
+            className="p-2 border rounded"
+          />
+          <input
+            type="text"
+            placeholder="endTime"
+            value={form.endTime}
+            onChange={(e) => setForm({ ...form, endTime: e.target.value })}
+            className="p-2 border rounded"
+          />
+          <input
+            type="text"
+            placeholder="group"
+            value={form.group}
+            onChange={(e) => setForm({ ...form, group: e.target.value })}
+            className="p-2 border rounded"
+          />
+          <input
+            type="text"
+            placeholder="position"
+            value={form.position}
+            onChange={(e) => setForm({ ...form, position: e.target.value })}
+            className="p-2 border rounded"
+          />
+          <input
+            type="text"
+            placeholder="place"
+            value={form.place}
+            onChange={(e) => setForm({ ...form, place: e.target.value })}
+            className="p-2 border rounded"
+          />
+          <input
+            type="text"
+            placeholder="note"
+            value={form.note}
+            onChange={(e) => setForm({ ...form, note: e.target.value })}
+            className="p-2 border rounded"
+          />
+          {/* Add other form fields similarly */}
+          {/* ... */}
+        </div>
+        <button type="submit" className="mt-4 p-2 bg-blue-600 text-white rounded">
+          {editId ? 'อัพเดท Event' : 'เพิ่ม Event'}
+        </button>
+      </form>
+      
+    </div>
+    
+  </React.Fragment>
   );
 };
 
-const Pagination = ({ eventsPerPage, totalEvents, paginate }) => {
-  const pageNumbers = [];
+ManageEvents.getLayout = (page) => <AdminLayout>{page}</AdminLayout>;
+ManageEvents.auth = true;
 
-  for (let i = 1; i <= Math.ceil(totalEvents / eventsPerPage); i++) {
-    pageNumbers.push(i);
-  }
-
-  return (
-    <nav>
-      <ul>
-        {pageNumbers.map(number => (
-          <li key={number}>
-            <a onClick={() => paginate(number)} href="#">
-              {number}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  );
-};
-
-export default Manage;
+export default ManageEvents;

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import Alert from "@/lib/notification/Alert";
 import { useRouter } from "next/router";
+import Image from "next/image";
 
 const FormEdit = ({ initialData }) => {
     const [formData, setFormData] = useState({
@@ -77,6 +78,9 @@ const FormEdit = ({ initialData }) => {
             <div className="flex flex-col space-y-2 border-2 p-5 rounded-xl shadow-xl">
                 <span className="text-3xl font-bold text-gray-800 mb-3">แก้ไขเนื้อหา</span>
                 <hr className="border-gray-300 "/>
+                <div className="flex justify-center items-center">
+                    <Image src={initialData?.thumbnailUrl} alt="image" width={200} height={200} className=""/>
+                </div>
                 <form className="flex flex-col space-y-2" onSubmit={handleSubmit}>
                     <input type="text" className="border-2 border-gray-300 rounded-lg p-2" placeholder="ชื่อเนื้อหา" id="title" 
                         onChange={(e) => setFormData({...formData, title: e.target.value})} value={formData.title}
