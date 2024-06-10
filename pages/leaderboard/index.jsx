@@ -56,8 +56,8 @@ export default function LeaderBoard() {
                                     <Image 
                                         src={topThree[1].pictureUrl} 
                                         alt={topThree[1].fullname} 
-                                        width="60" 
-                                        height="60"
+                                        width="50" 
+                                        height="50"
                                         className="rounded-full border-3 border-[#0056FF] dark:border-white"
                                     />
                                 ) : (
@@ -65,8 +65,8 @@ export default function LeaderBoard() {
                                 )}
                                 <Image src={"/images/leaderboard/2.svg"} alt="Medal" width="100" height="100" 
                                 className="z-10" style={{ 
-                                    width: '100px', 
-                                    height: '100px',
+                                    width: '90px', 
+                                    height: '90px',
                                     position: 'absolute',
                                     top: '-20px',
                                     left: '-20px',
