@@ -7,6 +7,9 @@ import Loading from "@/components/Loading";
 import { AppLayout } from "@/themes";
 import useSWR from "swr";
 import dynamic from "next/dynamic";
+import { IoQrCodeOutline, IoNotificationsOutline } from "react-icons/io5";
+import { HiOutlineDotsVertical } from "react-icons/hi";
+
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 export default function Profile() {
@@ -36,16 +39,30 @@ export default function Profile() {
     return (
         <> 
             <main className="flex flex-col mb-20">
-                <div className="absolute top-0 right-0 w-full h-full flex justify-center items-center">
-                    <div className="flex p-2 flex-row items-center justify-center">
-                        <div>
-
+                <div style={{
+                    position: "fixed",
+                    top: 0,
+                    left: '38%',
+                    zIndex: 10,
+                    cursor: "pointer",
+                    minWidth: "100%",
+                    justifyItems: "end",
+                }}>
+                    <div className="flex p-2 flex-row items-center justify-center gap-1">
+                        <div className="flex items-center justify-center rounded-full p-1">
+                            <IoQrCodeOutline size={20} 
+                                className="text-gray-400 cursor-pointer"
+                            />
                         </div>
-                        <div>
-
+                        <div className="flex items-center justify-center rounded-full p-1">
+                            <IoNotificationsOutline size={20} 
+                                className="text-gray-400 cursor-pointer"
+                            />
                         </div>
-                        <div>
-                            
+                        <div className="flex items-center justify-center rounded-full p-1 ml-[-5px]">
+                            <HiOutlineDotsVertical size={20} 
+                                className="text-gray-400 cursor-pointer"
+                            />
                         </div>
                     </div>
                 </div>

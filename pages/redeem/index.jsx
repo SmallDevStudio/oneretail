@@ -49,7 +49,7 @@ export default function Redeem() {
                     />
                     <span className="absolute z-12 text-white font-bold mt-3 text-[10px]"
                     style={{
-                        top: "16.5%",
+                        top: "16%",
                     }}
                     >LEVEL {level?.level}
                     </span>  
