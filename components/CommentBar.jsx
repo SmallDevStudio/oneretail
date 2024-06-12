@@ -37,7 +37,7 @@ const CommentBar = (id) => {
     }
 
     return (
-        <div className="fixed bottom-14 z-50 w-full h-18 p-3 justify-center items-center bg-gray-200 border-1 border-gray-300 shadow-inner ">
+        <div className="sticky bottom-14 z-50 w-full h-18 p-3 justify-center items-center bg-gray-200 border-1 border-gray-300 shadow-inner ">
            <div className="flex flex-row w-full justify-center items-center text-center">
                 <UserAvartar />
                     <input type="text" id='input' className="w-full p-2 rounded-full ml-2 text-sm ring-2 ring-gray-300" placeholder="Add a comment..." 

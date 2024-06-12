@@ -17,8 +17,6 @@ const Post = ({ post, user, onDelete }) => {
   const [comments, setComments] = useState(post.comments);
   const [showComments, setShowComments] = useState(false);
   const [commentContent, setCommentContent] = useState('');
-  console.log('comments:', comments);
-
 
   const handleLike = async () => {
     try {
@@ -66,23 +64,27 @@ const Post = ({ post, user, onDelete }) => {
 
 
   return (
-    <div className="post">
-      <div className="user-info">
-        <Image src={post.user.pictureUrl} alt="avatar" width={40} height={40} />
-        <div className="flex flex-col text-left">
-          <span className="font-bold">
-            {post.user.fullname}
-          </span>
-          <span className="text-[10px]">
-            {moment(post.createdAt).fromNow()}
-          </span>
+    <div className="flex flex-col bg-white rounded-xl shadow-md border-2 p-3 px-2">
+      <div className="flex flex-row justify-between">
+        <div className="flex flex-row gap-2">
+          <Image src={post.user.pictureUrl} alt="avatar" width={40} height={40} className='rounded-full'/>
+          <div className="flex flex-col text-left">
+            <span className="font-bold">
+              {post.user.fullname}
+            </span>
+            <span className="text-[10px]">
+              {moment(post.createdAt).fromNow()}
+            </span>
+          </div>
         </div>
       </div>
       <div className="justify-start items-center">
         <span className="flex text-md mb-1">
           {post.content}
         </span>
-        {post.link && getEmbedComponent(post.link)}
+        <div className="flex justify-center">
+          {post.link && getEmbedComponent(post.link)}
+        </div>
       </div>
       <div className="flex flex-row justify-between mt-1">
         <div className="flex gap-2">

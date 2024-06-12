@@ -6,7 +6,7 @@ const ShareYourStory = () => {
     return (
         <>
             <div className="share-your-story">
-                <div className="share-your-story__header">
+                <div className="">
                     <CommentBar />
                 </div>
                 <div className="share-your-story__body">

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import useSWR from "swr";
+import Loading from "../Loading";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 const ShareYourStory = () => {
@@ -50,10 +51,12 @@ const ShareYourStory = () => {
       {user ? (
         <>
           <CreatePost user={user} onPostCreated={handlePostCreated} />
-          <PostList posts={posts} user={user} />
+          <div className="flex">
+            <PostList posts={posts} user={user} />
+          </div>
         </>
       ) : (
-        <p>Loading...</p>
+        <Loading />
       )}
     </div>
   );

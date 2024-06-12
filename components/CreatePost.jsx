@@ -55,11 +55,9 @@ const CreatePost = ({ user, onPostCreated }) => {
 
   return (
     <>
-    <div className=" bg-gray-50 m-2 rounded-md p-1 shadow-xl ml-1 mr-1 mb-1 min-w-[350px]" style={{
-      position: 'absolute',
-      top: '15%',
-      left: '50%',
-      transform: 'translateX(-50%)',
+    <div className=" bg-gray-50 rounded-md p-2 shadow-xl" style={{
+      position: 'sticky',
+      width: '100%',
     }}>
       <div className="flex flex-row w-full text-center justify-center items-center">
       <Image
@@ -87,9 +85,9 @@ const CreatePost = ({ user, onPostCreated }) => {
       </form>
       </div>
     </div>
-    <div className="bg-gray-50 m-2 rounded-md p-1 shadow-xl ml-1 mr-1 mb-1 min-w-[350px] max-w-[350px]">
+    <div className="bg-gray-50 rounded-md p-1 shadow-xl min-w-[350px] max-w-[350px]">
       {preview && (
-          <div className="flex items-center justify-center mt-20">
+          <div className="flex items-center justify-center mt-2">
             {getEmbedPreview(preview)}
           </div>
         )}

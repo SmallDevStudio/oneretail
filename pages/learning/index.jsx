@@ -69,7 +69,7 @@ export default function Learning() {
 
             {/* Tabs */}
             <div className="flex justify-center mb-4 text-sm">
-                <ul className="flex flex-wrap -mb-px">
+                <ul className="flex flex-wrap gap-2">
                     <li className="me-2">
                         <Link
                             href="#"

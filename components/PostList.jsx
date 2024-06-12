@@ -30,7 +30,7 @@ const PostList = ({ user }) => {
   };
 
   return (
-    <div className="post-list mt-10" onScroll={(e) => {
+    <div className="flex flex-col" onScroll={(e) => {
       if (e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight) {
         loadPosts();
       }
