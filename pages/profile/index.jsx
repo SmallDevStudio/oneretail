@@ -21,6 +21,11 @@ export default function Profile() {
     const HalfCircleProgressBar = dynamic(() => import('@/components/main/HalfCircleProgressBar'), { ssr: false });
     const LineProgressBar = dynamic(() => import("@/components/ProfileLineProgressBar"), {ssr: false});
 
+    console.log('level_points:', level?.points,' levelup?.requiredPoints:', levelup?.requiredPoints);
+    console.log('nextPoint:', nextPoint);
+    console.log('level:', level);
+    console.log('levelup:', levelup);
+
     useEffect(() => {
         if (level) {
             setPercent((level?.points / levelup?.requiredPoints) * 100);
@@ -31,11 +36,25 @@ export default function Profile() {
     return (
         <> 
             <main className="flex flex-col mb-20">
-                <div className="flex p-2 flex-row items-center justify-center">
+                <div className="absolute top-0 right-0 w-full h-full flex justify-center items-center">
+                    <div className="flex p-2 flex-row items-center justify-center">
+                        <div>
+
+                        </div>
+                        <div>
+
+                        </div>
+                        <div>
+                            
+                        </div>
+                    </div>
+                </div>
+                <div className="flex p-2 flex-row items-center justify-center mt-5">
+                    
                     <div className="flex flex-col">
                         <div className="items-center text-center" style={{ width: "auto", height: "140px" }}>
                             {/* Avatar */}
-                            <div className="mt-6 ml-5">
+                            <div className="mt-4 ml-5">
                                 <Image
                                     src={user?.user?.pictureUrl}
                                     alt="User Avartar"
@@ -45,7 +64,7 @@ export default function Profile() {
                                 />
                             </div>
                             
-                            <div className="absolute top-0 mt-2 z-0">
+                            <div className="absolute top-0 mt-5 z-0">
                                 <Image
                                     src="/images/profile/Badge.svg"
                                     alt="Badge"
@@ -59,22 +78,24 @@ export default function Profile() {
                     {/* Progress Bar */}
                     <div className="flex-1 flex-col items-center justify-center ml-10 mr-5">
                         <span className="text-2xl font-semibold text-[#0056FF]">{user?.user?.fullname}</span>
-                        <div className="relative mt-3">
-                            <LineProgressBar percent={percent} />
-                        </div>
-                        <div style={{
-                            width: "auto",
-                            height: "auto",
-                            position: "absolute",
-                            top: "70px",
-                            left: "155px",
-                        }}>
-                            <Image
-                                src="/images/profile/Point.svg"
-                                alt="Coin"
-                                width={30}
-                                height={30}
-                            />
+                        <div className="relative">
+                            <div className="relative mt-3">
+                                <LineProgressBar percent={percent} />
+                            </div>
+                            <div style={{
+                                width: "auto",
+                                height: "auto",
+                                position: "absolute",
+                                top: "-10px",
+                                left: "-10px",
+                            }}>
+                                <Image
+                                    src="/images/profile/Point.svg"
+                                    alt="Coin"
+                                    width={30}
+                                    height={30}
+                                />
+                            </div>
                         </div>
                         <span className="flex text-sm font-semibold text-[#0056FF] justify-end">
                             {level?.points} / {levelup?.requiredPoints}
