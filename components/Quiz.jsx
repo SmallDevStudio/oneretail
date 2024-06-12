@@ -73,7 +73,7 @@ const Quiz = ({ userId }) => {
                 </span>
                 <div className="flex justify-center">
                   <button
-                      className="border-2 p-3 rounded-xl w-[150px] bg-[#FF9800] hover:text-white mt-3"
+                      className="border-2 p-3 rounded-full w-[150px] bg-[#FF9800] hover:text-white mt-3"
                       onClick={handleNext}
                   >
                       ถัดไป

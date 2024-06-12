@@ -94,7 +94,7 @@ export default function Profile() {
                     </div>
                     {/* Progress Bar */}
                     <div className="flex-1 flex-col items-center justify-center ml-10 mr-5">
-                        <span className="text-2xl font-semibold text-[#0056FF]">{user?.user?.fullname}</span>
+                        <span className="text-lg font-semibold text-[#0056FF]">{user?.user?.fullname}</span>
                         <div className="relative">
                             <div className="relative mt-3">
                                 <LineProgressBar percent={percent} />
@@ -165,7 +165,7 @@ export default function Profile() {
                 {/* Button panel */}
                 <div className="flex p-2 flex-col items-center justify-center text-center mt-3 mb-5">
                     <Link href="/redeem">
-                        <button className="w-40 h-10 bg-[#F2871F] text-white rounded-3xl font-semibold text-xl mb-4 mt-3">
+                        <button className="w-40 h-10 bg-[#F2871F] text-white rounded-3xl font-semibold text-xl mb-8 mt-3">
                             <span>
                                 Redeem
                             </span>
