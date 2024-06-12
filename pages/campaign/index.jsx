@@ -1,7 +1,10 @@
 import { AppLayout } from "@/themes";
 import Image from "next/image";
+import { useRouter } from "next/router";
 
 export default function Campaign() {
+    const router = useRouter();
+
     return (
         <main className="flex flex-col dark:bg-gray-900">
         
@@ -21,6 +24,7 @@ export default function Campaign() {
                             height={600}
                             priority
                             className="w-full rounded-2xl mb-2"
+                            onClick={() => router.push("/campaign/1")}
                         />
                         <Image
                             src="/images/campaign/2.jpg"
@@ -29,6 +33,7 @@ export default function Campaign() {
                             height={600}
                             priority
                             className="w-full rounded-2xl mb-2"
+                            onClick={() => router.push("/campaign/1")}
                         />
                         <Image
                             src="/images/campaign/3.jpg"
@@ -37,6 +42,7 @@ export default function Campaign() {
                             height={600}
                             priority
                             className="w-full rounded-2xl mb-2"
+                            onClick={() => router.push("/campaign/1")}
                         />
                         <Image
                             src="/images/campaign/4.jpg"
@@ -45,6 +51,7 @@ export default function Campaign() {
                             height={600}
                             priority
                             className="w-full rounded-2xl mb-2"
+                            onClick={() => router.push("/campaign/1")}
                         />
                     </div>
                         

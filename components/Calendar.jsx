@@ -49,12 +49,12 @@ const CustomCalendar = () => {
                 showFixedNumberOfWeeks={true}
                 style={{ width: '100%' }}
             />
-            <div className='min-w-[100%] p-2 border-2 border-[#0056FF]/80 rounded-xl mt-2 pl-5 pr-5'>
+            <div className='min-w-[100%] p-2 border-2 border-[#0056FF]/80 rounded-3xl mt-2 pl-5 pr-5'>
                 {weekEvents.length > 0 && weekEvents.map(event => (
                     <div key={event._id} onClick={() => onEventClick(event)}
                         className=''
                     >
-                        <h3 className='font-black text-lg'>{moment(event.startDate).format('D MMMM')} </h3>
+                        <h3 className='font-black text-lg mt-2'>{moment(event.startDate).format('D MMMM')} </h3>
                         <span className='text-sm font-bold'>{event.title}</span>
                         <p className='text-sm mb-3 text-ellipsis'>{event.description}</p>
                         <hr />
