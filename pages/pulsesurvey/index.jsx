@@ -130,7 +130,7 @@ const PulseSurvey = () => {
                                 <div>
                                     <textarea
                                         name="memo"
-                                        placeholder="เพิ่มเติม"
+                                        placeholder="อยากมีอะไรจะบอกเราไหม ?"
                                         className="w-full h-28 p-2 border border-gray-300 rounded-md"
                                         onChange={handleChange}
                                     />

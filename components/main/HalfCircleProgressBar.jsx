@@ -6,10 +6,23 @@ const HalfCircleProgressBar = ({ percentage }) => {
 
   useEffect(() => {
     let bar = null;
-    if (typeof window !== 'undefined') {
+    const getColor = (percentage) => {
+      if (percentage <= 20) {
+        return '#ff0000'; // แดง
+      } else if (percentage <= 40) {
+        return '#ff8000'; // ส้ม
+      } else if (percentage <= 60) {
+        return '#ffbf00'; // ส้มอมเหลือง
+      } else if (percentage <= 80) {
+        return '#80ff00'; // เหลืองอมเขียว
+      } else {
+        return '#00ff00'; // เขียว
+      }
+    };
+
+    if (containerRef.current) {
       bar = new ProgressBar.SemiCircle(containerRef.current, {
         strokeWidth: 12,
-        color: '#ffde05',
         trailColor: '#eee',
         trailWidth: 12,
         easing: 'easeInOut',
@@ -32,10 +45,10 @@ const HalfCircleProgressBar = ({ percentage }) => {
           },
           autoStyleContainer: false,
         },
-        from: { color: '#ffde05' },
-        to: { color: '#fce803' },
+        from: { color: getColor(0) },
+        to: { color: getColor(percentage) },
         step: (state, bar) => {
-          bar.path.setAttribute('stroke', state.color);
+          bar.path.setAttribute('stroke', getColor(Math.round(bar.value() * 100)));
           bar.path.setAttribute('stroke-linecap', 'round');
           const value = Math.round(bar.value() * 100);
           if (value === 0) {
@@ -46,24 +59,23 @@ const HalfCircleProgressBar = ({ percentage }) => {
           bar.text.style.color = '#000'; // สีข้อความเป็นสีดำ
           bar.text.style.fontWeight = 'bold'; // ตัวหนา
           bar.text.style.top = '50%';
-          bar.text.style.weight = '25%'; 
+          bar.text.style.weight = '25%';
         },
       });
 
       bar.animate(percentage / 100); // Convert percentage to value between 0.0 to 1.0
     }
+
     return () => {
       if (bar) {
-          try {
-              bar.destroy();
-          } catch (error) {
-              console.error('Error destroying bar:', error);
-          }
+        try {
+          bar.destroy();
+        } catch (error) {
+          console.error('Error destroying bar:', error);
+        }
       }
-  };
+    };
   }, [percentage]);
-
-  
 
   return (
     <div>

@@ -1,3 +1,4 @@
+// profile
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,34 +11,43 @@ import dynamic from "next/dynamic";
 import { IoQrCodeOutline, IoNotificationsOutline } from "react-icons/io5";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 
-
 const fetcher = (url) => fetch(url).then((res) => res.json());
+
 export default function Profile() {
     const [levels, setLevels] = useState([]);
+    const [percentage, setPercentage] = useState(0);
+    const [percent, setPercent] = useState(0);
+
     const { data: session } = useSession();
     const { data: user } = useSWR('/api/users/'+session?.user?.id, fetcher);
     const { data: level } = useSWR('/api/level/'+session?.user?.id, fetcher, {refreshInterval: 1000});
-    const { data: levelup} = useSWR('/api/level/state/'+level?.level, fetcher, {refreshInterval: 1000});
+    const { data: levelup } = useSWR('/api/level/state/'+level?.level, fetcher, {refreshInterval: 1000});
+    const { data: survey } = useSWR('/api/survey/user?userId='+session?.user?.id, fetcher, {
+        onSuccess: (data) => {
+            setPercentage(parseFloat(data?.percent));
+        }
+    });
+
     const nextPoint = (levelup?.requiredPoints - level?.points);
-    const [percentage, setPercentage] = useState(0);
-    const [percent, setPercent] = useState(0);
+
     const HalfCircleProgressBar = dynamic(() => import('@/components/main/HalfCircleProgressBar'), { ssr: false });
-    const LineProgressBar = dynamic(() => import("@/components/ProfileLineProgressBar"), {ssr: false});
+    const LineProgressBar = dynamic(() => import("@/components/ProfileLineProgressBar"), { ssr: false });
 
     console.log('level_points:', level?.points,' levelup?.requiredPoints:', levelup?.requiredPoints);
     console.log('nextPoint:', nextPoint);
     console.log('level:', level);
     console.log('levelup:', levelup);
+    console.log('survey:', percentage);
 
     useEffect(() => {
-        if (level) {
-            setPercent((level?.points / levelup?.requiredPoints) * 100);
-            setLevels({...level});
+        if (level && levelup?.requiredPoints) {
+            setPercent((level.points / levelup.requiredPoints) * 100);
+            setLevels({ ...level });
         }
     }, [level, levelup?.requiredPoints]);
 
     return (
-        <> 
+        <>
             <main className="flex flex-col mb-20">
                 <div style={{
                     position: "fixed",
@@ -67,20 +77,18 @@ export default function Profile() {
                     </div>
                 </div>
                 <div className="flex p-2 flex-row items-center justify-center mt-5">
-                    
                     <div className="flex flex-col">
                         <div className="items-center text-center" style={{ width: "auto", height: "140px" }}>
                             {/* Avatar */}
                             <div className="mt-4 ml-5">
                                 <Image
                                     src={user?.user?.pictureUrl}
-                                    alt="User Avartar"
+                                    alt="User Avatar"
                                     width={100}
                                     height={100}
                                     className="rounded-full"
                                 />
                             </div>
-                            
                             <div className="absolute top-0 mt-5 z-0">
                                 <Image
                                     src="/images/profile/Badge.svg"
@@ -94,7 +102,7 @@ export default function Profile() {
                     </div>
                     {/* Progress Bar */}
                     <div className="flex-1 flex-col items-center justify-center ml-10 mr-5">
-                        <span className="text-lg font-semibold text-[#0056FF]">{user?.user?.fullname}</span>
+                        <span className="text-lg font-semibold text-[#0056FF] truncate ...">{user?.user?.fullname}</span>
                         <div className="relative">
                             <div className="relative mt-3">
                                 <LineProgressBar percent={percent} />
@@ -126,40 +134,40 @@ export default function Profile() {
                     </span>
                     <div>
                         <button 
-                                className="flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden text-sm font-bold text-gray-900 rounded-2xl hover:text-white border-4 border-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 "
-                                style={{ width: 110, height: 110 }}
-                            >
-                                <Image 
-                                    src="/images/profile/Point.svg"
-                                    alt="point"
-                                    width={30}
-                                    height={30}
-                                />
-                                <span className="text-sm font-black text-[#0056FF] dark:text-white">
-                                    Total Point
-                                </span>
-                                <span className="text-xl font-black text-[#0056FF] dark:text-white">
-                                    {level?.points ? level?.points : 0}
-                                </span>
-                            </button>
+                            className="flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden text-sm font-bold text-gray-900 rounded-2xl hover:text-white border-4 border-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 "
+                            style={{ width: 110, height: 110 }}
+                        >
+                            <Image 
+                                src="/images/profile/Point.svg"
+                                alt="point"
+                                width={30}
+                                height={30}
+                            />
+                            <span className="text-sm font-black text-[#0056FF] dark:text-white">
+                                Total Point
+                            </span>
+                            <span className="text-xl font-black text-[#0056FF] dark:text-white">
+                                {level?.points ? level.points : 0}
+                            </span>
+                        </button>
 
-                            <button 
-                                className="flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden text-sm font-bold text-gray-900 rounded-2xl hover:text-white border-4 border-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 "
-                                style={{ width: 110, height: 110 }}
-                            >
-                                <Image 
-                                    src="/images/profile/Coin.svg"
-                                    alt="point"
-                                    width={32}
-                                    height={32}
-                                />
-                                <span className="text-sm font-black text-[#0056FF] dark:text-white">
-                                    Coin
-                                </span>
-                                <span className="text-xl font-black text-[#0056FF] dark:text-white">
-                                    0
-                                </span>
-                            </button>
+                        <button 
+                            className="flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden text-sm font-bold text-gray-900 rounded-2xl hover:text-white border-4 border-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 "
+                            style={{ width: 110, height: 110 }}
+                        >
+                            <Image 
+                                src="/images/profile/Coin.svg"
+                                alt="point"
+                                width={32}
+                                height={32}
+                            />
+                            <span className="text-sm font-black text-[#0056FF] dark:text-white">
+                                Coin
+                            </span>
+                            <span className="text-xl font-black text-[#0056FF] dark:text-white">
+                                0
+                            </span>
+                        </button>
                     </div>
                 </div>
                 {/* Button panel */}
@@ -193,7 +201,7 @@ export default function Profile() {
                         margin: "auto"
                     }}
                 >
-                    <HalfCircleProgressBar percentage={50}/>
+                    <HalfCircleProgressBar percentage={percentage} />
                 </div>
                 <div className="flex p-2 flex-col items-center justify-center text-center">
                     <span className="relative text-xl text-center font-black text-black w-2/3">
@@ -201,11 +209,10 @@ export default function Profile() {
                     ในการทำงานของคุณ
                     </span>
                 </div>
-                
             </main>
         </>
     );
 }
 
 Profile.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-Profile.auth = true
+Profile.auth = true;
