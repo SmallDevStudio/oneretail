@@ -9,20 +9,20 @@ export default function AppMenu() {
     return (
         <nav className="fixed bottom-0 left-0 z-50 w-full h-16 bg-white border-t border-gray-200 shadow-lg" style={{ boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)", fontFamily: "ttb" }}>
                 <div className="grid h-full max-w-lg grid-cols-5 mx-auto font-medium">
-                    <button type="button" className={`inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 group ${isActive('/learning') ? "text-blue-600" : ""}`} 
+                    <button type="button" className={`inline-flex flex-col items-center justify-center px-5 ${isActive('/learning') ? "text-blue-600" : ""}`} 
                         onClick={() => router.push('/learning')}>
-                    <svg className="w-7 h-7 mb-1 group-hover:text-blue-600 scale-150 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 305.91 220.6">
+                    <svg className="w-5 h-5 mb-1 group-hover:text-blue-600 scale-150 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 305.91 220.6">
                         <path fill="currentColor" d="M150.51,220.6c-27.37,0-54.73-7.66-79.14-22.98l-.14-.09c-8.28-5.4-13.37-15.14-13.27-25.4v-60.38c0-5.11,4.15-9.26,9.26-9.26s9.26,4.15,9.26,9.26v60.47c-.04,4.07,1.8,7.78,4.82,9.77,42.69,26.76,95.72,26.76,138.42,0,3.02-2.01,4.86-5.7,4.82-9.67,0-.03,0-.07,0-.1v-57.84c0-5.11,4.15-9.26,9.26-9.26s9.26,4.15,9.26,9.26v57.77c.11,10.24-4.97,19.96-13.26,25.38-.05.03-.1.06-.15.09-24.41,15.32-51.78,22.98-79.14,22.98Z"/>
                         <path fill="currentColor" d="M149.83,155.21h-.16c-4.45,0-8.77-.92-12.83-2.74L12.05,96.58c-9.96-4.47-14.7-16.53-10.55-26.88,2.01-5.01,5.76-8.94,10.56-11.09L136.84,2.74c4.08-1.82,8.4-2.74,12.84-2.74s8.72.92,12.8,2.73l124.82,55.88c3.95,1.77,15.95,7.16,13.38,22.44-1.76,10.5-9.78,13.98-12.8,15.29l-.55.24-120.15,53.79c-.36.16-.74.34-1.15.53-3.42,1.61-9.15,4.3-16.2,4.3ZM149.68,18.52c-1.85,0-3.58.37-5.28,1.13L19.62,75.51c-.51.23-.79.71-.93,1.08-.51,1.27.09,2.71.94,3.1l124.78,55.88c1.67.75,3.44,1.12,5.26,1.12h.16c2.92,0,5.91-1.41,8.32-2.54.54-.25,1.03-.48,1.48-.68l120.11-53.77c.23-.1.49-.22.77-.34.58-.25,1.54-.67,1.81-.91,0-.01.05-.17.1-.46.08-.45.1-.77.1-.97-.33-.25-1.1-.74-2.79-1.5l-124.79-55.87c-1.67-.74-3.45-1.12-5.26-1.12ZM282.75,77.2h0,0Z"/>
                         <path fill="currentColor" d="M280.54,138.06c-5.11,0-9.26-4.15-9.26-9.26v-34.52c0-5.11,4.15-9.26,9.26-9.26s9.26,4.15,9.26,9.26v34.52c0,5.11-4.15,9.26-9.26,9.26Z"/>
                         <path fill="currentColor" d="M281.22,139.65c3.41,0,6.18,2.77,6.18,6.18v24.55h-13.71v-24.55c0-3.41,2.77-6.18,6.18-6.18h1.35M281.22,121.13h-1.35c-13.62,0-24.7,11.08-24.7,24.7v24.55c0,10.23,8.29,18.52,18.52,18.52h13.71c10.23,0,18.52-8.29,18.52-18.52v-24.55c0-13.62-11.08-24.7-24.7-24.7h0Z"/>
                     </svg>
-                        <span className={`text-sm hover:text-[#F68B1F] text-nowrap ${isActive('/learning') ? "text-[#F68B1F]" : ""}`}>Learning</span>
+                        <span className={`text-[10px] font-bold group-hover:text-[#F68B1F] text-nowrap ${isActive('/learning') ? "text-[#F68B1F]" : ""}`}>Learning</span>
                     </button>
 
                     <button type="button" className={`inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 group ${isActive('/stores') ? "text-blue-600" : ""}`} 
                         onClick={() => router.push('/stores')}>
-                        <svg className="w-7 h-7 mb-1 group-hover:text-blue-600 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 218.49 224.15">
+                        <svg className="w-6 h-6 mb-1 group-hover:text-blue-600 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 218.49 224.15">
                             <path fill="currentColor" d="M110.67,152.61h-2.86c-40.13,0-72.78-32.65-72.78-72.78V20.54C35.03,9.41,43.93.32,54.98.02c.19-.01.39-.02.58-.02h107.36c11.32,0,20.53,9.21,20.53,20.53v59.3c0,40.13-32.65,72.78-72.78,72.78ZM56,18.52c-.15,0-.3.01-.44.01-1.11,0-2.01.9-2.01,2.01v59.29c0,29.92,24.34,54.26,54.26,54.26h2.86c29.92,0,54.26-24.34,54.26-54.26V20.53c0-1.11-.9-2.01-2.01-2.01H56Z"/>
                             <path fill="currentColor" d="M109.25,186.87c-5.11,0-9.26-4.15-9.26-9.26v-29.78c0-5.11,4.15-9.26,9.26-9.26s9.26,4.15,9.26,9.26v29.78c0,5.11-4.15,9.26-9.26,9.26Z"/>
                             <path fill="currentColor" d="M177.12,112.64c-5.11,0-9.26-4.15-9.26-9.26s4.15-9.26,9.26-9.26c13.89,0,17.33-6.04,17.72-6.82.57-1.7,5.13-15.81,5.13-28.88,0-3.11-1.09-4.29-2.86-5.18-1.96-.99-4.35-1.25-5.11-1.27h-17.27c-5.11,0-9.26-4.14-9.26-9.26s4.15-9.26,9.26-9.26h17.37c10.61,0,26.39,6.65,26.39,24.96,0,16.83-5.8,33.91-6.21,35.1-2.42,7.14-12.51,19.13-35.16,19.13ZM194.76,87.48s-.03.12-.02.08c.01-.06.02-.08.02-.08ZM194.82,87.34c-.04.1-.06.17-.07.21,0-.02.02-.04.03-.09,0,0,.02-.05.04-.13Z"/>
@@ -30,20 +30,20 @@ export default function AppMenu() {
                             <path fill="currentColor" d="M110.91,188.32c26.4,0,29.29,17.31,29.29,17.31h-61.91s1.26-17.31,32.62-17.31M110.91,169.8c-18.18,0-32.07,4.79-41.31,14.22-8.33,8.51-9.59,17.66-9.78,20.27-.37,5.13,1.41,10.19,4.91,13.95,3.5,3.77,8.42,5.91,13.56,5.91h61.91c5.45,0,10.61-2.4,14.13-6.55s5.03-9.65,4.13-15.02c-.39-2.3-2.2-10.42-9.45-18.21-6.18-6.64-17.8-14.56-38.11-14.56h0Z"/>
                             <path fill="currentColor" d="M113.32,48.72l2.69,8.29h8.72c4.15,0,5.88,5.31,2.52,7.75l-7.06,5.13,2.69,8.29c1.28,3.95-3.23,7.23-6.6,4.79l-7.06-5.13-7.06,5.13c-3.37,2.44-7.88-.84-6.6-4.79l2.69-8.29-7.06-5.13c-3.37-2.44-1.63-7.75,2.51-7.75h8.72l2.69-8.29c1.28-3.95,6.87-3.95,8.16,0h.03Z"/>
                             </svg>
-                        <span className={`text-sm group-hover:text-[#F68B1F] text-nowrap ${isActive('/stores') ? "text-[#F68B1F]" : ""}`}>Success Story</span>
+                        <span className={`text-[10px] font-bold group-hover:text-[#F68B1F] text-nowrap ${isActive('/stores') ? "text-[#F68B1F]" : ""}`}>Success Story</span>
                     </button>
 
-                    <button type="button" className={`inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 group ${isActive('/main') ? "text-blue-600" : ""}`} 
+                    <button type="button" className={`inline-flex flex-col items-center justify-center px-5 ${isActive('/main') ? "text-blue-600" : ""}`} 
                         onClick={() => router.push('/main')}>
-                        <svg className="w-7 h-7 mb-1 group-hover:text-blue-600 " aria-hidden="true"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 216.12 216.12">
+                        <svg className="w-6 h-6 mb-1 group-hover:text-blue-600 " aria-hidden="true"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 216.12 216.12">
                             <path fill="currentColor" d="M206.86,216.12h-74.1c-5.11,0-9.26-4.15-9.26-9.26v-48.36c0-8.23-6.93-14.92-15.44-14.92s-15.44,6.69-15.44,14.92v48.36c0,5.11-4.15,9.26-9.26,9.26H9.26c-5.11,0-9.26-4.15-9.26-9.26v-103.36c0-7.04,0-10.91,1.12-15.1.97-3.66,2.59-7.14,4.79-10.33,2.47-3.57,5.43-6.11,10.81-10.72l59.3-50.8c9.88-8.47,15.32-13.14,22.45-15.19,6.26-1.81,12.88-1.81,19.14,0,7.15,2.07,12.6,6.74,22.48,15.22l59.27,50.78c5.2,4.45,8.34,7.13,10.82,10.72,2.17,3.13,3.78,6.6,4.79,10.3,1.12,4.23,1.12,8.1,1.12,15.13v102.64c.02.24.03.48.03.72,0,5.11-4.15,9.26-9.26,9.26ZM142.02,197.6h55.56v-94.1c0-5.47,0-8.48-.49-10.32-.44-1.61-1.16-3.17-2.13-4.57-1.07-1.55-3.11-3.32-7.63-7.19l-59.28-50.79c-7.92-6.79-12.28-10.53-15.57-11.49-2.89-.84-5.96-.84-8.86,0-3.27.94-7.62,4.68-15.53,11.46l-59.3,50.81c-4.52,3.87-6.56,5.65-7.63,7.19-.99,1.43-1.71,2.97-2.13,4.57-.5,1.85-.5,4.86-.5,10.32v94.1h55.58v-39.1c0-18.44,15.23-33.44,33.96-33.44s33.96,15,33.96,33.44v39.1Z"/>
                         </svg>
-                        <span className={`text-sm hover:text-[#F68B1F] text-nowrap ${isActive('/main') ? "text-[#F68B1F]" : ""}`}>Home</span>
+                        <span className={`text-[10px] font-bold group-hover:text-[#F68B1F] text-nowrap ${isActive('/main') ? "text-[#F68B1F]" : ""}`}>Home</span>
                     </button>
 
-                    <button type="button" className={`inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 group ${isActive('/club') ? "text-blue-600" : ""}`} 
+                    <button type="button" className={`inline-flex flex-col items-center justify-center px-5 ${isActive('/club') ? "text-blue-600" : ""}`} 
                         onClick={() => router.push('/club')}>
-                        <svg className="w-7 h-7 mb-1 group-hover:text-blue-600 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 218.44 218.44">
+                        <svg className="w-6 h-6 mb-1 group-hover:text-blue-600 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 218.44 218.44">
                             <path fill="currentColor" d="M179.43,218.44H39.01c-21.51,0-39.01-17.5-39.01-39.01V39.01C0,17.5,17.5,0,39.01,0h140.42c21.51,0,39.01,17.5,39.01,39.01v140.42c0,21.51-17.5,39.01-39.01,39.01ZM39.01,18.52c-11.3,0-20.49,9.19-20.49,20.49v140.42c0,11.3,9.19,20.49,20.49,20.49h140.42c11.3,0,20.49-9.19,20.49-20.49V39.01c0-11.3-9.19-20.49-20.49-20.49H39.01Z"/>
                             <path fill="currentColor" d="M34.38,137.32h4.02c2.16,0,3.57.88,3.57,3.03,0,1.55-.85,2.56-2.37,2.93l2.47,4.1h-1.74l-2.26-3.91h-2.2v3.91h-1.51v-10.07ZM38.33,142.17c1.35,0,2.11-.39,2.11-1.81,0-1.32-.74-1.74-2.04-1.74h-2.52v3.55h2.45Z"/>
                             <path fill="currentColor" d="M50.05,137.32h6.44v1.29h-4.94v3.02h3.53v1.28h-3.53v3.18h5.12v1.29h-6.63v-10.07Z"/>
@@ -60,15 +60,15 @@ export default function AppMenu() {
                             <polygon fill="currentColor" points="126.08 72.08 102.88 72.08 126.08 108.84 126.08 72.08"/>
                             <path fill="currentColor" d="M147.03,71.73h39.66v10.16h-27.79v13.11h20.04v9.99h-20.04v13.93h28.86v10.16h-40.73v-57.34Z"/>
                         </svg>
-                        <span className={`text-sm hover:text-[#F68B1F] text-nowrap ${isActive('/club') ? "text-[#F68B1F]" : ""}`}>One Retail Club</span>
+                        <span className={`text-[10px] font-bold group-hover:text-[#F68B1F] text-nowrap ${isActive('/club') ? "text-[#F68B1F]" : ""}`}>One Retail Club</span>
                     </button>
 
-                    <button type="button" className={`inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 group ${isActive('/profile') ? "text-blue-600" : ""}`} 
+                    <button type="button" className={`inline-flex flex-col items-center justify-center px-5 ${isActive('/profile') ? "text-blue-600" : ""}`} 
                         onClick={() => router.push('/profile')}>
-                        <svg className="w-7 h-7 mb-1 group-hover:text-blue-600 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 163.14 204.47">
+                        <svg className="w-6 h-6 mb-1 group-hover:text-blue-600 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 163.14 204.47">
                            <path fill="currentColor" d="M153.88,204.47c-5.11,0-9.26-4.15-9.26-9.26,0-34.77-28.28-63.05-63.05-63.05s-63.05,28.29-63.05,63.05c0,5.11-4.15,9.26-9.26,9.26s-9.26-4.15-9.26-9.26c0-44.98,36.59-81.57,81.57-81.57s81.57,36.59,81.57,81.57c0,5.11-4.15,9.26-9.26,9.26ZM81.57,101.17c-.16,0-.32,0-.47-.01-27.68-.26-50.11-22.85-50.11-50.58S53.68,0,81.57,0s50.59,22.69,50.59,50.59-22.69,50.59-50.59,50.59ZM81.57,18.52c-17.68,0-32.07,14.38-32.07,32.06s14.39,32.07,32.07,32.07c.13,0,.25,0,.38,0,17.51-.21,31.69-14.51,31.69-32.07s-14.39-32.07-32.07-32.07Z"/>
                         </svg>
-                        <span className={`text-sm hover:text-[#F68B1F] text-nowrap ${isActive('/profile') ? "text-[#F68B1F]" : ""}`}>Profile</span>
+                        <span className={`text-[10px] font-bold group-hover:text-[#F68B1F] text-nowrap ${isActive('/profile') ? "text-[#F68B1F]" : ""}`}>Profile</span>
                     </button>
                 </div>
             </nav>

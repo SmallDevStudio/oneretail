@@ -8,7 +8,7 @@ import Loading from "@/components/Loading";
 const PulseSurvey = () => {
     const [loading, setLoading] = useState(false);
     const [appLoading, setAppLoading] = useState(false);
-    const [survey, setSurvey] = useState({ value: 1, memo: "" });
+    const [survey, setSurvey] = useState({ value: null, memo: "" });
     const { data: session } = useSession();
     const userId = session?.user?.id;
     const router = useRouter();
@@ -17,9 +17,6 @@ const PulseSurvey = () => {
         e.preventDefault();
         setAppLoading(true);
         setLoading(true);
-
-        console.log(survey);
-        console.log(userId);
 
         try {
             const response = await fetch('/api/survey', {
@@ -46,6 +43,9 @@ const PulseSurvey = () => {
         }
 
         setLoading(false);
+        
+
+        
     };
 
     useEffect(() => {
@@ -118,7 +118,7 @@ const PulseSurvey = () => {
                                                     className="absolute mb-3 ml-3"
                                                     style={{ width: "50px", height: "50px" }}
                                                 />
-                                                <div className={`col-span-3 ml-8 rounded-xl h-8 hover:ring-2 hover:ring-gray-300 flex items-center`} style={{ backgroundColor: option.color, ring: survey.value === option.value ? '2px solid #000' : 'none', width: "280px" }}>
+                                                <div className={`col-span-3 ml-8 rounded-xl h-8 flex items-center ${survey.value === option.value ? 'ring-1 ring-gray-300' : ''}`} style={{ backgroundColor: survey.value === option.value ? option.color : '#D3D3D3', width: "280px" }}>
                                                     <span className="inline-block ml-8 text-white font-bold">
                                                         {option.label}
                                                     </span>
@@ -127,6 +127,14 @@ const PulseSurvey = () => {
                                         </li>
                                     ))}
                                 </ul>
+                                <div>
+                                    <textarea
+                                        name="memo"
+                                        placeholder="เพิ่มเติม"
+                                        className="w-full h-28 p-2 border border-gray-300 rounded-md"
+                                        onChange={handleChange}
+                                    />
+                                </div>
                                 
                                 <div>
                                     <button

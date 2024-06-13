@@ -374,3 +374,16 @@ body {
 .react-calendar__month-view__days__day--neighboringMonth {
   color: #ccc !important;
 }
+
+.bullet {
+  width: 10px;
+  height: 10px;
+  background-color: #29b6f6;
+  border-radius: 50%;
+  margin: 2px auto;
+}
+
+/* Hide the last week row to show only 5 weeks */
+.react-calendar__month-view__weeks__week:nth-last-child(1) {
+  display: none;
+}
