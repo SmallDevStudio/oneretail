@@ -16,11 +16,20 @@ export default function Redeem() {
     const {image, id} = session?.user;
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [conversionRate, setConversionRate] = useState(25);
+    const [userPoints, setUserPoints] = useState(0);
+    const [userCoins, setUserCoins] = useState(0);
 
     const openModal = () => setModalIsOpen(true);
     const closeModal = () => setModalIsOpen(false);
 
-    const { data: level } = useSWR('/api/level/'+session?.user?.id, fetcher, {refreshInterval: 1000});
+    const { data: level } = useSWR('/api/level/user?userId='+session?.user?.id, fetcher, );
+    const { data: coins } = useSWR('/api/coins/user?userId='+session?.user?.id, fetcher, );
+    const { data: points } = useSWR('/api/points/user?userId='+session?.user?.id, fetcher, );
+    
+
+    const handleRedeem = (event) => {
+        event.preventDefault();
+    };
 
     const handleTabClick = (tab) => {
         setActiveTab(tab);
@@ -45,12 +54,9 @@ export default function Redeem() {
                         alt="Badge"
                         width={140}
                         height={140}
-                        className="absolute z-12"
+                        className="absolute z-12 mb-5"
                     />
-                    <span className="absolute z-12 text-white font-bold mt-3 text-[10px]"
-                    style={{
-                        top: "16%",
-                    }}
+                    <span className="relative z-12 text-white font-bold mt-3 text-[10px]"
                     >LEVEL {level?.level}
                     </span>  
                 </div>
@@ -72,7 +78,7 @@ export default function Redeem() {
                             />
 
                             <span className="text-xl text-[#0056FF] font-black" >
-                                0
+                                {coins?.coins? coins?.coins : 0}
                             </span>
                             <span className="text-lg text-[#0056FF] font-black">
                                 Coins
@@ -98,7 +104,7 @@ export default function Redeem() {
                                 Total Point
                             </span>
                             <span className="text-lg text-[#0056FF] font-bold">
-                                0
+                                {points?.point? points?.point : 0}
                             </span>
                         </div>
                     </div>
@@ -163,7 +169,7 @@ export default function Redeem() {
                                 left: "35px",
                             }}>
                                 <div className="flex bg-[#0056FF] rounded-full text-white font-bold h-6 w-[70px] p-1 text-center justify-center items-center">
-                                    <span>50 🪙 </span>
+                                    <span>50</span>
                                 </div>
                             </div>
                         </div>

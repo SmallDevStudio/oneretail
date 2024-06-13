@@ -9,6 +9,9 @@ const PointSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  contentId:{
+    type: String,
+  },
   type: {
     type: String,
     required: true,

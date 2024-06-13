@@ -20,8 +20,8 @@ export default function Profile() {
 
     const { data: session } = useSession();
     const { data: user } = useSWR('/api/users/'+session?.user?.id, fetcher);
-    const { data: level } = useSWR('/api/level/'+session?.user?.id, fetcher, {refreshInterval: 1000});
-    const { data: levelup } = useSWR('/api/level/state/'+level?.level, fetcher, {refreshInterval: 1000});
+    const { data: level } = useSWR('/api/level/'+session?.user?.id, fetcher, );
+    const { data: levelup } = useSWR('/api/level/state/'+level?.level, fetcher,);
     const { data: survey } = useSWR('/api/survey/user?userId='+session?.user?.id, fetcher, {
         onSuccess: (data) => {
             setPercentage(parseFloat(data?.percent));
@@ -37,7 +37,6 @@ export default function Profile() {
     console.log('nextPoint:', nextPoint);
     console.log('level:', level);
     console.log('levelup:', levelup);
-    console.log('survey:', percentage);
 
     useEffect(() => {
         if (level && levelup?.requiredPoints) {
@@ -134,7 +133,7 @@ export default function Profile() {
                     </span>
                     <div>
                         <button 
-                            className="flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden text-sm font-bold text-gray-900 rounded-2xl hover:text-white border-4 border-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 "
+                            className="flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden text-sm font-bold text-gray-900 rounded-2xl border-4 border-blue-700 "
                             style={{ width: 110, height: 110 }}
                         >
                             <Image 
@@ -152,7 +151,7 @@ export default function Profile() {
                         </button>
 
                         <button 
-                            className="flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden text-sm font-bold text-gray-900 rounded-2xl hover:text-white border-4 border-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 "
+                            className="flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden text-sm font-bold text-gray-900 rounded-2xl border-4 border-blue-700 "
                             style={{ width: 110, height: 110 }}
                         >
                             <Image 

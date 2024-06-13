@@ -8,4 +8,4 @@ const CoinsSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now, },
 });
 
-export default mongoose.models.CoinsSchema || mongoose.model('Coins', CoinsSchema);
+export default mongoose.models.Coins || mongoose.model('Coins', CoinsSchema);
