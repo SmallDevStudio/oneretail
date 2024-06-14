@@ -77,13 +77,6 @@ export default function Profile() {
                                 />
                             </Link>
                         </div>
-                        <div className="flex items-center justify-center rounded-full p-1">
-                            <Link href="/profile/code">
-                                <RiQrScan2Line size={20} 
-                                    className="text-gray-400 cursor-pointer"
-                                />
-                            </Link>
-                        </div>
                         <div className="flex items-center justify-center rounded-full p-1 ml-[-5px]">
                             <HiOutlineDotsVertical size={20} 
                                 className="text-gray-400 cursor-pointer"

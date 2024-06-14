@@ -1,8 +1,8 @@
-// pages/api/qrcode/index.js
 import connectMongoDB from '@/lib/services/database/mongodb';
 import QRCodeTransaction from '@/database/models/QRCodeTransaction';
 import Point from '@/database/models/Point';
 import Coins from '@/database/models/Coins';
+import sendLineMessage from '@/lib/sendLineMessage';
 
 export default async function handler(req, res) {
   await connectMongoDB();
@@ -37,7 +37,6 @@ export default async function handler(req, res) {
           return res.status(404).json({ success: false, message: 'QR Code not found' });
         }
 
-
         if (transaction.scannedBy.includes(userId)) {
           return res.status(400).json({ success: false, message: 'QR Code already scanned by this user' });
         }
@@ -55,6 +54,7 @@ export default async function handler(req, res) {
             point: transaction.point,
           });
           await newPoint.save();
+          await sendLineMessage(userId, `คุณได้รับ ${transaction.point} points จาก QR Code ${transaction.ref}`);
         }
 
         if (transaction.coins > 0) {
@@ -65,6 +65,7 @@ export default async function handler(req, res) {
             coins: transaction.coins,
           });
           await newCoins.save();
+          await sendLineMessage(userId, `คุณได้รับ ${transaction.coins} coins จาก QR Code ${transaction.ref}`);
         }
 
         res.status(200).json({ success: true, data: transaction });
