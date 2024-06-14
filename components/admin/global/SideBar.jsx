@@ -207,7 +207,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
 
                   <Item
                   title="Log"
-                  to="/admin/log"
+                  to="/admin/logs"
                   icon={<FaFileSignature />}
                   selected={selected}
                   setSelected={setSelected}

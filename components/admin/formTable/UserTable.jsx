@@ -84,6 +84,8 @@ const UsersTable = () => {
 
     return (
         <div style={{ height: 600, width: '100%' }}>
+            <h1 className='text-2xl font-bold mb-4 text-[#0056FF]'>จัดการผู้ใช้</h1>
+           
             <DataGrid rows={users} columns={columns} pageSize={10} loading={loading} getRowId={(row) => row._id} />
         </div>
     );

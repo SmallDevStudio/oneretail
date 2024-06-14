@@ -387,3 +387,25 @@ body {
 .react-calendar__month-view__weeks__week:nth-last-child(1) {
   display: none;
 }
+
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+}
+
+.pagination li {
+  margin: 0 5px;
+}
+
+.pagination li a {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+}
+
+.pagination li.active a {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}

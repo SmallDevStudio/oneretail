@@ -27,7 +27,7 @@ const EventTable = ({ events }) => {
   return (
     <div>
       <table>
-        <thead>
+        <thead className="bg-gray-200">
           <tr>
             <th>ชื่อกิจกรรม</th>
             <th>วันที่เริ่มต้น</th>
