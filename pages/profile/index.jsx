@@ -4,12 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import "@/styles/profile.module.css";
-import Loading from "@/components/Loading";
 import { AppLayout } from "@/themes";
 import useSWR from "swr";
 import dynamic from "next/dynamic";
-import { IoQrCodeOutline, IoNotificationsOutline } from "react-icons/io5";
 import { HiOutlineDotsVertical } from "react-icons/hi";
+import { MdOutlinePostAdd } from "react-icons/md";
+import { RiQrScan2Line } from "react-icons/ri";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -71,13 +71,15 @@ export default function Profile() {
                 }}>
                     <div className="flex p-2 flex-row items-center justify-center gap-1">
                         <div className="flex items-center justify-center rounded-full p-1">
-                            <IoQrCodeOutline size={20} 
+                            <MdOutlinePostAdd size={22} 
                                 className="text-gray-400 cursor-pointer"
+                                onClick={() => router.push("/send")}
                             />
                         </div>
                         <div className="flex items-center justify-center rounded-full p-1">
-                            <IoNotificationsOutline size={20} 
+                            <RiQrScan2Line size={20} 
                                 className="text-gray-400 cursor-pointer"
+                                onClick={() => router.push("/scanqr")}
                             />
                         </div>
                         <div className="flex items-center justify-center rounded-full p-1 ml-[-5px]">
