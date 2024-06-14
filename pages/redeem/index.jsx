@@ -71,7 +71,7 @@ export default function Redeem() {
         redeemItem.stock -= 1;
         createRedeemTransaction(redeemItem);
       } else {
-        openNotificationModal("Insufficient points or coins to redeem this item.");
+        openNotificationModal("จำนวน point และ coins ไม่พอ");
       }
     };
   
