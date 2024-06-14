@@ -79,7 +79,7 @@ export default function Profile() {
                         <div className="flex items-center justify-center rounded-full p-1">
                             <RiQrScan2Line size={20} 
                                 className="text-gray-400 cursor-pointer"
-                                onClick={() => router.push("/scanqrcode")}
+                                onClick={() => router.push("/profile/code")}
                             />
                         </div>
                         <div className="flex items-center justify-center rounded-full p-1 ml-[-5px]">
