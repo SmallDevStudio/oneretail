@@ -5,6 +5,7 @@ import { setQuestions, answerQuestion, nextQuestion, resetQuiz, savePoints } fro
 import Loading from './Loading';
 import Swal from 'sweetalert2'
 import useSWR from 'swr';
+import QuizModal from './QuizModal';
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -13,6 +14,7 @@ const Quiz = ({ userId }) => {
   const dispatch = useDispatch();
   const router = useRouter();
   const { questions, currentQuestionIndex, score, showAnswer, status } = useSelector((state) => state.quiz);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data, error } = useSWR('/api/questions', fetcher);
 
@@ -27,9 +29,22 @@ const Quiz = ({ userId }) => {
 
   const question = questions[currentQuestionIndex];
 
-  const handleAnswer = (index) => {
+  const handleAnswer = async (index) => {
     const isCorrect = index === question.correctAnswer;
     dispatch(answerQuestion({ isCorrect }));
+
+    await fetch('/api/answers', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId,
+        questionId: question._id,
+        answer: index,
+        isCorrect,
+      }),
+    });
   };
 
   const handleNext = async () => {
@@ -37,12 +52,18 @@ const Quiz = ({ userId }) => {
       dispatch(nextQuestion());
     } else {
       const totalScore = score === 3 ? 5 : score; // ให้ 5 คะแนนถ้าตอบถูก 3 ข้อ
-      alert(`Quiz complete! Your score is: ${totalScore}`);
+      setIsModalOpen(true);
       // บันทึกคะแนนผู้ใช้
       await dispatch(savePoints({ userId, points: totalScore }));
       dispatch(resetQuiz());
-      router.push('/games');
+
     }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    dispatch(resetQuiz());
+    router.push('/games');
   };
 
   if (appLoading) {
@@ -81,6 +102,7 @@ const Quiz = ({ userId }) => {
                 </div>
             </div>
         )}
+        <QuizModal isOpen={isModalOpen} onRequestClose={handleCloseModal} score={score} />
     </div>
     );
   };
