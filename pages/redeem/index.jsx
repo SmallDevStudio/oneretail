@@ -15,7 +15,7 @@ export default function Redeem() {
     const { data: session } = useSession();
     const {image, id} = session?.user;
     const [modalIsOpen, setModalIsOpen] = useState(false);
-    const [conversionRate, setConversionRate] = useState(25);
+    const [conversionRate, setConversionRate] = useState(20);
     const [userPoints, setUserPoints] = useState(0);
     const [userCoins, setUserCoins] = useState(0);
 
@@ -23,8 +23,16 @@ export default function Redeem() {
     const closeModal = () => setModalIsOpen(false);
 
     const { data: level } = useSWR('/api/level/user?userId='+session?.user?.id, fetcher, );
-    const { data: coins } = useSWR('/api/coins/user?userId='+session?.user?.id, fetcher, );
-    const { data: points } = useSWR('/api/points/user?userId='+session?.user?.id, fetcher, );
+    const { data: coins } = useSWR('/api/coins/user?userId='+session?.user?.id, fetcher, {
+        onSuccess: (data) => {
+            setUserCoins(data.coins);
+        }
+    });
+    const { data: points } = useSWR('/api/points/user?userId='+session?.user?.id, fetcher, {
+        onSuccess: (data) => {
+            setUserPoints(data.point);
+        }
+    });
     
 
     const handleRedeem = (event) => {

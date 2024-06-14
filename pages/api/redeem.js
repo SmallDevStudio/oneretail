@@ -1,21 +1,31 @@
-import connetMongoDB from "@/lib/services/database/mongodb";
+import connectMongoDB from "@/lib/services/database/mongodb";
 import Redeem from "@/database/models/Redeem";
+import Users from "@/database/models/users";
 
 export default async function handler(req, res) {
-    const { method } = req;
+  const { method } = req;
 
-    await connetMongoDB();
+  await connectMongoDB();
 
-    switch (method) {
-        case 'GET':
+  switch (method) {
+    case 'GET':
       try {
         const redeems = await Redeem.find({});
-        res.status(200).json({ success: true, data: redeems });
+        const redeemsWithUser = await Promise.all(
+          redeems.map(async (redeem) => {
+            const user = await Users.findOne({ userId: redeem.creator });
+            return {
+              ...redeem._doc,
+              creator: user ? user.pictureUrl : null, // Assuming user image is stored in the `image` field
+            };
+          })
+        );
+        res.status(200).json({ success: true, data: redeemsWithUser });
       } catch (error) {
         res.status(400).json({ success: false });
       }
       break;
-      case 'POST':
+    case 'POST':
       try {
         const redeem = new Redeem(req.body);
         await redeem.save();
@@ -52,4 +62,4 @@ export default async function handler(req, res) {
       res.status(400).json({ success: false });
       break;
   }
-};
+}

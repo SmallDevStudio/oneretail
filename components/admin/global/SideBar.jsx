@@ -160,7 +160,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
 
               <Item
                 title="จัดการ Redeem"
-                to="/admin/events"
+                to="/admin/redeem"
                 icon={<FaGift />}
                 selected={selected}
                 setSelected={setSelected}
