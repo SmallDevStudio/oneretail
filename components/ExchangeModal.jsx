@@ -39,6 +39,11 @@ const ExchangeModal = ({ isOpen, onRequestClose, points, conversionRate, userId 
     };
 
     const handleExchange = async () => {
+        if (exchangePoints > points) {
+            setWarningModalIsOpen(true);
+            return;
+        }
+
         const currentDate = new Date().toISOString();
         const description = `exchange ${currentDate}`;
         try {
