@@ -4,10 +4,12 @@ import QrScanner from 'react-qr-scanner';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
 
 const ScanQRCode = () => {
   const { data: session } = useSession(); // Get the current session
   const [scannedData, setScannedData] = useState(null);
+  const router = useRouter();
 
   const handleScan = async (data) => {
     if (data) {
@@ -21,6 +23,7 @@ const ScanQRCode = () => {
         });
 
         Swal.fire('Success', 'QR Code scanned successfully!', 'success');
+        router.push('/profile');
       } catch (error) {
         console.error('Error scanning QR Code:', error);
         Swal.fire('Error', 'Error scanning QR Code.', 'error');
@@ -39,13 +42,14 @@ const ScanQRCode = () => {
   };
 
   return (
-    <div>
-      <h2>Scan QR Code</h2>
+    <div className="flex flex-col text-center items-center justify-center mt-10">
+      <h2 className="text-3xl font-bold mb-4 text-[#0056FF]">Scan QR Code</h2>
       <QrScanner
         delay={300}
         style={previewStyle}
         onError={handleError}
         onScan={handleScan}
+        className="w-full h-full"
       />
       {scannedData && <p>Data: {scannedData}</p>}
     </div>

@@ -6,7 +6,7 @@ export default function Campaign() {
     const router = useRouter();
 
     return (
-        <main className="flex flex-col dark:bg-gray-900">
+        <main className="flex flex-col dark:bg-gray-900 mb-20">
         
             <div className="relative p-3top-[-40px]">
                 <div className="flex items-center text-center justify-center mt-[20px] p-2 px-1 pz-1">
