@@ -1,5 +1,5 @@
 import React from "react";
-import ScanQRCode from "@/components/ScanQRCode";
+import ZXingScanner from "@/components/ScanQRCode";
 import { useRouter } from "next/router";
 import Link from "next/link";
 
@@ -14,7 +14,7 @@ export default function Code() {
                     </svg>
                 </div>
             </Link>
-            <ScanQRCode />
+            <ZXingScanner />
         </div>
     );
 }
