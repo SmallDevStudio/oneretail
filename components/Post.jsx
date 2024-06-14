@@ -5,7 +5,6 @@ import Image from 'next/image';
 import getEmbedComponent from '@/utils/getEmbedComponent';
 import 'moment/locale/th';
 import { RiDeleteBinLine } from "react-icons/ri";
-import { MdDeleteOutline } from "react-icons/md";
 import { FiSend } from "react-icons/fi";
 
 

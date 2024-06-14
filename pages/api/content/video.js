@@ -11,7 +11,6 @@ export default async function handler(req, res) {
             try {
                 const { categoryId } = req.query;
                 const contents = await Content.find({ categories: categoryId });
-                console.log('contents:', contents);
 
                 if (contents.length === 0) {
                     return res.status(404).json({ success: false, message: 'No content found' });

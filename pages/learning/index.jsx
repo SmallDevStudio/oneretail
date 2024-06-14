@@ -69,11 +69,11 @@ export default function Learning() {
 
             {/* Tabs */}
             <div className="flex justify-center mb-4 text-sm">
-                <ul className="flex flex-wrap gap-2">
+                <ul className="flex flex-wrap gap-6">
                     <li className="me-2">
                         <Link
                             href="#"
-                            className={`inline-block p-4 border-b-2 rounded-t-lg font-bold ${activeTab === 'All' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
+                            className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'All' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
                             onClick={() => handleTabClick('All')}
                         >
                             ทั้งหมด
@@ -82,7 +82,7 @@ export default function Learning() {
                     <li className="me-2">
                         <Link
                             href="#"
-                            className={`inline-block p-4 border-b-2 rounded-t-lg font-bold ${activeTab === 'learn' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
+                            className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'learn' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
                             onClick={() => handleTabClick('learn')}
                         >
                             เรื่องน่าเรียน
@@ -91,7 +91,7 @@ export default function Learning() {
                     <li className="me-2">
                         <Link
                             href="#"
-                            className={`inline-block p-4 border-b-2 rounded-t-lg font-bold ${activeTab === 'learn2' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
+                            className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'learn2' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
                             onClick={() => handleTabClick('learn2')}
                         >
                             เรื่องน่ารู้

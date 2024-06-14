@@ -242,7 +242,15 @@ export default function Redeem() {
                       left: "35px",
                     }}>
                       <div className="flex bg-[#0056FF] rounded-full text-white font-bold h-6 w-[70px] p-1 text-center justify-center items-center">
-                        <span>{redeemItem.coins} 🪙 </span>
+                        <span>{redeemItem.coins} 
+                          <Image
+                            src="/images/profile/Coin.svg"
+                            alt="coins"
+                            width={15}
+                            height={15}
+                            className="flex"
+                          />  
+                        </span>
                       </div>
                     </div>
                   </div>

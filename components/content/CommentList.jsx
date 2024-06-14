@@ -3,6 +3,7 @@ import axios from 'axios';
 import moment from 'moment';
 import Image from 'next/image';
 import { RiDeleteBin5Line } from "react-icons/ri";
+import { RiDeleteBinLine } from "react-icons/ri";
 
 const CommentList = ({ comments: initialComments, contentId, user }) => {
   const [comments, setComments] = useState(initialComments || []);
@@ -49,7 +50,7 @@ const CommentList = ({ comments: initialComments, contentId, user }) => {
               {user.role === 'admin' || user.userId === comment.user.userId ? (
                 <div className='flex w-full justify-end'>
                   <button onClick={() => handleDeleteComment(comment._id)}>
-                    <RiDeleteBin5Line className='text-gray-500 text-sm' />
+                    <RiDeleteBinLine className='text-gray-500 text-sm' />
                   </button>
                 </div>
               ) : null}

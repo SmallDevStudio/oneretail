@@ -11,6 +11,9 @@ import CommentList from "@/components/content/CommentList";
 import InputComment from "@/components/content/InputComment";
 import useSWR from "swr";
 import Loading from "../Loading";
+import VideoModal from "../VideoModal";
+import { useRouter } from "next/router";
+import Image from "next/image";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -23,8 +26,10 @@ const LearningContent = ({ content, user }) => {
   const [userHasLiked, setUserHasLiked] = useState(Array.isArray(likes) && likes.includes(userId));
   const [comments, setComments] = useState('');
   const [showInput, setShowInput] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const playerRef = useRef(null);
   const contentId = content?._id;
+  const router = useRouter();
 
   const { data , error, isLoading } = useSWR(`/api/content/comments?contentId=${contentId}`, fetcher, {
           // refreshInterval: 2000,
@@ -85,6 +90,7 @@ const LearningContent = ({ content, user }) => {
               coins: content.coins,
             });
           }
+          setIsModalOpen(true);
           setCompleted(true); // set a flag to avoid multiple calls
         }
       };
@@ -106,6 +112,11 @@ const LearningContent = ({ content, user }) => {
       }
     };
 
+    const handleCloseModal = () => {
+      setIsModalOpen(false);
+      router.push('/learning');
+    };
+
     if (isLoading) return <Loading />;
     if (error) return <div>Error loading comments</div>;
     if (!content) return <Loading />;
@@ -125,18 +136,23 @@ const LearningContent = ({ content, user }) => {
                         onProgress={handleProgress}    
                     />
                 </div>
-                <div className="absolute left-0 top-80 mt-20 mb-20 bg-[#0056FF] text-white h-6 w-20 rounded-full">
-                    <span className="relative inline-flex items-center justify-center px-2">
-                        <IoMdTimer className="mr-2"/>
-                        {formatTime(countdown)}
-                    </span>
-                </div> 
+
                     <div className="flex flex-col p-4 w-full mt-[-15px]">
-                        <div className="flex flex-row text-left items-center justify-end w-full text-sm font-bold text-[#0056FF]">
+                        <div className="flex flex-row text-left items-center justify-between w-full text-sm font-bold text-[#0056FF]">
+                        <div className="relative h-6 w-20 rounded-full">
+                            <span className="relative inline-flex items-center justify-center px-2 gap-2">
+                                <Image src="/images/other/clock-01.svg" alt="clock" width={15} height={15} />
+                                {formatTime(countdown)}
+                            </span>
+                          </div> 
+                          <div className="flex flex-row">
                             <span className="flex ">ดูจบ </span>
-                            <span className="flex text-lg ml-1"><IoMdTimer/></span>
+                            <span className="flex text-lg ml-1">
+                              <Image src="/images/other/clock-01.svg" alt="clock" width={15} height={15} />
+                            </span>
                             <span className="flex ml-1">+ {content?.point} Point</span>
                             {content?.coins !== 0 && <span className="flex ml-1">+ {content?.coins} Coin</span>}
+                          </div>
                         </div>
                         <div className="flex flex-col text-left mb-2">
                             <span className="text-[15px] font-bold text-[#0056FF]" >
@@ -170,7 +186,7 @@ const LearningContent = ({ content, user }) => {
                     <CommentList comments={content.comments} contentId={content._id} user={user} />
                 </div>
             </div>
-            
+            <VideoModal isOpen={isModalOpen} onRequestClose={handleCloseModal} point={content.point} />
         </div>
     )
 }
