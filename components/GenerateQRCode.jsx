@@ -45,7 +45,7 @@ const GenerateQRCode = () => {
       });
 
       const transactionId = response.data.data._id;
-      const link = `${window.location.origin}/redeemqr?transactionId=${transactionId}`;
+      const link = `${window.location.origin}/redeemqr?transactionId=${transactionId}&userId=${userId}`;
       setQRCodeLink(link);
       setModalIsOpen(true);
     } catch (error) {

@@ -1,3 +1,4 @@
+// pages/api/qrcode/index.js
 import connectMongoDB from '@/lib/services/database/mongodb';
 import QRCodeTransaction from '@/database/models/QRCodeTransaction';
 import Point from '@/database/models/Point';
@@ -36,6 +37,7 @@ export default async function handler(req, res) {
           return res.status(404).json({ success: false, message: 'QR Code not found' });
         }
 
+
         if (transaction.scannedBy.includes(userId)) {
           return res.status(400).json({ success: false, message: 'QR Code already scanned by this user' });
         }
@@ -49,6 +51,7 @@ export default async function handler(req, res) {
             userId,
             description: `Received points from QR Code ${transaction.ref}`,
             type: 'earn',
+            contentId: null,
             point: transaction.point,
           });
           await newPoint.save();
