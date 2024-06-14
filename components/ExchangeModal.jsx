@@ -1,7 +1,9 @@
+// components/ExchangeModal.jsx
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import Image from 'next/image';
-// Modal styles
+import WarningModal from './WarningModal'; // Import the new WarningModal component
+
 const customStyles = {
     content: {
         top: '50%',
@@ -16,24 +18,85 @@ const customStyles = {
     }
 };
 
-// Setting Modal Component
-const ExchangeModal = ({ isOpen, onRequestClose, points, conversionRate }) => {
-    const [exchangePoints, setExchangePoints] = useState(0);
+const ExchangeModal = ({ isOpen, onRequestClose, points, conversionRate, userId }) => {
+    const [exchangePoints, setExchangePoints] = useState(20);
     const [coins, setCoins] = useState(1);
+    const [warningModalIsOpen, setWarningModalIsOpen] = useState(false);
 
     useEffect(() => {
         setCoins(Math.floor(exchangePoints / conversionRate));
     }, [exchangePoints, conversionRate]);
 
     const handleChange = (e) => {
-        const value = Math.min(e.target.value, points);
-        setExchangePoints(value);
+        let value = e.target.value.replace(/^0+/, ''); // Remove leading zeros
+        value = value === '' ? 0 : parseInt(value, 10); // Ensure value is an integer
+
+        if (value > points) {
+            setWarningModalIsOpen(true);
+        } else {
+            setExchangePoints(value);
+        }
     };
 
-    const handleExchange = () => {
-        // Handle the exchange logic here
-        console.log(`Exchanging ${exchangePoints} points for ${coins} coins`);
-        onRequestClose();
+    const handleExchange = async () => {
+        const currentDate = new Date().toISOString();
+        const description = `exchange ${currentDate}`;
+        try {
+            const exchangeResponse = await fetch('/api/exchange', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId: userId,
+                    points: exchangePoints,
+                    coins,
+                    description,
+                }),
+            });
+
+            if (!exchangeResponse.ok) {
+                throw new Error('Failed to create exchange');
+            }
+
+            const pointsResponse = await fetch('/api/points/point', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId: userId,
+                    point: exchangePoints,
+                    type: 'pay',
+                    description,
+                }),
+            });
+
+            if (!pointsResponse.ok) {
+                throw new Error('Failed to update points');
+            }
+
+            const coinsResponse = await fetch('/api/coins/coins', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId: userId,
+                    coins,
+                    type: 'earn',
+                    description,
+                }),
+            });
+
+            if (!coinsResponse.ok) {
+                throw new Error('Failed to update coins');
+            }
+
+            onRequestClose();
+        } catch (error) {
+            console.error('Failed to complete the exchange', error);
+        }
     };
 
     return (
@@ -46,59 +109,48 @@ const ExchangeModal = ({ isOpen, onRequestClose, points, conversionRate }) => {
                     <Image src="/images/redeem/coins.png" alt="Coins" style={{ 
                         width: '100px',
                         height: 'auto',
-                        }} 
-                    width={100} height={100} />
+                    }} width={100} height={100} />
                 </div>
                 <div className='flex flex-col items-center'>
-                    <div className='flex items-center justify-start mb-2' style={{ 
-                        width: '100%',
-                    }}>
+                    <div className='flex items-center justify-start mb-2' style={{ width: '100%' }}>
                         <span className='flex text-[10px] text-gray-400'>
                             คะแนน one retail society
                         </span>
                     </div>
                     <div className='flex flex-row items-start'>
-                    <div className='relative'>
-                    <input 
-                        type="text" 
-                        onChange={handleChange} 
-                        max={points} 
-                        min="0" 
-                        style={{ 
-                            textAlign: 'center',
-                            width: '130px',
-                        }}
-                        className='relative border-b-2 border-gray-300 rounded-lg p-2'
-                    />
-                    <div className='absolute top-2 right-0'>
-                        <span className='relative text-sm font-bold text-gray-700 pr-4'>
-                            Point
+                        <div className='relative'>
+                            <input 
+                                type="number"
+                                value={exchangePoints}
+                                onChange={handleChange}
+                                max={points} 
+                                min="0"
+                                style={{ textAlign: 'center', width: '130px' }}
+                                className='relative border-b-2 border-gray-300 rounded-lg p-2'
+                            />
+                            <div className='absolute top-2 right-0'>
+                                <span className='relative text-sm font-bold text-gray-700 pr-4'>
+                                    Point
+                                </span>
+                            </div>
+                        </div>
+                        <span className='text-2xl text-black font-bold m-4'>
+                            =
                         </span>
-                    </div>
-                    
-                    </div>
-
-                    <span className='text-2xl text-black font-bold m-4'>
-                        =
-                    </span>
-
-                    <div className='relative'>
-                        <input 
-                            type="text" 
-                            min="1" 
-                            value={conversionRate}
-                            style={{ 
-                                textAlign: 'center', 
-                                width: '130px',
-                             }}
-                            className='flex border-b-2 border-gray-300 rounded-lg p-2'
-                        />
-                        <div className='absolute top-2 right-0'>
-                        <span className='relative text-sm font-bold text-gray-700 pr-4'>
-                            Coins
-                        </span>
-                    </div>
-                    </div>
+                        <div className='relative'>
+                            <input 
+                                type="text"
+                                value={coins}
+                                readOnly
+                                style={{ textAlign: 'center', width: '130px' }}
+                                className='flex border-b-2 border-gray-300 rounded-lg p-2'
+                            />
+                            <div className='absolute top-2 right-0'>
+                                <span className='relative text-sm font-bold text-gray-700 pr-4'>
+                                    Coins
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div className='flex flex-row items-baseline justify-between w-full pr-4 pl-4'>

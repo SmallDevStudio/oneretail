@@ -17,6 +17,8 @@ export default function Profile() {
     const [levels, setLevels] = useState([]);
     const [percentage, setPercentage] = useState(0);
     const [percent, setPercent] = useState(0);
+    const [userCoins, setUserCoins] = useState(0);
+    const [userPoints, setUserPoints] = useState(0);
 
     const { data: session } = useSession();
     const { data: user } = useSWR('/api/users/'+session?.user?.id, fetcher);
@@ -27,6 +29,16 @@ export default function Profile() {
             setPercentage(parseFloat(data?.percent));
         }
     });
+    const { data: coins } = useSWR('/api/coins/user?userId=' + session?.user?.id, fetcher, {
+        onSuccess: (data) => {
+          setUserCoins(data.coins);
+        }
+      });
+      const { data: points } = useSWR('/api/points/user?userId=' + session?.user?.id, fetcher, {
+        onSuccess: (data) => {
+          setUserPoints(data.point);
+        }
+      });
 
     const nextPoint = (levelup?.requiredPoints - level?.points);
 
@@ -146,7 +158,7 @@ export default function Profile() {
                                 Total Point
                             </span>
                             <span className="text-xl font-black text-[#0056FF] dark:text-white">
-                                {level?.points ? level.points : 0}
+                                {points?.point ? points?.point : 0}
                             </span>
                         </button>
 
@@ -164,7 +176,7 @@ export default function Profile() {
                                 Coin
                             </span>
                             <span className="text-xl font-black text-[#0056FF] dark:text-white">
-                                0
+                                {coins?.coins ? coins?.coins : 0}
                             </span>
                         </button>
                     </div>

@@ -7,12 +7,13 @@ import Users from "@/database/models/users";
 
 export default async function handler(req, res) {
   const { method } = req;
+  const { userId } = req.query;
   await connectMongoDB();
 
   switch (method) {
     case 'GET':
       try {
-        const redeemTrans = await RedeemTrans.find({}).populate('redeemId');
+        const redeemTrans = await RedeemTrans.find({userId: userId}).populate('redeemId');
         const redeemTransWithUser = await Promise.all(
           redeemTrans.map(async (trans) => {
             const user = await Users.findOne({ userId: trans.userId });
