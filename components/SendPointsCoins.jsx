@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import Swal from 'sweetalert2';
+import Loading from './Loading';
 
 const SendPointsCoins = () => {
   const { data: session } = useSession();
@@ -15,6 +16,7 @@ const SendPointsCoins = () => {
   const [ref, setRef] = useState('');
   const [remark, setRemark] = useState('');
   const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -30,6 +32,7 @@ const SendPointsCoins = () => {
   }, []);
 
   const handleSend = async () => {
+    setLoading(true);
     try {
       const adminUserId = session?.user?.id;
 
@@ -64,11 +67,15 @@ const SendPointsCoins = () => {
       setRemark('');
 
       Swal.fire('Success', 'Points and coins sent successfully!', 'success');
+      setLoading(false);
     } catch (error) {
       console.error('Error sending points and coins:', error);
       Swal.fire('Error', 'Error sending points and coins.', 'error');
+      setLoading(false);
     }
   };
+
+  if(loading) return <Loading />;
 
   return (
     <div className="p-4">
@@ -140,7 +147,7 @@ const SendPointsCoins = () => {
         <button onClick={handleSend}
           className="bg-[#0056FF] hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full w-1/2 mt-2"
         >
-            Send
+            {loading ? 'Sending...' : 'Send'}
         </button>
       </div>
     </div>

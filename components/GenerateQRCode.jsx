@@ -4,6 +4,7 @@ import axios from 'axios';
 import QRCode from 'qrcode.react';
 import Modal from 'react-modal';
 import { useSession } from 'next-auth/react';
+import Loading from './Loading';
 
 const customStyles = {
   content: {
@@ -31,8 +32,10 @@ const GenerateQRCode = () => {
   const [remark, setRemark] = useState('');
   const [qrCodeLink, setQRCodeLink] = useState('');
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleGenerate = async () => {
+    setLoading(true);
     try {
       const userId = session?.user?.id;
 
@@ -48,6 +51,7 @@ const GenerateQRCode = () => {
       const link = `${window.location.origin}/redeemqr?transactionId=${transactionId}&userId=${userId}`;
       setQRCodeLink(link);
       setModalIsOpen(true);
+      setLoading(false);
     } catch (error) {
       console.error('Error generating QR Code:', error);
     }
@@ -56,6 +60,10 @@ const GenerateQRCode = () => {
   const closeModal = () => {
     setModalIsOpen(false);
   };
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <div className='p-2'>
@@ -103,7 +111,9 @@ const GenerateQRCode = () => {
       <div className='flex mt-2 w-full items-center justify-center'>
         <button onClick={handleGenerate}
           className='bg-[#0056FF] text-white rounded-full p-2 mt-2 font-bold text-center w-40'
-        >Generate</button>
+        >
+          {loading ? 'Loading...' : 'Generate QR Code'}
+        </button>
       </div>
       <Modal
         isOpen={modalIsOpen}
