@@ -8,6 +8,7 @@ import { FaTachometerAlt, FaUsers, FaFileAlt, FaCalendarAlt, FaGift, FaGamepad, 
 import { LuGroup } from "react-icons/lu";
 import { RiPagesLine } from "react-icons/ri";
 import { MdOutlineSubtitles } from "react-icons/md";
+import { FcSurvey } from "react-icons/fc";
 import Image from "next/image";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
@@ -192,6 +193,14 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                   title="จัดการหน้าแรก"
                   to="/admin/homeoptions"
                   icon={<FaHome />}
+                  selected={selected}
+                  setSelected={setSelected}
+                  />
+
+                  <Item
+                  title="Survey"
+                  to="/admin/survey"
+                  icon={<FcSurvey />}
                   selected={selected}
                   setSelected={setSelected}
                   />

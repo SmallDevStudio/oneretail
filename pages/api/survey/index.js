@@ -1,6 +1,6 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
 import Survey from "@/database/models/Survey";
-
+import Users from "@/database/models/users";
 
 export default async function handler(req, res) {
     const { method } = req
@@ -9,8 +9,21 @@ export default async function handler(req, res) {
     switch (method) {
         case 'GET':
             try {
-                const surveys = await Survey.find({})
-                res.status(200).json(surveys)
+                const surveys = await Survey.find({}).lean();
+                const userId = surveys.map(survey => survey.userId);
+                const users = await Users.find({ userId: { $in: userId } }).lean();
+
+                const surveysWithUserDetails = surveys.map(survey => {
+                    const user = users.find(user => user.userId === survey.userId);
+                    return {
+                        ...survey,
+                        fullname: user ? user.fullname : 'Unknown',
+                        empId: user ? user.empId : 'Unknown',
+                        pictureUrl: user ? user.pictureUrl : ''
+                    };
+                });
+
+                res.status(200).json(surveysWithUserDetails);
             } catch (error) {
                 res.status(400).json({ success: false })
             }
