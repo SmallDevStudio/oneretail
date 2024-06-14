@@ -1,124 +1,92 @@
-"use client"
-import { useState, useEffect } from "react";
-import Image from "next/image";
-import useSWR from "swr";
-import Alert from "@/lib/notification/Alert";
-import Loading from "@/components/Loading";
+import React, { useState, useEffect } from 'react';
+import { DataGrid } from '@mui/x-data-grid';
+import axios from 'axios';
+import Image from 'next/image';
+import useSWR from 'swr';
+import moment from 'moment';
+import 'moment/locale/th';
 
-const fetcher = (url) => fetch(url).then((res) => res.json())
-export const UserTable = () => {
-    
-    const { data, error, isLoading } = useSWR('/api/users', fetcher);
-       if (error) return <Alert error={error} />
-       if (isLoading) return <Loading />
+const fetcher = (url) => axios.get(url).then((res) => res.data);
 
-       console.log('usersData:', data.users);
-   
+const UsersTable = () => {
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const { data, error } = useSWR('/api/users/emp', fetcher, {
+        onSuccess: (data) => {
+            setUsers(data.data);
+            setLoading(false);
+        }
+    });
+
+    if (error) return <div>Failed to load</div>;
+    if (!data) return <div>Loading...</div>;
+
+    const handleRoleChange = async (userId, newRole) => {
+        await axios.put(`/api/users/${userId}`, { role: newRole });
+        setUsers(prev =>
+            prev.map(user => (user._id === userId ? { ...user, role: newRole } : user))
+        );
+    };
+
+    const handleActiveToggle = async (userId, currentActive) => {
+        const newActive = !currentActive;
+        await axios.put(`/api/users/${userId}`, { active: newActive });
+        setUsers(prev =>
+            prev.map(user => (user._id === userId ? { ...user, active: newActive } : user))
+        );
+    };
+
+    const columns = [
+        {
+            field: 'pictureUrl',
+            headerName: 'Picture',
+            width: 100,
+            renderCell: (params) => (
+                <Image src={params.value} alt={params.row.fullname} width="50" height="50" className='rounded-full'/>
+            )
+        },
+        { field: 'fullname', headerName: 'Fullname', width: 200 },
+        { field: 'empId', headerName: 'Emp ID', width: 150 },
+        { field: 'teamGrop', headerName: 'Team Group', width: 150 },
+        { field: 'position', headerName: 'Position', width: 150 },
+        {
+            field: 'role',
+            headerName: 'Role',
+            width: 150,
+            renderCell: (params) => (
+                <select
+                    value={params.value}
+                    onChange={(e) => handleRoleChange(params.row._id, e.target.value)}
+                >
+                    <option value="admin">Admin</option>
+                    <option value="user">User</option>
+                </select>
+            )
+        },
+        {
+            field: 'active',
+            headerName: 'Active',
+            width: 100,
+            renderCell: (params) => (
+                <button onClick={() => handleActiveToggle(params.row._id, params.value)}>
+                    {params.value ? 'Active' : 'Inactive'}
+                </button>
+            )
+        },
+        {
+            field: 'createdAt',
+            headerName: 'Created At',
+            width: 200,
+            valueFormatter: (params) => moment(params.value).locale('th').format('LLL')
+        }
+    ];
+
     return (
-        <>
-                <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-                    <div className="flex items-center justify-between flex-column flex-wrap md:flex-row space-y-4 md:space-y-0 pb-4 bg-white dark:bg-gray-900">
-                        <div className="relative">
-
-                        </div>
-                        <label for="table-search" className="sr-only">Search</label>
-                        <div className="relative">
-                            <div className="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
-                                <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                                </svg>
-                            </div>
-                            <input type="text" id="table-search-users" className="block p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search for users"/>
-                        </div>
-                    </div>
-                    {/* Table */}
-                    <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                        <thead className="text-xs text-[#121D3A] uppercase bg-[#CCDDFF] dark:bg-gray-700 dark:text-gray-400">
-                            <tr>
-                                <th scope="col" className="p-4">
-                                    <div className="flex items-center">
-                                        <input id="checkbox-all-search" type="checkbox" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"/>
-                                        <label for="checkbox-all-search" className="sr-only">checkbox</label>
-                                    </div>
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Name
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Position
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Role
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Status
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Active
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Action
-                                </th>
-                            </tr>
-                        </thead>
-                        {data &&
-                            data.users.map((user, index) => {
-                            return (
-                            <>
-                        <tbody>
-                            <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                <td className="w-4 p-4">
-                                    <div key={index} className="flex items-center">
-                                        <input id="checkbox-table-search-1" 
-                                            type="checkbox"
-                                            value={user._id}
-                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"/>
-                                        <label for="checkbox-table-search-1" className="sr-only">checkbox</label>
-                                    </div>
-                                </td>
-                                <th scope="row" className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
-                                    <Image key={index}
-                                        class="w-10 h-10 rounded-full" 
-                                        src={user.pictureUrl} 
-                                        alt="avatar"
-                                        width={40}
-                                        height={40}
-                                    />
-                                    <div className="ps-3" key={index}>
-                                        <div className="text-base font-semibold">{user.fullname}</div>
-                                        <div className="font-normal text-gray-500"></div>
-                                    </div>  
-                                </th>
-                                <td className="px-6 py-4">
-                                    React Developer
-                                </td>
-                                <td className="px-6 py-4" key={index}>
-                                    {user.role}
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center">
-                                        <div className="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> Online
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center">
-                                        <button key={index} className="w-30 border bg-[#0056FF] rounded-full px-2 py-1 text-white hover:bg-[#F68B1F] focus:ring-4 focus:ring-blue-300 font-medium text-xs leading-tight dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                                            {user.active === true ? "Active" : "Deactive"}
-                                        </button>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <button className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit user</button>
-                                </td>
-                            </tr> 
-                        </tbody>
-                        </>
-                );
-            })}
-       
-                    </table>
-                </div>
-                </>
+        <div style={{ height: 600, width: '100%' }}>
+            <DataGrid rows={users} columns={columns} pageSize={10} loading={loading} getRowId={(row) => row._id} />
+        </div>
     );
-}
+};
 
+export default UsersTable;

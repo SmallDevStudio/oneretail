@@ -14,7 +14,7 @@ const CategoryTable = () => {
 
   const fetchCategories = async () => {
     const response = await axios.get('/api/categories');
-    setData(response.data);
+    setData(response.data.data);
   };
 
   const handleDelete = async (id) => {

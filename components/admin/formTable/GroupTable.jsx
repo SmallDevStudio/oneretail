@@ -15,7 +15,7 @@ const GroupTable = () => {
   const fetchGroups = async () => {
     try {
       const response = await axios.get('/api/groups');
-      setData(response.data);
+      setData(response.data.data);
     } catch (error) {
       console.error('Failed to fetch groups:', error);
     }

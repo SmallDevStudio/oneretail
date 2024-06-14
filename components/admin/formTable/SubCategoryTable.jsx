@@ -16,12 +16,12 @@ const SubcategoryTable = () => {
 
   const fetchSubcategories = async () => {
     const response = await axios.get('/api/subcategories');
-    setData(response.data);
+    setData(response.data.data);
   };
 
   const fetchCategories = async () => {
     const response = await axios.get('/api/categories');
-    setCategories(response.data);
+    setCategories(response.data.data);
   };
 
   const handleDelete = async (id) => {

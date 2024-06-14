@@ -1,24 +1,17 @@
-"use client"
+import UserTable from "@/components/admin/formTable/UserTable";
 import { AdminLayout } from "@/themes";
-import Header from "@/components/admin/global/Header";
-import { UserTable } from "@/components/admin/formTable/UserTable";
-import { Suspense } from "react";
-import Loading from "@/components/Loading";
-export default function Users() {
+export default function UsersAdmin() {
 
     return (
             <div className="flex flex-col p-10 w-full">
-                <Header title="จัดการผู้ใช้" subtitle="จัดการข้อมูลผู้ใช้ ลบผู้ใช้ แก้ไขผู้ใช้ "/>
                 <div className="flex mb-5">
                     
                 </div>
                 <div className="p-5">
-                    <Suspense fallback={<Loading />}>
-                        <UserTable />
-                    </Suspense>
+                    <UserTable />
                 </div>
             </div>
     );
 }
 
-Users.getLayout = (page) => <AdminLayout>{page}</AdminLayout>;
+UsersAdmin.getLayout = (page) => <AdminLayout>{page}</AdminLayout>;
