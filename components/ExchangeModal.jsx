@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import Image from 'next/image';
 import WarningModal from './WarningModal'; // Import the new WarningModal component
+import Loading from './Loading';
 
 const customStyles = {
     content: {
@@ -22,6 +23,7 @@ const ExchangeModal = ({ isOpen, onRequestClose, points, conversionRate, userId 
     const [exchangePoints, setExchangePoints] = useState(20);
     const [coins, setCoins] = useState(1);
     const [warningModalIsOpen, setWarningModalIsOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         setCoins(Math.floor(exchangePoints / conversionRate));
@@ -44,6 +46,8 @@ const ExchangeModal = ({ isOpen, onRequestClose, points, conversionRate, userId 
             return;
         }
 
+        setLoading(true);
+
         const currentDate = new Date().toISOString();
         const description = `exchange ${currentDate}`;
         try {
@@ -62,6 +66,7 @@ const ExchangeModal = ({ isOpen, onRequestClose, points, conversionRate, userId 
 
             if (!exchangeResponse.ok) {
                 throw new Error('Failed to create exchange');
+
             }
 
             const pointsResponse = await fetch('/api/points/point', {
@@ -94,6 +99,8 @@ const ExchangeModal = ({ isOpen, onRequestClose, points, conversionRate, userId 
                 }),
             });
 
+            setLoading(false);
+
             if (!coinsResponse.ok) {
                 throw new Error('Failed to update coins');
             }
@@ -103,6 +110,8 @@ const ExchangeModal = ({ isOpen, onRequestClose, points, conversionRate, userId 
             console.error('Failed to complete the exchange', error);
         }
     };
+
+    if (loading) return <Loading />;
 
     return (
         <>
@@ -166,7 +175,9 @@ const ExchangeModal = ({ isOpen, onRequestClose, points, conversionRate, userId 
                         <button 
                             className='bg-[#F68B1F] text-white font-bold py-2 px-4 rounded-full h-10 w-24 items-center justify-center' 
                             onClick={handleExchange}>
-                            <span className='text-md'>แลกเลย</span>
+                            <span className='text-md'>
+                                {loading ? 'กําลังแลก...' : 'แลกเลย'}
+                            </span>
                         </button>
                     </div>
                 </div>
