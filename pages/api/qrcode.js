@@ -1,90 +1,78 @@
-// components/ScanQRCode.jsx
-import React, { useState, useEffect } from 'react';
-import QrReader from 'react-qr-reader';
-import axios from 'axios';
-import Swal from 'sweetalert2';
-import { useSession } from 'next-auth/react';
+import connectMongoDB from '@/lib/services/database/mongodb';
+import QRCodeTransaction from '@/database/models/QRCodeTransaction';
+import Point from '@/database/models/Point';
+import Coins from '@/database/models/Coins';
 
-const ScanQRCode = () => {
-  const { data: session } = useSession(); // Get the current session
-  const [scannedData, setScannedData] = useState(null);
-  const [devices, setDevices] = useState([]);
-  const [selectedDeviceId, setSelectedDeviceId] = useState('');
+export default async function handler(req, res) {
+  await connectMongoDB();
 
-  useEffect(() => {
-    navigator.mediaDevices.enumerateDevices()
-      .then((deviceInfos) => {
-        const videoDevices = deviceInfos.filter(device => device.kind === 'videoinput');
-        setDevices(videoDevices);
-        if (videoDevices.length > 0) {
-          setSelectedDeviceId(videoDevices[0].deviceId);
-        }
-      })
-      .catch(error => console.error('Error fetching video devices:', error));
-  }, []);
-
-  const handleScan = async (data) => {
-    if (data) {
-      console.log("Scanned Data:", data);
-      setScannedData(data);
-      const userId = session?.user?.id; // Get the userId of the scanning user
-
+  switch (req.method) {
+    case 'POST':
       try {
-        const response = await axios.put('/api/qrcode', {
-          transactionId: JSON.parse(data.text).transactionId,
+        const { userId, point, coins, ref, remark } = req.body;
+
+        const transaction = new QRCodeTransaction({
           userId,
+          point,
+          coins,
+          ref,
+          remark,
         });
 
-        Swal.fire('Success', 'QR Code scanned successfully!', 'success');
+        await transaction.save();
+        res.status(201).json({ success: true, data: transaction });
       } catch (error) {
-        console.error('Error scanning QR Code:', error);
-        Swal.fire('Error', 'Error scanning QR Code.', 'error');
+        console.error('POST Error:', error);
+        res.status(500).json({ success: false, message: error.message });
       }
-    }
-  };
+      break;
 
-  const handleError = (err) => {
-    console.error("Error:", err);
-    Swal.fire('Error', 'Error scanning QR Code.', 'error');
-  };
+    case 'PUT':
+      try {
+        const { transactionId, userId } = req.body;
 
-  const previewStyle = {
-    height: 240,
-    width: '100%',
-  };
+        const transaction = await QRCodeTransaction.findById(transactionId);
+        if (!transaction) {
+          return res.status(404).json({ success: false, message: 'QR Code not found' });
+        }
 
-  const handleDeviceChange = (event) => {
-    console.log("Device changed to:", event.target.value);
-    setSelectedDeviceId(event.target.value);
-  };
+        if (transaction.scannedBy.includes(userId)) {
+          return res.status(400).json({ success: false, message: 'QR Code already scanned by this user' });
+        }
 
-  return (
-    <div>
-      <h2>Scan QR Code</h2>
-      <div>
-        <label htmlFor="deviceSelect">Select Camera:</label>
-        <select id="deviceSelect" onChange={handleDeviceChange} value={selectedDeviceId}>
-          {devices.map((device, index) => (
-            <option key={index} value={device.deviceId}>
-              {device.label || `Camera ${index + 1}`}
-            </option>
-          ))}
-        </select>
-      </div>
-      <QrReader
-        delay={300}
-        style={previewStyle}
-        onError={handleError}
-        onScan={handleScan}
-        constraints={{
-          video: {
-            deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined,
-          },
-        }}
-      />
-      {scannedData && <pre>{JSON.stringify(scannedData, null, 2)}</pre>}
-    </div>
-  );
-};
+        transaction.scannedBy.push(userId);
+        transaction.scannedAt.push(new Date());
+        await transaction.save();
 
-export default ScanQRCode;
+        if (transaction.point > 0) {
+          const newPoint = new Point({
+            userId,
+            description: `Received points from QR Code ${transaction.ref}`,
+            type: 'earn',
+            point: transaction.point,
+          });
+          await newPoint.save();
+        }
+
+        if (transaction.coins > 0) {
+          const newCoins = new Coins({
+            userId,
+            description: `Received coins from QR Code ${transaction.ref}`,
+            type: 'earn',
+            coins: transaction.coins,
+          });
+          await newCoins.save();
+        }
+
+        res.status(200).json({ success: true, data: transaction });
+      } catch (error) {
+        console.error('PUT Error:', error);
+        res.status(500).json({ success: false, message: error.message });
+      }
+      break;
+
+    default:
+      res.status(405).json({ success: false, message: 'Method not allowed' });
+      break;
+  }
+}
