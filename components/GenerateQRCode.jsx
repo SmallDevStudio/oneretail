@@ -58,11 +58,11 @@ const GenerateQRCode = () => {
   };
 
   return (
-    <div>
+    <div className='p-2'>
       <div className='text-center mt-5 mb-5'>
         <h2 className='text-2xl font-bold text-[#0056FF]'>Generate QR Code</h2>
       </div>
-      <div className='flex flex-row gap-2'>
+      <div className='flex flex-row gap-2 items-center'>
         <div>
           <label className='font-bold'>Points:</label>
           <input
@@ -82,22 +82,22 @@ const GenerateQRCode = () => {
           />
         </div>
       </div>
-      <div className='flex flex-row gap-2 mt-2'>
+      <div className='flex flex-row gap-2 mt-2 items-center'>
         <label className='font-bold'>Reference:</label>
         <input
           type="text"
           value={ref}
           onChange={(e) => setRef(e.target.value)}
-          className='w-full border-2 rounded-xl'
+          className='w-full border-2 rounded-xl pl-3'
         />
       </div>
-      <div className='flex flex-row gap-2 mt-2'>
+      <div className='flex flex-row gap-2 mt-2 items-center'>
         <label className='font-bold'>Remark:</label>
         <input
           type="text"
           value={remark}
           onChange={(e) => setRemark(e.target.value)}
-          className='w-full border-2 rounded-xl'
+          className='w-full border-2 rounded-xl pl-3'
         />
       </div>
       <div className='flex mt-2 w-full items-center justify-center'>
