@@ -2,12 +2,13 @@ import { useState } from 'react';
 import axios from 'axios';
 import getEmbedPreview from '@/utils/getEmbedPreview';
 import Image from 'next/image';
-import { FiSend } from "react-icons/fi";
+import PostModal from './PostModal';
 
 const CreatePost = ({ user, onPostCreated }) => {
   const [content, setContent] = useState('');
   const [link, setLink] = useState('');
   const [preview, setPreview] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -53,6 +54,10 @@ const CreatePost = ({ user, onPostCreated }) => {
     return matches ? matches[0] : null;
   };
 
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <>
     <div className=" bg-gray-50 rounded-md p-2 shadow-xl" style={{
@@ -92,6 +97,7 @@ const CreatePost = ({ user, onPostCreated }) => {
             {getEmbedPreview(preview)}
           </div>
         )}
+        <PostModal isOpen={isOpen} onRequestClose={onRequestClose} score={20} />
     </div>
     </>
   );
