@@ -4,6 +4,7 @@ import SentPointCoins from '@/database/models/SentPointCoins';
 import Point from '@/database/models/Point';
 import Coins from '@/database/models/Coins';
 import Users from '@/database/models/users';
+import sendLineMessage from '@/lib/sendLineMessage';
 
 export default async function handler(req, res) {
   await connectMongoDB();
@@ -47,7 +48,7 @@ export default async function handler(req, res) {
             point: point,
           });
           await newPoint.save();
-          console.log('newPoint:', newPoint);
+          await sendLineMessage(user.userId, `คุณได้รับ ${point} Point`);
         }
 
         if (coins > 0) {
@@ -58,6 +59,7 @@ export default async function handler(req, res) {
             coins: coins,
           });
           await newCoins.save();
+          await sendLineMessage(user.userId, `คุณได้รับ ${coins} Coins`);
         }
 
         res.status(201).json({ success: true, data: transaction });
