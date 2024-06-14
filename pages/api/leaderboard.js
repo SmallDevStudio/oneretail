@@ -20,8 +20,6 @@ export default async function handler(req, res) {
             }
             if (point.type === 'earn') {
               acc[userId].totalPoints += point.point;
-            } else if (point.type === 'pay') {
-              acc[userId].totalPoints -= point.point;
             }
             return acc;
           }, {});
