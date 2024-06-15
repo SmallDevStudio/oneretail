@@ -14,16 +14,18 @@ import { RiQrScan2Line } from "react-icons/ri";
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function Profile() {
-    const [levels, setLevels] = useState([]);
+    const [userLevels, setUserLevels] = useState([]);
     const [percentage, setPercentage] = useState(0);
     const [percent, setPercent] = useState(0);
     const [userCoins, setUserCoins] = useState(0);
     const [userPoints, setUserPoints] = useState(0);
 
     const { data: session } = useSession();
-    const { data: user } = useSWR('/api/users/'+session?.user?.id, fetcher);
-    const { data: level } = useSWR('/api/level/'+session?.user?.id, fetcher, );
-    const { data: levelup } = useSWR('/api/level/state/'+level?.level, fetcher,);
+    const { data: level } = useSWR('/api/level/user?userId=' + session?.user?.id, fetcher, {
+        onSuccess: (data) => {
+            setUserLevels(data);
+        }
+    });
     const { data: survey } = useSWR('/api/survey/user?userId='+session?.user?.id, fetcher, {
         onSuccess: (data) => {
             setPercentage(parseFloat(data?.percent));
@@ -40,22 +42,10 @@ export default function Profile() {
         }
       });
 
-    const nextPoint = (levelup?.requiredPoints - level?.points);
-
     const HalfCircleProgressBar = dynamic(() => import('@/components/main/HalfCircleProgressBar'), { ssr: false });
     const LineProgressBar = dynamic(() => import("@/components/ProfileLineProgressBar"), { ssr: false });
 
-    console.log('level_points:', level?.points,' levelup?.requiredPoints:', levelup?.requiredPoints);
-    console.log('nextPoint:', nextPoint);
-    console.log('level:', level);
-    console.log('levelup:', levelup);
 
-    useEffect(() => {
-        if (level && levelup?.requiredPoints) {
-            setPercent((level.points / levelup.requiredPoints) * 100);
-            setLevels({ ...level });
-        }
-    }, [level, levelup?.requiredPoints]);
 
     return (
         <>
@@ -90,7 +80,7 @@ export default function Profile() {
                             {/* Avatar */}
                             <div className="mt-4 ml-5">
                                 <Image
-                                    src={user?.user?.pictureUrl}
+                                    src={userLevels?.user?.pictureUrl}
                                     alt="User Avatar"
                                     width={100}
                                     height={100}
@@ -110,7 +100,7 @@ export default function Profile() {
                     </div>
                     {/* Progress Bar */}
                     <div className="flex-1 flex-col items-center justify-center ml-10 mr-5">
-                        <span className="text-lg font-semibold text-[#0056FF] truncate ...">{user?.user?.fullname}</span>
+                        <span className="text-lg font-semibold text-[#0056FF] truncate ...">{userLevels?.user?.fullname}</span>
                         <div className="relative">
                             <div className="relative mt-3">
                                 <LineProgressBar percent={percent} />
@@ -131,7 +121,7 @@ export default function Profile() {
                             </div>
                         </div>
                         <span className="flex text-sm font-semibold text-[#0056FF] justify-end">
-                            {level?.points} / {levelup?.requiredPoints}
+                            {level?.point} / {level?.requiredPoints}
                         </span>
                     </div>
                 </div>

@@ -60,9 +60,12 @@ const RedeemPage = () => {
     if (redeems.length === 0) {
       return "ttb0001";
     }
-    const lastCode = redeems[redeems.length - 1].rewardCode;
-    const lastNumber = parseInt(lastCode.replace("ttb", ""));
+
+    const lastRedeem = redeems[redeems.length - 1];
+    const lastCode = lastRedeem ? lastRedeem.rewardCode : "ttb0000";
+    const lastNumber = parseInt(lastCode.replace("ttb", ""), 10);
     const newNumber = lastNumber + 1;
+
     return `ttb${String(newNumber).padStart(4, "0")}`;
   };
 
@@ -83,6 +86,7 @@ const RedeemPage = () => {
         ...formattedForm,
         rewardCode: newRewardCode,
       });
+      setForm({ ...form, rewardCode: newRewardCode });
     }
     fetchRedeems();
     setForm({
@@ -108,7 +112,7 @@ const RedeemPage = () => {
       description: redeem.description,
       image: redeem.image,
       stock: redeem.stock,
-      expire: moment(redeem.expire).format("YYYY-MM-DD"),
+      expire: redeem.expire ? moment(redeem.expire).format("YYYY-MM-DD") : "",
       coins: redeem.coins,
       point: redeem.point,
       status: redeem.status,
@@ -141,7 +145,7 @@ const RedeemPage = () => {
       field: "expire",
       headerName: "Expire Date",
       width: 150,
-      renderCell: (params) => moment(params.value).locale("th").format("LL"),
+      renderCell: (params) => moment(params.value).locale("th").format("DD/MM/YYYY HH:mm"),
     },
     { field: "coins", headerName: "Coins", width: 100 },
     { field: "point", headerName: "Points", width: 100 },
@@ -157,7 +161,7 @@ const RedeemPage = () => {
       field: "createdAt",
       headerName: "Created At",
       width: 150,
-      renderCell: (params) => moment(params.value).locale("th").format("LL"),
+      renderCell: (params) => moment(params.value).locale("th").format("DD/MM/YYYY HH:mm"),
     },
     {
       field: "actions",
@@ -208,7 +212,7 @@ const RedeemPage = () => {
       field: "createdAt",
       headerName: "Created At",
       width: 150,
-      renderCell: (params) => moment(params.value).locale("th").format("LL"),
+      renderCell: (params) => moment(params.value).locale("th").format("DD/MM/YYYY HH:mm"),
     },
   ];
 

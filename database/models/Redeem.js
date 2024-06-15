@@ -1,16 +1,16 @@
 const mongoose = require('mongoose');
 
 const redeemSchema = new mongoose.Schema({
-  rewardCode: { type: String, required: true, unique: true },
+  rewardCode: { type: String, required: true},
   name: { type: String, required: true },
   description: { type: String, required: true },
-  image: { type: String, required: false },
+  image: { type: String },
   stock: { type: Number, required: true },
-  expire: { type: Date, required: false },
-  coins: { type: Number, required: false },
-  point: { type: Number, required: false },
+  expire: { type: Date},
+  coins: { type: Number },
+  point: { type: Number },
   status: { type: Boolean, default: true },
-  type: { type: String, required: false },
+  type: { type: String},
   creator: { type: String, required: true },
 }, { timestamps: true });
 

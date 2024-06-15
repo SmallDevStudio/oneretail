@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { AppLayout } from "@/themes";
@@ -241,14 +242,14 @@ export default function Redeem() {
                       bottom: "10px",
                       left: "35px",
                     }}>
-                      <div className="flex bg-[#0056FF] rounded-full text-white font-bold h-6 w-[70px] p-1 text-center justify-center items-center">
-                        <span>{redeemItem.coins} 
+                      <div className="flex flex-row bg-[#0056FF] rounded-full text-white font-bold h-6 w-[70px] p-1 text-center justify-center items-center">
+                        <span className="flex text-sm">{redeemItem.coins} 
                           <Image
                             src="/images/profile/Coin.svg"
                             alt="coins"
                             width={15}
                             height={15}
-                            className="flex"
+                            className="flex ml-2"
                           />  
                         </span>
                       </div>
@@ -266,11 +267,11 @@ export default function Redeem() {
                       </div>
                     </div>
                     <div className="flex items-center justify-between pt-2">
-                      <div className="text-left">
+                      <div className="flex-col text-left">
                         <span className="text-[0.7em]">
                           คงเหลือ
                         </span>
-                        <span className="font-bold">
+                        <span className="flex font-bold mt-[-5px]">
                           {redeemItem.stock} สิทธิ์
                         </span>
                       </div>
