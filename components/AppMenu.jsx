@@ -6,6 +6,7 @@ export default function AppMenu() {
 
     const isActive = (path) => router.pathname === path;
 
+
     return (
         <nav className="fixed bottom-0 left-0 z-50 w-full h-16 bg-white border-t border-gray-200 shadow-lg" style={{ boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)", fontFamily: "ttb" }}>
                 <div className="grid h-full max-w-lg grid-cols-5 mx-auto font-medium">
