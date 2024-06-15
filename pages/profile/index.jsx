@@ -9,19 +9,16 @@ import useSWR from "swr";
 import dynamic from "next/dynamic";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { MdOutlinePostAdd } from "react-icons/md";
-import { RiQrScan2Line } from "react-icons/ri";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function Profile() {
     const [userLevels, setUserLevels] = useState([]);
     const [percentage, setPercentage] = useState(0);
-    const [userCoins, setUserCoins] = useState(0);
-    const [userPoints, setUserPoints] = useState(0);
-
-    console.log(userLevels);
-
     const { data: session } = useSession();
+
+    console.log("userLevles:", userLevels);
+
     const { data: level } = useSWR('/api/level/user?userId=' + session?.user?.id, fetcher, {
         onSuccess: (data) => {
             setUserLevels(data);
@@ -37,7 +34,12 @@ export default function Profile() {
 
     const HalfCircleProgressBar = dynamic(() => import('@/components/main/HalfCircleProgressBar'), { ssr: false });
     const LineProgressBar = dynamic(() => import("@/components/ProfileLineProgressBar"), { ssr: false });
-    const percent = userLevels.point / userLevels.requiredPoints * 100
+    
+    // ProgressBar
+    // Check if userLevels has the required structure
+    const percent = userLevels.requiredPoints 
+        ? parseFloat(userLevels.point / userLevels.requiredPoints * 100)
+        : 0;
 
     return (
         <>
