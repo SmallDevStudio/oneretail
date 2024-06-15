@@ -3,95 +3,53 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useSession } from "next-auth/react";
-import Swal from "sweetalert2";
+import { useRouter } from "next/router";
+import axios from "axios";
+import useSWR, { mutate } from "swr";
+import Loading from "@/components/Loading";
+import LoginModal from "@/components/LoginModal";
 
-const fetchPoints = async (userId) => {
-  try {
-    const response = await fetch(`/api/loginreward/${userId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      Swal.fire({
-        title: 'WELCOME LOGIN',
-        text: `คุณได้รับ ${data.points} points`,
-        icon: 'success',
-        confirmButtonText: 'OK',
-      }).then(() => {
-        window.location.href = '/pulsesurvey';
-      });
-    } else {
-      Swal.fire({
-        title: 'Error',
-        text: data.error,
-        icon: 'error',
-        confirmButtonText: 'OK',
-      });
-    }
-  } catch (error) {
-    Swal.fire({
-      title: 'Error',
-      text: 'An unexpected error occurred',
-      icon: 'error',
-      confirmButtonText: 'OK',
-    });
-  }
-};
-
-const checkPointStatus = async (userId) => {
-  try {
-    const response = await fetch(`/api/loginreward/${userId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    });
-
-    const data = await response.json();
-    if (data.day !== undefined) {
-      return data.day;
-    } else {
-      console.error('Invalid response:', data);
-      return 0;
-    }
-  } catch (error) {
-    console.error('Error checking point status:', error);
-    return 0;
-  }
-};
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const Loginreward = () => {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
-  const [daysLogged, setDaysLogged] = useState(0);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [points, setPoints] = useState(0);
+  const [loginData, setLoginData] = useState({});
+  const router = useRouter();
+  const userId = session?.user?.id;
+
+  const { data, error, isLoading } = useSWR(() => userId ? `/api/loginreward/${userId}` : null, fetcher, {
+    onSuccess: (data) => {
+      setLoginData(data);
+    },
+  });
 
   useEffect(() => {
-    if (status === 'authenticated' && session) {
-      const userId = session.user.id;
-      checkPointStatus(userId).then(setDaysLogged);
+    if (loginData.receivedPointsToday) {
+      router.push("/");
     }
-  }, [session, status]);
+  }, [loginData, router]);
 
-  const handleFetchPoints = async () => {
-    if (session && session.user) {
-      setLoading(true);
-      await fetchPoints(session.user.id);
+  const LineProgressBar = dynamic(() => import("@/components/LineProgressBar"), { ssr: false });
+
+  const handleClick = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(`/api/loginreward/${userId}`);
+      const { points } = response.data;
+      setPoints(points);
+      setModalOpen(true);
+      await mutate(`/api/loginreward/${userId}`);  // Re-fetch data
+    } catch (error) {
+      console.error('Error fetching points:', error);
+    } finally {
       setLoading(false);
     }
   };
 
-  const handleGoToMain = () => {
-    window.location.href = '/pulsesurvey';
-  };
-
-  const LineProgressBar = dynamic(() => import("@/components/LineProgressBar"), { ssr: false });
-
-  const percentage = (daysLogged % 30) * (100 / 30);
+  const percent = data?.day ? Math.round((data.day / 30) * 100) : 0;
 
   const items = Array.from({ length: 30 }, (_, i) => i + 1);
   const getImageSrc = (index) => {
@@ -99,6 +57,14 @@ const Loginreward = () => {
     if (index <= 20) return '/images/loginreward/Asset196.svg';
     return '/images/loginreward/Asset197.svg';
   };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    router.push("/");
+  };
+
+  if (error) return <div>Error: {error.message}</div>;
+  if (isLoading) return <Loading />;
 
   return (
     <main className="flex items-center justify-center bg-[#0056FF]" style={{ minHeight: "100vh", width: "100%" }}>
@@ -111,14 +77,14 @@ const Loginreward = () => {
             </div>
 
             <div className="relative mb-8 mt-10">
-              <LineProgressBar percent={percentage} />
+              {LineProgressBar && <LineProgressBar percent={percent} />}
             </div>
 
             <div className="grid grid-cols-5 gap-1 mb-3">
               {items.map((item) => (
                 <div
                   key={item}
-                  className={`flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden border-2 border-[#C7DFF5] rounded-lg ${item <= (daysLogged % 30) ? 'bg-[#C7DFF5]/80' : ''}`}
+                  className={`flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden border-2 border-[#C7DFF5] rounded-lg ${item <= (data?.day % 30) ? 'bg-[#C7DFF5]/70' : ''}`}
                   style={{ width: 60, height: 60 }}
                   id={item.toString()}
                 >
@@ -135,25 +101,17 @@ const Loginreward = () => {
                 </div>
               ))}
             </div>
-            {daysLogged ? (
-              <button
-                onClick={handleGoToMain}
-                className="bg-[#F68B1F] text-white font-bold py-2 px-4 rounded"
-              >
-                ไปยังหน้าหลัก
-              </button>
-            ) : (
-              <button
-                onClick={handleFetchPoints}
-                disabled={loading}
-                className="bg-[#F68B1F] text-white font-bold py-2 px-4 rounded"
-              >
-                {loading ? 'Loading...' : 'รับคะแนน'}
-              </button>
-            )}
+            <button
+              onClick={handleClick}
+              disabled={loading}
+              className="bg-[#F68B1F] text-white font-bold py-2 px-4 rounded"
+            >
+              {loading ? 'Loading...' : 'รับคะแนน'}
+            </button>
           </div>
         </div>
       </div>
+      {modalOpen && <LoginModal point={points} onRequestClose={handleModalClose} />}
     </main>
   );
 }

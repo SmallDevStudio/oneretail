@@ -7,7 +7,6 @@ import Loading from "@/components/Loading";
 
 const PulseSurvey = () => {
     const [loading, setLoading] = useState(false);
-    const [appLoading, setAppLoading] = useState(false);
     const [survey, setSurvey] = useState({ value: null, memo: "" });
     const { data: session } = useSession();
     const userId = session?.user?.id;
@@ -15,7 +14,6 @@ const PulseSurvey = () => {
     
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setAppLoading(true);
         setLoading(true);
 
         try {
@@ -41,11 +39,7 @@ const PulseSurvey = () => {
             console.error('Error submitting survey:', error);
             setAppLoading(false);
         }
-
-        setLoading(false);
-        
-
-        
+        setLoading(false); 
     };
 
     useEffect(() => {
@@ -65,6 +59,8 @@ const PulseSurvey = () => {
         checkSurveyCompletion();
     }, [router, userId]);
 
+    
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setSurvey({ ...survey, [name]: value });
@@ -74,7 +70,7 @@ const PulseSurvey = () => {
         setSurvey({ ...survey, value });
     };
 
-    if (appLoading) {
+    if (loading) {
         return <Loading />;
     }
 
@@ -118,7 +114,7 @@ const PulseSurvey = () => {
                                                     className="absolute mb-3 ml-3"
                                                     style={{ width: "50px", height: "50px" }}
                                                 />
-                                                <div className={`col-span-3 ml-8 rounded-xl h-8 flex items-center ${survey.value === option.value ? 'ring-1 ring-gray-300' : ''}`} style={{ backgroundColor: survey.value === option.value ? option.color : '#D3D3D3', width: "280px" }}>
+                                                <div className={`col-span-3 ml-8 rounded-xl h-8 flex items-center ${survey.value === option.value ? 'ring-1 ring-gray-300' : ''}`} style={{ backgroundColor: survey.value === option.value ? '#D3D3D3' : option.color, width: "280px" }}>
                                                     <span className="inline-block ml-8 text-white font-bold">
                                                         {option.label}
                                                     </span>

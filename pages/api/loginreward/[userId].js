@@ -50,11 +50,11 @@ export default async function handler(req, res) {
         day = existingReward.day >= 30 ? 1 : existingReward.day + 1;
         await LoginReward.updateOne({ userId }, { day, lastLogin: today });
       }
-      console.log('newPoints:', newPoints);
 
       await Point.create({
         userId,
         description: 'Login Reward',
+        contentId: null,
         type: 'earn',
         point: newPoints,
       });

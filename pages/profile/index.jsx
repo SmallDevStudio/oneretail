@@ -6,7 +6,6 @@ import useSWR from "swr";
 import dynamic from "next/dynamic";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { MdOutlinePostAdd } from "react-icons/md";
-import { RiQrScan2Line } from "react-icons/ri";
 import "@/styles/profile.module.css";
 import { AppLayout } from "@/themes";
 import Loading from "@/components/Loading";
