@@ -16,9 +16,10 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 export default function Profile() {
     const [userLevels, setUserLevels] = useState([]);
     const [percentage, setPercentage] = useState(0);
-    const [percent, setPercent] = useState(0);
     const [userCoins, setUserCoins] = useState(0);
     const [userPoints, setUserPoints] = useState(0);
+
+    console.log(userLevels);
 
     const { data: session } = useSession();
     const { data: level } = useSWR('/api/level/user?userId=' + session?.user?.id, fetcher, {
@@ -31,21 +32,12 @@ export default function Profile() {
             setPercentage(parseFloat(data?.percent));
         }
     });
-    const { data: coins } = useSWR('/api/coins/user?userId=' + session?.user?.id, fetcher, {
-        onSuccess: (data) => {
-          setUserCoins(data.coins);
-        }
-      });
-      const { data: points } = useSWR('/api/points/user?userId=' + session?.user?.id, fetcher, {
-        onSuccess: (data) => {
-          setUserPoints(data.point);
-        }
-      });
+    const { data: coins } = useSWR('/api/coins/user?userId=' + session?.user?.id, fetcher);
+    const { data: points } = useSWR('/api/points/user?userId=' + session?.user?.id, fetcher);
 
     const HalfCircleProgressBar = dynamic(() => import('@/components/main/HalfCircleProgressBar'), { ssr: false });
     const LineProgressBar = dynamic(() => import("@/components/ProfileLineProgressBar"), { ssr: false });
-
-
+    const percent = userLevels.point / userLevels.requiredPoints * 100
 
     return (
         <>
