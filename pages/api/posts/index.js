@@ -4,7 +4,6 @@ import Users from "@/database/models/users";
 import Comment from "@/database/models/Comment";
 import Point from "@/database/models/Point";
 import sendLineMessage from "@/lib/sendLineMessage";
-import context from "react-bootstrap/esm/AccordionContext";
 
 export default async function handler(req, res) {
     const { method } = req;

@@ -127,7 +127,7 @@ const LearningContent = ({ content, user }) => {
             <div className="w-full">
                 <div className="justify-center flex min-w-[100vw]">
                     <ReactPlayer
-                        url={`https://www.youtube.com/watch?v=${content.slug}`}
+                        url={`https://www.youtube.com/watch?v=${content.slug}&modestbranding=1&rel=0`}
                         loop={false}
                         width="100%"
                         height="250px"

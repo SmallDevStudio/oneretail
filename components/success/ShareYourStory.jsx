@@ -1,63 +1,36 @@
+import React from "react";
 import PostList from "@/components/PostList";
 import CreatePost from "@/components/CreatePost";
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useState } from 'react';
 import { useSession } from 'next-auth/react';
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import Loading from "../Loading";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
+
 const ShareYourStory = () => {
-  const [user, setUser] = useState(null);
-  const [posts, setPosts] = useState([]);
   const { data: session } = useSession();
   const userId = session?.user?.id;
 
-  const { data: userData, error } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher, {
-    onSuccess: (data) => {
-      setUser(data.user);
-    },
-  });
+  const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
+  const { data: posts, error: postError } = useSWR('/api/posts', fetcher, { refreshInterval: 1000 });
 
-  const { data: postData, error: postError } = useSWR('/api/posts', fetcher, {
-    refreshInterval: 2000,
-    onSuccess: (data) => {
-      setPosts(data.data);
-    },
-  });
-
-  const fetchPosts = async () => {
-    try {
-      const res = await axios.get('/api/posts');
-      setPosts(res.data.data);
-    } catch (error) {
-      console.error('Error fetching posts:', error);
-    }
+  const handlePostCreated = async (newPost) => {
+    // อัปเดตข้อมูลโพสต์ใหม่ทันที
+    await mutate('/api/posts', { data: [newPost, ...posts.data] }, false);
+    // รีเฟรชข้อมูลโพสต์ทั้งหมด
+    await mutate('/api/posts');
   };
 
-
-  const handlePostCreated = (newPost) => {
-    setPosts([newPost, ...posts]);
-
-    // Fetch updated posts
-    axios.get('/api/posts').then((response) => {
-      setPosts(response.data.data);
-      fetchPosts();
-    });
-  };
+  if (!user || !posts) return <Loading />;
+  if (userError || postError) return <div>Error loading data</div>;
 
   return (
     <div className="home mb-20">
-      {user ? (
-        <>
-          <CreatePost user={user} onPostCreated={handlePostCreated} />
-          <div className="flex">
-            <PostList posts={posts} user={user} />
-          </div>
-        </>
-      ) : (
-        <Loading />
-      )}
+      <CreatePost user={user.user} onPostCreated={handlePostCreated} />
+      <div className="flex">
+        <PostList posts={posts.data} user={user.user} />
+      </div>
     </div>
   );
 };

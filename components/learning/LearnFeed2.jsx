@@ -1,9 +1,9 @@
 import React from "react";
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import LoadingFeed from "@/components/LoadingFeed";
+import CommentCount from "@/components/success/CommentCount";
 
 const LearnFeed2 = ({ contents }) => {
 
@@ -66,7 +66,7 @@ const LearnFeed2 = ({ contents }) => {
                                         <path fill='currentColor' d="M196.75,149.21h-113.16c-5.9,0-10.69-4.79-10.69-10.69s4.79-10.69,10.69-10.69h113.16c5.9,0,10.69,4.79,10.69,10.69s-4.78,10.69-10.69,10.69Z"/>
                                         <path fill='currentColor' d="M150.02,188.95h-66.43c-5.9,0-10.69-4.79-10.69-10.69s4.78-10.69,10.69-10.69h66.43c5.9,0,10.69,4.79,10.69,10.69s-4.79,10.69-10.69,10.69Z"/>
                                     </svg>
-                                    <span className="text-xs">{content.comment ? content.comment.length : 0}</span>
+                                    <CommentCount contentId={content._id} /> {/* Add CommentCount component */}
                                 </div>
                             </div>
                         </div>
