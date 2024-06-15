@@ -1,42 +1,42 @@
-// profile
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import "@/styles/profile.module.css";
-import { AppLayout } from "@/themes";
 import useSWR from "swr";
 import dynamic from "next/dynamic";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { MdOutlinePostAdd } from "react-icons/md";
+import { RiQrScan2Line } from "react-icons/ri";
+import "@/styles/profile.module.css";
+import { AppLayout } from "@/themes";
+import Loading from "@/components/Loading";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
+const HalfCircleProgressBar = dynamic(() => import('@/components/main/HalfCircleProgressBar'), { ssr: false });
+const LineProgressBar = dynamic(() => import("@/components/ProfileLineProgressBar"), { ssr: false });
+
 export default function Profile() {
-    const [userLevels, setUserLevels] = useState([]);
+    const [userLevels, setUserLevels] = useState({});
     const [percentage, setPercentage] = useState(0);
     const { data: session } = useSession();
 
-    console.log("userLevles:", userLevels);
-
-    const { data: level } = useSWR('/api/level/user?userId=' + session?.user?.id, fetcher, {
+    const { data: level, error: levelError } = useSWR(session ? '/api/level/user?userId=' + session.user.id : null, fetcher, {
         onSuccess: (data) => {
             setUserLevels(data);
         }
     });
-    const { data: survey } = useSWR('/api/survey/user?userId='+session?.user?.id, fetcher, {
+    const { data: survey, error: surveyError } = useSWR(session ? '/api/survey/user?userId='+session.user.id : null, fetcher, {
         onSuccess: (data) => {
             setPercentage(parseFloat(data?.percent));
         }
     });
-    const { data: coins } = useSWR('/api/coins/user?userId=' + session?.user?.id, fetcher);
-    const { data: points } = useSWR('/api/points/user?userId=' + session?.user?.id, fetcher);
+    const { data: coins, error: coinsError } = useSWR(session ? '/api/coins/user?userId=' + session.user.id : null, fetcher);
+    const { data: points, error: pointsError } = useSWR(session ? '/api/points/user?userId=' + session.user.id : null, fetcher);
 
-    const HalfCircleProgressBar = dynamic(() => import('@/components/main/HalfCircleProgressBar'), { ssr: false });
-    const LineProgressBar = dynamic(() => import("@/components/ProfileLineProgressBar"), { ssr: false });
-    
-    // ProgressBar
-    // Check if userLevels has the required structure
+    if (levelError || surveyError || coinsError || pointsError) return <div>Error loading data</div>;
+    if (!level || !survey || !coins || !points) return <Loading />;
+
     const percent = userLevels.requiredPoints 
         ? parseFloat(userLevels.point / userLevels.requiredPoints * 100)
         : 0;
@@ -79,6 +79,7 @@ export default function Profile() {
                                     width={100}
                                     height={100}
                                     className="rounded-full"
+                                    priority
                                 />
                             </div>
                             <div className="absolute top-0 mt-5 z-0">
@@ -134,6 +135,7 @@ export default function Profile() {
                                 alt="point"
                                 width={30}
                                 height={30}
+                                priority
                             />
                             <span className="text-sm font-black text-[#0056FF] dark:text-white">
                                 Total Point
@@ -152,6 +154,7 @@ export default function Profile() {
                                 alt="point"
                                 width={32}
                                 height={32}
+                                priority
                             />
                             <span className="text-sm font-black text-[#0056FF] dark:text-white">
                                 Coin
