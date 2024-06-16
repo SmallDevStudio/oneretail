@@ -2,22 +2,23 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Post from '@/components/Post';
 
-const PostList = ({ user }) => {
-  const [posts, setPosts] = useState([]);
+const PostList = ({ initialPosts, user }) => {
+  const [posts, setPosts] = useState(initialPosts);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
-    loadPosts();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    setPosts(initialPosts);
+  }, [initialPosts]);
 
-  const loadPosts = async () => {
+  const loadMorePosts = async () => {
     if (loading || !hasMore) return;
     setLoading(true);
     try {
-      const res = await axios.get('/api/posts');
-      setPosts(res.data.data);
+      const res = await axios.get('/api/posts', {
+        params: { offset: posts.length }
+      });
+      setPosts(prevPosts => [...prevPosts, ...res.data.data]);
       setHasMore(res.data.data.length > 0);
     } catch (error) {
       console.error('Error loading posts:', error);
@@ -30,14 +31,15 @@ const PostList = ({ user }) => {
   };
 
   return (
-    <div className="flex flex-col w-[100vw] p-2 gap-2" onScroll={(e) => {
+    <div className="flex flex-col w-[100vw] gap-2" onScroll={(e) => {
       if (e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight) {
-        loadPosts();
+        loadMorePosts();
       }
     }}>
       {posts.map(post => (
         <Post key={post._id} post={post} user={user} onDelete={handleDeletePost} />
       ))}
+      {loading && <p>Loading...</p>}
     </div>
   );
 };

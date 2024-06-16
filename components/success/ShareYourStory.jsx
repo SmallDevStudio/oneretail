@@ -14,7 +14,6 @@ const ShareYourStory = () => {
 
   const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
   const { data: posts, error: postError } = useSWR('/api/posts', fetcher, { refreshInterval: 1000 });
-
   const handlePostCreated = async (newPost) => {
     // อัปเดตข้อมูลโพสต์ใหม่ทันที
     await mutate('/api/posts', { data: [newPost, ...posts.data] }, false);
@@ -29,7 +28,7 @@ const ShareYourStory = () => {
     <div className="home mb-20">
       <CreatePost user={user.user} onPostCreated={handlePostCreated} />
       <div className="flex">
-        <PostList posts={posts.data} user={user.user} />
+        <PostList initialPosts={posts.data} user={user.user} />
       </div>
     </div>
   );

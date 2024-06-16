@@ -53,6 +53,10 @@ export default async function handler(req, res) {
             for (const level of levels) {
               console.log(`Checking level: ${level.level}, requiredPoints: ${level.requiredPoints}`);
               console.log(`Total Points: ${pointData.totalPoints}, Level Required Points: ${level.requiredPoints}`);
+              const levelup = pointData.totalPoints >= level.requiredPoints;
+              const userLevelup = userLevel >= level.level;
+              console.log(`Level Up: ${levelup}`);
+              console.log(`userlevelsup: ${userLevelup}`);
               if (pointData.totalPoints >= level.requiredPoints) {
                 userLevel = level.level;
                 requiredPoints = level.requiredPoints;

@@ -26,6 +26,7 @@ export default async function handler(req, res) {
           case 'POST':
             try {
               const post = await Post.create(req.body);
+              console.log(post);
 
               // Find the user who created the post
               const user = await Users.findById(req.body.user);

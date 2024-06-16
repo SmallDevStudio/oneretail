@@ -5,7 +5,7 @@ import Image from 'next/image';
 import PostModal from './PostModal';
 import { mutate } from 'swr';
 
-const CreatePost = ({ user }) => {
+const CreatePost = ({ user, onPostCreated }) => {
   const [content, setContent] = useState('');
   const [link, setLink] = useState('');
   const [preview, setPreview] = useState(null);
@@ -18,15 +18,23 @@ const CreatePost = ({ user }) => {
     const extractedLink = extractLink(content);
     const textContent = extractedLink ? content.replace(extractedLink, '').trim() : content;
 
+    const finalContent = textContent || extractedLink;
+
+    if (!finalContent) return;
+
     const posts = {
-      content: textContent,
+      content: finalContent,
       link: extractedLink,
       user: user._id,
     };
 
+    console.log(posts);
+
     try {
       const res = await axios.post('/api/posts', posts);
-      mutate('/api/posts');  // อัพเดตข้อมูลทันที
+      
+      console.log(res.data);
+      onPostCreated(res.data.data);  // อัพเดตข้อมูลทันที
       setContent('');
       setLink('');
       setPreview(null);
