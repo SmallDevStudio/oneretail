@@ -17,7 +17,7 @@ export default async function handler(req, res) {
               .populate({
                 path: 'comments',
                 populate: { path: 'user' },
-              });
+              }).sort({ createdAt: -1 });
             res.status(200).json({ success: true, data: posts });
           } catch (error) {
             res.status(400).json({ success: false });
