@@ -3,7 +3,7 @@ import axios from 'axios';
 import getEmbedPreview from '@/utils/getEmbedPreview';
 import Image from 'next/image';
 import PostModal from './PostModal';
-import { mutate } from 'swr';
+import expandUrl from '@/utils/expandUrl';
 
 const CreatePost = ({ user, onPostCreated }) => {
   const [content, setContent] = useState('');
@@ -17,7 +17,6 @@ const CreatePost = ({ user, onPostCreated }) => {
     
     const extractedLink = extractLink(content);
     const textContent = extractedLink ? content.replace(extractedLink, '').trim() : content;
-
     const finalContent = textContent || extractedLink;
 
     if (!finalContent) return;
@@ -27,8 +26,6 @@ const CreatePost = ({ user, onPostCreated }) => {
       link: extractedLink,
       user: user._id,
     };
-
-    console.log(posts);
 
     try {
       const res = await axios.post('/api/posts', posts);
@@ -44,10 +41,10 @@ const CreatePost = ({ user, onPostCreated }) => {
     }
   };
 
-  const handleContentChange = (e) => {
+  const handleContentChange = async (e) => {
     const inputValue = e.target.value;
     setContent(inputValue);
-    const extractedLink = extractLink(inputValue);
+    const extractedLink = await extractLink(inputValue);
     setLink(extractedLink);
     if (extractedLink) {
       setPreview(extractedLink);
@@ -56,12 +53,16 @@ const CreatePost = ({ user, onPostCreated }) => {
     }
   };
 
-  const extractLink = (text) => {
+  const extractLink = async (text) => {
     const urlPattern = new RegExp(
       'https?://[a-zA-Z0-9-._~:/?#@!$&()*+,;=%]+', 'g'
     );
     const matches = text.match(urlPattern);
-    return matches ? matches[0] : null;
+    if (matches) {
+      const expandedUrl = await expandUrl(matches[0]);
+      return expandedUrl;
+    }
+    return null;
   };
 
   const onRequestClose = () => {
