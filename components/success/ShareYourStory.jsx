@@ -15,6 +15,7 @@ const ShareYourStory = () => {
   const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
   const { data: posts, error: postError } = useSWR('/api/posts', fetcher, { refreshInterval: 1000 });
   const handlePostCreated = async (newPost) => {
+    setPosts((prevPosts) => [newPost, ...prevPosts]); // Add the new post to the beginning of the array
     // อัปเดตข้อมูลโพสต์ใหม่ทันที
     await mutate('/api/posts', { data: [newPost, ...posts.data] }, false);
     // รีเฟรชข้อมูลโพสต์ทั้งหมด
