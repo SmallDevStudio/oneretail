@@ -15,7 +15,7 @@ const CreatePost = ({ user, onPostCreated }) => {
     e.preventDefault();
     if (!content) return;
     
-    const extractedLink = extractLink(content);
+    const extractedLink = await extractLink(content);
     const textContent = extractedLink ? content.replace(extractedLink, '').trim() : content;
     const finalContent = textContent || extractedLink;
 
@@ -29,8 +29,6 @@ const CreatePost = ({ user, onPostCreated }) => {
 
     try {
       const res = await axios.post('/api/posts', posts);
-      
-      console.log(res.data);
       onPostCreated(res.data.data);  // อัพเดตข้อมูลทันที
       setContent('');
       setLink('');

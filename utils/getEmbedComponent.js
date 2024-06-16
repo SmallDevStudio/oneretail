@@ -3,9 +3,6 @@ import { FacebookEmbed, InstagramEmbed, TikTokEmbed } from 'react-social-media-e
 import ReactPlayer from 'react-player/youtube';
 
 const getEmbedComponent = (url) => {
-  if (ReactPlayer.canPlay(url)) {
-    return <ReactPlayer url={url} controls />;
-  }
   if (url.includes('tiktok.com')) {
     return <TikTokEmbed url={url} width="100%" />;
   }
@@ -20,6 +17,11 @@ const getEmbedComponent = (url) => {
   if (url.includes('youtube.com') || url.includes('youtu.be')) {
     return <ReactPlayer url={url} controls width={'100%'} height={250}/>;
   } 
+
+  if (ReactPlayer.canPlay(url)) {
+    return <ReactPlayer url={url} controls />;
+  }
+  
     return null;
 };
 
