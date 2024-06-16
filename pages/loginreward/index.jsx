@@ -20,7 +20,7 @@ const Loginreward = () => {
   const router = useRouter();
   const userId = session?.user?.id;
 
-  const { data, error, isLoading } = useSWR(() => userId ? `/api/loginreward/${userId}` : null, fetcher, {
+  const { data, error, isLoading, mutate } = useSWR(() => userId ? `/api/loginreward/${userId}` : null, fetcher, {
     onSuccess: (data) => {
       setLoginData(data);
     },
@@ -60,7 +60,7 @@ const Loginreward = () => {
   const handleModalClose = async() => {
     setModalOpen(false);
     router.push("/");
-    await mutate(`/api/loginreward/${userId}`);  // Re-fetch data
+    mutate();  // Re-fetch data
   };
 
   if (error) return <div>Error: {error.message}</div>;

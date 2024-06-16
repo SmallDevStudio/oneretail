@@ -53,13 +53,16 @@ export default function Profile() {
                     justifyItems: "end",
                 }}>
                     <div className="flex p-2 flex-row items-center justify-center gap-1">
-                        <div className="flex items-center justify-center rounded-full p-1">
-                            <Link href="/send">
-                                <MdOutlinePostAdd size={22} 
-                                    className="text-gray-400 cursor-pointer"
-                                />
-                            </Link>
-                        </div>
+                        { level.user.role === "admin" && (
+                            <div className="flex items-center justify-center rounded-full p-1">
+                                <Link href="/send">
+                                    <MdOutlinePostAdd size={22} 
+                                        className="text-gray-400 cursor-pointer"
+                                    />
+                                </Link>
+                            </div>
+                        )}
+                        
                         <div className="flex items-center justify-center rounded-full p-1 ml-[-5px]">
                             <HiOutlineDotsVertical size={20} 
                                 className="text-gray-400 cursor-pointer"
@@ -115,7 +118,7 @@ export default function Profile() {
                             </div>
                         </div>
                         <span className="flex text-sm font-semibold text-[#0056FF] justify-end">
-                            {level?.point} / {level?.requiredPoints}
+                            {level?.totalPoints} / {level?.nextLevelRequiredPoints}
                         </span>
                     </div>
                 </div>

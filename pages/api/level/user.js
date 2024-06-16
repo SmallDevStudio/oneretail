@@ -42,21 +42,12 @@ export default async function handler(req, res) {
               return res.status(404).json({ success: false, message: 'No levels found' });
             }
     
-            // บันทึกการตรวจสอบข้อมูลระดับเลเวล
-            console.log(`Levels: ${JSON.stringify(levels, null, 2)}`);
-    
             // หาระดับเลเวลของผู้ใช้จาก totalPoints
             let userLevel = 1;
             let requiredPoints = 0;
             let nextLevelRequiredPoints = 0;
     
             for (const level of levels) {
-              console.log(`Checking level: ${level.level}, requiredPoints: ${level.requiredPoints}`);
-              console.log(`Total Points: ${pointData.totalPoints}, Level Required Points: ${level.requiredPoints}`);
-              const levelup = pointData.totalPoints >= level.requiredPoints;
-              const userLevelup = userLevel >= level.level;
-              console.log(`Level Up: ${levelup}`);
-              console.log(`userlevelsup: ${userLevelup}`);
               if (pointData.totalPoints >= level.requiredPoints) {
                 userLevel = level.level;
                 requiredPoints = level.requiredPoints;
@@ -66,17 +57,9 @@ export default async function handler(req, res) {
               }
             }
     
-            // เพิ่มการตรวจสอบเงื่อนไขเพิ่มเติม
-            if (pointData.totalPoints >= 220) {
-              userLevel = 2;
-              requiredPoints = 220;
-              nextLevelRequiredPoints = 350;
-            }
-    
             const levelPoint = pointData.totalPoints - requiredPoints;
-    
-            // บันทึกเพื่อการตรวจสอบ
-            console.log(`userLevel: ${userLevel} requiredPoints: ${requiredPoints} nextLevelRequiredPoints: ${nextLevelRequiredPoints} totalPoints: ${pointData.totalPoints}`);
+            console.log(levelPoint);
+            console.log(userLevel);
     
             // สร้างข้อมูลที่ต้องการแสดงผล
             const result = {

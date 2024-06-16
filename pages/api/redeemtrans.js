@@ -38,8 +38,13 @@ export default async function handler(req, res) {
         }
 
         // Check user's points and coins
-        const userPoints = await Point.findOne({ userId });
-        const userCoins = await Coins.findOne({ userId });
+        const pointTransactions = await Point.find({ userId });
+        const userPoints = pointTransactions
+            .reduce((acc, pt) => acc + (pt.type === 'earn' ? pt.point : -pt.point), 0);
+
+        const coinTransactions = await Coins.find({ userId });
+        const userCoins = coinTransactions
+            .reduce((acc, ct) => acc + (ct.type === 'earn' ? ct.coins : -ct.coins), 0);
 
         if (userPoints.point < redeem.point || userCoins.coins < redeem.coins) {
           return res.status(400).json({ success: false, message: 'Insufficient points or coins' });
@@ -56,11 +61,26 @@ export default async function handler(req, res) {
         await redeemTrans.save();
 
         // Update user's points and coins
-        userPoints.point -= redeem.point;
-        await userPoints.save();
+        if (redeem.point > 0) {
+          const point = new Point({
+            userId,
+            type: 'pay',
+            point: redeem.point,
+            description: `Redeem ${redeem.name}`,
+            contentId: redeem._id,
+          });
+          await point.save();
+        }
 
-        userCoins.coins -= redeem.coins;
-        await userCoins.save();
+        if (redeem.coins > 0) {
+          const coins = new Coins({
+            userId,
+            type: 'pay',
+            coins: redeem.coins,
+            description: `Redeem ${redeem.name}`,
+          });
+          await coins.save();
+        }
 
         // Update Redeem stock
         redeem.stock -= 1;
