@@ -44,7 +44,7 @@ export default function Games() {
                         </Link>
                     </div>
                     <div className="flex items-center text-center justify-center p-2 px-1 pz-1">
-                        <Link href="#">
+                        <Link href="/games/memory-card-game">
                             <Image 
                                 src={'/images/gamecenter/Asset24.png'}
                                 alt="games" 

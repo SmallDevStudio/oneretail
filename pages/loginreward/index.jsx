@@ -27,10 +27,12 @@ const Loginreward = () => {
   });
 
   useEffect(() => {
-    if (loginData.receivedPointsToday) {
-      router.push("/");
+    if(data) {
+      if (loginData.receivedPointsToday) {
+        router.push("/");
+      }
     }
-  }, [loginData, router]);
+  }, [data, loginData, router]);
 
   const LineProgressBar = dynamic(() => import("@/components/LineProgressBar"), { ssr: false });
 
