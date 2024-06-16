@@ -18,7 +18,6 @@ const RedeemPage = () => {
     description: "",
     image: "",
     stock: 0,
-    expire: "",
     coins: 0,
     point: 0,
     status: "true",
@@ -74,7 +73,6 @@ const RedeemPage = () => {
 
     const formattedForm = {
       ...form,
-      expire: form.expire ? moment(form.expire).format("YYYY-MM-DD") : "",
       creator: userId,
     };
 
@@ -95,7 +93,6 @@ const RedeemPage = () => {
       description: "",
       image: "",
       stock: 0,
-      expire: "",
       coins: 0,
       point: 0,
       status: "true",
@@ -112,7 +109,6 @@ const RedeemPage = () => {
       description: redeem.description,
       image: redeem.image,
       stock: redeem.stock,
-      expire: redeem.expire ? moment(redeem.expire).format("YYYY-MM-DD") : "",
       coins: redeem.coins,
       point: redeem.point,
       status: redeem.status,
@@ -141,12 +137,6 @@ const RedeemPage = () => {
     { field: "name", headerName: "Name", width: 150 },
     { field: "description", headerName: "Description", width: 250 },
     { field: "stock", headerName: "Stock", width: 100 },
-    {
-      field: "expire",
-      headerName: "Expire Date",
-      width: 150,
-      renderCell: (params) => moment(params.value).locale("th").format("DD/MM/YYYY HH:mm"),
-    },
     { field: "coins", headerName: "Coins", width: 100 },
     { field: "point", headerName: "Points", width: 100 },
     {
@@ -316,16 +306,6 @@ const RedeemPage = () => {
                       onChange={handleInputChange}
                       placeholder="Stock"
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                    />
-                  </div>
-                  <div className="col-span-3">
-                    <label className="block text-gray-700 font-bold mb-2">Expire:</label>
-                    <input
-                      type="date"
-                      name="expire"
-                      value={form.expire}
-                      onChange={handleInputChange}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                     />
                   </div>

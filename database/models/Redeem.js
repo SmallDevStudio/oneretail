@@ -6,7 +6,6 @@ const redeemSchema = new mongoose.Schema({
   description: { type: String, required: true },
   image: { type: String },
   stock: { type: Number, required: true },
-  expire: { type: Date},
   coins: { type: Number },
   point: { type: Number },
   status: { type: Boolean, default: true },

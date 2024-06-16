@@ -77,6 +77,7 @@ export default function Redeem() {
     };
   
     const createRedeemTransaction = async (redeemItem) => {
+      console.log("createRedeemTransaction", redeemItem);
       try {
         const response = await fetch('/api/redeemtrans', {
           method: 'POST',
