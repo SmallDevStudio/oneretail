@@ -41,7 +41,6 @@ const Loginreward = () => {
       const { points } = response.data;
       setPoints(points);
       setModalOpen(true);
-      await mutate(`/api/loginreward/${userId}`);  // Re-fetch data
     } catch (error) {
       console.error('Error fetching points:', error);
     } finally {
@@ -58,9 +57,10 @@ const Loginreward = () => {
     return '/images/loginreward/Asset197.svg';
   };
 
-  const handleModalClose = () => {
+  const handleModalClose = async() => {
     setModalOpen(false);
     router.push("/");
+    await mutate(`/api/loginreward/${userId}`);  // Re-fetch data
   };
 
   if (error) return <div>Error: {error.message}</div>;

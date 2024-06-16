@@ -27,17 +27,17 @@ const PulseSurvey = () => {
 
             if (response.ok) {
                 const data = await response.json();
-                setAppLoading(false);
+                setLoading(false);
                 router.push('/main');
                 // Handle success (e.g., show a success message, clear the form, etc.)
             } else {
                 console.error('Error submitting survey:', response.statusText);
-                setAppLoading(false);
+                setLoading(false);
                 // Handle error (e.g., show an error message)
             }
         } catch (error) {
             console.error('Error submitting survey:', error);
-            setAppLoading(false);
+            setLoading(false);
         }
         setLoading(false); 
     };
@@ -70,9 +70,7 @@ const PulseSurvey = () => {
         setSurvey({ ...survey, value });
     };
 
-    if (loading) {
-        return <Loading />;
-    }
+    if (loading) return <Loading />;
 
     const options = [
         { value: 5, label: 'เยี่ยมสุดๆ', color: '#00D655' },
