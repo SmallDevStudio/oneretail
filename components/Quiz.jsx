@@ -13,7 +13,7 @@ const Quiz = ({ userId }) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showAnswer, setShowAnswer] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [startTime] = useState(new Date());
+  const [startTime] = useState(new Date().toISOString());
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -54,15 +54,17 @@ const Quiz = ({ userId }) => {
     });
 
     if (currentQuestionIndex >= questions.length - 1) {
-      setIsModalOpen(true);
-      if (score > 0) {
+      // ใช้ค่าคะแนนที่ถูกต้องก่อนการบันทึก
+      const finalScore = score + (isCorrect ? 1 : 0);
+
+      if (finalScore > 0) {
         // บันทึกคะแนนผู้ใช้
         await axios.post('/api/points', {
           userId,
-          points: score,
+          points: finalScore,
         });
-      
       }
+      setIsModalOpen(true);
     }
   };
 
