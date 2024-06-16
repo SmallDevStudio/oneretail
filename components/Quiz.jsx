@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { setQuestions, answerQuestion, nextQuestion, resetQuiz, savePoints, calculateLevel } from '@/lib/redux/quizSlice';
 import QuizModal from './QuizModal';
+import axios from 'axios';
 
 const Quiz = ({ userId }) => {
   const dispatch = useDispatch();
@@ -56,11 +57,11 @@ const Quiz = ({ userId }) => {
       setIsModalOpen(true);
       if (score > 0) {
         // บันทึกคะแนนผู้ใช้
-        await dispatch(savePoints({ userId, points: score }));
-        // คำนวณเลเวลผู้ใช้
-        await dispatch(calculateLevel({ userId }));
-        // ส่งข้อความ Line
-        await sendMessageLine(userId, `คุณได้คะแนน ${score} ในการตอบคำถาม`);
+        await axios.post('/api/points', {
+          userId,
+          points: score,
+        });
+      
       }
     }
   };
@@ -69,32 +70,6 @@ const Quiz = ({ userId }) => {
     setShowAnswer(false);
     dispatch(nextQuestion());
     setSelectedAnswer(null);
-  };
-
-  const sendMessageLine = async (userId, message) => {
-    const LINE_ACCESS_TOKEN = process.env.LIFF_CHANNEL_ACCESS_TOKEN;
-    try {
-      await axios.post(
-        'https://api.line.me/v2/bot/message/push',
-        {
-          to: userId,
-          messages: [
-            {
-              type: 'text',
-              text: message,
-            },
-          ],
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${LINE_ACCESS_TOKEN}`,
-          },
-        }
-      );
-    } catch (error) {
-      console.error('Error sending message to LINE:', error);
-    }
   };
 
   const handleCloseModal = () => {

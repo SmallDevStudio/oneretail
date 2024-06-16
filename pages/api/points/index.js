@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     await connetMongoDB();
     if (req.method === 'POST') {
         try {
-          const { userId, description, type, points } = req.body;
+          const { userId, points } = req.body;
     
           if (!userId || !description || !type || points === undefined) {
             return res.status(400).json({ success: false, message: 'All fields are required' });
@@ -16,8 +16,9 @@ export default async function handler(req, res) {
           // เพิ่มข้อมูลใน collection "point"
           const pointEntry = new Point({
             userId,
-            description,
-            type,
+            description: 'Quiz Game',
+            type: 'earn',
+            contentId: null,
             point: points,
           });
           await pointEntry.save();
