@@ -14,25 +14,36 @@ const HomePage = () => {
     const userId = session?.user?.id;
 
     const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
+    const { data: loginReward, error: loginRewardError } = useSWR(() => userId ? `/api/loginreward/${userId}` : null, fetcher);
 
     useEffect(() => {
+        console.log("Session status:", status);
+        console.log("Session data:", session);
+        console.log("User data:", user);
+        console.log("LoginReward data:", loginReward);
+
         if (status === "loading") return; // ยังโหลด session อยู่
         if (!session) {
             router.push('/login'); // ถ้า session ไม่มีหรือยังไม่ได้ login
             return;
         }
         if (user === undefined) return; // กำลังโหลด user data อยู่
-        if (user === null) {
+        if (user?.user === null) {
             router.push('/register'); // ถ้าไม่มี user data ให้ไปที่ /register
             return;
         }
-        if (user && !userError) {
-            router.push('/main'); // ถ้ามี user data แล้วไปที่ /main
+        if (loginReward === undefined) return; // กำลังโหลด login reward data อยู่
+        if (loginReward) {
+            if (loginReward.receivedPointsToday) {
+                router.push('/main'); // ถ้าได้รับ login reward แล้วไปที่ /main
+            } else {
+                router.push('/loginreward'); // ถ้ายังไม่ได้รับ login reward ไปที่ /loginreward
+            }
         }
-    }, [router, session, status, user, userError]);
+    }, [router, session, status, user, userError, loginReward, loginRewardError]);
 
-    if (status === "loading" || !user) return <Loading />;
-    if (userError) return <div>Error loading data</div>;
+    if (status === "loading" || user === undefined || loginReward === undefined) return <Loading />;
+    if (userError || loginRewardError) return <div>Error loading data</div>;
 
     return (
         <React.Fragment>

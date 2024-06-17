@@ -27,8 +27,8 @@ const Loginreward = () => {
   });
 
   useEffect(() => {
-      if (loginData.receivedPointsToday) {
-        router.push("/");
+    if (loginData.receivedPointsToday) {
+      router.push("/");
     }
   }, [loginData, router]);
 
@@ -57,10 +57,10 @@ const Loginreward = () => {
     return '/images/loginreward/Asset197.svg';
   };
 
-  const handleModalClose = async() => {
+  const handleModalClose = async () => {
     setModalOpen(false);
-    router.push("/");
-    mutate(`/api/loginreward/${userId}`);  // Re-fetch data
+    mutate(`/api/loginreward/${userId}`); // Re-fetch data
+    router.push("/"); // Redirect to home page
   };
 
   if (error) return <div>Error: {error.message}</div>;
