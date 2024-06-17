@@ -6,6 +6,7 @@ import Loading from "@/components/Loading";
 import Head from "next/head";
 import useSWR from "swr";
 
+
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const HomePage = () => {

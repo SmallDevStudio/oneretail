@@ -2,6 +2,7 @@ import { SessionProvider } from "next-auth/react";
 import RequireAuth from "@/components/RequireAuth";
 import { Provider } from "react-redux";
 import store from "@/lib/redux/store";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "@/styles/globals.css";
 
 function App({ Component, pageProps: { session, ...pageProps } }) {
