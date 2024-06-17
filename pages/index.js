@@ -23,7 +23,7 @@ const HomePage = () => {
         if (!session) {
                 router.push('login'); // ถ้า session ไม่มีหรือยังไม่ได้ login
         } else if (user && loginData && settingData) {
-            if (!user) {
+            if (!user && user === null) {
                 router.push('/register');
             } else if (!loginData.receivedPointsToday) {
                 router.push('/loginreward');
