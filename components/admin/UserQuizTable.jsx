@@ -66,7 +66,7 @@ const UserQuizTable = () => {
         <ul>
           {params.value.map((score, index) => (
             <li key={index}>
-              คะแนนที่ได้: {score.score} --- วันที่: {moment(score.date).format('LLL')}
+              คะแนนที่ได้: <span className='font-bold text-[#0056FF] text-lg'>{score.score}</span> / วันที่:{moment(score.date).format('LLL')}
             </li>
           ))}
         </ul>
