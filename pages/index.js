@@ -14,9 +14,18 @@ const HomePage = () => {
     const router = useRouter();
     const userId = session?.user?.id;
 
-    const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
+    const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher, {
+        onSuccess: (data) => {
+            if (!data.user) {
+                router.push('/register');
+            }
+        }
+    });
     const { data: loginData, error: loginError } = useSWR(() => userId ? `/api/loginreward/${userId}` : null, fetcher);
     const { data: settingData, error: settingError } = useSWR(`/api/settings`, fetcher);
+    const { data: surveyData, error: surveyError } = useSWR(`/api/survey/checkSurvey?userId=${userId}`, fetcher);
+
+    console.log('user:', user);
 
     useEffect(() => {
         if (status === "loading") return; // ยังโหลด session อยู่
@@ -29,13 +38,16 @@ const HomePage = () => {
                 router.push('/loginreward');
             } else if (settingData.data[0].survey) {
                 router.push('/pulsesurvey');
+                if (surveyData && surveyData.data) {
+                    router.push('/main');
+                }
             } else {
                 router.push('/main');
             }
         }
-    }, [session, status, user, loginData, settingData, router]);
+    }, [session, status, user, loginData, settingData, router, surveyData]);
 
-    if (status === "loading" || !user || !loginData || !settingData) {
+    if (status === "loading" || !user || !loginData || !settingData || !surveyData) {
         return <Loading />;
     }
     if (userError || loginError || settingError) {
