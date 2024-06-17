@@ -20,7 +20,7 @@ const HomePage = () => {
     useEffect(() => {
         if (status === "loading") return; // ยังโหลด session อยู่
         if (!session) {
-            router.push('login'); // ถ้า session ไม่มีหรือยังไม่ได้ login
+                router.push('login'); // ถ้า session ไม่มีหรือยังไม่ได้ login
         } else if (user && loginData && settingData) {
             if (!user) {
                 router.push('/register');
