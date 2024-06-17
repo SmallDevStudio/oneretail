@@ -6,7 +6,7 @@ import axios from "axios";
 import TimeDisplay from "@/components/TimeDisplay";
 import CommentList from "@/components/content/CommentList";
 import InputComment from "@/components/content/InputComment";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import Loading from "../Loading";
 import Image from "next/image";
 import VideoModal from "../VideoModal";
@@ -29,7 +29,7 @@ const SecretSauce = ({ content, user }) => {
 
     const router = useRouter();
 
-    const { data , error, isLoading, mutate } = useSWR(`/api/content/comments?contentId=${contentId}`, fetcher, {
+    const { data , error, isLoading } = useSWR(`/api/content/comments?contentId=${contentId}`, fetcher, {
             refreshInterval: 2000,
             onSuccess: (data) => {
             setComments(data);
@@ -38,7 +38,7 @@ const SecretSauce = ({ content, user }) => {
 
     const handleCommentAdded = async () => {
         // Refresh comments
-        mutate();
+        mutate(`/api/content/comments?contentId=${contentId}`);
         // Close comment box
         setShowInput(false);
       };

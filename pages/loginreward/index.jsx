@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import axios from "axios";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import Loading from "@/components/Loading";
 import LoginModal from "@/components/LoginModal";
 
@@ -20,7 +20,7 @@ const Loginreward = () => {
   const router = useRouter();
   const userId = session?.user?.id;
 
-  const { data, error, isLoading, mutate } = useSWR(() => userId ? `/api/loginreward/${userId}` : null, fetcher, {
+  const { data, error, isLoading } = useSWR(() => userId ? `/api/loginreward/${userId}` : null, fetcher, {
     onSuccess: (data) => {
       setLoginData(data);
     },
@@ -60,7 +60,7 @@ const Loginreward = () => {
   const handleModalClose = async() => {
     setModalOpen(false);
     router.push("/");
-    mutate('/api/loginreward/'+ userId);  // Re-fetch data
+    mutate(`/api/loginreward/${userId}`);  // Re-fetch data
   };
 
   if (error) return <div>Error: {error.message}</div>;

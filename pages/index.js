@@ -42,7 +42,7 @@ const HomePage = () => {
         } else if (user && loginData && settingData) {
             if (!user && user === null) {
                 router.push('/register');
-            } else if (!loginData.receivedPointsToday) {
+            } else if (loginData.receivedPointsToday === false) {
                 router.push('/loginreward');
             } else if (settingData.data[0].survey && !surveyData) {
                 router.push('/pulsesurvey');
@@ -51,6 +51,9 @@ const HomePage = () => {
             } else {
                 router.push('/main');
             }
+        } else {
+            // Allow the user to access the requested page
+            router.push('/main');
         }
     }, [session, status, user, loginData, settingData, router, surveyData]);
 

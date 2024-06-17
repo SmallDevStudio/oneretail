@@ -19,7 +19,7 @@ export default function Register() {
     const { data, error } = useSWR(`/api/users/${userId}`, fetcher);
 
     useEffect(() => {
-        if (data) {
+        if (data?.user !== null) {
             router.push('/');
         }
     }, [data, router]);
