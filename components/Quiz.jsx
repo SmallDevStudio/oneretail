@@ -47,6 +47,10 @@ const Quiz = ({ userId }) => {
 
   const question = questions[currentQuestionIndex];
 
+  if (!question) {
+    return <div>No questions available</div>;
+  }
+
   const handleAnswer = (index) => {
     if (!showAnswer) {
       setSelectedAnswer(index);
@@ -75,17 +79,16 @@ const Quiz = ({ userId }) => {
     if (currentQuestionIndex >= questions.length - 1) {
       const finalScore = score;
 
-      if (finalScore > 0) {
-        try {
-          // บันทึกคะแนนผู้ใช้
-          await axios.post('/api/points', {
-            userId,
-            points: finalScore,
-          });
-        } catch (error) {
-          setErrorMessage(error.response.data.message);
-        }
+      try {
+        // บันทึกคะแนนผู้ใช้
+        await axios.post('/api/points', {
+          userId,
+          points: finalScore,
+        });
+      } catch (error) {
+        setErrorMessage(error.response.data.message);
       }
+      
       setIsModalOpen(true);
     }
   };

@@ -1,10 +1,11 @@
-import connetMongoDB from "@/lib/services/database/mongodb";
+// pages/api/points.js
+import connectMongoDB from "@/lib/services/database/mongodb";
 import UserQuiz from "@/database/models/UserQuiz";
 import Point from "@/database/models/Point";
 import sendLineMessage from "@/lib/sendLineMessage";
 
 export default async function handler(req, res) {
-  await connetMongoDB();
+  await connectMongoDB();
   if (req.method === 'POST') {
     try {
       const { userId, points } = req.body;
@@ -13,36 +14,47 @@ export default async function handler(req, res) {
         return res.status(400).json({ success: false, message: 'All fields are required' });
       }
 
-      // ตรวจสอบว่าผู้ใช้เล่นเกมครั้งล่าสุดเมื่อใด
-      const user = await UserQuiz.findOne({ userId });
       const now = new Date();
-      const lastPlayed = user.lastPlayed ? new Date(user.lastPlayed) : null;
-      const isSameDay = lastPlayed && now.toDateString() === lastPlayed.toDateString();
+      const today = now.toDateString();
 
-      if (isSameDay) {
-        return res.status(400).json({ success: false, message: 'You can only play the quiz once per day' });
+      // ตรวจสอบว่าผู้ใช้มีข้อมูลใน UserQuiz หรือไม่
+      let user = await UserQuiz.findOne({ userId });
+
+      // ถ้าไม่มี ให้สร้างข้อมูลใหม่
+      if (!user) {
+        user = new UserQuiz({ userId, scores: [] });
       }
 
-      // บันทึกข้อมูลใน collection "point"
-      const pointEntry = new Point({
-        userId,
-        description: 'Quiz Game',
-        type: 'earn',
-        contentId: null,
-        point: points,
-      });
-      await pointEntry.save();
+      // ตรวจสอบว่าผู้ใช้ได้รับคะแนนในวันนี้หรือยัง
+      const hasPlayedToday = user.scores.some(score => new Date(score.date).toDateString() === today);
 
-      // อัปเดตเวลาที่เล่นเกมครั้งล่าสุดและบันทึกคะแนนในประวัติ
-      user.lastPlayed = now;
-      user.scores.push({ score: points });
+      if (hasPlayedToday) {
+        // ถ้าเคยเล่นแล้ววันนี้ ให้บันทึกเวลาเล่นและคะแนน แต่ไม่เพิ่มคะแนนอีก
+        user.scores.push({ score: 0 });
+      } else {
+        // บันทึกคะแนนในประวัติ
+        user.scores.push({ score: points });
+
+        if (points > 0) {
+          // ถ้ายังไม่เคยเล่นวันนี้และคะแนนมากกว่า 0 ให้บันทึกเวลาเล่นและคะแนน พร้อมทั้งเพิ่มคะแนน
+          const pointEntry = new Point({
+            userId,
+            description: 'Quiz Game',
+            type: 'earn',
+            contentId: null,
+            point: points,
+          });
+          await pointEntry.save();
+
+          // ส่งข้อความไปที่ LINE
+          const message = `คุณได้รับ ${points} คะแนนจากการเล่น Quiz Game!`;
+          sendLineMessage(userId, message);
+        }
+      }
+
       await user.save();
 
-      // ส่งข้อความไปที่ LINE
-      const message = `คุณได้รับ ${points} คะแนนจากการเล่น Quiz Game!`;
-      sendLineMessage(userId, message);
-
-      res.status(201).json({ success: true, data: pointEntry });
+      res.status(201).json({ success: true, data: user });
     } catch (error) {
       res.status(400).json({ success: false, error: error.message });
     }
@@ -53,5 +65,7 @@ export default async function handler(req, res) {
     } catch (error) {
       res.status(400).json({ success: false, error: error.message });
     }
+  } else {
+    res.status(405).json({ success: false, message: 'Method not allowed' });
   }
 }

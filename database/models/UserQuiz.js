@@ -1,3 +1,4 @@
+// models/UserQuiz.js
 import mongoose from 'mongoose';
 
 const scoreSchema = new mongoose.Schema({
@@ -6,10 +7,7 @@ const scoreSchema = new mongoose.Schema({
 });
 
 const userQuizSchema = new mongoose.Schema({
-  userId: { type: String, required: true, unique: true },
-  fullname: String,
-  empId: String,
-  lastPlayed: Date,
+  userId: { type: String, required: true },
   scores: [scoreSchema] // เก็บประวัติคะแนน
 });
 
