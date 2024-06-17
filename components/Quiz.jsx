@@ -6,6 +6,10 @@ import { setQuestions, answerQuestion, nextQuestion, resetQuiz } from '@/lib/red
 import QuizModal from './QuizModal';
 import axios from 'axios';
 import Loading from './Loading';
+import useSWR from 'swr';
+import { CircularProgress } from '@mui/material';
+
+const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 const Quiz = ({ userId }) => {
   const dispatch = useDispatch();
@@ -16,17 +20,30 @@ const Quiz = ({ userId }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [startTime] = useState(new Date().toISOString());
+  const [loading, setLoading] = useState(true);
+
+  const { data: adminActions, error: adminActionError } = useSWR('/api/adminActions', fetcher);
+  const { data: allQuestions, error: questionError } = useSWR('/api/questions', fetcher);
 
   useEffect(() => {
-    const fetchQuestions = async () => {
-      const res = await fetch('/api/questions');
-      const data = await res.json();
-      dispatch(setQuestions(data));
-    };
-    fetchQuestions();
-  }, [dispatch]);
+    if (adminActions && adminActions.data && adminActions.data.length > 0 && allQuestions) {
+      const latestAction = adminActions.data[adminActions.data.length - 1];
+      const groupName = latestAction.groupName;
+      const filteredQuestions = groupName === 'ทั้งหมด'
+        ? allQuestions
+        : allQuestions.filter(question => question.group === groupName);
+      dispatch(setQuestions(filteredQuestions));
+      setLoading(false);
+    }
+  }, [adminActions, allQuestions, dispatch]);
 
-  if (questions.length === 0) return <Loading />;
+  if (loading) {
+    return <CircularProgress />;
+  }
+
+  if (questionError || adminActionError) {
+    return <div>Failed to load</div>;
+  }
 
   const question = questions[currentQuestionIndex];
 
