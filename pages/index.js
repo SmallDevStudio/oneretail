@@ -15,12 +15,16 @@ const HomePage = () => {
 
     const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
     const { data: loginReward, error: loginRewardError } = useSWR(() => userId ? `/api/loginreward/${userId}` : null, fetcher);
+    const { data: survey, error: surveyError } = useSWR(() => userId ? `/api/survey/checkSurvey?userId=${userId}` : null, fetcher);
+    const { data: surveySettings, error: surveySettingsError } = useSWR('/api/survey/settings', fetcher);
 
     useEffect(() => {
         console.log("Session status:", status);
         console.log("Session data:", session);
         console.log("User data:", user);
         console.log("LoginReward data:", loginReward);
+        console.log("Survey data:", survey);
+        console.log("Survey Settings data:", surveySettings);
 
         if (status === "loading") return; // ยังโหลด session อยู่
         if (!session) {
@@ -35,15 +39,21 @@ const HomePage = () => {
         if (loginReward === undefined) return; // กำลังโหลด login reward data อยู่
         if (loginReward) {
             if (loginReward.receivedPointsToday) {
-                router.push('/main'); // ถ้าได้รับ login reward แล้วไปที่ /main
+                if (surveySettings && !surveySettings.isSurveyEnabled) {
+                    router.push('/main'); // ถ้า survey ถูกปิดการใช้งาน ให้ไปที่ /main
+                } else if (survey && survey.completed) {
+                    router.push('/main'); // ถ้าทำ survey แล้วไปที่ /main
+                } else {
+                    router.push('/pulsesurvey'); // ถ้ายังไม่ได้ทำ survey ไปที่ /pulsesurvey
+                }
             } else {
                 router.push('/loginreward'); // ถ้ายังไม่ได้รับ login reward ไปที่ /loginreward
             }
         }
-    }, [router, session, status, user, userError, loginReward, loginRewardError]);
+    }, [router, session, status, user, userError, loginReward, loginRewardError, survey, surveyError, surveySettings, surveySettingsError]);
 
-    if (status === "loading" || user === undefined || loginReward === undefined) return <Loading />;
-    if (userError || loginRewardError) return <div>Error loading data</div>;
+    if (status === "loading" || user === undefined || loginReward === undefined || survey === undefined || surveySettings === undefined) return <Loading />;
+    if (userError || loginRewardError || surveyError || surveySettingsError) return <div>Error loading data</div>;
 
     return (
         <React.Fragment>
