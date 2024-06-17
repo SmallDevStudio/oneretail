@@ -73,7 +73,7 @@ export default function MainIconMenu() {
                             style={{ width: 95, height: 95 }}
                             onClick={() => window.location.href = "/leaderboard"}
                         >
-                            <svg className="w-10 h-10  text-[#F68B1F]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 371.11 357.77">
+                            <svg className="w-10 h-10 text-[#F68B1F]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 371.11 357.77">
                                 <path fill="currentColor" d="M243.24,357.77h-115.37c-6.9,0-12.5-5.6-12.5-12.5v-161.52c0-13.25,10.78-24.04,24.04-24.04h92.29c13.25,0,24.04,10.78,24.04,24.04v161.52c0,6.9-5.6,12.5-12.5,12.5ZM140.37,332.77h90.37v-148.05h-90.37v148.05Z"/>
                                 <path fill="currentColor" d="M347.07,357.77h-103.83c-6.9,0-12.5-5.6-12.5-12.5v-55.76c0-13.25,10.78-24.04,24.04-24.04h92.3c13.25,0,24.04,10.78,24.04,24.04v44.22c0,13.25-10.78,24.04-24.04,24.04ZM255.74,332.77h90.37v-42.3h-90.37v42.3Z"/>
                                 <path fill="currentColor" d="M127.87,357.77H24.04c-13.25,0-24.04-10.78-24.04-24.04v-82.68c0-13.25,10.78-24.04,24.04-24.04h92.29c13.25,0,24.04,10.78,24.04,24.04v94.22c0,6.9-5.6,12.5-12.5,12.5ZM25,332.77h90.37v-80.75H25v80.75Z"/>
@@ -84,7 +84,7 @@ export default function MainIconMenu() {
                                 <path fill="currentColor" d="M253.12,28.96c5.33,0,9.65-4.32,9.65-9.65s-4.32-9.65-9.65-9.65-9.65,4.32-9.65,9.65,4.32,9.65,9.65,9.65Z"/>
                                 <path fill="currentColor" d="M117.99,28.96c5.33,0,9.65-4.32,9.65-9.65s-4.32-9.65-9.65-9.65-9.65,4.32-9.65,9.65,4.32,9.65,9.65,9.65Z"/>
                             </svg>
-                            <span className="text-sm text-bold text-nowrap text-[#0056FF] mt-0.5">ตารางอันดับ</span>
+                            <span className="text-sm text-bold text-nowrap text-[#0056FF] mt-1">ตารางอันดับ</span>
                         </button>
 
                         <button

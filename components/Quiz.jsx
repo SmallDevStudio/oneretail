@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { setQuestions, answerQuestion, nextQuestion, resetQuiz } from '@/lib/redux/quizSlice';
 import QuizModal from './QuizModal';
 import axios from 'axios';
+import Loading from './Loading';
 
 const Quiz = ({ userId }) => {
   const dispatch = useDispatch();
@@ -25,7 +26,7 @@ const Quiz = ({ userId }) => {
     fetchQuestions();
   }, [dispatch]);
 
-  if (questions.length === 0) return <div>Loading...</div>;
+  if (questions.length === 0) return <Loading />;
 
   const question = questions[currentQuestionIndex];
 
@@ -55,8 +56,7 @@ const Quiz = ({ userId }) => {
     });
 
     if (currentQuestionIndex >= questions.length - 1) {
-      // ใช้ค่าคะแนนที่ถูกต้องก่อนการบันทึก
-      const finalScore = score + (isCorrect ? 2 : 0);
+      const finalScore = score;
 
       if (finalScore > 0) {
         try {
@@ -145,6 +145,5 @@ const Quiz = ({ userId }) => {
     </div>
   );
 };
-
 
 export default Quiz;
