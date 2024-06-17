@@ -29,7 +29,7 @@ const SecretSauce = ({ content, user }) => {
 
     const router = useRouter();
 
-    const { data , error, isLoading } = useSWR(`/api/content/comments?contentId=${contentId}`, fetcher, {
+    const { data , error, isLoading, mutate } = useSWR(`/api/content/comments?contentId=${contentId}`, fetcher, {
             refreshInterval: 2000,
             onSuccess: (data) => {
             setComments(data);
@@ -38,8 +38,7 @@ const SecretSauce = ({ content, user }) => {
 
     const handleCommentAdded = async () => {
         // Refresh comments
-        const res = await axios.get(`/api/content/comments?contentId=${contentId}`);
-        setComments(res.data.data);
+        mutate();
         // Close comment box
         setShowInput(false);
       };
@@ -115,6 +114,7 @@ const SecretSauce = ({ content, user }) => {
         router.push('/stores');
       };
 
+      if (!data) return <Loading />;
       if (isLoading) return <Loading />;
       if (error) return <div>Error loading comments</div>;
       if (!content) return <Loading />;
