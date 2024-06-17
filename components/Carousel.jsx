@@ -20,25 +20,26 @@ export default function Carousel() {
     lazyLoad: 'ondemand',
   };
 
+  const images = [
+    { src: "/images/LoginReward.jpg", alt: "One Retail Carousel Example 1", width: 750, height: 422 },
+    { src: "/images/Name.jpg", alt: "One Retail Carousel Example 2", width: 750, height: 422 }
+  ];
+
   return (
     <div className="relative w-full">
       <Slider {...settings}>
-        <div>
-          <Image
-            src="/images/LoginReward.jpg"
-            alt="One Retail Carousel Example"
-            width={500}
-            height={500}
-          />
-        </div>
-        <div>
-          <Image
-            src="/images/Name.jpg"
-            alt="One Retail Carousel Example"
-            width={500}
-            height={500}
-          />
-        </div>
+        {images.map((image, index) => (
+          <div key={index}>
+            <Image
+              src={image.src}
+              alt={image.alt}
+              width={image.width}
+              height={image.height}
+              layout="responsive"
+              objectFit="cover"
+            />
+          </div>
+        ))}
       </Slider>
     </div>
   );

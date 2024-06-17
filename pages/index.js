@@ -13,10 +13,10 @@ const HomePage = () => {
     const router = useRouter();
     const userId = session?.user?.id;
 
-    const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
-    const { data: loginReward, error: loginRewardError } = useSWR(() => userId ? `/api/loginreward/${userId}` : null, fetcher);
-    const { data: survey, error: surveyError } = useSWR(() => userId ? `/api/survey/checkSurvey?userId=${userId}` : null, fetcher);
-    const { data: surveySettings, error: surveySettingsError } = useSWR('/api/survey/settings', fetcher);
+    const { data: user, error: userError, isLoading: isUserLoading } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
+    const { data: loginReward, error: loginRewardError, isLoading: isLoginRewardLoading } = useSWR(() => userId ? `/api/loginreward/${userId}` : null, fetcher);
+    const { data: survey, error: surveyError, isLoading: isSurveyLoading } = useSWR(() => userId ? `/api/survey/checkSurvey?userId=${userId}` : null, fetcher);
+    const { data: surveySettings, error: surveySettingsError, isLoading: isSurveySettingsLoading } = useSWR('/api/survey/settings', fetcher);
 
     useEffect(() => {
         console.log("Session status:", status);
@@ -26,33 +26,31 @@ const HomePage = () => {
         console.log("Survey data:", survey);
         console.log("Survey Settings data:", surveySettings);
 
-        if (status === "loading") return; // ยังโหลด session อยู่
+        if (status === "loading" || isUserLoading || isLoginRewardLoading || isSurveyLoading || isSurveySettingsLoading) return; // รอโหลดข้อมูลทั้งหมด
         if (!session) {
             router.push('/login'); // ถ้า session ไม่มีหรือยังไม่ได้ login
             return;
         }
-        if (user === undefined) return; // กำลังโหลด user data อยู่
         if (user?.user === null) {
             router.push('/register'); // ถ้าไม่มี user data ให้ไปที่ /register
             return;
         }
-        if (loginReward === undefined) return; // กำลังโหลด login reward data อยู่
-        if (loginReward) {
-            if (loginReward.receivedPointsToday) {
-                if (surveySettings && !surveySettings.isSurveyEnabled) {
-                    router.push('/main'); // ถ้า survey ถูกปิดการใช้งาน ให้ไปที่ /main
-                } else if (survey && survey.completed) {
-                    router.push('/main'); // ถ้าทำ survey แล้วไปที่ /main
-                } else {
-                    router.push('/pulsesurvey'); // ถ้ายังไม่ได้ทำ survey ไปที่ /pulsesurvey
-                }
-            } else {
-                router.push('/loginreward'); // ถ้ายังไม่ได้รับ login reward ไปที่ /loginreward
-            }
+        if (loginReward && !loginReward.receivedPointsToday) {
+            router.push('/loginreward'); // ถ้ายังไม่ได้รับ login reward ไปที่ /loginreward
+            return;
         }
-    }, [router, session, status, user, userError, loginReward, loginRewardError, survey, surveyError, surveySettings, surveySettingsError]);
+        if (surveySettings && !surveySettings.isSurveyEnabled) {
+            router.push('/main'); // ถ้า survey ถูกปิดการใช้งาน ให้ไปที่ /main
+            return;
+        }
+        if (survey && survey.completed) {
+            router.push('/main'); // ถ้าทำ survey แล้วไปที่ /main
+        } else {
+            router.push('/pulsesurvey'); // ถ้ายังไม่ได้ทำ survey ไปที่ /pulsesurvey
+        }
+    }, [router, session, status, user, isUserLoading, loginReward, isLoginRewardLoading, survey, isSurveyLoading, surveySettings, isSurveySettingsLoading]);
 
-    if (status === "loading" || user === undefined || loginReward === undefined || survey === undefined || surveySettings === undefined) return <Loading />;
+    if (status === "loading" || isUserLoading || isLoginRewardLoading || isSurveyLoading || isSurveySettingsLoading) return <Loading />;
     if (userError || loginRewardError || surveyError || surveySettingsError) return <div>Error loading data</div>;
 
     return (

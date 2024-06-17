@@ -2,17 +2,18 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { setQuestions, answerQuestion, nextQuestion, resetQuiz, savePoints, calculateLevel } from '@/lib/redux/quizSlice';
+import { setQuestions, answerQuestion, nextQuestion, resetQuiz } from '@/lib/redux/quizSlice';
 import QuizModal from './QuizModal';
 import axios from 'axios';
 
 const Quiz = ({ userId }) => {
   const dispatch = useDispatch();
   const router = useRouter();
-  const { questions, currentQuestionIndex, score, status } = useSelector((state) => state.quiz);
+  const { questions, currentQuestionIndex, score } = useSelector((state) => state.quiz);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showAnswer, setShowAnswer] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [startTime] = useState(new Date().toISOString());
 
   useEffect(() => {
@@ -55,14 +56,18 @@ const Quiz = ({ userId }) => {
 
     if (currentQuestionIndex >= questions.length - 1) {
       // ใช้ค่าคะแนนที่ถูกต้องก่อนการบันทึก
-      const finalScore = score + (isCorrect ? 1 : 0);
+      const finalScore = score + (isCorrect ? 2 : 0);
 
       if (finalScore > 0) {
-        // บันทึกคะแนนผู้ใช้
-        await axios.post('/api/points', {
-          userId,
-          points: finalScore,
-        });
+        try {
+          // บันทึกคะแนนผู้ใช้
+          await axios.post('/api/points', {
+            userId,
+            points: finalScore,
+          });
+        } catch (error) {
+          setErrorMessage(error.response.data.message);
+        }
       }
       setIsModalOpen(true);
     }
@@ -88,12 +93,12 @@ const Quiz = ({ userId }) => {
         </h1>
       </div>
     
-        <div className='flex flex-row mb-4 gap-2 w-full items-center justify-center'>
-          <span className='text-lg font-bold'>กลุ่มคำถาม:</span>
-          <div className='bg-[#0056FF] rounded-2xl text-white px-2 py-1 shadow-sm border-1 border-gray-400'>
-            <span>{question.group}</span>
-          </div>
+      <div className='flex flex-row mb-4 gap-2 w-full items-center justify-center'>
+        <span className='text-lg font-bold'>กลุ่มคำถาม:</span>
+        <div className='bg-[#0056FF] rounded-2xl text-white px-2 py-1 shadow-sm border-1 border-gray-400'>
+          <span>{question.group}</span>
         </div>
+      </div>
 
       <h1 className='text-lg font-bold mb-4'>
         {question.question}
@@ -135,9 +140,11 @@ const Quiz = ({ userId }) => {
           ส่งคำตอบ
         </button>
       )}
+      {errorMessage && <p className='text-red-500'>{errorMessage}</p>}
       <QuizModal isOpen={isModalOpen} onRequestClose={handleCloseModal} score={score} />
     </div>
   );
 };
+
 
 export default Quiz;

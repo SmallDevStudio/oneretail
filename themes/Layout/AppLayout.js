@@ -4,14 +4,16 @@ import AppMenu from '@/components/AppMenu';
 const AppLayout = ({ children }) => {
     return (
         <>
-            <div className="flex flex-col h-full">
-                {children}
+            <div className="flex flex-col min-h-screen">
+                <div className="flex-1">
+                    {children}
+                </div>
+                <nav className="nav">
+                    <AppMenu />
+                </nav>
             </div>
-            <nav className="nav">
-                <AppMenu />
-            </nav>
         </>
-    )
-}
+    );
+};
 
 export default AppLayout;

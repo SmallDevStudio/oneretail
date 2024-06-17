@@ -65,7 +65,7 @@ const Post = ({ post, user, onDelete }) => {
     <div className="flex flex-col bg-white rounded-xl shadow-md border-2 p-3 px-2">
       <div className="flex flex-row justify-between">
         <div className="flex flex-row gap-2">
-          <Image src={post.user.pictureUrl} alt="avatar" width={40} height={40} className='rounded-full'/>
+          <Image src={post.user.pictureUrl? post.user.pictureUrl : "/images/avatar.png"} alt="avatar" width={40} height={40} className='rounded-full'/>
           <div className="flex flex-col text-left">
             <span className="font-bold">
               {post.user.fullname}

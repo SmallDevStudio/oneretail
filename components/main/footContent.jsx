@@ -1,11 +1,23 @@
 import React from "react";
-import YouTube from "react-youtube";
-import ReactPlayer from "react-player/youtube";
+import ReactPlayer from "react-player";
+
 export default function FooterContant() {
     return (
-        <div className="w-full justify-center items-center">
-            <ReactPlayer url="https://www.youtube.com/watch?v=LpW8cTkt7rk" loop={true} width="100%" height={230} playing={true}/>
+        <div className="relative w-full h-[230px] footer-content">
+            <ReactPlayer
+                url="https://www.youtube.com/watch?v=LpW8cTkt7rk"
+                loop={true}
+                playing={true}
+                controls={false}
+                width="100%"
+                height="100%"
+                config={{
+                    youtube: {
+                        playerVars: { showinfo: 0 }
+                    }
+                }}
+                className="absolute top-0 left-0 w-full h-full"
+            />
         </div>
     );
-
 }
