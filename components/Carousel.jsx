@@ -35,8 +35,8 @@ export default function Carousel() {
               alt={image.alt}
               width={image.width}
               height={image.height}
-              layout="responsive"
-              objectFit="cover"
+              className="relative w-full object-cover"
+              loading="lazy"
             />
           </div>
         ))}

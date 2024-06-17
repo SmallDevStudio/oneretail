@@ -60,7 +60,7 @@ const Loginreward = () => {
   const handleModalClose = async () => {
     setModalOpen(false);
     mutate(`/api/loginreward/${userId}`); // Re-fetch data
-    router.push("/"); // Redirect to home page
+    window.location.href = "/"; // Redirect to home page
   };
 
   if (error) return <div>Error: {error.message}</div>;
