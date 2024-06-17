@@ -44,11 +44,10 @@ const HomePage = () => {
                 router.push('/register');
             } else if (!loginData.receivedPointsToday) {
                 router.push('/loginreward');
-            } else if (settingData.data[0].survey) {
+            } else if (settingData.data[0].survey && !surveyData) {
                 router.push('/pulsesurvey');
-                if (surveyData && surveyData.data) {
-                    router.push('/main');
-                }
+            } else if (!settingData.data[0].survey && surveyData) {
+                router.push('/main');
             } else {
                 router.push('/main');
             }
