@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import Loading from "@/components/Loading";
+import axios from "axios";
 
 const PulseSurvey = () => {
     const [loading, setLoading] = useState(false);
@@ -11,7 +12,7 @@ const PulseSurvey = () => {
     const { data: session } = useSession();
     const userId = session?.user?.id;
     const router = useRouter();
-    
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -149,3 +150,4 @@ const PulseSurvey = () => {
 };
 
 export default PulseSurvey;
+
