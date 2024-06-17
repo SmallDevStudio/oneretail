@@ -3,6 +3,7 @@ import RequireAuth from "@/components/RequireAuth";
 import { Provider } from "react-redux";
 import store from "@/lib/redux/store";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/react"
 import "@/styles/globals.css";
 
 function App({ Component, pageProps: { session, ...pageProps } }) {
@@ -15,12 +16,14 @@ function App({ Component, pageProps: { session, ...pageProps } }) {
                    
                       <Component {...pageProps} />
                       <SpeedInsights />
+                      <Analytics />
  
                 </RequireAuth>
             ) : (
                     <>
                       <Component {...pageProps} />
                       <SpeedInsights />
+                      <Analytics />
                     </>
             )}
     </SessionProvider>
