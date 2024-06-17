@@ -1,10 +1,10 @@
-// components/Calendar.js
 import React, { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import moment from 'moment';
 import 'react-calendar/dist/Calendar.css';
 import Modal from './Modal';
 import axios from 'axios';
+import { FaMapMarkerAlt } from "react-icons/fa";
 import 'moment/locale/th';
 import Image from 'next/image';
 
@@ -30,20 +30,18 @@ const CustomCalendar = () => {
                 const eventDate = new Date(event.startDate);
                 return eventDate >= startOfWeek && eventDate <= endOfWeek;
             });
-            setWeekEvents(currentWeekEvents);
+            setWeekEvents(groupEventsByDate(currentWeekEvents));
         };
         fetchEvents();
     }, []);
 
     const onDateChange = (date) => {
         setDate(date);
-        const startOfWeek = moment(date).startOf('isoWeek').toDate();
-        const endOfWeek = moment(date).endOf('isoWeek').toDate();
-        const weekEvents = events.filter(event => {
+        const dayEvents = events.filter(event => {
             const eventDate = new Date(event.startDate);
-            return eventDate >= startOfWeek && eventDate <= endOfWeek;
+            return moment(eventDate).isSame(date, 'day');
         });
-        setWeekEvents(weekEvents);
+        setWeekEvents(groupEventsByDate(dayEvents));
     };
 
     const onEventClick = (event) => {
@@ -61,6 +59,18 @@ const CustomCalendar = () => {
         }
     };
 
+    const groupEventsByDate = (events) => {
+        const groupedEvents = {};
+        events.forEach(event => {
+            const eventDate = moment(event.startDate).format('YYYY-MM-DD');
+            if (!groupedEvents[eventDate]) {
+                groupedEvents[eventDate] = [];
+            }
+            groupedEvents[eventDate].push(event);
+        });
+        return groupedEvents;
+    };
+
     return (
         <div className='flex flex-col items-center justify-center w-full'>
             <Calendar
@@ -70,13 +80,20 @@ const CustomCalendar = () => {
                 showFixedNumberOfWeeks={true}
                 tileContent={renderTileContent}
             />
-            <div className='min-w-[100%] p-2 border-2 border-[#0056FF]/80 rounded-3xl mt-2 pl-5 pr-5'>
-                {weekEvents.length > 0 && weekEvents.map(event => (
-                    <div key={event._id} onClick={() => onEventClick(event)}>
-                        <h3 className='font-black text-lg mt-3 text-[#0056FF]'>{moment(event.startDate).format('D MMMM')} </h3>
-                        <span className='text-sm font-bold'>{event.title}</span>
-                        <p className='text-sm mb-3 text-ellipsis text-black'>{event.description}</p>
-                        <hr />
+            <div className='w-full'>
+                {Object.keys(weekEvents).length > 0 && Object.keys(weekEvents).map(date => (
+                    <div key={date}
+                        className='min-w-[100%] p-2 border-2 border-[#0056FF]/80 rounded-3xl mt-2 pl-5 pr-5'
+                    >
+                        <h3 className='font-black text-lg mt-2 text-[#0056FF]'>{moment(date).format('D MMMM YYYY')}</h3>
+                        {weekEvents[date].map(event => (
+                            <div key={event._id} onClick={() => onEventClick(event)}>
+                                <span className='text-sm font-bold'>{event.title}</span><span className='text-xs ml-1'>({moment(event.endDate).diff(moment(event.startDate), 'days') + 1} วัน)</span>
+                                <p className='text-sm mb-1 text-ellipsis'>{event.description}</p>
+                                <p className='text-sm'></p>
+                                <hr />
+                            </div>
+                        ))}
                     </div>
                 ))}
             </div>
@@ -88,16 +105,16 @@ const CustomCalendar = () => {
                         <p className='text-sm'>{selectedEvent.startTime} - {selectedEvent.endTime}</p>
                         <p className='text-md mb-5'>{selectedEvent.description}</p>
                         <div className='flex flex-row gap-2 items-center'>
-                        <span className='text-sm text-[#F68B1F]'>
-                            <Image
-                                src="/images/other/location-01.svg"
-                                alt="avatar"
-                                width={20}
-                                height={20}
-                                className='rounded-full'
-                            />
-                            {selectedEvent.location}</span>
-                        <p className='text-sm font-bold'>{selectedEvent.mapLocation} - {selectedEvent.place}</p>
+                            <span className='text-sm text-[#F68B1F]'>
+                                <Image
+                                    src="/images/other/location-01.svg"
+                                    alt="avatar"
+                                    width={20}
+                                    height={20}
+                                    className='rounded-full'
+                                />
+                                {selectedEvent.location}</span>
+                            <p className='text-sm font-bold'>{selectedEvent.mapLocation} - {selectedEvent.place}</p>
                         </div>
                     </div>
                 </Modal>
