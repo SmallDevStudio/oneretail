@@ -6,6 +6,7 @@ import store from '@/lib/redux/store';
 import QuestionTable from '@/components/QuestionTable';
 import AnswersTable from '@/components/admin/AnswersTable';
 import QuizAdmin from '@/components/admin/QuizAdmin';
+import UserQuizTable from '@/components/admin/UserQuizTable';
 import { AdminLayout } from '@/themes';
 
 function TabPanel(props) {
@@ -44,6 +45,7 @@ export default function QuizGame() {
           <Tab label="จัดการคำถาม" />
           <Tab label="รายงานคำตอบ" />
           <Tab label="Quiz Admin" />
+          <Tab label="User Scores" />
         </Tabs>
         <TabPanel value={tabIndex} index={0}>
           <QuestionTable />
@@ -53,6 +55,9 @@ export default function QuizGame() {
         </TabPanel>
         <TabPanel value={tabIndex} index={2}>
           <QuizAdmin />
+        </TabPanel>
+        <TabPanel value={tabIndex} index={3}>
+          <UserQuizTable />
         </TabPanel>
       </div>
     </Provider>
