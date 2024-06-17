@@ -58,7 +58,7 @@ const HomePage = () => {
     if (status === "loading" || !user || !loginData || !settingData || !surveyData) {
         return <Loading />;
     }
-    if (userError || loginError || settingError) {
+    if (userError || loginError || settingError || surveyError) {
         return <div>Error loading data</div>;
     }
 
