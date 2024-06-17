@@ -6,7 +6,6 @@ import Loading from "@/components/Loading";
 import Head from "next/head";
 import useSWR from "swr";
 
-
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const HomePage = () => {
@@ -14,43 +13,26 @@ const HomePage = () => {
     const router = useRouter();
     const userId = session?.user?.id;
 
-    const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher, {
-        onSuccess: (data) => {
-            if (!data.user && data.user === null) {
-                router.push('/register');
-            }
-        }
-    });
-    const { data: loginData, error: loginError } = useSWR(() => userId ? `/api/loginreward/${userId}` : null, fetcher);
-    const { data: settingData, error: settingError } = useSWR(`/api/settings`, fetcher);
-    const { data: surveyData, error: surveyError } = useSWR(`/api/survey/checkSurvey?userId=${userId}`, fetcher, {
-        onSuccess: (data) => {
-            if (!data.data) {
-                router.push('/pulsesurvey');
-            } else {
-                router.push('/main');
-            }
-        }
-    });
-
-    console.log('user:', user);
+    const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
 
     useEffect(() => {
         if (status === "loading") return; // ยังโหลด session อยู่
         if (!session) {
-                router.push('login'); // ถ้า session ไม่มีหรือยังไม่ได้ login
-        } 
-        if (!user && user === null) {
-            router.push('/register');
+            router.push('/login'); // ถ้า session ไม่มีหรือยังไม่ได้ login
+            return;
         }
-    }, [session, status, user, loginData, settingData, router, surveyData]);
+        if (user === undefined) return; // กำลังโหลด user data อยู่
+        if (user === null) {
+            router.push('/register'); // ถ้าไม่มี user data ให้ไปที่ /register
+            return;
+        }
+        if (user && !userError) {
+            router.push('/main'); // ถ้ามี user data แล้วไปที่ /main
+        }
+    }, [router, session, status, user, userError]);
 
-    if (status === "loading" || !user || !loginData || !settingData || !surveyData) {
-        return <Loading />;
-    }
-    if (userError || loginError || settingError || surveyError) {
-        return <div>Error loading data</div>;
-    }
+    if (status === "loading" || !user) return <Loading />;
+    if (userError) return <div>Error loading data</div>;
 
     return (
         <React.Fragment>

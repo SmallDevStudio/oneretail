@@ -18,12 +18,6 @@ export default function Register() {
 
     const { data, error } = useSWR(`/api/users/${userId}`, fetcher);
 
-    useEffect(() => {
-        if (data?.user !== null) {
-            router.push('/');
-        }
-    }, [data, router]);
-
     const onSubmit = async (data) => {
         setLoading(true);
         console.log('data:', data);
