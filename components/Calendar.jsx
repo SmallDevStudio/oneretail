@@ -7,6 +7,7 @@ import axios from 'axios';
 import { FaMapMarkerAlt } from "react-icons/fa";
 import 'moment/locale/th';
 import Image from 'next/image';
+import Link from 'next/link';
 
 moment.locale('th');
 
@@ -87,7 +88,7 @@ const CustomCalendar = () => {
                     >
                         <h3 className='font-black text-lg mt-2 text-[#0056FF]'>{moment(date).format('D MMMM YYYY')}</h3>
                         {weekEvents[date].map(event => (
-                            <div key={event._id} onClick={() => onEventClick(event)}>
+                            <div key={event._id} onClick={() => onEventClick(event)} style={{ cursor: 'pointer' }}>
                                 <span className='text-sm font-bold'>{event.title}</span><span className='text-xs ml-1'>({moment(event.endDate).diff(moment(event.startDate), 'days') + 1} วัน)</span>
                                 <p className='text-sm mb-1 text-ellipsis'>{event.description}</p>
                                 <p className='text-sm'></p>
@@ -114,7 +115,9 @@ const CustomCalendar = () => {
                                     className='rounded-full'
                                 />
                                 {selectedEvent.location}</span>
-                            <p className='text-sm font-bold'>{selectedEvent.mapLocation} - {selectedEvent.place}</p>
+                                <Link href={`${selectedEvent.link? selectedEvent.link : '#'}`} target={selectedEvent.link ? '_blank' : '_self'}>
+                                    <p className='text-sm font-bold'>{selectedEvent.mapLocation} - {selectedEvent.place}</p>
+                                </Link>
                         </div>
                     </div>
                 </Modal>
