@@ -39,22 +39,9 @@ const HomePage = () => {
         if (status === "loading") return; // ยังโหลด session อยู่
         if (!session) {
                 router.push('login'); // ถ้า session ไม่มีหรือยังไม่ได้ login
-        } else if (user && loginData && settingData) {
-            if (!user && user === null) {
-                router.push('/register');
-            } else if (loginData.receivedPointsToday === false) {
-                router.push('/loginreward');
-            } else if (settingData.data[0].survey) {
-                if (!surveyData) {
-                    router.push('/pulsesurvey');
-                }
-                router.push('/main');
-            } else {
-                router.push('/main');
-            }
-        } else {
-            // Allow the user to access the requested page
-            router.push('/main');
+        } 
+        if (!user && user === null) {
+            router.push('/register');
         }
     }, [session, status, user, loginData, settingData, router, surveyData]);
 
