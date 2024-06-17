@@ -3,7 +3,7 @@ import ReactPlayer from "react-player";
 
 export default function FooterContant() {
     return (
-        <div className="relative w-full h-[230px] footer-content">
+        <div className="relative w-full h-[250px] footer-content">
             <ReactPlayer
                 url="https://www.youtube.com/watch?v=LpW8cTkt7rk"
                 loop={true}
