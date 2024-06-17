@@ -16,14 +16,22 @@ const HomePage = () => {
 
     const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher, {
         onSuccess: (data) => {
-            if (!data.user) {
+            if (!data.user && data.user === null) {
                 router.push('/register');
             }
         }
     });
     const { data: loginData, error: loginError } = useSWR(() => userId ? `/api/loginreward/${userId}` : null, fetcher);
     const { data: settingData, error: settingError } = useSWR(`/api/settings`, fetcher);
-    const { data: surveyData, error: surveyError } = useSWR(`/api/survey/checkSurvey?userId=${userId}`, fetcher);
+    const { data: surveyData, error: surveyError } = useSWR(`/api/survey/checkSurvey?userId=${userId}`, fetcher, {
+        onSuccess: (data) => {
+            if (!data.data) {
+                router.push('/pulsesurvey');
+            } else {
+                router.push('/main');
+            }
+        }
+    });
 
     console.log('user:', user);
 
