@@ -37,6 +37,9 @@ const HomePage = () => {
     if (status === "loading" || !user || !loginData || !settingData) {
         return <Loading />;
     }
+    if (userError || loginError || settingError) {
+        return <div>Error loading data</div>;
+    }
 
     return (
         <React.Fragment>
