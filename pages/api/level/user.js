@@ -58,8 +58,6 @@ export default async function handler(req, res) {
             }
     
             const levelPoint = pointData.totalPoints - requiredPoints;
-            console.log(levelPoint);
-            console.log(userLevel);
     
             // สร้างข้อมูลที่ต้องการแสดงผล
             const result = {
