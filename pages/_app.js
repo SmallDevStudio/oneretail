@@ -14,10 +14,14 @@ function App({ Component, pageProps: { session, ...pageProps } }) {
                 <RequireAuth>
                    
                       <Component {...pageProps} />
+                      <SpeedInsights />
  
                 </RequireAuth>
             ) : (
-                    <Component {...pageProps} />
+                    <>
+                      <Component {...pageProps} />
+                      <SpeedInsights />
+                    </>
             )}
     </SessionProvider>
   );
