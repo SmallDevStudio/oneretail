@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import axios from "axios";
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 import Loading from "@/components/Loading";
 import LoginModal from "@/components/LoginModal";
 
@@ -27,12 +27,10 @@ const Loginreward = () => {
   });
 
   useEffect(() => {
-    if(data) {
       if (loginData.receivedPointsToday) {
         router.push("/");
-      }
     }
-  }, [data, loginData, router]);
+  }, [loginData, router]);
 
   const LineProgressBar = dynamic(() => import("@/components/LineProgressBar"), { ssr: false });
 
