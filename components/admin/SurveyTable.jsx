@@ -62,10 +62,13 @@ const SurveyTable = () => {
     ];
 
     return (
-        <div style={{ height: 400, width: '100%' }}>
-            <Button variant="contained" color="primary" onClick={handleExport}>
-                Export to Excel
-            </Button>
+        <div style={{ height: 500, width: '100%' }}>
+            <div className="flex justify-end mb-4">
+                <Button variant="contained" color="primary" onClick={handleExport}>
+                    Export to Excel
+                </Button>
+            </div>
+            
             <DataGrid rows={rows} columns={columns} pageSize={5} />
             
         </div>
