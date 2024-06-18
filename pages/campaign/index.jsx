@@ -37,7 +37,7 @@ export default function Campaign() {
                             onClick={() => router.push("/campaign/content/1")}
                         />
                         <Image
-                            src="/images/LoginReward.jpg"
+                            src="/images/campaign/2.2.png"
                             alt="Campaign"
                             width={600}
                             height={600}
