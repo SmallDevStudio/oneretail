@@ -27,10 +27,10 @@ const Loginreward = () => {
   });
 
   useEffect(() => {
-    if (loginData.receivedPointsToday) {
+    if (loginData.receivedPointsToday && !modalOpen) {
       router.push("/");
     }
-  }, [loginData, router]);
+  }, [loginData, router, modalOpen]);
 
   const LineProgressBar = dynamic(() => import("@/components/LineProgressBar"), { ssr: false });
 
@@ -59,9 +59,7 @@ const Loginreward = () => {
 
   const handleModalClose = async () => {
     setModalOpen(false);
-    router.push("/"); // Redirect to home page
     mutate(`/api/loginreward/${userId}`); // Re-fetch data
-    
   };
 
   if (error) return <div>Error: {error.message}</div>;
