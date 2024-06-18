@@ -1,13 +1,12 @@
+// components/Calendar.js
 import React, { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import moment from 'moment';
 import 'react-calendar/dist/Calendar.css';
 import Modal from './Modal';
 import axios from 'axios';
-import { FaMapMarkerAlt } from "react-icons/fa";
 import 'moment/locale/th';
 import Image from 'next/image';
-import Link from 'next/link';
 
 moment.locale('th');
 
@@ -16,7 +15,7 @@ const CustomCalendar = () => {
     const [events, setEvents] = useState([]);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
-    const [weekEvents, setWeekEvents] = useState([]);
+    const [weekEvents, setWeekEvents] = useState({});
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -81,28 +80,38 @@ const CustomCalendar = () => {
                 showFixedNumberOfWeeks={true}
                 tileContent={renderTileContent}
             />
-            <div className='w-full'>
-                {Object.keys(weekEvents).length > 0 && Object.keys(weekEvents).map(date => (
-                    <div key={date}
-                        className='min-w-[100%] p-2 border-2 border-[#0056FF]/80 rounded-3xl mt-2 pl-5 pr-5'
-                    >
-                        <h3 className='font-black text-lg mt-2 text-[#0056FF]'>{moment(date).format('D MMMM YYYY')}</h3>
-                        {weekEvents[date].map(event => (
-                            <div key={event._id} onClick={() => onEventClick(event)} style={{ cursor: 'pointer' }}>
-                                <span className='text-sm font-bold'>{event.title}</span><span className='text-xs ml-1'>({moment(event.endDate).diff(moment(event.startDate), 'days') + 1} วัน)</span>
-                                <p className='text-sm mb-1 text-ellipsis'>{event.description}</p>
-                                <p className='text-sm'></p>
-                                <hr />
-                            </div>
-                        ))}
-                    </div>
-                ))}
-            </div>
+            {Object.keys(weekEvents).length > 0 && (
+                <div className='min-w-[100%] p-2 border-2 border-[#0056FF]/80 rounded-3xl mt-2 pl-5 pr-5'>
+                    {Object.keys(weekEvents).map(date => (
+                        <div key={date}>
+                            <h3 className='font-black text-lg mt-2'>{moment(date).format('D MMMM YYYY')}</h3>
+                            {weekEvents[date].map(event => (
+                                <div key={event._id} onClick={() => onEventClick(event)}>
+                                    <span className='text-sm font-bold'>{event.title}</span> <span className='text-xs'>({moment(event.endDate).diff(moment(event.startDate), 'days') + 1} วัน)</span>
+                                    <p className='text-sm mb-3 text-ellipsis'>{event.description}</p>
+                                    <p className='text-sm'>
+                                        {moment(event.startDate).format('LL')}
+                                        {moment(event.startDate).isSame(event.endDate, 'day') 
+                                            ? '' 
+                                            : ` - ${moment(event.endDate).format('LL')}`}
+                                    </p>
+                                    <hr />
+                                </div>
+                            ))}
+                        </div>
+                    ))}
+                </div>
+            )}
             {modalVisible && (
                 <Modal onClose={() => setModalVisible(false)} style={{ }}>
                     <div className='w-full p-2 '>
                         <h2 className='font-bold text-2xl text-[#0056FF]'>{selectedEvent.title}</h2>
-                        <p className='text-sm text-[#0056FF]'>{moment(selectedEvent.startDate).format('LL')} - {moment(selectedEvent.endDate).format('LL')}</p>
+                        <p className='text-sm text-[#0056FF]'>
+                            {moment(selectedEvent.startDate).format('LL')}
+                            {moment(selectedEvent.startDate).isSame(selectedEvent.endDate, 'day') 
+                                ? '' 
+                                : ` - ${moment(selectedEvent.endDate).format('LL')}`}
+                        </p>
                         <p className='text-sm'>{selectedEvent.startTime} - {selectedEvent.endTime}</p>
                         <p className='text-md mb-5'>{selectedEvent.description}</p>
                         <div className='flex flex-row gap-2 items-center'>
@@ -114,10 +123,9 @@ const CustomCalendar = () => {
                                     height={20}
                                     className='rounded-full'
                                 />
-                                {selectedEvent.location}</span>
-                                <Link href={`${selectedEvent.link? selectedEvent.link : '#'}`} target={selectedEvent.link ? '_blank' : '_self'}>
-                                    <p className='text-sm font-bold'>{selectedEvent.mapLocation} - {selectedEvent.place}</p>
-                                </Link>
+                                {selectedEvent.location}
+                            </span>
+                            <p className='text-sm font-bold'>{selectedEvent.mapLocation} - {selectedEvent.place}</p>
                         </div>
                     </div>
                 </Modal>

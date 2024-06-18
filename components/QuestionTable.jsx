@@ -3,6 +3,8 @@ import AddQuestionModal from './AddQuestionModal';
 import { RiDeleteBinLine } from "react-icons/ri";
 import { CiEdit } from "react-icons/ci";
 import { useCSVReader } from 'react-papaparse';
+import { DataGrid } from '@mui/x-data-grid';
+import { TextField, Button, CircularProgress } from '@mui/material';
 
 const styles = {
   csvReader: {
@@ -32,12 +34,13 @@ const styles = {
 const QuestionTable = () => {
   const { CSVReader } = useCSVReader();
   const [questions, setQuestions] = useState([]);
+  const [filteredQuestions, setFilteredQuestions] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [questionsPerPage] = useState(5);
   const [uploadStatus, setUploadStatus] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchQuestions();
@@ -47,6 +50,8 @@ const QuestionTable = () => {
     const res = await fetch('/api/questions1');
     const data = await res.json();
     setQuestions(data);
+    setFilteredQuestions(data);
+    setLoading(false);
   };
 
   const handleDelete = async (id) => {
@@ -132,14 +137,69 @@ const QuestionTable = () => {
     }
   };
 
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    const filtered = questions.filter((question) =>
+      question.question.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredQuestions(filtered);
+  };
+
+  const columns = [
+    { field: 'question', headerName: 'Question', width: 300 },
+    {
+      field: 'options',
+      headerName: 'Options',
+      width: 300,
+      renderCell: (params) => (
+        <ul style={{ listStyleType: 'disc', paddingLeft: '20px' }}>
+          {params.value.map((option, index) => (
+            <li key={index}>{option}</li>
+          ))}
+        </ul>
+      ),
+    },
+    { field: 'correctAnswer', headerName: 'Correct Answer', width: 150 },
+    { field: 'group', headerName: 'Group', width: 150 },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      width: 150,
+      renderCell: (params) => (
+        <>
+          <button
+            className="mr-4 font-bold text-2xl hover:text-blue-800"
+            onClick={() => handleEdit(params.row)}
+          >
+            <CiEdit />
+          </button>
+          <button
+            className="mr-4 font-bold text-2xl hover:text-blue-800"
+            onClick={() => handleDelete(params.row._id)}
+          >
+            <RiDeleteBinLine />
+          </button>
+        </>
+      ),
+    },
+  ];
+
+  if (loading) {
+    return <CircularProgress />;
+  }
 
   return (
     <div className="flex flex-col m-10">
       <h1 className="text-3xl font-bold">เกมส์คำถาม</h1>
       <div className="flex justify-between mb-5">
-        <button 
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" 
-          onClick={handleAdd}>เพิ่มคำถาม</button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleAdd}
+        >
+          เพิ่มคำถาม
+        </Button>
         <CSVReader
           onUploadAccepted={(results) => {
             handleCSVImport(results.data);
@@ -153,74 +213,52 @@ const QuestionTable = () => {
           }) => (
             <>
               <div className="flex gap-2">
-                <button type="button" {...getRootProps()} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                <Button
+                  variant="contained"
+                  color="primary"
+                  {...getRootProps()}
+                >
                   Browse file
-                </button>
+                </Button>
                 <div className={styles.acceptedFile}>
                   {acceptedFile && acceptedFile.name}
                 </div>
-                <button {...getRemoveFileProps()} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  {...getRemoveFileProps()}
+                >
                   Remove
-                </button>
+                </Button>
               </div>
               <ProgressBar className={styles.progressBarBackgroundColor} />
             </>
           )}
         </CSVReader>
       </div>
-      <div className="flex justify-end">
-        {uploadStatus && <div className="text-green-500 mb-2">{uploadStatus}</div>}
-        {error && <div className="text-red-500 mb-2">{error}</div>}
-      </div>
-      <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-        <thead className="text-xs text-gray-700 uppercase bg-blue-100 h-8">
-          <tr className="h-8">
-            <th className="w-1/3">Question</th>
-            <th className="w-1/3">Options</th>
-            <th className="w-1/5">Correct Answer</th>
-            <th className="w-1/5">Group</th>
-            <th className="w-1/3">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {questions.slice(
-            currentPage * questionsPerPage - questionsPerPage,
-            currentPage * questionsPerPage
-          ).map((question) => (
-            <tr key={question._id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-              <td>{question.question}</td>
-              <td>
-                <ul style={{ listStyleType: 'disc', paddingLeft: '20px' }}>
-                  {question.options.map((option, index) => (
-                    <li key={index}>{option}</li>
-                  ))}
-                </ul>
-              </td>
-              <td>{question.options[question.correctAnswer]}</td>
-              <td>{question.group}</td>
-              <td>
-                <button 
-                  className="mr-4 font-bold text-2xl hover:text-blue-800"
-                  onClick={() => handleEdit(question)}>
-                  <CiEdit />
-                </button>
-                <button 
-                  className="mr-4 font-bold text-2xl hover:text-blue-800"
-                  onClick={() => handleDelete(question._id)}>
-                  <RiDeleteBinLine />
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="flex justify-between items-center mt-4">
-        <p className="text-sm text-gray-600">Total Records: {questions.length}</p>
-        <Pagination
-          questionsPerPage={questionsPerPage}
-          totalQuestions={questions.length}
-          paginate={setCurrentPage}
+      <div className="flex justify-end mb-4">
+        <TextField
+          variant="outlined"
+          label="Search Question"
+          value={searchTerm}
+          onChange={handleSearch}
+          fullWidth
         />
+      </div>
+      <div style={{ height: 600, width: '100%' }}>
+        <DataGrid
+          rows={filteredQuestions.map((question, index) => ({
+            ...question,
+            id: index,
+            correctAnswer: question.options[question.correctAnswer],
+          }))}
+          columns={columns}
+          pageSize={10}
+          rowsPerPageOptions={[5, 10, 20]}
+        />
+      </div>
+      <div className="mt-4 text-right">
+        <p className="text-sm text-gray-600">Total Records: {filteredQuestions.length}</p>
       </div>
       <AddQuestionModal
         isOpen={isModalOpen}
@@ -229,28 +267,6 @@ const QuestionTable = () => {
         initialData={editingQuestion}
       />
     </div>
-  );
-};
-
-const Pagination = ({ questionsPerPage, totalQuestions, paginate }) => {
-  const pageNumbers = [];
-
-  for (let i = 1; i <= Math.ceil(totalQuestions / questionsPerPage); i++) {
-    pageNumbers.push(i);
-  }
-
-  return (
-    <nav>
-      <ul className="pagination">
-        {pageNumbers.map((number) => (
-          <li key={number} className="page-item">
-            <a onClick={() => paginate(number)} href="#" className="page-link">
-              {number}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
   );
 };
 
