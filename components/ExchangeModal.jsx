@@ -1,4 +1,3 @@
-// components/ExchangeModal.jsx
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import Image from 'next/image';
@@ -20,7 +19,7 @@ const customStyles = {
 };
 
 const ExchangeModal = ({ isOpen, onRequestClose, points, conversionRate, userId }) => {
-    const [exchangePoints, setExchangePoints] = useState(20);
+    const [exchangePoints, setExchangePoints] = useState(conversionRate);
     const [coins, setCoins] = useState(1);
     const [warningModalIsOpen, setWarningModalIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -29,19 +28,43 @@ const ExchangeModal = ({ isOpen, onRequestClose, points, conversionRate, userId 
         setCoins(Math.floor(exchangePoints / conversionRate));
     }, [exchangePoints, conversionRate]);
 
-    const handleChange = (e) => {
-        let value = e.target.value.replace(/^0+/, ''); // Remove leading zeros
-        value = value === '' ? 0 : parseInt(value, 10); // Ensure value is an integer
-
-        if (value > points) {
-            setWarningModalIsOpen(true);
+    const handleIncrementPoints = () => {
+        const newPoints = exchangePoints + conversionRate;
+        if (newPoints <= points) {
+            setExchangePoints(newPoints);
         } else {
-            setExchangePoints(value);
+            setWarningModalIsOpen(true);
+        }
+    };
+
+    const handleDecrementPoints = () => {
+        const newPoints = exchangePoints - conversionRate;
+        if (newPoints >= conversionRate) {
+            setExchangePoints(newPoints);
+        }
+    };
+
+    const handleIncrementCoins = () => {
+        const newCoins = coins + 1;
+        const newPoints = newCoins * conversionRate;
+        if (newPoints <= points) {
+            setCoins(newCoins);
+            setExchangePoints(newPoints);
+        } else {
+            setWarningModalIsOpen(true);
+        }
+    };
+
+    const handleDecrementCoins = () => {
+        const newCoins = coins - 1;
+        if (newCoins >= 1) {
+            setCoins(newCoins);
+            setExchangePoints(newCoins * conversionRate);
         }
     };
 
     const handleExchange = async () => {
-        if (exchangePoints > points) {
+        if (exchangePoints > points || exchangePoints <= 0 || coins <= 0) {
             setWarningModalIsOpen(true);
             return;
         }
@@ -66,7 +89,6 @@ const ExchangeModal = ({ isOpen, onRequestClose, points, conversionRate, userId 
 
             if (!exchangeResponse.ok) {
                 throw new Error('Failed to create exchange');
-
             }
 
             const pointsResponse = await fetch('/api/points/point', {
@@ -132,36 +154,30 @@ const ExchangeModal = ({ isOpen, onRequestClose, points, conversionRate, userId 
                                 คะแนน one retail society
                             </span>
                         </div>
-                        <div className='flex flex-row items-start'>
-                            <div className='relative'>
-                                <input 
-                                    type="number"
-                                    value={exchangePoints}
-                                    onChange={handleChange}
-                                    max={points} 
-                                    min="0"
-                                    style={{ textAlign: 'center', width: '130px' }}
-                                    className='relative border-b-2 border-gray-300 rounded-lg p-2'
-                                />
-                                <div className='absolute top-2 right-0'>
-                                    <span className='relative text-sm font-bold text-gray-700 pr-4'>
+                        <div className='flex flex-row items-center mb-4'>
+                            <div className='flex flex-col items-center justify-center'>
+                                <div className='flex items-center justify-between mb-1'>
+                                    <button onClick={handleDecrementPoints} className='px-2 py-1 bg-gray-200 rounded'>-</button>
+                                    <span className='text-lg font-bold text-black mx-4'>{exchangePoints}</span>
+                                    <button onClick={handleIncrementPoints} className='px-2 py-1 bg-gray-200 rounded'>+</button>
+                                </div>
+                                <div className='flex'>
+                                    <span className='flex text-sm font-bold text-gray-700'>
                                         Point
                                     </span>
                                 </div>
                             </div>
-                            <span className='text-2xl text-black font-bold m-4'>
+                            <span className='text-2xl text-black font-bold ml-4 mr-4'>
                                 =
                             </span>
-                            <div className='relative'>
-                                <input 
-                                    type="text"
-                                    value={coins}
-                                    readOnly
-                                    style={{ textAlign: 'center', width: '130px' }}
-                                    className='flex border-b-2 border-gray-300 rounded-lg p-2'
-                                />
-                                <div className='absolute top-2 right-0'>
-                                    <span className='relative text-sm font-bold text-gray-700 pr-4'>
+                            <div className='flex flex-col items-center justify-center'>
+                                <div className='flex items-center justify-between mb-1'>
+                                    <button onClick={handleDecrementCoins} className='px-2 py-1 bg-gray-200 rounded'>-</button>
+                                    <span className='text-lg font-bold text-black mx-4'>{coins}</span>
+                                    <button onClick={handleIncrementCoins} className='px-2 py-1 bg-gray-200 rounded'>+</button>
+                                </div>
+                                <div className='flex'>
+                                    <span className='flex text-sm font-bold text-gray-700'>
                                         Coins
                                     </span>
                                 </div>

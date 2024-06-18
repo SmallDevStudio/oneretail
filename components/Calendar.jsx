@@ -7,6 +7,7 @@ import Modal from './Modal';
 import axios from 'axios';
 import 'moment/locale/th';
 import Image from 'next/image';
+import Link from 'next/link';
 
 moment.locale('th');
 
@@ -16,6 +17,7 @@ const CustomCalendar = () => {
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [weekEvents, setWeekEvents] = useState({});
+    console.log(selectedEvent);
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -87,14 +89,12 @@ const CustomCalendar = () => {
                             <h3 className='font-black text-lg mt-2'>{moment(date).format('D MMMM YYYY')}</h3>
                             {weekEvents[date].map(event => (
                                 <div key={event._id} onClick={() => onEventClick(event)}>
-                                    <span className='text-sm font-bold'>{event.title}</span> <span className='text-xs'>({moment(event.endDate).diff(moment(event.startDate), 'days') + 1} วัน)</span>
+                                    <span className='text-sm font-bold'>{event.title}</span>
+                                    <div className='flex items-center mt-1'>
+                                        <span className='text-xs'>({moment(event.endDate).diff(moment(event.startDate), 'days') + 1} วัน)</span>
+                                        <span className='text-[10px] text-gray-400 ml-2'>คลิกเพื่อดูรายละเอียด</span>
+                                    </div>
                                     <p className='text-sm mb-3 text-ellipsis'>{event.description}</p>
-                                    <p className='text-sm'>
-                                        {moment(event.startDate).format('LL')}
-                                        {moment(event.startDate).isSame(event.endDate, 'day') 
-                                            ? '' 
-                                            : ` - ${moment(event.endDate).format('LL')}`}
-                                    </p>
                                     <hr />
                                 </div>
                             ))}
@@ -105,7 +105,10 @@ const CustomCalendar = () => {
             {modalVisible && (
                 <Modal onClose={() => setModalVisible(false)} style={{ }}>
                     <div className='w-full p-2 '>
-                        <h2 className='font-bold text-2xl text-[#0056FF]'>{selectedEvent.title}</h2>
+                        
+                        <span className='font-bold text-lg text-[#0056FF]'>{selectedEvent.title}</span>
+                        {selectedEvent.No && <span className='text-sm font-bold text-[#F68B1F] ml-2 '>(รุ่นที่ {selectedEvent.No})</span>}
+                     
                         <p className='text-sm text-[#0056FF]'>
                             {moment(selectedEvent.startDate).format('LL')}
                             {moment(selectedEvent.startDate).isSame(selectedEvent.endDate, 'day') 
@@ -125,7 +128,9 @@ const CustomCalendar = () => {
                                 />
                                 {selectedEvent.location}
                             </span>
-                            <p className='text-sm font-bold'>{selectedEvent.mapLocation} - {selectedEvent.place}</p>
+                            <Link href={selectedEvent.link? selectedEvent.link : '#'} target={selectedEvent.link? '_blank' : '_self'}>
+                                <p className='text-sm font-bold'>{selectedEvent.mapLocation} - {selectedEvent.place}</p>
+                            </Link>
                         </div>
                     </div>
                 </Modal>

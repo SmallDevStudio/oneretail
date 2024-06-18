@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     } else if (req.method === 'PUT') {
         const { userId } = req.query;
         try {
-          const user = await Users.findByIdAndUpdate(id, req.body, {
+          const user = await Users.findByIdAndUpdate(userId, req.body, {
               new: true,
               runValidators: true
           });

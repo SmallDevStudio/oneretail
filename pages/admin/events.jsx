@@ -104,6 +104,7 @@ const ManageEvents = () => {
     { field: 'endTime', headerName: 'endTime', width: 80 },
     { field: 'type', headerName: 'type', width: 80 },
     { field: 'place', headerName: 'place', width: 150 },
+    { field: 'link', headerName: 'link', width: 150 },
     { field: 'note', headerName: 'note', width: 150 },
     { field: 'creator', headerName: 'creator', width: 80 },
     {

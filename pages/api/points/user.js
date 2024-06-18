@@ -30,8 +30,6 @@ export default async function handler(req, res) {
                 return acc;
               }, { point: 0, totalPoints: 0 });
 
-           
-
             res.status(200).json({
             userId,
             point: pointData.point,

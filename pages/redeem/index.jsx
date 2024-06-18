@@ -7,8 +7,10 @@ import useSWR from "swr";
 import { useSession } from "next-auth/react";
 import ExchangeModal from "@/components/ExchangeModal";
 import NotificationModal from "@/components/NotificationModal";
+import RedeemModal from "@/components/RedeemModal";
 import { toast } from "react-toastify";
 import LoadingFeed from "@/components/LoadingFeed";
+import Loading from "@/components/Loading";
 import moment from "moment";
 moment.locale("th");
 
@@ -21,12 +23,13 @@ export default function Redeem() {
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [notificationModalIsOpen, setNotificationModalIsOpen] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState("");
-    const [conversionRate, setConversionRate] = useState(20);
+    const [redeemModalIsOpen, setRedeemModalIsOpen] = useState(false);
+    const [selectedRedeem, setSelectedRedeem] = useState(null);
+    const [conversionRate, setConversionRate] = useState(25);
     const [userPoints, setUserPoints] = useState(0);
     const [userCoins, setUserCoins] = useState(0);
     const [redeems, setRedeems] = useState(null);
     const [redeemTransData, setRedeemTransData] = useState(null);
-    const [selectedRedeem, setSelectedRedeem] = useState(null);
   
     const openModal = () => setModalIsOpen(true);
     const closeModal = () => setModalIsOpen(false);
@@ -35,6 +38,11 @@ export default function Redeem() {
       setNotificationModalIsOpen(true);
     };
     const closeNotificationModal = () => setNotificationModalIsOpen(false);
+    const openRedeemModal = (redeemItem) => {
+      setSelectedRedeem(redeemItem);
+      setRedeemModalIsOpen(true);
+    };
+    const closeRedeemModal = () => setRedeemModalIsOpen(false);
   
     const { data: level } = useSWR('/api/level/user?userId=' + session?.user?.id, fetcher);
     const { data: coins } = useSWR('/api/coins/user?userId=' + session?.user?.id, fetcher, {
@@ -109,6 +117,8 @@ export default function Redeem() {
     const handleTabClick = (tab) => {
       setActiveTab(tab);
     };
+
+    if (!level || !coins || !points || !redeem || !redeemtrans) return <Loading />;
   
     return (
       <main className="flex flex-col bg-white min-w-[100vw]">
@@ -221,12 +231,17 @@ export default function Redeem() {
           onRequestClose={closeNotificationModal}
           message={notificationMessage}
         />
+        <RedeemModal
+          isOpen={redeemModalIsOpen}
+          onRequestClose={closeRedeemModal}
+          redeemItem={selectedRedeem}
+        />
         {/* Content */}
         <div className="flex flex-col items-center justify-center p-5 gap-2 mb-20">
           {activeTab === 'redeem1' && (
             <Suspense fallback={<LoadingFeed />}>
               {redeems?.map((redeemItem) => (
-                <div key={redeemItem._id} className="flex flex-row w-full bg-gray-300 rounded-xl p-1">
+                <div key={redeemItem._id} className="flex flex-row w-full bg-gray-300 rounded-xl p-1 cursor-pointer" onClick={() => openRedeemModal(redeemItem)}>
                   <div className="flex flex-col items-center justify-center">
                     <Image
                       src={redeemItem.image}
@@ -280,7 +295,7 @@ export default function Redeem() {
                       </div>
                       <button
                         className="bg-[#F68B1F] rounded-full text-white font-medium h-8 px-4"
-                        onClick={() => handleRedeemClick(redeemItem)}
+                        onClick={(e) => { e.stopPropagation(); handleRedeemClick(redeemItem); }}
                       >
                         redeem
                       </button>
