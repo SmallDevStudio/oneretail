@@ -40,7 +40,7 @@ export default function Stores() {
         window.history.pushState(null, "", `?tab=${tab}`);
     };
 
-    if (isLoading) return <Loading />;
+    if (isLoading || !contents || !contentsData || !video || !videoUrl) return <Loading />;
     if (contentsError) return <p>Error: {error}</p>;
 
     return (

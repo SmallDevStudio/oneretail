@@ -16,23 +16,19 @@ export default async function handler(req, res) {
 
       try {
         const { subcategoryId } = query;
-        console.log('subcategoryId:', subcategoryId); // Log the subcategoryId
     
         const contents = await Content.find({ subcategories: subcategoryId })
           .populate('categories')
           .populate('subcategories')
           .populate('groups');
-        console.log('Contents found:', contents); // Log the contents found
     
         if (contents.length === 0) {
           return res.status(200).json({ success: true, data: [] });
         }
     
         const userIds = contents.map(content => content.author);
-        console.log('User IDs:', userIds); // Log the user IDs
     
         const users = await Users.find({ userId: { $in: userIds } });
-        console.log('Users found:', users); // Log the users found
     
         const userMap = users.reduce((acc, user) => {
           acc[user.userId] = user;
@@ -44,7 +40,6 @@ export default async function handler(req, res) {
           content.author = userMap[content.author] || null;
           return content;
         });
-        console.log('Populated contents:', populatedContents); // Log the populated contents
     
         res.status(200).json({ success: true, data: populatedContents });
       } catch (error) {

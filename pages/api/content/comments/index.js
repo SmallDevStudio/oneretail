@@ -13,7 +13,6 @@ export default async function handler(req, res) {
         case 'GET':
           // Get all comments
           const { contentId } = req.query;
-          console.log('contentId:', contentId);
           let contentObjectId;
           try {
             contentObjectId = new mongoose.Types.ObjectId(contentId);

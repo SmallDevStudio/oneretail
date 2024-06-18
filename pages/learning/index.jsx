@@ -1,10 +1,8 @@
 import { AppLayout } from "@/themes";
 import React, { useState, useEffect } from "react";
 import ReactPlayer from "react-player/youtube";
-import dynamic from 'next/dynamic';
 import useSWR from "swr";
 import Loading from "@/components/Loading";
-import AllFeed from "@/components/learning/AllFeed";
 import LearnFeed2 from "@/components/learning/LearnFeed2";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -22,7 +20,7 @@ export default function Learning() {
     const router = useRouter();
 
     useEffect(() => {
-        const tab = router.query.tab || "All";
+        const tab = router.query.tab || "learn";
         setActiveTab(tab);
     }, [router.query.tab]);
 
@@ -32,19 +30,19 @@ export default function Learning() {
         }
     });
 
-    const { data: contentsData, error: contentsError, isLoading } = useSWR(`/api/content/category?categoryId=${category}`, fetcher, {
+    const { data: contentsData, error: contentsError } = useSWR(`/api/content/category?categoryId=${category}`, fetcher, {
         onSuccess: (data) => {
             setContents(data?.data);
         }
     });
 
-    const { data: contentsData1, error: contentsError1, isLoading: isLoading1 } = useSWR(`/api/content/subcategory?subcategoryId=${subcategory}`, fetcher, {
+    const { data: contentsData1, error: contentsError1 } = useSWR(`/api/content/subcategory?subcategoryId=${subcategory}`, fetcher, {
         onSuccess: (data) => {
             setContents2(data?.data);
         }
     });
 
-    const { data: contentsData2, error: contentsError2, isLoading: isLoading2 } = useSWR(`/api/content/subcategory?subcategoryId=${subcategory2}`, fetcher, {
+    const { data: contentsData2, error: contentsError2 } = useSWR(`/api/content/subcategory?subcategoryId=${subcategory2}`, fetcher, {
         onSuccess: (data) => {
             setContents3(data?.data);
         }
@@ -57,10 +55,12 @@ export default function Learning() {
         window.history.pushState(null, "", `?tab=${tab}`);
     };
 
-    if (isLoading) return <Loading />;
+    if (!contents || !contents2 || !contents3 || !video) return <Loading />;
+    if (contentsError || contentsError1 || contentsError2 || videoError) return <p>Error: {contentsError || contentsError1 || contentsError2 || videoError}</p>;
+
 
     return (
-        <main className="flex-1 flex-col bg-gray-10 justify-between items-center text-center h-full">
+        <div className="flex flex-col bg-gray-10 justify-between items-center text-center">
             <div>
                 <div className="flex items-center text-center justify-center mt-[20px] p-2 px-1 pz-1">
                     <span className="text-[35px] font-black text-[#0056FF] dark:text-white">Learning</span>
@@ -70,15 +70,7 @@ export default function Learning() {
             {/* Tabs */}
             <div className="flex justify-center mb-4 text-sm">
                 <ul className="flex flex-wrap gap-6">
-                    <li className="me-2">
-                        <Link
-                            href="#"
-                            className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'All' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
-                            onClick={() => handleTabClick('All')}
-                        >
-                            ทั้งหมด
-                        </Link>
-                    </li>
+                
                     <li className="me-2">
                         <Link
                             href="#"
@@ -114,24 +106,20 @@ export default function Learning() {
                                 
                     />
                 </div>
-                {activeTab === 'All' && (
-                    <>
-                    {contents.length > 0 ? <AllFeed contents={contents} /> : <p>No content available.</p>}
-                    </>
-                )}
-                {activeTab === 'learn' && (
-                    <>
-                    {contents2.length > 0 ? <LearnFeed2 contents={contents2} /> : <p>No content available.</p>}
-                    </>
-                )}
+                    
+                    {activeTab === 'learn' && (
+                        <>
+                        {contents2.length > 0 ? <LearnFeed2 contents={contents2} /> : <p>No content available.</p>}
+                        </>
+                    )}
 
-                {activeTab === 'learn2' && (
-                    <>
-                    {contents3.length > 0 ? <LearnFeed2 contents={contents3} /> : <p>No content available.</p>}
-                    </>
-                )}
+                    {activeTab === 'learn2' && (
+                        <>
+                        {contents3.length > 0 ? <LearnFeed2 contents={contents3} /> : <p>No content available.</p>}
+                        </>
+                    )}
             </div>
-        </main>
+        </div>
     )
 }
 

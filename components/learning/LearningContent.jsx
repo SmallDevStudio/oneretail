@@ -5,11 +5,10 @@ import ReactPlayer from "react-player/youtube";
 import { GrLike } from "react-icons/gr";
 import { LuMessageCircle } from "react-icons/lu";
 import axios from "axios";
-import { IoMdTimer } from "react-icons/io";
 import TimeDisplay from "@/components/TimeDisplay";
 import CommentList from "@/components/content/CommentList";
 import InputComment from "@/components/content/InputComment";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import Loading from "../Loading";
 import VideoModal from "../VideoModal";
 import { useRouter } from "next/router";
@@ -24,7 +23,6 @@ const LearningContent = ({ content, user }) => {
   const [completed, setCompleted] = useState(false);
   const [likes, setLikes] = useState(content.likes || []);
   const [userHasLiked, setUserHasLiked] = useState(Array.isArray(likes) && likes.includes(userId));
-  const [comments, setComments] = useState('');
   const [showInput, setShowInput] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const playerRef = useRef(null);
@@ -32,16 +30,13 @@ const LearningContent = ({ content, user }) => {
   const router = useRouter();
 
   const { data , error, isLoading } = useSWR(`/api/content/comments?contentId=${contentId}`, fetcher, {
-          // refreshInterval: 2000,
-          onSuccess: (data) => {
-          setComments(data);
-      }
+    revalidateOnMount: true,
+    refreshInterval: 1000
   });
 
   const handleCommentAdded = async () => {
       // Refresh comments
-      const res = await axios.get(`/api/content/comments?contentId=${contentId}`);
-      setComments(res.data.data);
+      mutate(`/api/content/comments?contentId=${contentId}`);
       // Close comment box
       setShowInput(false);
     };
@@ -117,10 +112,9 @@ const LearningContent = ({ content, user }) => {
       router.push('/learning');
     };
 
-    if (isLoading) return <Loading />;
+    if (isLoading || !data || !content || !user) return <Loading />;
     if (error) return <div>Error loading comments</div>;
-    if (!content) return <Loading />;
-    if (!user) return <Loading />;
+
     
     return (
         <div className="flex flex-col items-center">
@@ -176,14 +170,14 @@ const LearningContent = ({ content, user }) => {
                             <span>การดู {content?.views ? content?.views : 0} ครั้ง</span>
                             <div className="relative inline-flex columns-2 p-3 justify-center h-8 items-baseline" onClick={() => setShowInput(!showInput)}>
                                     <LuMessageCircle className="mr-2"/>
-                                    <span>แสดงความคิดเห็น {comments?.data ? comments?.data.length : 0} ครั้ง</span>
+                                    <span>แสดงความคิดเห็น {data?.data ? data?.data.length : 0} ครั้ง</span>
                             </div>
                             
                         </div>
                     </div>
                 <div>
                     {showInput && <InputComment contentId={content._id} userId={userId} onCommentAdded={handleCommentAdded} />}
-                    <CommentList comments={content.comments} contentId={content._id} user={user} />
+                    <CommentList comments={data?.data} contentId={content._id} user={user} />
                 </div>
             </div>
             <VideoModal isOpen={isModalOpen} onRequestClose={handleCloseModal} point={content.point} />

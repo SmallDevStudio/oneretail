@@ -2,7 +2,6 @@ import { useState } from 'react';
 import axios from 'axios';
 import moment from 'moment';
 import Image from 'next/image';
-import { RiDeleteBin5Line } from "react-icons/ri";
 import { RiDeleteBinLine } from "react-icons/ri";
 
 const CommentList = ({ comments: initialComments, contentId, user }) => {
