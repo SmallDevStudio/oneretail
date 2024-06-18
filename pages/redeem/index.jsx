@@ -237,41 +237,25 @@ export default function Redeem() {
           redeemItem={selectedRedeem}
         />
         {/* Content */}
-        <div className="flex flex-col items-center justify-center p-5 gap-2 mb-20">
+        <div className="flex flex-col items-center justify-center p-4 gap-2 mb-20">
           {activeTab === 'redeem1' && (
             <Suspense fallback={<LoadingFeed />}>
               {redeems?.map((redeemItem) => (
-                <div key={redeemItem._id} className="flex flex-row w-full bg-gray-300 rounded-xl p-1 cursor-pointer" onClick={() => openRedeemModal(redeemItem)}>
+                <div key={redeemItem._id} className="flex flex-row w-full bg-gray-300 rounded-xl cursor-pointer" onClick={() => openRedeemModal(redeemItem)}>
                   <div className="flex flex-col items-center justify-center">
                     <Image
                       src={redeemItem.image}
                       alt={redeemItem.name}
                       width={150}
                       height={150}
-                      className="flex p-2"
+                      className="flex p-2 rounded-xl"
                       style={{
                         minWidth: "150px",
                         maxHeight: "120px",
                         objectFit: "contain",
                       }}
                     />
-                    <div style={{
-                      position: "relative",
-                      bottom: "10px",
-                      left: "35px",
-                    }}>
-                      <div className="flex flex-row bg-[#0056FF] rounded-full text-white font-bold h-6 w-[70px] p-1 text-center justify-center items-center">
-                        <span className="flex text-sm">{redeemItem.coins} 
-                          <Image
-                            src="/images/profile/Coin.svg"
-                            alt="coins"
-                            width={15}
-                            height={15}
-                            className="flex ml-2"
-                          />  
-                        </span>
-                      </div>
-                    </div>
+                    
                   </div>
                   <div className="flex flex-col justify-between flex-grow p-2">
                     <div>

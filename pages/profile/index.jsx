@@ -140,7 +140,7 @@ export default function Profile() {
                                 priority
                             />
                             <span className="text-sm font-black text-[#0056FF] dark:text-white">
-                                Total Point
+                                Total Points
                             </span>
                             <span className="text-xl font-black text-[#0056FF] dark:text-white">
                                 {points?.point ? points?.point : 0}
@@ -159,7 +159,7 @@ export default function Profile() {
                                 priority
                             />
                             <span className="text-sm font-black text-[#0056FF] dark:text-white">
-                                Coin
+                                Coins
                             </span>
                             <span className="text-xl font-black text-[#0056FF] dark:text-white">
                                 {coins?.coins ? coins?.coins : 0}

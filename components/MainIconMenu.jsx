@@ -16,7 +16,7 @@ export default function MainIconMenu() {
                                     <circle fill="currentColor" cx="262.82" cy="123.25" r="12.31"/>
                                 </svg>
                                 <span className="inline-block text-sm font-bold text-[#0056FF]">
-                                    เกมส์
+                                    เกม
                                 </span>
                             </button>
 
