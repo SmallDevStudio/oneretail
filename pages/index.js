@@ -1,3 +1,4 @@
+//home
 "use client";
 import React, { useEffect } from "react";
 import { useSession } from "next-auth/react";
@@ -13,44 +14,52 @@ const HomePage = () => {
     const router = useRouter();
     const userId = session?.user?.id;
 
-    const { data: user, error: userError, isLoading: isUserLoading } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
-    const { data: loginReward, error: loginRewardError, isLoading: isLoginRewardLoading } = useSWR(() => userId ? `/api/loginreward/${userId}` : null, fetcher);
-    const { data: survey, error: surveyError, isLoading: isSurveyLoading } = useSWR(() => userId ? `/api/survey/checkSurvey?userId=${userId}` : null, fetcher);
-    const { data: surveySettings, error: surveySettingsError, isLoading: isSurveySettingsLoading } = useSWR('/api/survey/settings', fetcher);
-
-    useEffect(() => {
-        console.log("Session status:", status);
-        console.log("Session data:", session);
-        console.log("User data:", user);
-        console.log("LoginReward data:", loginReward);
-        console.log("Survey data:", survey);
-        console.log("Survey Settings data:", surveySettings);
-
-        if (status === "loading" || isUserLoading || isLoginRewardLoading || isSurveyLoading || isSurveySettingsLoading) return; // รอโหลดข้อมูลทั้งหมด
+    // Function to handle redirection
+    const handleRedirection = (user, loginReward, survey, surveySettings) => {
         if (!session) {
-            router.push('/login'); // ถ้า session ไม่มีหรือยังไม่ได้ login
+            router.push('/login');
             return;
         }
-        if (user?.user === null) {
-            router.push('/register'); // ถ้าไม่มี user data ให้ไปที่ /register
+        if (!user) {
+            router.push('/register');
             return;
         }
         if (loginReward && !loginReward.receivedPointsToday) {
-            router.push('/loginreward'); // ถ้ายังไม่ได้รับ login reward ไปที่ /loginreward
+            router.push('/loginreward');
             return;
         }
         if (surveySettings && !surveySettings.isSurveyEnabled) {
-            router.push('/main'); // ถ้า survey ถูกปิดการใช้งาน ให้ไปที่ /main
+            router.push('/main');
             return;
         }
         if (survey && survey.completed) {
-            router.push('/main'); // ถ้าทำ survey แล้วไปที่ /main
+            router.push('/main');
         } else {
-            router.push('/pulsesurvey'); // ถ้ายังไม่ได้ทำ survey ไปที่ /pulsesurvey
+            router.push('/pulsesurvey');
         }
-    }, [router, session, status, user, isUserLoading, loginReward, isLoginRewardLoading, survey, isSurveyLoading, surveySettings, isSurveySettingsLoading]);
+    };
 
-    if (status === "loading" || isUserLoading || isLoginRewardLoading || isSurveyLoading || isSurveySettingsLoading) return <Loading />;
+    // SWR hooks to fetch data
+    const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
+    const { data: loginReward, error: loginRewardError } = useSWR(() => userId ? `/api/loginreward/${userId}` : null, fetcher);
+    const { data: survey, error: surveyError } = useSWR(() => userId ? `/api/survey/checkSurvey?userId=${userId}` : null, fetcher);
+    const { data: surveySettings, error: surveySettingsError } = useSWR('/api/survey/settings', fetcher);
+
+    useEffect(() => {
+        // Check if any data is loading
+        const isLoading = status === "loading" || !user || !loginReward || !survey || !surveySettings;
+
+        if (isLoading) return;
+        if (userError || loginRewardError || surveyError || surveySettingsError) {
+            console.error("Error loading data", userError || loginRewardError || surveyError || surveySettingsError);
+            return;
+        }
+        
+        handleRedirection(user, loginReward, survey, surveySettings);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [session, status, user, loginReward, survey, surveySettings, userError, loginRewardError, surveyError, surveySettingsError, router]);
+
+    if (status === "loading" || !user || !loginReward || !survey || !surveySettings) return <Loading />;
     if (userError || loginRewardError || surveyError || surveySettingsError) return <div>Error loading data</div>;
 
     return (

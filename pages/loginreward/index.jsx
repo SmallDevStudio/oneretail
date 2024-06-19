@@ -1,3 +1,4 @@
+// loginreward
 "use client";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
@@ -16,18 +17,16 @@ const Loginreward = () => {
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [points, setPoints] = useState(0);
-  const [loginData, setLoginData] = useState({});
   const router = useRouter();
   const userId = session?.user?.id;
 
-  const { data, error, isLoading } = useSWR(() => userId ? `/api/loginreward/${userId}` : null, fetcher, {
-    onSuccess: (data) => {
-      setLoginData(data);
-    },
-  });
+  const { data: loginData, error: loginDataError, isLoading: isLoginDataLoading } = useSWR(
+    () => userId ? `/api/loginreward/${userId}` : null, 
+    fetcher
+  );
 
   useEffect(() => {
-    if (loginData.receivedPointsToday && !modalOpen) {
+    if (loginData?.receivedPointsToday && !modalOpen) {
       router.push("/");
     }
   }, [loginData, router, modalOpen]);
@@ -48,7 +47,7 @@ const Loginreward = () => {
     }
   };
 
-  const percent = data?.day ? Math.round((data.day / 30) * 100) : 0;
+  const percent = loginData?.day ? Math.round((loginData.day / 30) * 100) : 0;
 
   const items = Array.from({ length: 30 }, (_, i) => i + 1);
   const getImageSrc = (index) => {
@@ -62,8 +61,8 @@ const Loginreward = () => {
     mutate(`/api/loginreward/${userId}`); // Re-fetch data
   };
 
-  if (error) return <div>Error: {error.message}</div>;
-  if (isLoading) return <Loading />;
+  if (loginDataError) return <div>Error: {loginDataError.message}</div>;
+  if (isLoginDataLoading) return <Loading />;
 
   return (
     <main className="flex items-center justify-center bg-[#0056FF]" style={{ minHeight: "100vh", width: "100%" }}>
@@ -83,7 +82,7 @@ const Loginreward = () => {
               {items.map((item) => (
                 <div
                   key={item}
-                  className={`flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden border-2 border-[#C7DFF5] rounded-lg ${item <= (data?.day % 30) ? 'bg-[#C7DFF5]/70' : ''}`}
+                  className={`flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden border-2 border-[#C7DFF5] rounded-lg ${item <= (loginData?.day % 30) ? 'bg-[#C7DFF5]/70' : ''}`}
                   style={{ width: 60, height: 60 }}
                   id={item.toString()}
                 >

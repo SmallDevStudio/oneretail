@@ -1,10 +1,12 @@
-import React from "react";
-import { useState, useEffect } from "react";
+// survey
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import Loading from "@/components/Loading";
-import axios from "axios";
+import useSWR, { mutate } from 'swr';
+
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const PulseSurvey = () => {
     const [loading, setLoading] = useState(false);
@@ -12,6 +14,14 @@ const PulseSurvey = () => {
     const { data: session } = useSession();
     const userId = session?.user?.id;
     const router = useRouter();
+
+    const { data: surveyData, error: surveyError, isLoading: isSurveyLoading } = useSWR(() => userId ? `/api/survey/checkSurvey?userId=${userId}` : null, fetcher);
+
+    useEffect(() => {
+        if (surveyData?.completed) {
+            router.push('/main');
+        }
+    }, [surveyData, router]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -23,44 +33,22 @@ const PulseSurvey = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ ...survey, userId: userId }), // replace 'USER_ID' with actual user ID
+                body: JSON.stringify({ ...survey, userId }),
             });
 
             if (response.ok) {
                 const data = await response.json();
                 setLoading(false);
                 router.push('/main');
-                // Handle success (e.g., show a success message, clear the form, etc.)
             } else {
                 console.error('Error submitting survey:', response.statusText);
                 setLoading(false);
-                // Handle error (e.g., show an error message)
             }
         } catch (error) {
             console.error('Error submitting survey:', error);
             setLoading(false);
         }
-        setLoading(false); 
     };
-
-    useEffect(() => {
-        const checkSurveyCompletion = async () => {
-            try {
-                const response = await fetch(`/api/survey/checkSurvey?userId=${userId}`); // replace 'USER_ID' with actual user ID
-                const data = await response.json();
-
-                if (data.completed) {
-                    router.push('/main');
-                }
-            } catch (error) {
-                console.error('Error checking survey completion:', error);
-            }
-        };
-
-        checkSurveyCompletion();
-    }, [router, userId]);
-
-    
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -71,7 +59,8 @@ const PulseSurvey = () => {
         setSurvey({ ...survey, value });
     };
 
-    if (loading) return <Loading />;
+    if (loading || isSurveyLoading) return <Loading />;
+    if (surveyError) return <div>Error: {surveyError.message}</div>;
 
     const options = [
         { value: 5, label: 'เยี่ยมสุดๆ', color: '#00D655' },
@@ -98,10 +87,10 @@ const PulseSurvey = () => {
                         <div>
                             <form onSubmit={handleSubmit} className="">
                                 <ul className="flex flex-col mt-5">
-                                    {options.map((option, idx) => (
+                                    {options.map((option) => (
                                         <li
                                             key={option.value}
-                                            className="relative w-full mb-3"
+                                            className="relative w-full mb-3 cursor-pointer"
                                             onClick={() => handleValueChange(option.value)}
                                         >
                                             <div className="relative grid grid-cols-4 justify-center items-center text-left p-2">
@@ -111,9 +100,11 @@ const PulseSurvey = () => {
                                                     width={50}
                                                     height={50}
                                                     className="absolute mb-3 ml-3"
-                                                    style={{ width: "50px", height: "50px" }}
                                                 />
-                                                <div className={`col-span-3 ml-8 rounded-xl h-8 flex items-center ${survey.value === option.value ? 'ring-1 ring-gray-300' : ''}`} style={{ backgroundColor: survey.value === option.value ? '#D3D3D3' : option.color, width: "280px" }}>
+                                                <div
+                                                    className={`col-span-3 ml-8 rounded-xl h-8 flex items-center`}
+                                                    style={{ backgroundColor: survey.value === option.value || survey.value === null ? option.color : '#D3D3D3', width: "280px" }}
+                                                >
                                                     <span className="inline-block ml-8 text-white font-bold">
                                                         {option.label}
                                                     </span>
@@ -150,4 +141,3 @@ const PulseSurvey = () => {
 };
 
 export default PulseSurvey;
-
