@@ -105,7 +105,7 @@ export default function Register() {
                                 <input type="hidden" {...register("userId", { value: session?.user?.id })} setValue={session?.user?.id}/> */}
                             </div>
                             <span className="text-xl font-black text-[#1E3060]" style={{ fontFamily: 'Ekachon' }}>
-                                website
+                                {session?.user?.name}
                             </span>
                         </div>
                         <div className="block mb-2">
