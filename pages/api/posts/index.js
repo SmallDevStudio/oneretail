@@ -41,12 +41,12 @@ export default async function handler(req, res) {
                   description: 'Received points for creating a post',
                   type: 'earn',
                   contentId: null,
-                  point: 20,
+                  point: 15,
                 });
                 await newPoint.save();
 
                 // Send a LINE message to the user
-                await sendLineMessage(user.userId, 'คุณได้รับ 20 points จากการสร้าง Share Your Story!');
+                await sendLineMessage(user.userId, 'คุณได้รับ 15 points จากการสร้าง Share Your Story!');
 
 
               res.status(201).json({ success: true, data: post });

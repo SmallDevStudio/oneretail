@@ -194,7 +194,7 @@ export default function Redeem() {
         </div>
         <div className="flex items-center justify-end mr-5 mb-2">
           <span className="text-[10px] text-[#1E3060] font-bold">
-            เปลี่ยนคะแนน เป็น คอยล์
+            เปลี่ยนคะแนน เป็น คอยน์
             <button>
               <span className="text-[#F68B1F] font-bold ml-1" onClick={openModal}>คลิก</span>
             </button>

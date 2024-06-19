@@ -139,7 +139,7 @@ const ExchangeModal = ({ isOpen, onRequestClose, points, conversionRate, userId 
         <>
             <Modal isOpen={isOpen} onRequestClose={onRequestClose} style={customStyles}>
                 <h2 style={{ textAlign: 'center' }} className='text-lg font-bold text-[#0056FF]'>
-                    แลกเปลี่ยนคะแนน เป็น คอยล์
+                    แลกเปลี่ยนคะแนน เป็น คอยน์
                 </h2>
                 <div style={{ textAlign: 'center' }} className='flex flex-col justify-center items-center'>
                     <div className='mb-4 mt-2 items-center justify-center'>

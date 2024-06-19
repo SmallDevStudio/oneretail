@@ -103,7 +103,7 @@ const CreatePost = ({ user, onPostCreated }) => {
             {getEmbedPreview(preview)}
           </div>
         )}
-        <PostModal isOpen={isModalOpen} onRequestClose={onRequestClose} score={20} />
+        <PostModal isOpen={isModalOpen} onRequestClose={onRequestClose} score={15} />
       </div>
     </>
   );
