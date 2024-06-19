@@ -50,14 +50,16 @@ const SendPointsCoins = () => {
         const user = users.find(user => user.empId === transaction.empId);
         if (!user) continue;
 
-        await axios.post('/api/sentpointcoins', {
+        const transData = {
           adminUserId,
           empId: transaction.empId,
           point: transaction.point,
           coins: transaction.coins,
           ref: transaction.ref,
           remark: transaction.remark,
-        });
+        };
+        
+        await axios.post('/api/sendpointcoins', transData);
       }
       // Clear form
       setSelectedEmpIds([]);
