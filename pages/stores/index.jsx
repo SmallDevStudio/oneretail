@@ -1,17 +1,18 @@
+// Stores
 import { AppLayout } from "@/themes";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import ReactPlayer from "react-player/youtube";
 import useSWR from "swr";
 import Loading from "@/components/Loading";
 import SuccessFeed from "@/components/success/SuccessFeed";
 import ShareYourStory from "@/components/success/ShareYourStory";
+import SuccessSkeleton from "@/components/SkeletonLoader/SuccessSkeleton";
 import { useRouter } from "next/router";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function Stores() {
     const category = "665c4c51013c2e4b13669c90";
-    const subcategory = "665c4c95013c2e4b13669c98";
     const [activeTab, setActiveTab] = useState("secret-sauce");
     const [videoUrl, setVideoUrl] = useState('');
     const [contents, setContents] = useState([]);
@@ -35,13 +36,14 @@ export default function Stores() {
         }
     });
 
-    const handleTabClick = (tab) => {
+    const handleTabClick = useCallback((tab) => {
         setActiveTab(tab);
         window.history.pushState(null, "", `?tab=${tab}`);
-    };
+    }, []);
 
     if (!contents || !video ) return <Loading />;
-    if (contentsError) return <p>Error: {error}</p>;
+    if (contentsError) return <p>Error: {contentsError.message}</p>;
+    if (videoError) return <p>Error: {videoError.message}</p>;
 
     return (
         <main className="flex-1 flex-col bg-gray-10 justify-between items-center text-center h-full">
@@ -93,7 +95,7 @@ export default function Stores() {
                             />
                         </div>
                         <div>
-                            {contents.length > 0 ? <SuccessFeed contents={contents} /> : <p>No content available.</p>}
+                            {isLoading ? <SuccessSkeleton /> : <SuccessFeed contents={contents} />}
                         </div>
                     </>
                 )}
@@ -102,7 +104,7 @@ export default function Stores() {
                 )}
             </div>
         </main>
-    )
+    );
 }
 
 Stores.getLayout = (page) => <AppLayout>{page}</AppLayout>;

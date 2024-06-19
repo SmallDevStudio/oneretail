@@ -1,12 +1,16 @@
+// learning
 import { AppLayout } from "@/themes";
 import React, { useState, useEffect } from "react";
 import ReactPlayer from "react-player/youtube";
 import useSWR from "swr";
 import Loading from "@/components/Loading";
 import LearnFeed2 from "@/components/learning/LearnFeed2";
+import LearnSkeleton from "@/components/SkeletonLoader/LearnSkeleton";
 import Link from "next/link";
 import { useRouter } from "next/router";
+
 const fetcher = (url) => fetch(url).then((res) => res.json());
+
 export default function Learning() {
     const category = "665c561146d171292cbda9eb";
     const subcategory = "665c565a46d171292cbda9f7";
@@ -48,8 +52,6 @@ export default function Learning() {
         }
     });
 
-
-
     const handleTabClick = (tab) => {
         setActiveTab(tab);
         window.history.pushState(null, "", `?tab=${tab}`);
@@ -57,7 +59,6 @@ export default function Learning() {
 
     if (!contents || !contents2 || !contents3 || !video) return <Loading />;
     if (contentsError || contentsError1 || contentsError2 || videoError) return <p>Error: {contentsError || contentsError1 || contentsError2 || videoError}</p>;
-
 
     return (
         <div className="flex flex-col bg-gray-10 justify-between items-center text-center">
@@ -103,26 +104,24 @@ export default function Learning() {
                         width="100%"
                         height="250px"
                         playing={true}
-                                
                     />
                 </div>
                     
                     {activeTab === 'learn' && (
                         <>
-                        {contents2.length > 0 ? <LearnFeed2 contents={contents2} /> : <p>No content available.</p>}
+                        {contents2.length > 0 ? <LearnFeed2 contents={contents2} /> : <LearnSkeleton />}
                         </>
                     )}
 
                     {activeTab === 'learn2' && (
                         <>
-                        {contents3.length > 0 ? <LearnFeed2 contents={contents3} /> : <p>No content available.</p>}
+                        {contents3.length > 0 ? <LearnFeed2 contents={contents3} /> : <LearnSkeleton />}
                         </>
                     )}
             </div>
         </div>
     )
 }
-
 
 Learning.getLayout = (page) => <AppLayout>{page}</AppLayout>;
 Learning.auth = true;
