@@ -37,7 +37,7 @@ export default function Profile() {
     if (!level || !survey || !coins || !points) return <Loading />;
 
     const percent = userLevels.requiredPoints 
-        ? parseFloat(userLevels.point / userLevels.requiredPoints * 100)
+        ? parseFloat(userLevels.requiredPoints / userLevels.totalPoints * 100)
         : 0;
 
     return (
