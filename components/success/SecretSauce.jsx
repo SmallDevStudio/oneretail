@@ -99,7 +99,7 @@ const SecretSauce = ({ content, user }) => {
 
     const handleCloseModal = () => {
       setIsModalOpen(false);
-      router.push('/learning');
+      router.push('/stores');
     };
 
     if (isLoading || !data || !content || !user) return <Loading />;
