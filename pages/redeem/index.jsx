@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { AppLayout } from "@/themes";
 import { Suspense } from "react";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { useSession } from "next-auth/react";
 import ExchangeModal from "@/components/ExchangeModal";
 import NotificationModal from "@/components/NotificationModal";
@@ -118,6 +118,11 @@ export default function Redeem() {
       setActiveTab(tab);
     };
 
+    const onExchangeAdd = async () => {
+      mutate('/api/coins/user?userId=' + session?.user?.id);
+      mutate('/api/points/user?userId=' + session?.user?.id);
+    }
+
     if (!level || !coins || !points || !redeem || !redeemtrans) return <Loading />;
   
     return (
@@ -161,7 +166,7 @@ export default function Redeem() {
                   className="flex"
                 />
                 <span className="text-xl text-[#0056FF] font-black">
-                  {coins?.coins ? coins?.coins : 0}
+                  {userCoins ? userCoins : 0}
                 </span>
                 <span className="text-lg text-[#0056FF] font-black">
                   Coins
@@ -186,14 +191,14 @@ export default function Redeem() {
                   Total Point
                 </span>
                 <span className="text-lg text-[#0056FF] font-bold">
-                  {points?.point ? points?.point : 0}
+                  {userPoints ? userPoints : 0}
                 </span>
               </div>
             </div>
           </div>
         </div>
-        <div className="flex items-center justify-end mr-5 mb-2">
-          <span className="text-[10px] text-[#1E3060] font-bold">
+        <div className="flex items-center justify-end mr-5 mb-2 mt-1">
+          <span className="text-xs text-[#1E3060] font-bold">
             เปลี่ยนคะแนน เป็น คอยน์
             <button>
               <span className="text-[#F68B1F] font-bold ml-1" onClick={openModal}>คลิก</span>
@@ -225,6 +230,7 @@ export default function Redeem() {
           points={userPoints}
           conversionRate={conversionRate}
           userId={id}
+          onExchangeAdd={onExchangeAdd}
         />
         <NotificationModal
           isOpen={notificationModalIsOpen}

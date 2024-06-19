@@ -18,7 +18,7 @@ const customStyles = {
     }
 };
 
-const ExchangeModal = ({ isOpen, onRequestClose, points, conversionRate, userId }) => {
+const ExchangeModal = ({ isOpen, onRequestClose, points, conversionRate, userId, onExchangeAdd }) => {
     const [exchangePoints, setExchangePoints] = useState(conversionRate);
     const [coins, setCoins] = useState(1);
     const [warningModalIsOpen, setWarningModalIsOpen] = useState(false);
@@ -121,12 +121,13 @@ const ExchangeModal = ({ isOpen, onRequestClose, points, conversionRate, userId 
                 }),
             });
 
+            
             setLoading(false);
 
             if (!coinsResponse.ok) {
                 throw new Error('Failed to update coins');
             }
-
+            onExchangeAdd();
             onRequestClose();
         } catch (error) {
             console.error('Failed to complete the exchange', error);
