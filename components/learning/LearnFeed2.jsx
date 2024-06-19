@@ -1,3 +1,4 @@
+// LearnFeed2.jsx
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -17,6 +18,7 @@ const LearnFeed2 = ({ contents }) => {
                                 width={150}
                                 height={150}
                                 className="rounded-lg object-cover"
+                                style={{ width: 'auto', height: 'auto' }}
                                 loading="lazy"
                             />
                         </Link>
