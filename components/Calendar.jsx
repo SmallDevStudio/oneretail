@@ -17,7 +17,6 @@ const CustomCalendar = () => {
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [weekEvents, setWeekEvents] = useState({});
-    console.log(selectedEvent);
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -73,6 +72,17 @@ const CustomCalendar = () => {
         return groupedEvents;
     };
 
+    const getChannelColor = (channel) => {
+        switch (channel) {
+            case 'AL':
+                return 'bg-[#0056FF]';
+            case 'BBD':
+                return 'bg-[#F68B1F]';
+            default:
+                return 'bg-gray-500';
+        }
+    };
+
     return (
         <div className='flex flex-col items-center justify-center w-full'>
             <Calendar
@@ -86,13 +96,15 @@ const CustomCalendar = () => {
                 <div className='min-w-[100%] p-2 border-2 border-[#0056FF]/80 rounded-3xl mt-2 pl-5 pr-5'>
                     {Object.keys(weekEvents).map(date => (
                         <div key={date}>
-                            <h3 className='font-black text-lg mt-2'>{moment(date).format('D MMMM YYYY')}</h3>
+                            <h3 className='font-black text-lg mt-2 text-[#0056FF]'>{moment(date).format('D MMMM YYYY')}</h3>
                             {weekEvents[date].map(event => (
                                 <div key={event._id} onClick={() => onEventClick(event)}>
                                     <span className='text-sm font-bold'>{event.title}</span>
-                                    <div className='flex items-center mt-1'>
-                                        <span className='text-xs'>({moment(event.endDate).diff(moment(event.startDate), 'days') + 1} วัน)</span>
-                                        <span className='text-[10px] text-gray-400 ml-2'>คลิกเพื่อดูรายละเอียด</span>
+                                    <span className='text-xs ml-1'>({moment(event.endDate).diff(moment(event.startDate), 'days') + 1} วัน)</span>
+                                    <div className='flex items-center'>
+                                        <span className='text-sm font-bold mr-1'>Channel:</span>
+                                        <span className={`text-sm font-bold text-white rounded-lg pl-1 pr-1 ${getChannelColor(event.channel)}`}>{event.channel}</span>
+                                        <span className='text-[10px] text-gray-400 ml-2'>(คลิกเพื่อดูรายละเอียด)</span>
                                     </div>
                                     <p className='text-sm mb-3 text-ellipsis'>{event.description}</p>
                                     <hr />
@@ -105,18 +117,23 @@ const CustomCalendar = () => {
             {modalVisible && (
                 <Modal onClose={() => setModalVisible(false)} style={{ }}>
                     <div className='w-full p-2 '>
-                        
                         <span className='font-bold text-lg text-[#0056FF]'>{selectedEvent.title}</span>
                         {selectedEvent.No && <span className='text-sm font-bold text-[#F68B1F] ml-2 '>(รุ่นที่ {selectedEvent.No})</span>}
-                     
-                        <p className='text-sm text-[#0056FF]'>
+                        <br/>
+                        <span className='text-sm text-[#0056FF]'>
                             {moment(selectedEvent.startDate).format('LL')}
                             {moment(selectedEvent.startDate).isSame(selectedEvent.endDate, 'day') 
                                 ? '' 
                                 : ` - ${moment(selectedEvent.endDate).format('LL')}`}
-                        </p>
-                        <p className='text-sm'>{selectedEvent.startTime} - {selectedEvent.endTime}</p>
-                        <p className='text-md mb-5'>{selectedEvent.description}</p>
+                        </span>
+                        <span className='text-sm ml-2'>{selectedEvent.startTime} - {selectedEvent.endTime}</span>
+                        <br/>
+                        <span className='text-sm font-bold'>Channel:</span>
+                        <span className={`text-sm ml-1 text-white rounded-lg pl-1 pr-1 ${getChannelColor(selectedEvent.channel)}`}>{selectedEvent.channel}</span>
+                        <span className='text-sm ml-2 font-bold'>Position:</span>
+                        <span className='text-sm ml-1'> {selectedEvent.position}</span>
+                        <br/>
+                        <p className='text-md mb-4'>{selectedEvent.description}</p>
                         <div className='flex flex-row gap-2 items-center'>
                             <span className='text-sm text-[#F68B1F]'>
                                 <Image

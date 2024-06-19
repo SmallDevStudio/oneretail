@@ -34,7 +34,7 @@ const SuccessFeed = ({ contents }) => {
                         {/* icon container */}
                         <div className="flex flex-row justify-between items-center mt-auto pt-2">
                             <span className="font-light text-black text-xs">การดู {content.views} ครั้ง</span>
-                            <div className="flex flex-row items-center gap-2">
+                            {/* <div className="flex flex-row items-center gap-2">
                                 <div className="flex items-center gap-1">
                                     <svg className={`w-4 h-4 ${content.likes.length > 0 ? "text-[#0056FF]" : "text-black"}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 275.26 275.28">
                                         <path fill="currentColor" d="M215.39,275.28H10.87c-6.01,0-10.87-4.87-10.87-10.88V113.14c0-6.01,4.87-10.87,10.87-10.87h56.27L143.42,14.33c10.29-11.86,26.19-16.88,41.49-13.09l.73.18c13.15,3.25,23.89,12.69,28.73,25.24,4.79,12.43,3.19,26.46-4.27,37.53l-25.69,38.08h49.35c12.57,0,24.32,5.55,32.23,15.23,7.81,9.55,10.89,21.94,8.45,33.99l-18.37,90.75c-3.88,19.14-20.98,33.04-40.68,33.04ZM82.98,253.53h132.41c9.39,0,17.53-6.56,19.36-15.6l18.37-90.75c1.14-5.63-.31-11.43-3.97-15.9-3.77-4.61-9.38-7.25-15.4-7.25h-69.81c-4.02,0-7.71-2.22-9.6-5.77s-1.66-7.85.59-11.19l37.13-55.04c3.54-5.26,4.28-11.65,2.01-17.55-2.32-6.02-7.29-10.37-13.65-11.94l-.73-.18c-7.34-1.81-14.94.58-19.85,6.23l-76.87,88.62v136.32ZM21.75,253.53h39.48V124.02H21.75v129.51Z"/>
@@ -50,7 +50,7 @@ const SuccessFeed = ({ contents }) => {
                                     </svg>
                                     <span className="text-xs"><CommentCount contentId={content._id} /></span>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                     {/* end content */}

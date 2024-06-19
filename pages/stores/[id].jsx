@@ -5,58 +5,59 @@ import { useRouter } from "next/router";
 import { AppLayout } from "@/themes";
 import axios from "axios";
 import Loading from "@/components/Loading";
-import SecretSauce from "@/components/success/SecretSauce";
-import useSWR from "swr";
+import LearningContent from "@/components/learning/LearningContent";
+import CommentList from "@/components/content/CommentList";
+import useSWR, { mutate } from "swr";
 import { useSession } from "next-auth/react";
-import ShareYourStory from "@/components/success/ShareYourStory";
+import Link from "next/link";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 const SlugPage = () => {
     const router = useRouter();
     const { id } = router.query;
     const [content, setContent] = useState({});
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [comments, setComments] = useState([]);
+    const [showInput, setShowInput] = useState(false);
     const [user, setUser] = useState(null);
-    const [activeTab, setActiveTab] = useState("secret-sauce");
     const { data: session } = useSession();
     const userId = session?.user?.id;
-    
-    const { data, error: swrError } = useSWR(userId ? `/api/users/${userId}` : null, fetcher, {
+
+    const { data, error: swrError, isLoading: userloading } = useSWR(userId ? `/api/users/${userId}` : null, fetcher, {
         onSuccess: (data) => {
           setUser(data.user);
         },
       });
-
-      useEffect(() => {
-        const tab = router.query.tab || "secret-sauce";
-        setActiveTab(tab);
-    }, [router.query.tab]);
-
-      useEffect(() => {
-        if (id) {
-          const fetchContent = async () => {
-            try {
-              const res = await axios.get(`/api/content/${id}`);
-              setContent(res.data.data);
-            } catch (error) {
-              setError(error.response ? error.response.data.error : error.message);
-            } finally {
-              setLoading(false);
-            }
-          };
     
-          fetchContent();
+    const { data: contents, error: contentError, isLoading: contentsLoading } = useSWR('/api/content/'+id, fetcher, {
+        onSuccess: (data) => {
+          setContent(data.data);
+        },
+      });
+
+    const { data: commentsData, error: commentsError, isLoading: commentsLoading } = useSWR(`/api/content/comments?contentId=${id}`, fetcher, {
+        onSuccess: (data) => {
+          setComments(data.data);
+        },
+      });
+
+    const handleCommentAdded = async () => {
+        mutate('/api/content/comments?contentId='+id);
+        setShowInput(false);
+    }
+
+    const handleDeleteComment = async (commentId) => {
+        try {
+          await axios.delete(`/api/content/comments/${commentId}`);
+          // Refresh comments
+          mutate(`/api/content/comments?contentId=${id}`);
+        } catch (error) {
+          console.error('Error deleting comment:', error.message);
         }
-      }, [id]);
+      };
+
     
-      if (loading) return <Loading />;
-      if (error) return <p>Error: {error}</p>;
-    
-      const handleTabClick = (tab) => {
-        setActiveTab(tab);
-        window.history.pushState(null, "", `?tab=${tab}`);
-    };
+      if (!contents || !commentsData) return <Loading />;
+      if (contentError) return <p>Error: {error}</p>;
       
     return (
         <main className="flex-1 flex-col bg-gray-10 justify-between items-center text-center h-full mb-[100px]">
@@ -71,37 +72,23 @@ const SlugPage = () => {
 
             {/* Tabs */}
             <div className="flex justify-center mb-4 text-sm">
-                <ul className="flex flex-wrap -mb-px">
-                    <li className="me-2">
-                        <a
-                            href="#"
-                            className={`inline-block p-4 border-b-2 rounded-t-lg font-bold ${activeTab === 'secret-sauce' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
-                            onClick={() => handleTabClick('secret-sauce')}
-                        >
-                            Secret Sauce
-                        </a>
-                    </li>
-                    <li className="me-2">
-                        <a
-                            href="#"
-                            className={`inline-block p-4 border-b-2 rounded-t-lg font-bold ${activeTab === 'share-your-story' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
-                            onClick={() => handleTabClick('share-your-story')}
-                        >
-                            Share your story
-                        </a>
-                    </li>
-                </ul>
+            <div className="absolute top-0 left-0 mt-10">
+                    <Link href="/learning" className="text-white">
+                        <div className="flex mb-5 w-5 h-5 text-gray-500 mt-2 ml-2">
+                        <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 69.31 117.25">
+                            <path class="cls-1" d="M58.62,117.25c-2.74,0-5.47-1.04-7.56-3.13L3.13,66.18c-4.17-4.17-4.17-10.94,0-15.12L51.07,3.13c4.17-4.17,10.94-4.17,15.11,0,4.17,4.17,4.17,10.94,0,15.12L25.8,58.62l40.38,40.38c4.17,4.17,4.17,10.94,0,15.12-2.09,2.09-4.82,3.13-7.56,3.13Z"/>
+                        </svg>
+                        </div>
+                    </Link>
+                </div>
             </div>
 
             {/* Tabs Content */}
             <div className="flex flex-col items-center">
-                
-                {activeTab === 'secret-sauce' && (
-                    <SecretSauce content={content} user={user} />
-                )}
-                {activeTab === 'share-your-story' && (
-                    <ShareYourStory />
-                )}
+                <LearningContent content={content} user={user} setShowInput={setShowInput} showInput={showInput} onCommentAdded={handleCommentAdded}/>
+            </div>
+            <div>
+                <CommentList comments={commentsData.data} user={user} handleDeleteComment={handleDeleteComment} />
             </div>
         </main>
     )

@@ -6,9 +6,6 @@ const InputComment = ({ contentId, userId, onCommentAdded }) => {
   const [comment, setComment] = useState('');
   const [error, setError] = useState(null);
 
-  console.log('userId:', userId);
-  console.log('contentId:', contentId);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {

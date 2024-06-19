@@ -16,30 +16,22 @@ import Image from "next/image";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
-const LearningContent = ({ content, user }) => {
+const LearningContent = ({ content, user, onCommentAdded, setShowInput, showInput }) => {
   const userId = user?.userId;
   const [countdown, setCountdown] = useState(0);
   const [seen60Percent, setSeen60Percent] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [likes, setLikes] = useState(content.likes || []);
   const [userHasLiked, setUserHasLiked] = useState(Array.isArray(likes) && likes.includes(userId));
-  const [showInput, setShowInput] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const playerRef = useRef(null);
   const contentId = content?._id;
   const router = useRouter();
 
   const { data , error, isLoading } = useSWR(`/api/content/comments?contentId=${contentId}`, fetcher, {
-    revalidateOnMount: true,
-    refreshInterval: 1000
+    // revalidateOnMount: true,
+    // refreshInterval: 1000
   });
-
-  const handleCommentAdded = async () => {
-      // Refresh comments
-      mutate(`/api/content/comments?contentId=${contentId}`);
-      // Close comment box
-      setShowInput(false);
-    };
  
   useEffect(() => {
       const userId = user?.userId;
@@ -176,8 +168,7 @@ const LearningContent = ({ content, user }) => {
                         </div>
                     </div>
                 <div>
-                    {showInput && <InputComment contentId={content._id} userId={userId} onCommentAdded={handleCommentAdded} />}
-                    <CommentList comments={data?.data} contentId={content._id} user={user} />
+                    {showInput && <InputComment contentId={content._id} userId={userId} onCommentAdded={onCommentAdded} />}
                 </div>
             </div>
             <VideoModal isOpen={isModalOpen} onRequestClose={handleCloseModal} point={content.point} />

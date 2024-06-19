@@ -11,7 +11,7 @@ export default function Learning() {
     const category = "665c561146d171292cbda9eb";
     const subcategory = "665c565a46d171292cbda9f7";
     const subcategory2 = "665c566846d171292cbda9fb";
-    const [activeTab, setActiveTab] = useState("All");
+    const [activeTab, setActiveTab] = useState("learn");
     const [videoUrl, setVideoUrl] = useState('');
     const [contents, setContents] = useState([]);
     const [contents2, setContents2] = useState([]);

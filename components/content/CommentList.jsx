@@ -4,19 +4,7 @@ import moment from 'moment';
 import Image from 'next/image';
 import { RiDeleteBinLine } from "react-icons/ri";
 
-const CommentList = ({ comments: initialComments, contentId, user }) => {
-  const [comments, setComments] = useState(initialComments || []);
-
-  const handleDeleteComment = async (commentId) => {
-    try {
-      await axios.delete(`/api/content/comments/${commentId}`);
-      // Refresh comments
-      const res = await axios.get(`/api/content/comments?contentId=${contentId}`);
-      setComments(res.data.data);
-    } catch (error) {
-      console.error('Error deleting comment:', error.message);
-    }
-  };
+const CommentList = ({ comments, user, handleDeleteComment }) => {
 
   return (
     <div className="comments">
@@ -46,7 +34,7 @@ const CommentList = ({ comments: initialComments, contentId, user }) => {
               <span className='text-sm'>
                 {comment.content}
               </span>
-              {user.role === 'admin' || user.userId === comment.user.userId ? (
+              {user?.role === 'admin' || user?.userId === comment?.user?.userId ? (
                 <div className='flex w-full justify-end'>
                   <button onClick={() => handleDeleteComment(comment._id)}>
                     <RiDeleteBinLine className='text-gray-500 text-sm' />
