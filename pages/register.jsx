@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Alert from '@/components/notification/Alert';
 import { useSession } from 'next-auth/react';
 import Loading from '@/components/Loading';
+import useSWR, { mutate } from 'swr';
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -15,11 +16,16 @@ export default function Register() {
     const router = useRouter();
     const userId = session?.user?.id;
 
+    const { data: user, error: userError } = useSWR(userId ? `/api/users/${userId}` : null, fetcher);
+
     useEffect(() => {
         if (status === "loading") return;
         if (!session) {
             router.push('/login');
-        }
+        } else if (user && user.user !== null) {
+            router.push('/checkLoginReward');
+        } else if (userError) return;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [status, session, router]);
 
     const onSubmit = async (data) => {
@@ -53,8 +59,9 @@ export default function Register() {
             }
 
             Alert.success('ลงทะเบียนสำเร็จ');
-            // Force revalidate the user data after registration
-            router.push('/checkLoginReward');
+            // Revalidate the user data after registration
+            mutate('/api/users', user => ({ ...user, ...registerData }), false);
+            router.push('/');
         } catch (error) {
             console.error('Registration error:', error);
             Alert.error('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
@@ -63,6 +70,9 @@ export default function Register() {
         }
     };
 
+    if (status === "loading") {
+        return <Loading />;
+    }
 
     return (
         <div className="flex flex-col justify-center p-5 bg-white">
