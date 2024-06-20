@@ -20,7 +20,7 @@ const CheckLoginReward = () => {
             return;
         }
         if (!loginReward && !loginRewardError) return; // Still loading
-        if (loginRewardError || (loginReward && !loginReward.receivedPointsToday)) {
+        if (loginReward && !loginReward.receivedPointsToday) {
             router.push('/loginreward');
         } else {
             router.push('/checkSurvey');

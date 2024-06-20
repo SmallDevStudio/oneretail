@@ -62,7 +62,7 @@ const Loginreward = () => {
   };
 
   if (loginDataError) return <div>Error: {loginDataError.message}</div>;
-  if (isLoginDataLoading) return <Loading />;
+  if (isLoginDataLoading || !loginData ) return <Loading />;
 
   return (
     <main className="flex items-center justify-center bg-[#0056FF]" style={{ minHeight: "100vh", width: "100%" }}>
