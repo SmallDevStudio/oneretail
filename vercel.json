@@ -1,0 +1,19 @@
+{
+    "version": 2,
+    "functions": {
+      "api/edge-function.js": {
+        "runtime": "edge"
+      }
+    },
+    "headers": [
+      {
+        "source": "/(.*)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=0, must-revalidate"
+          }
+        ]
+      }
+    ]
+  }
