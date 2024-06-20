@@ -63,9 +63,6 @@ export default function Register() {
         }
     };
 
-    if (status === "loading" || userError) {
-        return <Loading />;
-    }
 
     return (
         <div className="flex flex-col justify-center p-5 bg-white">
