@@ -28,7 +28,7 @@ export default function Register() {
         if (status === "loading") return;
         if (!session) {
             router.push('/login');
-        }else if (users) {
+        } else if (users !== null) {
             router.push('/');
         }
     }, [status, session, router, users]);
