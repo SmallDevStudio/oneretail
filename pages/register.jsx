@@ -1,4 +1,3 @@
-//register
 import { useState, useEffect } from 'react';
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
@@ -6,7 +5,6 @@ import Image from 'next/image';
 import Alert from '@/components/notification/Alert';
 import { useSession } from 'next-auth/react';
 import Loading from '@/components/Loading';
-import useSWR from 'swr';
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -16,8 +14,6 @@ export default function Register() {
     const [loadingForm, setLoadingForm] = useState(false);
     const router = useRouter();
     const userId = session?.user?.id;
-
-    const { data: userData, error: userError } = useSWR(userId ? `/api/users/${userId}` : null, fetcher);
 
     useEffect(() => {
         if (status === "loading") return;
@@ -57,7 +53,8 @@ export default function Register() {
             }
 
             Alert.success('ลงทะเบียนสำเร็จ');
-            router.push('/');
+            // Force revalidate the user data after registration
+            router.push('/checkLoginReward');
         } catch (error) {
             console.error('Registration error:', error);
             Alert.error('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
