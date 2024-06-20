@@ -7,6 +7,7 @@ import { useSession } from 'next-auth/react';
 import Loading from '@/components/Loading';
 import useSWR, { mutate } from 'swr';
 import axios from 'axios';
+import RegisterModal from '@/components/RegisterModal';
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -14,10 +15,11 @@ export default function Register() {
     const { data: session, status } = useSession();
     const { register, handleSubmit, formState: { errors } } = useForm();
     const [loadingForm, setLoadingForm] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
     const [users, setUsers] = useState([]);
     const router = useRouter();
     const userId = session?.user?.id;
-    console.log(users);
+    
     const { data, error } = useSWR(`/api/users/${userId}`, fetcher, {
         onSuccess: (data) => {
             setUsers(data.user);
@@ -63,13 +65,11 @@ export default function Register() {
                 throw new Error('Registration failed');
             }
 
-            Alert.success('ลงทะเบียนสำเร็จ');
-            // Revalidate the user data after registration
-            mutate('/api/users/' + session?.user?.id, fetcher);
-            router.push('/');
+            setIsOpen(true);
+
         } catch (error) {
             console.error('Registration error:', error);
-            Alert.error('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+            Alert.error('ลงทะเบียนไม่สําเร็จ');
         } finally {
             setLoadingForm(false);
         }
@@ -78,6 +78,12 @@ export default function Register() {
     if (status === "loading") {
         return <Loading />;
     }
+
+    const onRequestClose = () => {
+        setIsOpen(false);
+        mutate(`/api/users/${userId}`);
+        router.push('/');
+    };
 
 
     return (
@@ -221,6 +227,7 @@ export default function Register() {
                         </button>
                     </div>
                 </form>
+                <RegisterModal isOpen={isOpen} onRequestClose={onRequestClose} />
             </div>
         </div>
     );
