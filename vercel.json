@@ -11,5 +11,10 @@
             "src": "/(.*)",
             "dest": "package.json"
         }
-    ]
+    ],
+    "functions": {
+            "api/**/*": {
+        "runtime": "edge"
+        }
+    }
 }

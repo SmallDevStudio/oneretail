@@ -1,6 +1,6 @@
 // pages/api/some-api.js
 export const config = {
-    runtime: 'edge', // Ensure this API route uses the Edge Runtime
+    runtime: 'edge',
   };
   
   export default async function handler(req) {
