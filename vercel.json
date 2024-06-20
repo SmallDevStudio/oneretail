@@ -1,8 +1,8 @@
 {
     "version": 2,
     "functions": {
-      "api/edge-function.js": {
-        "runtime": "edge"
+    "api/**/*": {
+      "runtime": "edge"
       }
     },
     "headers": [

@@ -37,12 +37,11 @@ const nextConfig = {
   env: {
     LINE_LIFF_ID: process.env.LINE_LIFF_ID,
     NEXT_PUBLIC_MONGODB_URL: process.env.NEXT_PUBLIC_MONGODB_URL,
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
   sassOptions: {
     includePaths: ['./styles'],
-  },
-  experimental: {
-    runtime: 'edge', // เปิดใช้งาน edge runtime
   },
   async headers() {
     return [
