@@ -28,8 +28,10 @@ export default function Register() {
         if (status === "loading") return;
         if (!session) {
             router.push('/login');
-        } 
-    }, [status, session, router]);
+        }else if (users) {
+            router.push('/');
+        }
+    }, [status, session, router, users]);
 
     const onSubmit = async (data) => {
         setLoadingForm(true);
