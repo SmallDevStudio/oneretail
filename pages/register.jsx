@@ -82,7 +82,7 @@ export default function Register() {
     const onRequestClose = () => {
         setIsOpen(false);
         mutate(`/api/users/${userId}`);
-        router.push('/');
+        router.push('/checkLoginReward');
     };
 
 
