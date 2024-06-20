@@ -1,5 +1,3 @@
-// loginreward
-"use client";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
@@ -26,8 +24,8 @@ const Loginreward = () => {
   );
 
   useEffect(() => {
-    if (loginData && loginData.receivedPointsToday === true && !modalOpen) {
-      router.push("/checkSurvey");
+    if (loginData && loginData.receivedPointsToday && !modalOpen) {
+      router.push("/");
     }
   }, [loginData, router, modalOpen]);
 
@@ -62,7 +60,7 @@ const Loginreward = () => {
   };
 
   if (loginDataError) return <div>Error: {loginDataError.message}</div>;
-  if (isLoginDataLoading || !loginData ) return <Loading />;
+  if (isLoginDataLoading) return <Loading />;
 
   return (
     <main className="flex items-center justify-center bg-[#0056FF]" style={{ minHeight: "100vh", width: "100%" }}>

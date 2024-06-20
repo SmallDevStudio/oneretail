@@ -1,5 +1,3 @@
-// pages/index.js (HomePage)
-"use client";
 import React, { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
