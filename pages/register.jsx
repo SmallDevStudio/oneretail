@@ -79,7 +79,6 @@ export default function Register() {
         return <Loading />;
     }
 
-    if (users !== null) router.push('/');
 
     return (
         <div className="flex flex-col justify-center p-5 bg-white">
