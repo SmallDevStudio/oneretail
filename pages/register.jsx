@@ -6,25 +6,33 @@ import Alert from '@/components/notification/Alert';
 import { useSession } from 'next-auth/react';
 import Loading from '@/components/Loading';
 import useSWR, { mutate } from 'swr';
+import axios from 'axios';
 
-const fetcher = (url) => fetch(url).then((res) => res.json());
+const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 export default function Register() {
     const { data: session, status } = useSession();
     const { register, handleSubmit, formState: { errors } } = useForm();
     const [loadingForm, setLoadingForm] = useState(false);
+    const [users, setUsers] = useState([]);
     const router = useRouter();
     const userId = session?.user?.id;
-
-    const { data: user, error: userError } = useSWR(userId ? `/api/users/${userId}` : null, fetcher);
+    console.log(users);
+    const { data, error } = useSWR(`/api/users/${userId}`, fetcher, {
+        onSuccess: (data) => {
+            setUsers(data.user);
+        },
+    });
 
     useEffect(() => {
         if (status === "loading") return;
         if (!session) {
             router.push('/login');
-        } else if (user && user.user !== null) {
-            router.push('/checkLoginReward');
-        } else if (userError) return;
+        } 
+        if (users !== null) {
+            router.push('/');
+        }
+        
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [status, session, router]);
 
@@ -60,7 +68,7 @@ export default function Register() {
 
             Alert.success('ลงทะเบียนสำเร็จ');
             // Revalidate the user data after registration
-            mutate('/api/users', user => ({ ...user, ...registerData }), false);
+            mutate('/api/users/' + session?.user?.id, fetcher);
             router.push('/');
         } catch (error) {
             console.error('Registration error:', error);
