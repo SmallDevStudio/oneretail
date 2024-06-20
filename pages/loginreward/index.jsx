@@ -27,7 +27,7 @@ const Loginreward = () => {
 
   useEffect(() => {
     if (loginData?.receivedPointsToday && !modalOpen) {
-      router.push("/");
+      router.push("/checkSurvey");
     }
   }, [loginData, router, modalOpen]);
 

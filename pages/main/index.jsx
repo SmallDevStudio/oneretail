@@ -1,17 +1,40 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import useSWR from "swr";
+import Loading from "@/components/Loading";
 import MainIconMenu from "@/components/MainIconMenu";
 import FooterContant from "@/components/main/footContent";
-import Loading from "@/components/Loading";
 import AppLayout from "@/themes/Layout/AppLayout";
 import dynamic from "next/dynamic";
 import Head from "next/head";
+import RecheckUser from "@/components/RecheckUser";
 
 const Carousel = dynamic(() => import("@/components/Carousel"), {
     ssr: false,
     loading: () => <Loading />,
 });
 
+const fetcher = (url) => fetch(url).then((res) => res.json());
+
 const MainPage = () => {
+    const { data: session, status } = useSession();
+    const router = useRouter();
+    const userId = session?.user?.id;
+
+    const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
+
+    useEffect(() => {
+        if (status === "loading" || !session || !user) return;
+        if (userError || !user || user?.user === null) {
+            router.push('/register');
+            return;
+        }
+    }, [router, session, status, user, userError]);
+
+    if (status === "loading" || !user) return <Loading />;
+    if (userError) return <div>Error loading data</div>;
+
     return (
         <React.Fragment>
             <Head>
@@ -21,6 +44,7 @@ const MainPage = () => {
                 <link rel="icon" type="image/png" sizes="16x16" href="/dist/icons/favicon-16x16.png"/>
                 <link rel="manifest" href="/manifest.json"/>
             </Head>
+            <RecheckUser>
             <main className="flex flex-col bg-gray-10 justify-between items-center text-center min-h-screen">
                 <div className="w-full">
                     <Carousel />
@@ -32,6 +56,7 @@ const MainPage = () => {
                     <FooterContant />
                 </div>
             </main>
+        </RecheckUser>
         </React.Fragment>
     );
 };

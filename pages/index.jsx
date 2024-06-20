@@ -1,4 +1,4 @@
-//home
+// pages/index.js (HomePage)
 "use client";
 import React, { useEffect } from "react";
 import { useSession } from "next-auth/react";
@@ -14,13 +14,20 @@ const HomePage = () => {
     const router = useRouter();
     const userId = session?.user?.id;
 
-    // Function to handle redirection
-    const handleRedirection = (user, loginReward, survey, surveySettings) => {
+    const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
+    const { data: loginReward, error: loginRewardError } = useSWR(() => userId ? `/api/loginreward/${userId}` : null, fetcher);
+    const { data: survey, error: surveyError } = useSWR(() => userId ? `/api/survey/checkSurvey?userId=${userId}` : null, fetcher);
+    const { data: surveySettings, error: surveySettingsError } = useSWR('/api/survey/settings', fetcher);
+
+    useEffect(() => {
+        if (status === "loading" || !session || !user || !loginReward || !survey || !surveySettings) return;
+        if (userError || loginRewardError || surveyError || surveySettingsError) return;
+
         if (!session) {
             router.push('/login');
             return;
         }
-        if (!user) {
+        if (!user || user?.user === null) {
             router.push('/register');
             return;
         }
@@ -37,27 +44,7 @@ const HomePage = () => {
         } else {
             router.push('/pulsesurvey');
         }
-    };
-
-    // SWR hooks to fetch data
-    const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
-    const { data: loginReward, error: loginRewardError } = useSWR(() => userId ? `/api/loginreward/${userId}` : null, fetcher);
-    const { data: survey, error: surveyError } = useSWR(() => userId ? `/api/survey/checkSurvey?userId=${userId}` : null, fetcher);
-    const { data: surveySettings, error: surveySettingsError } = useSWR('/api/survey/settings', fetcher);
-
-    useEffect(() => {
-        // Check if any data is loading
-        const isLoading = status === "loading" || !user || !loginReward || !survey || !surveySettings;
-
-        if (isLoading) return;
-        if (userError || loginRewardError || surveyError || surveySettingsError) {
-            console.error("Error loading data", userError || loginRewardError || surveyError || surveySettingsError);
-            return;
-        }
-        
-        handleRedirection(user, loginReward, survey, surveySettings);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [session, status, user, loginReward, survey, surveySettings, userError, loginRewardError, surveyError, surveySettingsError, router]);
+    }, [router, session, status, user, loginReward, survey, surveySettings, userError, loginRewardError, surveyError, surveySettingsError]);
 
     if (status === "loading" || !user || !loginReward || !survey || !surveySettings) return <Loading />;
     if (userError || loginRewardError || surveyError || surveySettingsError) return <div>Error loading data</div>;
