@@ -65,8 +65,8 @@ export default function Register() {
 
             Alert.success('ลงทะเบียนสำเร็จ');
             // Revalidate the user data after registration
-            mutate('/api/users/' + session?.user?.id, fetcher);
-            router.push('/');
+            // mutate('/api/users/' + session?.user?.id, fetcher);
+            windows.location.href('/');
         } catch (error) {
             console.error('Registration error:', error);
             Alert.error('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
@@ -77,10 +77,6 @@ export default function Register() {
 
     if (status === "loading") {
         return <Loading />;
-    }
-
-    if (users !== null) {
-        router.push('/');
     }
 
     return (
