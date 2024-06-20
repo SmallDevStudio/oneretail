@@ -29,11 +29,6 @@ export default function Register() {
         if (!session) {
             router.push('/login');
         } 
-        if (users !== null) {
-            router.push('/');
-        }
-        
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [status, session, router]);
 
     const onSubmit = async (data) => {
