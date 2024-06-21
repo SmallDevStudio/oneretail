@@ -1,4 +1,4 @@
-import NextAuth from "next-auth/next";
+import NextAuth from "next-auth";
 import LineProvider from "next-auth/providers/line";
 
 export const authOptions = {
@@ -6,8 +6,10 @@ export const authOptions = {
         LineProvider({
             clientId: process.env.LINE_CHANNEL_ID,
             clientSecret: process.env.LIFF_CHANNEL_SECRET,
-            params: { 
-                bot_prompt: "aggressive" 
+            authorization: {
+                params: { 
+                    bot_prompt: "aggressive"
+                },
             },
         }),
     ],
@@ -32,15 +34,12 @@ export const authOptions = {
         },
         async session({ session, token, user }) {
             session.user = token.user;
-
             return session;
         },
         async redirect({ url, baseUrl }) {
             return baseUrl;
         },
     },
-   
-
 };
 
 export default NextAuth(authOptions);
