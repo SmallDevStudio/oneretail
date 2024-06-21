@@ -4,10 +4,12 @@ import { AppLayout } from "@/themes";
 import useSWR from 'swr';
 import Image from 'next/image';
 import Loading from '@/components/Loading';
+import { useSession } from 'next-auth/react';
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function LeaderBoard() {
+    const { data: session } = useSession();
     const { data, error } = useSWR('/api/leaderboard', fetcher);
     const { data: usersData, error: usersError } = useSWR('/api/users/emp', fetcher);
 
@@ -15,6 +17,8 @@ export default function LeaderBoard() {
 
     if (error || usersError) return <div>Failed to load</div>;
     if (!data || !usersData) return <Loading />;
+
+    const loggedInUserId = session?.user?.id;
 
     const filterByTeam = (users, team) => {
         if (team === "All") return users;
@@ -27,13 +31,22 @@ export default function LeaderBoard() {
     const topThree = filteredPoints.slice(0, 3);
     const others = filteredPoints.slice(3);
 
+    // Find the logged-in user's rank and data
+    const loggedInUserRank = filteredPoints.findIndex(user => user.userId === loggedInUserId);
+    const loggedInUser = filteredPoints[loggedInUserRank];
+
+    // Remove the logged-in user from the others list if they are not in the top 3 and not in others
+    if (loggedInUserRank > 2) {
+        others.splice(loggedInUserRank - 3, 1);
+    }
+
     return (
         <div className='w-full mb-20'>
             <div className="flex justify-center mt-5">
                 <h1 className="text-[35px] font-black text-[#0056FF]" style={{ fontFamily: "Ekachon" }}>Leaderboard</h1>
             </div>
 
-            <div className="relative  bg-[#0056FF] min-h-[30vh] rounded-b-2xl p-2 shadow-lg">
+            <div className="relative bg-[#0056FF] min-h-[30vh] rounded-b-2xl p-2 shadow-lg">
                 <div className="flex justify-center bg-[#0056FF]">
                     {["All", "Retail", "AL"].map(team => (
                         <button 
@@ -140,17 +153,17 @@ export default function LeaderBoard() {
 
             <table className="flex w-full p-2">
                 <div className="flex flex-col w-full">
-                    {others.map((user, index) => (
-                        <tr key={user.userId} className='flex w-full p-2 text-[#0056FF]'>
+                    {loggedInUserRank > 2 && loggedInUser && (
+                        <tr key={loggedInUser.userId} className='flex w-full p-2 text-[#0056FF]'>
                             <div className="flex w-full border-2 p-2 rounded-full border-[#F68B1F]/60 items-center">
                             <td className="w-10 ml-2">
-                                <span className="font-bold">{index + 4}</span>
+                                <span className="font-bold">{loggedInUserRank + 1}</span>
                             </td>
                             <td className="w-20 h-15 ml-2">
-                                {user.pictureUrl ? (
+                                {loggedInUser.pictureUrl ? (
                                     <Image 
-                                        src={user.pictureUrl} 
-                                        alt={user.fullname} 
+                                        src={loggedInUser.pictureUrl} 
+                                        alt={loggedInUser.fullname} 
                                         width="50" 
                                         height="50"
                                         className="rounded-full border-3 border-[#0056FF] dark:border-white"
@@ -160,16 +173,49 @@ export default function LeaderBoard() {
                                 )}
                             </td>
                             <td className="w-full ml-2">
-                                <span className="font-bold text-md truncate">{user.fullname}</span>
+                                <span className="font-bold text-md truncate">{loggedInUser.fullname}</span>
                             </td>
                             <td className="flex w-25 justify-end items-center align-middle mr-2">
                                 <span className="font-bold bg-[#0056FF] rounded-full p-1 w-20 h-6 text-center text-white text-sm">
-                                    {user.totalPoints}
+                                    {loggedInUser.totalPoints}
                                 </span>
                             </td>
                             </div>
                         </tr>
-                    ))}
+                    )}
+                    {others.map((user, index) => {
+                        const displayRank = index + 4 + (loggedInUserRank > 2 && index >= loggedInUserRank - 3 ? 1 : 0);
+                        return (
+                            <tr key={user.userId} className='flex w-full p-2 text-[#0056FF]'>
+                                <div className="flex w-full border-2 p-2 rounded-full border-[#F68B1F]/60 items-center bg-gray-200">
+                                <td className="w-10 ml-2">
+                                    <span className="font-bold">{displayRank}</span>
+                                </td>
+                                <td className="w-20 h-15 ml-2">
+                                    {user.pictureUrl ? (
+                                        <Image 
+                                            src={user.pictureUrl} 
+                                            alt={user.fullname} 
+                                            width="50" 
+                                            height="50"
+                                            className="rounded-full border-3 border-[#0056FF] dark:border-white"
+                                        />
+                                    ) : (
+                                        <div className="rounded-full border-3 border-[#0056FF] dark:border-white bg-gray-300" style={{ width: '50px', height: '50px' }} />
+                                    )}
+                                </td>
+                                <td className="w-full ml-2">
+                                    <span className="font-bold text-md truncate">{user.fullname}</span>
+                                </td>
+                                <td className="flex w-25 justify-end items-center align-middle mr-2">
+                                    <span className="font-bold bg-[#0056FF] rounded-full p-1 w-20 h-6 text-center text-white text-sm">
+                                        {user.totalPoints}
+                                    </span>
+                                </td>
+                                </div>
+                            </tr>
+                        );
+                    })}
                 </div>
             </table>
         </div>
