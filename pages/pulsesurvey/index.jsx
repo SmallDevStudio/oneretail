@@ -5,12 +5,14 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import Loading from "@/components/Loading";
 import useSWR, { mutate } from 'swr';
+import SurveyModal from "@/components/SurveyModal";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const PulseSurvey = () => {
     const [loading, setLoading] = useState(false);
     const [survey, setSurvey] = useState({ value: null, memo: "" });
+    const [showModal, setShowModal] = useState(false);
     const { data: session } = useSession();
     const userId = session?.user?.id;
     const router = useRouter();
@@ -38,8 +40,8 @@ const PulseSurvey = () => {
 
             if (response.ok) {
                 const data = await response.json();
+                setShowModal(true);
                 setLoading(false);
-                router.push('/main');
             } else {
                 console.error('Error submitting survey:', response.statusText);
                 setLoading(false);
@@ -69,6 +71,11 @@ const PulseSurvey = () => {
         { value: 2, label: 'พอใช้', color: '#FF8A00' },
         { value: 1, label: 'แย่', color: '#FF0000' },
     ];
+
+    const onRequestClose = () => {
+        setShowModal(false);
+        router.push('/main');
+    };
 
     return (
         <main className="flex items-center justify-center bg-[#0056FF]" style={{ minHeight: "100vh", width: "100%" }}>
@@ -132,6 +139,7 @@ const PulseSurvey = () => {
                                     </button>
                                 </div>
                             </form>
+                            <SurveyModal isOpen={showModal} onRequestClose={onRequestClose} />
                         </div>
                     </div>
                 </div>
