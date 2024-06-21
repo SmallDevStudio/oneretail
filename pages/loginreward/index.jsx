@@ -24,7 +24,7 @@ const Loginreward = () => {
   );
 
   useEffect(() => {
-    if (loginData && loginData.receivedPointsToday && !modalOpen) {
+    if (loginData.receivedPointsToday && !modalOpen) {
       router.push("/");
     }
   }, [loginData, router, modalOpen]);

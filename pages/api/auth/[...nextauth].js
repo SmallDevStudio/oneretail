@@ -6,6 +6,9 @@ export const authOptions = {
         LineProvider({
             clientId: process.env.LINE_CHANNEL_ID,
             clientSecret: process.env.LIFF_CHANNEL_SECRET,
+            params: { 
+                bot_prompt: "aggressive" 
+            },
         }),
     ],
     pages: {
