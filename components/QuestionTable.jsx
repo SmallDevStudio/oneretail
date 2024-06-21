@@ -3,8 +3,19 @@ import AddQuestionModal from './AddQuestionModal';
 import { RiDeleteBinLine } from "react-icons/ri";
 import { CiEdit } from "react-icons/ci";
 import { useCSVReader } from 'react-papaparse';
-import { DataGrid } from '@mui/x-data-grid';
-import { TextField, Button, CircularProgress } from '@mui/material';
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow, 
+  Paper, 
+  TextField, 
+  Button, 
+  CircularProgress, 
+  TablePagination 
+} from '@mui/material';
 
 const styles = {
   csvReader: {
@@ -41,6 +52,8 @@ const QuestionTable = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
     fetchQuestions();
@@ -146,43 +159,21 @@ const QuestionTable = () => {
     setFilteredQuestions(filtered);
   };
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   const columns = [
     { field: 'question', headerName: 'Question', width: 300 },
-    {
-      field: 'options',
-      headerName: 'Options',
-      width: 300,
-      renderCell: (params) => (
-        <ul style={{ listStyleType: 'disc', paddingLeft: '20px' }}>
-          {params.value.map((option, index) => (
-            <li key={index}>{option}</li>
-          ))}
-        </ul>
-      ),
-    },
+    { field: 'options', headerName: 'Options', width: 300 },
     { field: 'correctAnswer', headerName: 'Correct Answer', width: 150 },
     { field: 'group', headerName: 'Group', width: 150 },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      width: 150,
-      renderCell: (params) => (
-        <>
-          <button
-            className="mr-4 font-bold text-2xl hover:text-blue-800"
-            onClick={() => handleEdit(params.row)}
-          >
-            <CiEdit />
-          </button>
-          <button
-            className="mr-4 font-bold text-2xl hover:text-blue-800"
-            onClick={() => handleDelete(params.row._id)}
-          >
-            <RiDeleteBinLine />
-          </button>
-        </>
-      ),
-    },
+    { field: 'actions', headerName: 'Actions', width: 150 },
   ];
 
   if (loading) {
@@ -245,18 +236,56 @@ const QuestionTable = () => {
           fullWidth
         />
       </div>
-      <div style={{ height: 600, width: '100%' }}>
-        <DataGrid
-          rows={filteredQuestions.map((question, index) => ({
-            ...question,
-            id: index,
-            correctAnswer: question.options[question.correctAnswer],
-          }))}
-          columns={columns}
-          pageSize={10}
-          rowsPerPageOptions={[5, 10, 20]}
-        />
-      </div>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              {columns.map((column) => (
+                <TableCell key={column.field}>{column.headerName}</TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {filteredQuestions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((question) => (
+              <TableRow key={question._id}>
+                <TableCell>{question.question}</TableCell>
+                <TableCell>
+                  <ul style={{ listStyleType: 'disc', paddingLeft: '20px' }}>
+                    {question.options.map((option, index) => (
+                      <li key={index}>{option}</li>
+                    ))}
+                  </ul>
+                </TableCell>
+                <TableCell>{question.options[question.correctAnswer]}</TableCell>
+                <TableCell>{question.group}</TableCell>
+                <TableCell>
+                  <Button
+                    className="mr-4 font-bold text-2xl hover:text-blue-800"
+                    onClick={() => handleEdit(question)}
+                  >
+                    <CiEdit />
+                  </Button>
+                  <Button
+                    className="mr-4 font-bold text-2xl hover:text-blue-800"
+                    onClick={() => handleDelete(question._id)}
+                  >
+                    <RiDeleteBinLine />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 20]}
+        component="div"
+        count={filteredQuestions.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
       <div className="mt-4 text-right">
         <p className="text-sm text-gray-600">Total Records: {filteredQuestions.length}</p>
       </div>

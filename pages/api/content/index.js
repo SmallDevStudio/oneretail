@@ -11,22 +11,22 @@ export default async function handler(req, res) {
           try {
             let contents;
             if (query.category) {
-              contents = await Content.find({ categories: query.category })
+              contents = await Content.find({ categories: query.category }).sort({ createdAt: -1 })
                 .populate('categories')
                 .populate('subcategories')
                 .populate('groups');
             } else if (query.subcategory) {
-              contents = await Content.find({ subcategories: query.subcategory })
+              contents = await Content.find({ subcategories: query.subcategory }).sort({ createdAt: -1 })
                 .populate('categories')
                 .populate('subcategories')
                 .populate('groups');
             } else if (query.group) {
-              contents = await Content.find({ groups: query.group })
+              contents = await Content.find({ groups: query.group }).sort({ createdAt: -1 })
                 .populate('categories')
                 .populate('subcategories')
                 .populate('groups');
             } else {
-              contents = await Content.find({})
+              contents = await Content.find({}).sort({ createdAt: -1 })
                 .populate('categories')
                 .populate('subcategories')
                 .populate('groups');
