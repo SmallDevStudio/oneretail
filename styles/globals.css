@@ -447,3 +447,13 @@ body {
       font-size: 12px;
   }
 }
+
+.progress-bar {
+  height: 20px;
+  background-color: #4caf50;
+  text-align: center;
+  color: white;
+  line-height: 20px;
+  border-radius: 5px;
+  margin-top: 5px;
+}

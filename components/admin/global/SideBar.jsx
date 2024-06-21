@@ -5,7 +5,7 @@ import Link from "next/link";
 import "react-pro-sidebar/dist/css/styles.css";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import { FaTachometerAlt, FaUsers, FaFileAlt, FaCalendarAlt, FaGift, FaGamepad, FaHome, FaFileSignature, FaFile } from 'react-icons/fa';
-import { LuGroup } from "react-icons/lu";
+import { LuGroup, LuVote } from "react-icons/lu";
 import { RiPagesLine } from "react-icons/ri";
 import { MdOutlineSubtitles } from "react-icons/md";
 import { FcSurvey } from "react-icons/fc";
@@ -188,6 +188,15 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                   />
 
               </SubMenu>
+
+                  <Item
+                  title="จัดการ Vote"
+                  to="/admin/votes"
+                  icon={<LuVote />}
+                  selected={selected}
+                  setSelected={setSelected}
+                  />
+              
 
                   <Item
                   title="จัดการหน้าแรก"
