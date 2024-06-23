@@ -15,6 +15,7 @@ const Post = ({ post, user, onDelete }) => {
   const [comments, setComments] = useState(post.comments);
   const [showComments, setShowComments] = useState(false);
   const [commentContent, setCommentContent] = useState('');
+  console.log(post);
 
   const handleLike = async () => {
     try {

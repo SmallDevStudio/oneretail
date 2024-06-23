@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import useSWR from "swr";
@@ -9,6 +9,7 @@ import AppLayout from "@/themes/Layout/AppLayout";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import RecheckUser from "@/components/RecheckUser";
+import LineModal from "@/components/LineModal";
 
 const Carousel = dynamic(() => import("@/components/Carousel"), {
     ssr: false,
@@ -19,6 +20,7 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const MainPage = () => {
     const { data: session, status } = useSession();
+    const [showModal, setShowModal] = useState(true);
     const router = useRouter();
     const userId = session?.user?.id;
 
@@ -31,6 +33,10 @@ const MainPage = () => {
             return;
         }
     }, [router, session, status, user, userError]);
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+    };
 
     if (status === "loading" || !user) return <Loading />;
     if (userError) return <div>Error loading data</div>;
@@ -55,6 +61,7 @@ const MainPage = () => {
                 <div className="relative bottom-0 w-full footer-content">
                     <FooterContant />
                 </div>
+                <LineModal showModal={showModal} handleCloseModal={handleCloseModal} />
             </main>
         </RecheckUser>
         </React.Fragment>
