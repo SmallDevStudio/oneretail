@@ -58,7 +58,7 @@ const VoteName = ({ userId }) => {
                         className="border-2 rounded-xl pl-2"
                         onChange={(e) => setDescription(e.target.value)}
                     />
-
+                    {error && <p className="text-red-500 mt-2">{error}</p>}
                     <div className="flex justify-center mt-5">
                         <button 
                             className="bg-[#F68B1F] text-white p-2 rounded-xl"
@@ -68,7 +68,7 @@ const VoteName = ({ userId }) => {
                             {loading ? "กําลังส่ง..." : "ส่งชื่อประกวด"}
                         </button>
                     </div>
-                    {error && <p className="text-red-500">{error}</p>}
+                    
                 </form>
             </div>
         </div>

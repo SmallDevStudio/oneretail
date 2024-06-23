@@ -7,7 +7,7 @@ import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import { FaTachometerAlt, FaUsers, FaFileAlt, FaCalendarAlt, FaGift, FaGamepad, FaHome, FaFileSignature, FaFile } from 'react-icons/fa';
 import { LuGroup, LuVote } from "react-icons/lu";
 import { RiPagesLine } from "react-icons/ri";
-import { MdOutlineSubtitles } from "react-icons/md";
+import { MdOutlineSubtitles, MdOutlineCampaign, MdOutlineHowToVote } from "react-icons/md";
 import { FcSurvey } from "react-icons/fc";
 import Image from "next/image";
 
@@ -166,6 +166,19 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                 selected={selected}
                 setSelected={setSelected}
               />
+              <SubMenu
+                title="Campaign"
+                icon={<MdOutlineCampaign />}
+              >
+                <Item
+                  title="ส่งชื่อประกวด"
+                  to="/admin/campaigns/votenames"
+                  icon={<MdOutlineHowToVote />}
+                  selected={selected}
+                  setSelected={setSelected}
+                  />
+
+              </SubMenu>
 
               <SubMenu
                 title="จัดการเกมส์"
