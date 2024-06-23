@@ -1,9 +1,13 @@
 import { AdminLayout } from "@/themes";
 import Header from "@/components/admin/global/Header";
+import Widgets from "@/components/dashboard/widgets";
 const Admin = () => {
     return (
-            <div className="flex p-5">
+            <div className="flex flex-col p-5">
                 <Header title="Dashboard" subtitle="" />
+                <div>
+                    <Widgets />
+                </div>
             </div>
     );
 }
