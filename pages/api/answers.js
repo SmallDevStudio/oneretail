@@ -3,26 +3,38 @@ import Answer from "@/database/models/Answer";
 import Users from "@/database/models/users";
 import Question from "@/database/models/Question";
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '8mb',
+    },
+  },
+};
+
 export default async function handler(req, res) {
     await connetMongoDB();
 
     if (req.method === 'GET') {
-          try {
-            const answers = await Answer.find().populate('questionId');
+        try {
+            const answers = await Answer.find()
+                .populate('questionId')
+                .sort({ createdAt: -1 }); // Sort by the latest date
+
             const userPromises = answers.map(async (answer) => {
-              const user = await Users.findOne({ userId: answer.userId });
-              return {
-                ...answer._doc,
-                user: user ? { fullname: user.fullname, empId: user.empId } : null,
-              };
+                const user = await Users.findOne({ userId: answer.userId });
+                return {
+                    ...answer._doc,
+                    user: user ? { fullname: user.fullname, empId: user.empId } : null,
+                };
             });
-      
+
             const answersWithUserDetails = await Promise.all(userPromises);
-      
+
             res.status(200).json({ success: true, data: answersWithUserDetails });
-          } catch (error) {
-            res.status(400).json({ success: false, error });
-          }
+        } catch (error) {
+            console.error('Error fetching answers:', error);
+            res.status(400).json({ success: false, error: error.message });
+        }
       } else if (req.method === 'POST') {
         try {
             const { userId, questionId, answer, isCorrect } = req.body;
