@@ -20,7 +20,7 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const MainPage = () => {
     const { data: session, status } = useSession();
-    const [showModal, setShowModal] = useState(true);
+    const [showModal, setShowModal] = useState(false);
     const router = useRouter();
     const userId = session?.user?.id;
 
