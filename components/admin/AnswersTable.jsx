@@ -12,7 +12,7 @@ const AnswersTable = () => {
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(true);
     const [pageSize, setPageSize] = useState(10);
-    const [page, setPage] = useState(1);
+    const [page, setPage] = useState(0);
     const [total, setTotal] = useState(0);
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
@@ -20,7 +20,7 @@ const AnswersTable = () => {
     const fetchData = async (page, pageSize) => {
         setLoading(true);
         const response = await axios.get('/api/answers', {
-            params: { page, pageSize }
+            params: { page: page + 1, pageSize }
         });
         const dataWithIds = response.data.data.map((item) => ({
             ...item,
@@ -30,7 +30,7 @@ const AnswersTable = () => {
             answerText: item.questionId.options[item.answer],
             correctAnswerText: item.questionId.options[item.questionId.correctAnswer],
             isCorrectText: item.isCorrect ? 'ถูก' : 'ผิด',
-            formattedDate: moment(item.timestamp).tz('Asia/Bangkok').locale('th').format('LLL'),
+            formattedDate: moment(item.createdAt).tz('Asia/Bangkok').locale('th').format('LLL'),
             userId: item.userId,
             fullname: item.user?.fullname || 'N/A',
             empId: item.user?.empId || 'N/A'
@@ -49,14 +49,14 @@ const AnswersTable = () => {
 
         if (startDate && endDate) {
             dataToExport = rows.filter(row => {
-                const rowDate = moment(row.timestamp);
+                const rowDate = moment(row.createdAt);
                 return rowDate.isBetween(startDate, endDate, null, '[]');
             });
         }
 
         const exportData = dataToExport.map(row => ({
             ...row,
-            timestamp: moment(row.timestamp).tz('Asia/Bangkok').locale('th').format('LLL')
+            timestamp: moment(row.createdAt).tz('Asia/Bangkok').locale('th').format('LLL')
         }));
 
         const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -128,7 +128,7 @@ const AnswersTable = () => {
                 paginationMode="server"
                 rowCount={total}
                 pagination
-                onPageChange={(newPage) => setPage(newPage + 1)}
+                onPageChange={(params) => setPage(params.page)}
                 onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
             />
         </div>
