@@ -5,9 +5,7 @@ import Question from "@/database/models/Question";
 
 export const config = {
   api: {
-    bodyParser: {
-      sizeLimit: '8mb',
-    },
+    responseLimit: false,
   },
 };
 
