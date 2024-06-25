@@ -82,7 +82,7 @@ const SlugPage = () => {
             </div>
             {/* Tabs Content */}
             <div className="flex flex-col items-center">
-                <LearningContent content={content} user={user} setShowInput={setShowInput} showInput={showInput} onCommentAdded={handleCommentAdded}/>
+                <LearningContent content={content} user={user} setShowInput={setShowInput} showInput={showInput} onCommentAdded={handleCommentAdded} comments={commentsData.data}/>
             </div>
             <div>
                 <CommentList comments={commentsData.data} user={user} handleDeleteComment={handleDeleteComment} />

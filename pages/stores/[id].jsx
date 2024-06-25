@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import { AppLayout } from "@/themes";
 import axios from "axios";
 import Loading from "@/components/Loading";
-import LearningContent from "@/components/learning/LearningContent";
+import SecretSauce from "@/components/success/SecretSauce";
 import CommentList from "@/components/content/CommentList";
 import useSWR, { mutate } from "swr";
 import { useSession } from "next-auth/react";
@@ -85,7 +85,7 @@ const SlugPage = () => {
 
             {/* Tabs Content */}
             <div className="flex flex-col items-center">
-                <LearningContent content={content} user={user} setShowInput={setShowInput} showInput={showInput} onCommentAdded={handleCommentAdded}/>
+                <SecretSauce content={content} user={user} setShowInput={setShowInput} showInput={showInput} onCommentAdded={handleCommentAdded} comments={commentsData.data}/>
             </div>
             <div>
                 <CommentList comments={commentsData.data} user={user} handleDeleteComment={handleDeleteComment} />

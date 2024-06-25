@@ -88,7 +88,7 @@ const PulseSurvey = () => {
                         </div>
                         <div className="flex items-center text-center justify-center mt-[15px]">
                             <span className="text-[15px] font-bold text-black dark:text-white">
-                                วันนี้สุขภาพจิตใจของคุณเป็นอย่างไร?
+                                วันนี้เป็นอย่างไรบ้าง?
                             </span>
                         </div>
                         <div>
@@ -121,6 +121,12 @@ const PulseSurvey = () => {
                                     ))}
                                 </ul>
                                 <div>
+                                    <label
+                                        htmlFor="memo"
+                                        className="block text-sm font-medium text-gray-700"
+                                    >
+                                        อะไรเกี่ยวกับตัวคุณ ที่อยากบอกหรือคิดว่าหัวหน้าควรรู้?
+                                    </label>
                                     <textarea
                                         name="memo"
                                         placeholder="อยากมีอะไรจะบอกเราไหม ?"
