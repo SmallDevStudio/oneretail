@@ -5,7 +5,9 @@ import Question from "@/database/models/Question";
 
 export const config = {
   api: {
-    responseLimit: false,
+    bodyParser: {
+      sizeLimit: '8mb',
+    },
   },
 };
 
@@ -13,26 +15,34 @@ export default async function handler(req, res) {
     await connetMongoDB();
 
     if (req.method === 'GET') {
-        try {
-            const answers = await Answer.find()
-                .populate('questionId')
-                .sort({ createdAt: -1 }); // Sort by the latest date
+      try {
+          const { page = 1, pageSize = 10 } = req.query;
+          const skip = (page - 1) * pageSize;
+          const limit = parseInt(pageSize, 10);
 
-            const userPromises = answers.map(async (answer) => {
-                const user = await Users.findOne({ userId: answer.userId });
-                return {
-                    ...answer._doc,
-                    user: user ? { fullname: user.fullname, empId: user.empId } : null,
-                };
-            });
+          const answers = await Answer.find()
+              .populate('questionId')
+              .sort({ createdAt: -1 })
+              .skip(skip)
+              .limit(limit);
 
-            const answersWithUserDetails = await Promise.all(userPromises);
+          const totalAnswers = await Answer.countDocuments();
 
-            res.status(200).json({ success: true, data: answersWithUserDetails });
-        } catch (error) {
-            console.error('Error fetching answers:', error);
-            res.status(400).json({ success: false, error: error.message });
-        }
+          const userPromises = answers.map(async (answer) => {
+              const user = await Users.findOne({ userId: answer.userId });
+              return {
+                  ...answer._doc,
+                  user: user ? { fullname: user.fullname, empId: user.empId } : null,
+              };
+          });
+
+          const answersWithUserDetails = await Promise.all(userPromises);
+
+          res.status(200).json({ success: true, data: answersWithUserDetails, total: totalAnswers });
+      } catch (error) {
+          console.error('Error fetching answers:', error);
+          res.status(400).json({ success: false, error: error.message });
+      }
       } else if (req.method === 'POST') {
         try {
             const { userId, questionId, answer, isCorrect } = req.body;

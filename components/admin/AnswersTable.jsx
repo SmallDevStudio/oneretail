@@ -12,31 +12,37 @@ const AnswersTable = () => {
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(true);
     const [pageSize, setPageSize] = useState(10);
+    const [page, setPage] = useState(1);
+    const [total, setTotal] = useState(0);
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const response = await axios.get('/api/answers');
-            const dataWithIds = response.data.data.map((item) => ({
-                ...item,
-                id: item._id,
-                questionText: item.questionId.question,
-                correctAnswer: item.questionId.correctAnswer,
-                answerText: item.questionId.options[item.answer],
-                correctAnswerText: item.questionId.options[item.questionId.correctAnswer],
-                isCorrectText: item.isCorrect ? 'ถูก' : 'ผิด',
-                formattedDate: moment(item.timestamp).tz('Asia/Bangkok').locale('th').format('LLL'),
-                userId: item.userId,
-                fullname: item.user?.fullname || 'N/A',
-                empId: item.user?.empId || 'N/A'
-            }));
-            setRows(dataWithIds);
-            setLoading(false);
-        };
+    const fetchData = async (page, pageSize) => {
+        setLoading(true);
+        const response = await axios.get('/api/answers', {
+            params: { page, pageSize }
+        });
+        const dataWithIds = response.data.data.map((item) => ({
+            ...item,
+            id: item._id,
+            questionText: item.questionId.question,
+            correctAnswer: item.questionId.correctAnswer,
+            answerText: item.questionId.options[item.answer],
+            correctAnswerText: item.questionId.options[item.questionId.correctAnswer],
+            isCorrectText: item.isCorrect ? 'ถูก' : 'ผิด',
+            formattedDate: moment(item.timestamp).tz('Asia/Bangkok').locale('th').format('LLL'),
+            userId: item.userId,
+            fullname: item.user?.fullname || 'N/A',
+            empId: item.user?.empId || 'N/A'
+        }));
+        setRows(dataWithIds);
+        setTotal(response.data.total);
+        setLoading(false);
+    };
 
-        fetchData();
-    }, []);
+    useEffect(() => {
+        fetchData(page, pageSize);
+    }, [page, pageSize]);
 
     const handleExport = () => {
         let dataToExport = rows;
@@ -119,7 +125,11 @@ const AnswersTable = () => {
                 columns={columns}
                 pageSize={pageSize}
                 rowsPerPageOptions={[10, 25, 50, 100]}
+                paginationMode="server"
+                rowCount={total}
                 pagination
+                onPageChange={(newPage) => setPage(newPage + 1)}
+                onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
             />
         </div>
     );
