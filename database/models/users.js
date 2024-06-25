@@ -4,6 +4,7 @@ const userSchema = new Schema({
     fullname: { type: String, required: true },
     phone: { type: String, required: true },
     address: { type: String, required: true },
+    birthdate: { type: Date, default: null },
     pictureUrl: { type: String, required: true },
     role: { type: String },
     active: { type: Boolean, default: true },

@@ -2,13 +2,15 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import useSWR, { SWRConfig } from "swr";
+import useSWR, { SWRConfig, mutate } from "swr";
 import dynamic from "next/dynamic";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { MdOutlinePostAdd } from "react-icons/md";
 import "@/styles/profile.module.css";
 import { AppLayout } from "@/themes";
 import Loading from "@/components/Loading";
+import UserModal from "@/components/UserModal";
+import axios from "axios";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -18,7 +20,10 @@ const LineProgressBar = dynamic(() => import("@/components/ProfileLineProgressBa
 const ProfileContent = ({ session }) => {
     const [userLevels, setUserLevels] = useState({});
     const [percentage, setPercentage] = useState(0);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [profileImage, setProfileImage] = useState("");
 
+    const { data: user, error: userError } = useSWR(session ? `/api/users/${session.user.id}` : null, fetcher);
     const { data: level, error: levelError } = useSWR(session ? `/api/level/user?userId=${session.user.id}` : null, fetcher, {
         onSuccess: (data) => setUserLevels(data),
     });
@@ -35,6 +40,34 @@ const ProfileContent = ({ session }) => {
         ? parseFloat((userLevels.requiredPoints / userLevels.totalPoints) * 100)
         : 0;
     
+    const onRequestClose = async () => {
+        setIsModalOpen(false);
+    };
+
+    const handleImageUpload = (url) => {
+        setProfileImage(url);
+        // Call API to update profile image in the database
+        axios.put(`/api/users?userId=${session.user.id}`, { pictureUrl: url });
+        mutate(`/api/users/${session.user.id}`);
+    };
+
+    const onSubmit = async (formData) => {
+        const dataform = {
+            fullName: formData.fullName,
+            birthdate: formData.birthdate,
+            phone: formData.phone,
+            address: formData.address,
+            pictureUrl: formData.pictureUrl,
+        }
+        try {
+            await axios.put(`/api/users?userId=${session.user.id}`, dataform);
+            mutate(`/api/users/${session.user.id}`);
+            setIsModalOpen(false);
+        } catch (error) {
+            console.error("Error updating profile", error);
+        }
+    };
+
     return (
         <main className="flex flex-col mb-20">
             <div style={{ position: "fixed", top: 0, left: '38%', zIndex: 10, cursor: "pointer", minWidth: "100%", justifyItems: "end" }}>
@@ -52,11 +85,11 @@ const ProfileContent = ({ session }) => {
                 </div>
             </div>
             <div className="flex p-2 flex-row items-center justify-center mt-5">
-                <div className="flex flex-col">
+                <div className="flex flex-col" style={{ width: "auto", height: "auto" }} onClick={() => setIsModalOpen(true)}>
                     <div className="items-center text-center" style={{ width: "auto", height: "140px" }}>
                         <div className="mt-4 ml-5">
                             <Image
-                                src={userLevels?.user?.pictureUrl}
+                                src={profileImage || user?.user?.pictureUrl}
                                 alt="User Avatar"
                                 width={100}
                                 height={100}
@@ -76,7 +109,7 @@ const ProfileContent = ({ session }) => {
                     </div>
                 </div>
                 <div className="flex-1 flex-col items-center justify-center ml-10 mr-5">
-                    <span className="text-lg font-semibold text-[#0056FF] truncate">{userLevels?.user?.fullname}</span>
+                    <span className="text-lg font-semibold text-[#0056FF] truncate">{user?.user?.fullname}</span>
                     <div className="relative">
                         <div className="relative mt-3">
                             <LineProgressBar percent={percent} />
@@ -138,6 +171,7 @@ const ProfileContent = ({ session }) => {
                     </button>
                 </div>
             </div>
+            <UserModal isOpen={isModalOpen} onRequestClose={onRequestClose} user={user} onSubmit={onSubmit} handleImageUpload={handleImageUpload} />
             <div className="flex p-2 flex-col items-center justify-center text-center mt-3 mb-5">
                 <Link href="/redeem">
                     <button className="w-40 h-10 bg-[#F2871F] text-white rounded-3xl font-semibold text-xl mb-8 mt-3">

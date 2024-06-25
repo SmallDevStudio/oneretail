@@ -19,7 +19,7 @@ export default async function handler(req, res) {
              res.status(400).json({ error: "empId already exists" });
          }
 
-         const user = await Users.create({ fullname, phone, address, pictureUrl, role, active, empId, userId });
+         const user = await Users.create({ fullname, phone, address, pictureUrl, role, active, empId, userId, birthdate: null });
          res.status(201).json({ user });
     } else {
         res.status(405).json({ error: "Method not allowed" });
