@@ -63,6 +63,7 @@ const SecretSauce = ({ content, user }) => {
             axios.post('/api/points/earn', {
               userId,
               description: `views video ${content._id}`,
+              contentId: content._id,
               type: 'earn',
               points: content.point,
             });

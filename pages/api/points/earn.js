@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     await connetMongoDB();
 
     try {
-        const { userId, description, type, points } = req.body;
+        const { userId, description, type, points, contentId } = req.body;
   
         if (!userId || !description || !type || points === undefined) {
           return res.status(400).json({ success: false, message: 'All fields are required' });
@@ -17,6 +17,7 @@ export default async function handler(req, res) {
         const pointEntry = new Point({
           userId,
           description,
+          contentId, 
           type,
           point: points,
         });

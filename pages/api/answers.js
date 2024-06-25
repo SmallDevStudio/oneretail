@@ -22,7 +22,7 @@ export default async function handler(req, res) {
 
           const answers = await Answer.find()
               .populate('questionId')
-              .sort({ createdAt: -1 })
+              .sort({ createdAt: -1 })  // Ensure sorting by createdAt in descending order
               .skip(skip)
               .limit(limit);
 
