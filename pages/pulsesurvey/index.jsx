@@ -123,13 +123,13 @@ const PulseSurvey = () => {
                                 <div>
                                     <label
                                         htmlFor="memo"
-                                        className="block text-sm font-medium text-gray-700"
+                                        className="block text-md font-bold text-gray-700 text-left"
                                     >
                                         อะไรเกี่ยวกับตัวคุณ ที่อยากบอกหรือคิดว่าหัวหน้าควรรู้?
                                     </label>
                                     <textarea
                                         name="memo"
-                                        placeholder="อยากมีอะไรจะบอกเราไหม ?"
+                                        placeholder="เขียนสิ่งที่อยากบอกให้รู้"
                                         className="w-full h-28 p-2 border border-gray-300 rounded-md"
                                         onChange={handleChange}
                                     />

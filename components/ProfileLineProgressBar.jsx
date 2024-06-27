@@ -15,7 +15,7 @@ const ProfileLineProgressBar = ({ percent }) => {
                 color: '#F68B1F',
                 trailColor: '#eee',
                 trailWidth: 10,
-                svgStyle: { width: '100%', height: '100%', strokeLinecap: 'round' },
+                svgStyle: { width: '100%', height: '100%' },
                 text: {
                     style: {
                         color: '#fff',
@@ -25,7 +25,8 @@ const ProfileLineProgressBar = ({ percent }) => {
                         padding: 0,
                         margin: 0,
                         transform: 'translate(-50%, -50%)', // Center the text
-                        fontSize: '16px'
+                        fontSize: '16px',
+                        lineHeight: '16px', // Add this line to ensure Safari handles the text size correctly
                     },
                     autoStyleContainer: false
                 },
@@ -58,9 +59,8 @@ const ProfileLineProgressBar = ({ percent }) => {
     }, [percent]);
 
     return (
-        <div ref={progressBarRef}></div>
+        <div ref={progressBarRef} style={{ position: 'relative', width: '100%', height: '10px' }}></div>
     );
 };
-
 
 export default ProfileLineProgressBar;

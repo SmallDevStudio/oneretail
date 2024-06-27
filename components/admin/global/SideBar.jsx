@@ -81,7 +81,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                   alignItems="center"
                   ml="15px"
                 >
-                 <Image src="/dist/img/logo-one-retail.png" alt="one-retail logo" width={200} height={200}/>
+                 <Image src="/dist/img/logo-one-retail.png" alt="one-retail logo" width={200} height={200} style={{width: 'auto', height: 'auto'}}/>
                   <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                     <MenuOutlinedIcon />
                   </IconButton>
@@ -170,6 +170,14 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                 title="Campaign"
                 icon={<MdOutlineCampaign />}
               >
+                <Item
+                  title="จัดการ Campaigns"
+                  to="/admin/campaigns"
+                  icon={<MdOutlineCampaign />}
+                  selected={selected}
+                  setSelected={setSelected}
+                  />
+
                 <Item
                   title="ส่งชื่อประกวด"
                   to="/admin/campaigns/votenames"

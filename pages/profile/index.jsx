@@ -36,9 +36,11 @@ const ProfileContent = ({ session }) => {
     if (levelError || surveyError || coinsError || pointsError) return <div>Error loading data</div>;
     if (!level || !survey || !coins || !points) return <Loading />;
 
-    const percent = userLevels.requiredPoints
-        ? parseFloat((userLevels.requiredPoints / userLevels.totalPoints) * 100)
+    const percent = userLevels.nextLevelRequiredPoints
+        ? parseFloat((userLevels.totalPoints / userLevels.nextLevelRequiredPoints ) * 100)
         : 0;
+
+        console.log(userLevels);
     
     const onRequestClose = async () => {
         setIsModalOpen(false);
@@ -103,6 +105,7 @@ const ProfileContent = ({ session }) => {
                                 alt="Badge"
                                 width={140}
                                 height={140}
+                            
                             />
                         </div>
                         <span className="absolute z-50 text-white font-bold mt-2.5 ml-[-5px] text-[10px]">LEVEL {level?.level}</span>
@@ -120,10 +123,11 @@ const ProfileContent = ({ session }) => {
                                 alt="Coin"
                                 width={30}
                                 height={30}
+                                style={{ objectFit: "cover", objectPosition: "center", width: "30px", height: "30px" }}
                             />
                         </div>
                     </div>
-                    <span className="flex text-sm font-semibold text-[#0056FF] justify-end">
+                    <span className="flex text-sm font-semibold text-[#0056FF] justify-end mt-2">
                         {level?.totalPoints} / {level?.nextLevelRequiredPoints}
                     </span>
                 </div>
@@ -143,6 +147,7 @@ const ProfileContent = ({ session }) => {
                             width={30}
                             height={30}
                             priority
+                            style={{ objectFit: "cover", objectPosition: "center", width: "32px", height: "32px" }}
                         />
                         <span className="text-sm font-black text-[#0056FF] dark:text-white">
                             Total Points
@@ -160,7 +165,7 @@ const ProfileContent = ({ session }) => {
                             alt="coin"
                             width={32}
                             height={32}
-                            priority
+                            style={{ objectFit: "cover", objectPosition: "center", width: "32px", height: "32px" }}
                         />
                         <span className="text-sm font-black text-[#0056FF] dark:text-white">
                             Coins
