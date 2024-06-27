@@ -1,15 +1,15 @@
-import connetMongoDB from "@/lib/services/database/mongodb";
+import connectMongoDB from "@/lib/services/database/mongodb";
 import Content from "@/database/models/Content";
 import Users from "@/database/models/users";
 import ContentComment from "@/database/models/ContentComment";
 
 export default async function handler(req, res) {
-    await connetMongoDB();
-    const { method, query } = req;
-    const { id } = query;
+  await connectMongoDB();
+  const { method, query } = req;
+  const { id } = query;
 
-    switch (method) {
-      case 'GET':
+  switch (method) {
+    case 'GET':
       try {
         let content = await Content.findById(id)
           .populate('categories')
@@ -45,22 +45,23 @@ export default async function handler(req, res) {
       }
       break;
 
-      case 'PUT':
-        try {
-          const { userId } = req.body;
-          const content = await Content.findById(id);
-  
-          if (!content) {
-            return res.status(404).json({ success: false, error: 'Content not found' });
-          }
-  
-          // Ensure content.likes is an array
+    case 'PUT':
+      try {
+        const { userId, publisher } = req.body;
+        const content = await Content.findById(id);
+
+        if (!content) {
+          return res.status(404).json({ success: false, error: 'Content not found' });
+        }
+
+        // Handle like/unlike
+        if (userId) {
           if (!Array.isArray(content.likes)) {
             content.likes = [];
           }
-  
+
           const userHasLiked = content.likes.includes(userId);
-  
+
           if (userHasLiked) {
             // Remove like
             content.likes = content.likes.filter(like => like !== userId);
@@ -68,28 +69,34 @@ export default async function handler(req, res) {
             // Add like
             content.likes.push(userId);
           }
-  
-          await content.save();
-  
-          res.status(200).json({ success: true, data: content });
-        } catch (error) {
-          console.error('Error updating content:', error);
-          res.status(400).json({ success: false, error: error.message });
         }
-        break;
 
-      case 'DELETE':
-        try {
-          const content = await Content.findByIdAndDelete(id);
-          if (!content) {
-            return res.status(404).json({ success: false, error: 'Content not found' });
-          }
-          res.status(200).json({ success: true, data: {} });
-        } catch (error) {
-          console.error('Error deleting content:', error);
-          res.status(400).json({ success: false, error: error.message });
+        // Handle publisher toggle
+        if (typeof publisher !== 'undefined') {
+          content.publisher = publisher;
         }
-        break;
+
+        await content.save();
+
+        res.status(200).json({ success: true, data: content });
+      } catch (error) {
+        console.error('Error updating content:', error);
+        res.status(400).json({ success: false, error: error.message });
+      }
+      break;
+
+    case 'DELETE':
+      try {
+        const content = await Content.findByIdAndDelete(id);
+        if (!content) {
+          return res.status(404).json({ success: false, error: 'Content not found' });
+        }
+        res.status(200).json({ success: true, data: {} });
+      } catch (error) {
+        console.error('Error deleting content:', error);
+        res.status(400).json({ success: false, error: error.message });
+      }
+      break;
 
     default:
       res.status(400).json({ success: false, error: 'Invalid request method' });
