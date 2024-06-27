@@ -100,7 +100,7 @@ export default function Stores() {
                     </>
                 )}
                 {activeTab === 'share-your-story' && (
-                    <ShareYourStory />
+                     <div>Coming Soon</div>
                 )}
             </div>
         </main>

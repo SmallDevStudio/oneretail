@@ -41,7 +41,7 @@ const VoteName = ({ userId }) => {
 
     return (
         <div>
-            <div className="flex flex-col p-5 border-2 m-4 rounded-xl bg-white shadow-lg">
+            <div className="flex flex-col p-5 border-2 ml-4 mr-4 rounded-xl bg-white shadow-lg">
                 <form className="flex flex-col p-2">
                     <label className="font-bold">คุณตั้งชื่อมาสคอตนี้ว่า:</label>
                     <input 

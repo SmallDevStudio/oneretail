@@ -16,6 +16,7 @@ const customStyles = {
       borderRadius: '20px',
       height: 'auto',
       width: '350px',
+      border: '5px solid #0056FF',
     }
   };
 
@@ -37,12 +38,11 @@ const LineModal = ({ showModal, handleCloseModal }) => {
         </div>
       </div>
       <div className="flex flex-col justify-center items-center">
-        <p className="text-lg font-bold mb-5 text-center">กรุณาเพิ่มเพื่อน เพื่อรับข่าวสาร และการแจ้งเตือนของ Application</p>
-        <Link href="https://lin.ee/YerIxJf" target="_blank">
-          <Image src={'https://scdn.line-apps.com/n/line_add_friends/btn/th.png'} alt="เพิ่มเพื่อน" height={50} width={200} className='cursor-pointer rounded-full'/>
-        </Link>
+        <p className="text-lg font-bold text-center">ขอบคุณที่เข้าร่วม PILOT TEST</p>
+        <p className="text-lg font-bold text-center">พบกับใหม่อย่างเป็นทางการ</p>
+        <p className="text-lg font-bold text-center text-[#0056FF]">1 กรกฎาคม 2567</p>
       </div>
-      <div className="modal-footer">
+      <div className="modal-footer mb-5">
       </div>
     </Modal>
   );

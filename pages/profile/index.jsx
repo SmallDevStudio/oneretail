@@ -54,15 +54,8 @@ const ProfileContent = ({ session }) => {
     };
 
     const onSubmit = async (formData) => {
-        const dataform = {
-            fullName: formData.fullName,
-            birthdate: formData.birthdate,
-            phone: formData.phone,
-            address: formData.address,
-            pictureUrl: formData.pictureUrl,
-        }
         try {
-            await axios.put(`/api/users?userId=${session.user.id}`, dataform);
+            await axios.put(`/api/users?userId=${session.user.id}`, formData);
             mutate(`/api/users/${session.user.id}`);
             setIsModalOpen(false);
         } catch (error) {
@@ -201,6 +194,12 @@ const ProfileContent = ({ session }) => {
                     ภาพรวมอุณหภูมิความสุข<br />
                     ในการทำงานของคุณ
                 </span>
+            </div>
+            <div className="flex p-2 flex-row items-center justify-center text-center mt-3">
+                <span className="flex text-sm font-semibold text-[#0056FF]">มีปัญหาการใช้งาน ติดต่อ</span>
+                <Link href="https://lin.ee/SFfMbhs" target="_blank">
+                <div className="bg-[#06C755] p-1 rounded-full text-white font-bold ml-2 w-20"><span>Line</span></div>
+                </Link>
             </div>
         </main>
     );

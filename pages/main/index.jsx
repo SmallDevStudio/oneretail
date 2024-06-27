@@ -32,6 +32,13 @@ const MainPage = () => {
             router.push('/register');
             return;
         }
+
+        // Show modal 1-2 seconds after page load
+        const timer = setTimeout(() => {
+            setShowModal(true);
+        }, 1500); // 1.5 seconds
+
+        return () => clearTimeout(timer);
     }, [router, session, status, user, userError]);
 
     const handleCloseModal = () => {
@@ -51,19 +58,19 @@ const MainPage = () => {
                 <link rel="manifest" href="/manifest.json"/>
             </Head>
             <RecheckUser>
-            <main className="flex flex-col bg-gray-10 justify-between items-center text-center min-h-screen">
-                <div className="w-full">
-                    <Carousel />
-                </div>
-                <div className="flex-grow flex items-center justify-center">
-                    <MainIconMenu />
-                </div>
-                <div className="relative bottom-0 w-full footer-content">
-                    <FooterContant />
-                </div>
-                <LineModal showModal={showModal} handleCloseModal={handleCloseModal} />
-            </main>
-        </RecheckUser>
+                <main className="flex flex-col bg-gray-10 justify-between items-center text-center min-h-screen">
+                    <div className="w-full">
+                        <Carousel />
+                    </div>
+                    <div className="flex-grow flex items-center justify-center">
+                        <MainIconMenu />
+                    </div>
+                    <div className="relative bottom-0 w-full footer-content">
+                        <FooterContant />
+                    </div>
+                    <LineModal showModal={showModal} handleCloseModal={handleCloseModal} />
+                </main>
+            </RecheckUser>
         </React.Fragment>
     );
 };

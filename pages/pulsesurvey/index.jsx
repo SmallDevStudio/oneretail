@@ -123,7 +123,7 @@ const PulseSurvey = () => {
                                 <div>
                                     <label
                                         htmlFor="memo"
-                                        className="block text-md font-bold text-gray-700 text-left"
+                                        className="block text-sm font-bold text-gray-700 text-left"
                                     >
                                         อะไรเกี่ยวกับตัวคุณ ที่อยากบอกหรือคิดว่าหัวหน้าควรรู้?
                                     </label>

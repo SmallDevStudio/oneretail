@@ -9,7 +9,7 @@ export default function Campaign1() {
     const { data: session } = useSession();
 
     return (
-        <div>
+        <div className="mb-20">
             <div className="flex justify-center items-center w-full mt-5 mb-3">
                 <h1 className="text-3xl font-bold text-[#0056FF] uppercase">Campaign</h1>
             </div>
@@ -32,7 +32,18 @@ export default function Campaign1() {
             />
             <div className="flex flex-col p-5">
                 <span className="font-bold text-[#0056FF] text-xl">ประกวดตั้งชื่อมาสคอต</span>
-                <p className="text-md">ขอชวนเพื่อนๆ ทุกคนมาช่วยกันตั้งชื่อมาสคอตสุดน่ารักของ One Retail Society ชื่อของใครโดนใจกรรมการ รับรางวัลพิเศษไปเลย </p>
+                <p className="text-md">ขอชวนเพื่อนๆ ทุกคนมาช่วยกันตั้งชื่อมาสคอตสุดน่ารักของ One Retail Society ชื่อของใครโดนใจกรรมการ รับรางวัลพิเศษไปเล้ย หมดเขต 20 กรกฎาคมนี้นะ </p>
+                <span className="text-md font-bold text-[#0056FF] mt-2">มารู้จักมาสคอตกันก่อน</span>
+                <div className="flex flex-row justify-center items-center mt-2">
+                    <Image src={"/images/campaign/campaign1.png"} alt="Campaign" width={150} height={150} className="w-full" style={{width: 'auto', height: 'auto'}}/>
+                    <span className="text-sm ml-4">น้องเป็นมิตรกับทุกคน เป็นสัญลักษณ์แห่งการเรียนรู้และเติบโต โดยออกแบบให้เป็นคนที่มีผมเหมือนต้นไม้และต้นอ่อนบนหัว เปรียบเหมือนการเรียนรู้ตลอดชีวิต (Lifelong Learning) ที่เริ่มตั้งแต่เด็กจนโต 
+                            น้องจะเป็นตัวแทนของการเรียนรู้ การสื่อสารและการมีส่วนร่วมของเราชาว Retail ที่มีความเป็น Trusted Advisor อยู่ในตัวทุกคน 
+                    </span>
+                </div>
+            </div>
+            <div className="flex flex-col p-5">
+                <h2 className="text-md font-bold text-[#0056FF]">กติการ่วมสนุก</h2>
+                <p className="text-sm">ทุกคนสามารถส่งชื่อเข้าประกวด โดย 1 คน มี 1 สิทธิ์ ตั้งชื่อของน้องมาสคอต พร้อมคำอธิบายเหตุผล ได้ที่ด้านล่างนี้เลย </p>
             </div>
 
             <VoteName userId={session?.user?.id}/>

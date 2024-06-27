@@ -1,43 +1,55 @@
-import React, { useState } from 'react';
 import Image from 'next/image';
+import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
-import ImageCropModal from './ImageCropModal';
+import { CldUploadWidget } from 'next-cloudinary';
 
 Modal.setAppElement('#__next'); // เพื่อป้องกัน warning ในการใช้ Modal
 
 const customStyles = {
     content: {
-      top: '50%',
-      left: '50%',
-      right: 'auto',
-      bottom: 'auto',
-      marginRight: '-50%',
-      transform: 'translate(-50%, -50%)',
-      borderRadius: '20px',
-      height: 'auto',
-      width: '350px',
-      border: '5px solid #F68B1F',
-      overflow: 'hidden',
+        top: '50%',
+        left: '50%',
+        right: 'auto',
+        bottom: 'auto',
+        marginRight: '-50%',
+        transform: 'translate(-50%, -50%)',
+        borderRadius: '20px',
+        height: 'auto',
+        width: '350px',
+        border: '5px solid #F68B1F',
+        overflow: 'hidden',
     }
 };
 
 const UserModal = ({ isOpen, onRequestClose, onSubmit, user, handleImageUpload }) => {
-    const [fullname, setFullname] = useState(user.user.fullname || "");
-    const [birthdate, setBirthdate] = useState(user.user.birthdate || "");
-    const [phone, setPhone] = useState(user.user.phone || "");
-    const [address, setAddress] = useState(user.user.address || "");
-    const [croppedImage, setCroppedImage] = useState(user.user.pictureUrl || null);
-    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+    const [fullname, setFullname] = useState(user.user.fullname);
+    const [birthdate, setBirthdate] = useState(user.user.birthdate ? new Date(user.user.birthdate).toISOString().split('T')[0] : '');
+    const [phone, setPhone] = useState(user.user.phone);
+    const [address, setAddress] = useState(user.user.address);
+    const [pictureUrl, setPictureUrl] = useState(user.user.pictureUrl);
 
-    const handleUpload = (url) => {
-        setCroppedImage(url);
+    useEffect(() => {
+        setFullname(user.user.fullname);
+        setBirthdate(user.user.birthdate ? new Date(user.user.birthdate).toISOString().split('T')[0] : '');
+        setPhone(user.user.phone);
+        setAddress(user.user.address);
+        setPictureUrl(user.user.pictureUrl);
+    }, [user]);
+
+    const handleUpload = async (url) => {
+        setPictureUrl(url);
         handleImageUpload(url);
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const formData = { fullname, birthdate, phone, address, pictureUrl: croppedImage };
-        onSubmit(formData);
+        onSubmit({
+            fullname,
+            birthdate,
+            phone,
+            address,
+            pictureUrl,
+        });
     };
 
     return (
@@ -57,20 +69,35 @@ const UserModal = ({ isOpen, onRequestClose, onSubmit, user, handleImageUpload }
                 </div>
             </div>
             <div className="flex flex-col justify-center items-center">
-                <button onClick={() => setIsImageModalOpen(true)} className="mt-2">
-                    <Image
-                        src={croppedImage}
-                        alt="Profile Picture"
-                        width={100}
-                        height={100}
-                        className="rounded-full cursor-pointer"
-                    />
-                </button>
-                <form onSubmit={handleSubmit} className="flex flex-col justify-start items-center w-full gap-2 mt-2">
+                {pictureUrl && (
+                    <div className='mt-4'>
+                        <Image src={pictureUrl} alt="User Image" width={100} height={100} className='rounded-full' />
+                    </div>
+                )}
+                <div className='mt-2 mb-4'>
+                    <CldUploadWidget
+                        uploadPreset="your-upload-preset"
+                        onUpload={(result) => handleUpload(result.info.secure_url)}
+                    >
+                        {({ open }) => (
+                            <button
+                                className="bg-[#F68B1F] text-white font-bold py-2 px-4 rounded-full"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    open();
+                                }}
+                                
+                            >
+                                อัพโหลดรูปภาพ
+                            </button>
+                        )}
+                    </CldUploadWidget>
+                </div>
+                
+                <form className='flex flex-col justify-start items-center w-full gap-2 mt-2' onSubmit={handleSubmit}>
                     <div className='flex gap-2 items-center'>
                         <label className='text-md font-bold'>ชื่อ-นามสกุล:</label>  
-                        <input 
-                            type='text'
+                        <input type='text'
                             name='fullname'
                             value={fullname}
                             onChange={(e) => setFullname(e.target.value)}
@@ -79,8 +106,7 @@ const UserModal = ({ isOpen, onRequestClose, onSubmit, user, handleImageUpload }
                     </div>
                     <div className='flex gap-2 items-center'>
                         <label className='text-md font-bold'>วันเกิด:</label>
-                        <input 
-                            type='date' 
+                        <input type='date' 
                             name='birthdate'
                             value={birthdate}
                             onChange={(e) => setBirthdate(e.target.value)}
@@ -89,8 +115,7 @@ const UserModal = ({ isOpen, onRequestClose, onSubmit, user, handleImageUpload }
                     </div>
                     <div className='flex gap-2 items-center'>
                         <label className='text-md font-bold'>เบอร์ติดต่อ:</label>
-                        <input 
-                            type='text' 
+                        <input type='text' 
                             name='phone'
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
@@ -99,7 +124,7 @@ const UserModal = ({ isOpen, onRequestClose, onSubmit, user, handleImageUpload }
                     </div>
                     <div className='flex gap-2'>
                         <label className='text-md font-bold '>ที่อยู่:</label>
-                        <textarea 
+                        <textarea type='text' 
                             name='address'
                             value={address}
                             onChange={(e) => setAddress(e.target.value)}
@@ -117,7 +142,6 @@ const UserModal = ({ isOpen, onRequestClose, onSubmit, user, handleImageUpload }
                     </div>
                 </form>
             </div>
-            <ImageCropModal isOpen={isImageModalOpen} onRequestClose={() => setIsImageModalOpen(false)} onUpload={handleUpload} />
         </Modal>
     );
 };
