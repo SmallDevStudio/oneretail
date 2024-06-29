@@ -57,6 +57,7 @@ export default async function handler(req, res) {
           coins: redeem.coins,
           point: redeem.point,
           amount: 1,
+          status: 'padding',
         });
         await redeemTrans.save();
 

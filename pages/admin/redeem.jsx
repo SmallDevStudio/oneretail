@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import { CldUploadWidget, CldImage } from "next-cloudinary";
+import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
 import { AdminLayout } from "@/themes";
 import { DataGrid } from "@mui/x-data-grid";
@@ -44,25 +44,29 @@ const RedeemPage = () => {
 
   const fetchRedeemTrans = async () => {
     const res = await axios.get("/api/redeemtran");
-    setRedeemTrans(res.data.data.map((trans, index) => ({
-      ...trans,
-      id: trans._id,
-      seq: index + 1,
-      rewardCode: trans.redeemId.rewardCode,
-      image: trans.redeemId.image,
-      name: trans.redeemId.name,
-      fullname: trans.user.fullname,
-      pictureUrl: trans.user.pictureUrl,
-    })));
+    setRedeemTrans(
+      res.data.data.map((trans, index) => ({
+        ...trans,
+        id: trans._id,
+        seq: index + 1,
+        rewardCode: trans.redeemId.rewardCode,
+        image: trans.redeemId.image,
+        name: trans.redeemId.name,
+        empId: trans.user.empId,
+        fullname: trans.user.fullname,
+        pictureUrl: trans.user.pictureUrl,
+        address: trans.user.address,
+      }))
+    );
   };
 
   const handleDeliver = async () => {
     await Promise.all(
       selectedRows.map(async (rowId) => {
-        const redeemTrans = redeemTrans.find((trans) => trans._id === rowId);
+        const redeemTran = redeemTrans.find((trans) => trans.id === rowId);
         await axios.post("/api/delivery", {
           redeemTransId: rowId,
-          userId: redeemTrans.userId,
+          userId: redeemTran.userId,
         });
         await axios.put(`/api/redeemtran/${rowId}`, { status: 'delivered' });
       })
@@ -71,12 +75,33 @@ const RedeemPage = () => {
   };
 
   const handlePrint = () => {
-    const selectedData = redeemTrans.filter((trans) => selectedRows.includes(trans._id));
-    // Implement your print functionality here
+    const selectedData = redeemTrans.filter((trans) => selectedRows.includes(trans.id));
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write('<html><head><title>Print</title></head><body>');
+    printWindow.document.write('<h1>Redeem Transactions</h1>');
+    printWindow.document.write('<table border="1"><tr><th>ลำดับ</th><th>Reward Code</th><th>Name</th><th>EmpId</th><th>Full Name</th><th>Address</th></tr>');
+  
+    selectedData.forEach((trans) => {
+      printWindow.document.write(
+        `<tr>
+          <td>${trans.seq}</td>
+          <td>${trans.rewardCode}</td>
+          <td>${trans.name}</td>
+          <td>${trans.empId}</td>
+          <td>${trans.fullname}</td>
+          <td>${trans.address}</td>
+        </tr>`
+      );
+    });
+  
+    printWindow.document.write('</table></body></html>');
+    printWindow.document.close();
+    printWindow.print();
   };
 
   const handleExport = () => {
-    const selectedData = redeemTrans.filter((trans) => selectedRows.includes(trans._id));
+    const selectedData = redeemTrans.filter((trans) => selectedRows.includes(trans.id));
     const ws = XLSX.utils.json_to_sheet(selectedData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Redeem Transactions");
@@ -97,23 +122,19 @@ const RedeemPage = () => {
     if (redeems.length === 0) {
       return "ttb0001";
     }
-
     const lastRedeem = redeems[redeems.length - 1];
     const lastCode = lastRedeem ? lastRedeem.rewardCode : "ttb0000";
     const lastNumber = parseInt(lastCode.replace("ttb", ""), 10);
     const newNumber = lastNumber + 1;
-
     return `ttb${String(newNumber).padStart(4, "0")}`;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const formattedForm = {
       ...form,
       creator: userId,
     };
-
     if (isEdit) {
       await axios.put("/api/redeem", { ...formattedForm, id: editId });
     } else {
@@ -230,7 +251,7 @@ const RedeemPage = () => {
     { field: "amount", headerName: "Amount", width: 100 },
     {
       field: "fullname",
-      headerName: "Name",
+      headerName: "Full Name",
       width: 150,
     },
     {
@@ -238,7 +259,7 @@ const RedeemPage = () => {
       headerName: "Avatar",
       width: 100,
       renderCell: (params) => (
-        <Image src={params.value} width={50} height={50} alt={params.row.name} className="rounded-full" />
+        <Image src={params.value} width={50} height={50} alt={params.row.fullname} className="rounded-full" />
       ),
     },
     {
@@ -401,27 +422,29 @@ const RedeemPage = () => {
           </>
         ) : (
           <>
-          
-          <div style={{ height: 400, width: "100%" }}>
-            <DataGrid
-              rows={redeemTrans}
-              columns={redeemTransColumns}
-              pageSize={10}
-              checkboxSelection
-              onSelectionModelChange={(ids) => {
-                console.log("Selected Rows:", ids); // Debugging statement
-                setSelectedRows(ids);
-              }}
-              onRowClick={(row) => console.log('Row clicked:', row)} // Simple event listener for debugging
-            />
-          </div>
-          {selectedRows.length > 0 && (
-            <div className="mt-4">
-              <button onClick={handleDeliver} className="bg-green-500 text-white px-4 py-2 rounded mr-2">Deliver</button>
-              <button onClick={handlePrint} className="bg-blue-500 text-white px-4 py-2 rounded mr-2">Print</button>
-              <button onClick={handleExport} className="bg-yellow-500 text-white px-4 py-2 rounded">Export</button>
+            <div style={{ height: 400, width: "100%" }}>
+              <DataGrid
+                rows={redeemTrans}
+                columns={redeemTransColumns}
+                pageSize={10}
+                checkboxSelection
+                onSelectionModelChange={(ids) => {
+                  console.log("Selected Rows:", ids); // Debugging statement
+                  setSelectedRows(ids);
+                }}
+                onRowSelectionModelChange={(ids) => {
+                  console.log("Selected Rows (Alternate):", ids); // Debugging statement
+                  setSelectedRows(ids);
+                }}
+              />
             </div>
-          )}
+            {selectedRows.length > 0 && (
+              <div className="mt-4">
+                <button onClick={handleDeliver} className="bg-green-500 text-white px-4 py-2 rounded mr-2">Deliver</button>
+                <button onClick={handlePrint} className="bg-blue-500 text-white px-4 py-2 rounded mr-2">Print</button>
+                <button onClick={handleExport} className="bg-yellow-500 text-white px-4 py-2 rounded">Export</button>
+              </div>
+            )}
           </>
         )}
       </div>
