@@ -6,6 +6,7 @@ const redeemTransSchema = new mongoose.Schema({
   coins: { type: Number, required: true },
   point: { type: Number },
   amount: { type: Number, required: true },
+  status: { type: String, required: true, default: 'pending' },
   createdAt: { type: Date, default: Date.now },
 });
 

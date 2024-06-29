@@ -8,10 +8,12 @@ import { AdminLayout } from "@/themes";
 import { DataGrid } from "@mui/x-data-grid";
 import moment from "moment";
 import "moment/locale/th";
+import * as XLSX from 'xlsx';
 
 const RedeemPage = () => {
   const [redeems, setRedeems] = useState([]);
   const [redeemTrans, setRedeemTrans] = useState([]);
+  const [selectedRows, setSelectedRows] = useState([]);
   const [form, setForm] = useState({
     rewardCode: "",
     name: "",
@@ -41,8 +43,44 @@ const RedeemPage = () => {
   };
 
   const fetchRedeemTrans = async () => {
-    const res = await axios.get("/api/redeemtrans");
-    setRedeemTrans(res.data.data);
+    const res = await axios.get("/api/redeemtran");
+    setRedeemTrans(res.data.data.map((trans, index) => ({
+      ...trans,
+      id: trans._id,
+      seq: index + 1,
+      rewardCode: trans.redeemId.rewardCode,
+      image: trans.redeemId.image,
+      name: trans.redeemId.name,
+      fullname: trans.user.fullname,
+      pictureUrl: trans.user.pictureUrl,
+    })));
+  };
+
+  const handleDeliver = async () => {
+    await Promise.all(
+      selectedRows.map(async (rowId) => {
+        const redeemTrans = redeemTrans.find((trans) => trans._id === rowId);
+        await axios.post("/api/delivery", {
+          redeemTransId: rowId,
+          userId: redeemTrans.userId,
+        });
+        await axios.put(`/api/redeemtran/${rowId}`, { status: 'delivered' });
+      })
+    );
+    fetchRedeemTrans();
+  };
+
+  const handlePrint = () => {
+    const selectedData = redeemTrans.filter((trans) => selectedRows.includes(trans._id));
+    // Implement your print functionality here
+  };
+
+  const handleExport = () => {
+    const selectedData = redeemTrans.filter((trans) => selectedRows.includes(trans._id));
+    const ws = XLSX.utils.json_to_sheet(selectedData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Redeem Transactions");
+    XLSX.writeFile(wb, "redeem_transactions.xlsx");
   };
 
   const handleInputChange = (e) => {
@@ -177,6 +215,7 @@ const RedeemPage = () => {
   ];
 
   const redeemTransColumns = [
+    { field: "seq", headerName: "ลำดับ", width: 80 },
     { field: "rewardCode", headerName: "Reward Code", width: 100 },
     {
       field: "image",
@@ -187,15 +226,19 @@ const RedeemPage = () => {
       ),
     },
     { field: "name", headerName: "Name", width: 150 },
-    { field: "coins", headerName: "Coins", width: 100 },
-    { field: "point", headerName: "Points", width: 100 },
+    { field: "status", headerName: "Status", width: 100 },
     { field: "amount", headerName: "Amount", width: 100 },
     {
-      field: "userId",
-      headerName: "User",
+      field: "fullname",
+      headerName: "Name",
+      width: 150,
+    },
+    {
+      field: "pictureUrl",
+      headerName: "Avatar",
       width: 100,
       renderCell: (params) => (
-        <Image src={params.value} width={50} height={50} alt="User" />
+        <Image src={params.value} width={50} height={50} alt={params.row.name} className="rounded-full" />
       ),
     },
     {
@@ -357,14 +400,29 @@ const RedeemPage = () => {
             </div>
           </>
         ) : (
+          <>
+          
           <div style={{ height: 400, width: "100%" }}>
             <DataGrid
               rows={redeemTrans}
               columns={redeemTransColumns}
               pageSize={10}
-              getRowId={(row) => row._id}
+              checkboxSelection
+              onSelectionModelChange={(ids) => {
+                console.log("Selected Rows:", ids); // Debugging statement
+                setSelectedRows(ids);
+              }}
+              onRowClick={(row) => console.log('Row clicked:', row)} // Simple event listener for debugging
             />
           </div>
+          {selectedRows.length > 0 && (
+            <div className="mt-4">
+              <button onClick={handleDeliver} className="bg-green-500 text-white px-4 py-2 rounded mr-2">Deliver</button>
+              <button onClick={handlePrint} className="bg-blue-500 text-white px-4 py-2 rounded mr-2">Print</button>
+              <button onClick={handleExport} className="bg-yellow-500 text-white px-4 py-2 rounded">Export</button>
+            </div>
+          )}
+          </>
         )}
       </div>
     </div>
