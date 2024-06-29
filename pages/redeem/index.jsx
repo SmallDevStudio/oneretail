@@ -328,7 +328,13 @@ export default function Redeem() {
                         </span>
                       </div>
                     </div>
-                    <div className="flex items-center justify-end pt-2">
+                    <div className="flex items-center justify-between pt-2">
+                      <div className="flex text-left">
+                        <span className="text-[0.7em] font-bold">
+                        {transItem.status}
+                        </span>
+                      </div>
+
                       {transItem.redeemId.coins > 0 && (
                         <div className="text-left">
                         <span className="text-[0.7em] font-bold">
