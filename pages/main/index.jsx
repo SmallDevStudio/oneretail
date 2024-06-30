@@ -35,7 +35,7 @@ const MainPage = () => {
 
         // Show modal 1-2 seconds after page load
         const timer = setTimeout(() => {
-            setShowModal(true);
+            setShowModal(false);
         }, 1500); // 1.5 seconds
 
         return () => clearTimeout(timer);
