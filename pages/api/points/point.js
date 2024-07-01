@@ -1,23 +1,34 @@
-import connectMongoDB from '@/lib/services/database/mongodb';
-import Point from '@/database/models/Point';
+import connetMongoDB from "@/lib/services/database/mongodb";
+import Point from "@/database/models/Point";
+import sendLineMessage from "@/lib/sendLineMessage";
+
 
 export default async function handler(req, res) {
-  const { method } = req;
+    await connetMongoDB();
 
-  await connectMongoDB();
+    try {
+        const { userId, description, type, points, contentId } = req.body;
+  
+        if (!userId || !description || !type || points === undefined) {
+          return res.status(400).json({ success: false, message: 'All fields are required' });
+        }
+  
+        // เพิ่มข้อมูลใน collection "point"
+        const pointEntry = new Point({
+          userId,
+          description,
+          contentId, 
+          type,
+          point: points,
+        });
+        await pointEntry.save();
 
-  switch (method) {
-    case 'POST':
-      try {
-        const point = new Point(req.body);
-        await point.save();
-        res.status(201).json({ success: true, data: point });
+        // ส่งข้อความไปที่ LINE
+        const message = `คุณได้รับ ${points}`;
+        sendLineMessage(userId, message);
+  
+        res.status(201).json({ success: true, data: pointEntry });
       } catch (error) {
-        res.status(400).json({ success: false });
+        res.status(400).json({ success: false, error: error.message });
       }
-      break;
-    default:
-      res.status(400).json({ success: false });
-      break;
-  }
 }

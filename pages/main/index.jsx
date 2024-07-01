@@ -10,7 +10,7 @@ import AppLayout from "@/themes/Layout/AppLayout";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import RecheckUser from "@/components/RecheckUser";
-import QuizModal from "@/components/QuizModal";
+import ManagerModal from "@/components/ManagerModal";
 
 const Carousel = dynamic(() => import("@/components/Carousel"), {
     ssr: false,
@@ -19,7 +19,7 @@ const Carousel = dynamic(() => import("@/components/Carousel"), {
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
-const manager = ['22392', '22393'];
+const manager = ['22392', '22393', '00000'];
 
 const MainPage = () => {
     const { data: session, status } = useSession();
@@ -42,7 +42,7 @@ const MainPage = () => {
                 .then(res => {
                     if (!res.data.hasLoggedToday) {
                         // Award points to the user
-                        axios.post('/api/points/earn', {
+                        axios.post('/api/points/point', {
                             userId: session.user.id,
                             description: 'point พิเศษ',
                             contentId: null,
@@ -64,7 +64,7 @@ const MainPage = () => {
         }
     }, [router, session, status, user, userError]);
 
-    const handleCloseModal = () => {
+    const onRequestClose = () => {
         setShowModal(false);
     };
 
@@ -91,7 +91,7 @@ const MainPage = () => {
                     <div className="relative bottom-0 w-full footer-content">
                         <FooterContant />
                     </div>
-                    <QuizModal isOpen={showModal} onRequestClose={handleCloseModal} score={100} />
+                    <ManagerModal isOpen={showModal} onRequestClose={onRequestClose} score={100} />
                 </main>
             </RecheckUser>
         </React.Fragment>
