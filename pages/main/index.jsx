@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import useSWR from "swr";
+import axios from "axios";
 import Loading from "@/components/Loading";
 import MainIconMenu from "@/components/MainIconMenu";
 import FooterContant from "@/components/main/footContent";
@@ -9,7 +10,7 @@ import AppLayout from "@/themes/Layout/AppLayout";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import RecheckUser from "@/components/RecheckUser";
-import LineModal from "@/components/LineModal";
+import QuizModal from "@/components/QuizModal";
 
 const Carousel = dynamic(() => import("@/components/Carousel"), {
     ssr: false,
@@ -17,6 +18,8 @@ const Carousel = dynamic(() => import("@/components/Carousel"), {
 });
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
+
+const manager = ['22392', '22393'];
 
 const MainPage = () => {
     const { data: session, status } = useSession();
@@ -33,12 +36,32 @@ const MainPage = () => {
             return;
         }
 
-        // Show modal 1-2 seconds after page load
-        const timer = setTimeout(() => {
-            setShowModal(false);
-        }, 1500); // 1.5 seconds
+        // Check if user is a manager and if they need to receive points
+        if (manager.includes(user.user.empId)) {
+            axios.get(`/api/manager/check?userId=${user.user.userId}`)
+                .then(res => {
+                    if (!res.data.hasLoggedToday) {
+                        // Award points to the user
+                        axios.post('/api/points/earn', {
+                            userId: session.user.id,
+                            description: 'point พิเศษ',
+                            contentId: null,
+                            type: 'earn',
+                            points: 100,
+                        });
 
-        return () => clearTimeout(timer);
+                        // Update the manager login record
+                        axios.post('/api/manager', {
+                            userId: session.user.id,
+                            loginDate: new Date(),
+                        });
+
+                        // Show quiz modal
+                        setShowModal(true);
+                    }
+                })
+                .catch(err => console.error(err));
+        }
     }, [router, session, status, user, userError]);
 
     const handleCloseModal = () => {
@@ -68,7 +91,7 @@ const MainPage = () => {
                     <div className="relative bottom-0 w-full footer-content">
                         <FooterContant />
                     </div>
-                    <LineModal showModal={showModal} handleCloseModal={handleCloseModal} />
+                    <QuizModal isOpen={showModal} onRequestClose={handleCloseModal} score={100} />
                 </main>
             </RecheckUser>
         </React.Fragment>

@@ -100,7 +100,13 @@ export default function Stores() {
                     </>
                 )}
                 {activeTab === 'share-your-story' && (
-                     <div>Coming Soon</div>
+                     <div className="flex flex-col items-center w-full" style={{
+                         marginTop: "20px",
+                         marginBottom: "20px",
+                         width: "100%"
+                     }}>
+                        <span className="text-lg font-black">รอพบกับแคมเปญเร็วๆนี้</span>
+                    </div>
                 )}
             </div>
         </main>
