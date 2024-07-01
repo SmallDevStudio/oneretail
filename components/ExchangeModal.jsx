@@ -90,7 +90,6 @@ const ExchangeModal = ({ isOpen, onRequestClose, points, conversionRate, userId,
             if (!exchangeResponse.ok) {
                 throw new Error('Failed to create exchange');
             }
-            console.log(exchangePoints, userId);
             const pointsResponse = await fetch('/api/points/point', {
                 method: 'POST',
                 headers: {
