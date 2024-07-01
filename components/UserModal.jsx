@@ -36,9 +36,13 @@ const UserModal = ({ isOpen, onRequestClose, onSubmit, user, handleImageUpload }
         setPictureUrl(user.user.pictureUrl);
     }, [user]);
 
-    const handleUpload = async (url) => {
-        setPictureUrl(url);
-        handleImageUpload(url);
+    const handleUpload = async (result) => {
+        if (result.event === "success") {
+            console.log({url: result.info.secure_url});
+            setPictureUrl({url: result.info.secure_url});
+            handleImageUpload({url: result.info.secure_url});
+        }
+        
     };
 
     const handleSubmit = (e) => {
@@ -76,8 +80,8 @@ const UserModal = ({ isOpen, onRequestClose, onSubmit, user, handleImageUpload }
                 )}
                 <div className='mt-2 mb-4'>
                     <CldUploadWidget
-                        uploadPreset="your-upload-preset"
-                        onUpload={(result) => handleUpload(result.info.secure_url)}
+                        uploadPreset="wtowunqx"
+                        onUpload={handleUpload}
                     >
                         {({ open }) => (
                             <button

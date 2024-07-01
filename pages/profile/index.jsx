@@ -40,7 +40,6 @@ const ProfileContent = ({ session }) => {
         ? parseFloat((userLevels.totalPoints / userLevels.nextLevelRequiredPoints ) * 100)
         : 0;
 
-        console.log(userLevels);
     
     const onRequestClose = async () => {
         setIsModalOpen(false);
@@ -48,6 +47,7 @@ const ProfileContent = ({ session }) => {
 
     const handleImageUpload = (url) => {
         setProfileImage(url);
+        console.log(url);
         // Call API to update profile image in the database
         axios.put(`/api/users?userId=${session.user.id}`, { pictureUrl: url });
         mutate(`/api/users/${session.user.id}`);
@@ -101,7 +101,7 @@ const ProfileContent = ({ session }) => {
                             
                             />
                         </div>
-                        <span className="absolute z-50 text-white font-bold mt-2.5 ml-[-5px] text-[10px]">LEVEL {level?.level}</span>
+                        <span className="absolute z-50 text-white font-bold mt-2.5 ml-[-5px] text-[10px]">LEVEL {level?.level + 1}</span>
                     </div>
                 </div>
                 <div className="flex-1 flex-col items-center justify-center ml-10 mr-5">
