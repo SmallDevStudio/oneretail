@@ -1,23 +1,23 @@
-import connetMongoDB from "@/lib/services/database/mongodb";
+import connectMongoDB from "@/lib/services/database/mongodb";
 import Survey from "@/database/models/Survey";
+import moment from 'moment';
 
 export default async function handler(req, res) {
-    const { method, query } = req
-    await connetMongoDB();
+    const { method, query } = req;
+    await connectMongoDB();
 
     switch (method) {
         case 'GET':
             try {
                 const { userId } = query;
-                const startOfDay = new Date();
-                startOfDay.setHours(0, 0, 0, 0);
 
-                const endOfDay = new Date();
-                endOfDay.setHours(23, 59, 59, 999);
+                // Calculate start and end of the week
+                const startOfWeek = moment().startOf('isoWeek').toDate();
+                const endOfWeek = moment().endOf('isoWeek').toDate();
 
                 const survey = await Survey.findOne({
                     userId,
-                    createdAt: { $gte: startOfDay, $lte: endOfDay }
+                    createdAt: { $gte: startOfWeek, $lte: endOfWeek }
                 });
 
                 if (survey) {
