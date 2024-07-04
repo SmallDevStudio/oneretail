@@ -6,14 +6,12 @@ import { Analytics } from "@vercel/analytics/react";
 import GoogleAnalytics from "./GoogleAnalytics";
 import { useEffect } from "react";
 import "@/styles/globals.css";
-import useAddToHomeScreen from "@/lib/hook/useAddToHomeScreen";
+import AddToHomeScreenPrompt from "@/lib/hook/AddToHomeScreenPrompt";
 
 
 function App({ Component, pageProps: { session, ...pageProps } }) {
   const getLayout = Component.getLayout || ((page) => page);
   const router = useRouter();
-
-  useAddToHomeScreen();
 
   useEffect(() => {
     if ('serviceWorker' in navigator) {
@@ -37,6 +35,7 @@ function App({ Component, pageProps: { session, ...pageProps } }) {
                       <Component {...pageProps} />
                       <SpeedInsights />
                       <Analytics />
+                      <AddToHomeScreenPrompt />
  
                 </RequireAuth>
                 </>
@@ -46,6 +45,7 @@ function App({ Component, pageProps: { session, ...pageProps } }) {
                 <Component {...pageProps} />
                 <SpeedInsights />
                 <Analytics />
+                <AddToHomeScreenPrompt />
                 </>
             )}
     </SessionProvider>
