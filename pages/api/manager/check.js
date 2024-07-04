@@ -8,9 +8,9 @@ export default async function handler(req, res) {
         const { userId } = req.query;
 
         try {
-            const manager = await Manager.findOne({ userId, loginDate: { $gte: new Date().setHours(0, 0, 0, 0) } });
+            const manager = await Manager.findOne({ userId });
 
-            res.status(200).json({ hasLoggedToday: !!manager });
+            res.status(200).json({ hasLoggedIn: !!manager });
         } catch (error) {
             res.status(400).json({ success: false, error: error.message });
         }

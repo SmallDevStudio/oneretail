@@ -40,7 +40,7 @@ const MainPage = () => {
         if (manager.includes(user.user.empId)) {
             axios.get(`/api/manager/check?userId=${user.user.userId}`)
                 .then(res => {
-                    if (!res.data.hasLoggedToday) {
+                    if (!res.data.hasLoggedIn) {
                         // Award points to the user
                         axios.post('/api/points/point', {
                             userId: session.user.id,
