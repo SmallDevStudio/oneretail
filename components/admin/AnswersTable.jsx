@@ -49,27 +49,41 @@ const AnswersTable = () => {
         fetchData(page, pageSize);
     }, [page, pageSize]);
 
-    const handleExport = () => {
-        let dataToExport = rows;
-
-        if (startDate && endDate) {
-            dataToExport = rows.filter(row => {
-                const rowDate = moment(row.createdAt);
-                return rowDate.isBetween(startDate, endDate, null, '[]');
+    const handleExport = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get('/api/answers', {
+                params: {
+                    page: 1,
+                    pageSize: total, // Fetch all records
+                    startDate: startDate ? startDate.toISOString() : null,
+                    endDate: endDate ? endDate.toISOString() : null,
+                },
             });
+            
+            const dataToExport = response.data.data.map((item) => ({
+                ...item,
+                id: item._id,
+                questionText: item.questionId.question,
+                correctAnswer: item.questionId.correctAnswer,
+                answerText: item.questionId.options[item.answer],
+                correctAnswerText: item.questionId.options[item.questionId.correctAnswer],
+                isCorrectText: item.isCorrect ? 'ถูก' : 'ผิด',
+                timestamp: moment(item.createdAt).local('th').format('LLL'),
+                fullname: item.user?.fullname || 'N/A',
+                empId: item.user?.empId || 'N/A',
+            }));
+    
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Answers");
+            const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+            const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+            saveAs(blob, 'answers.xlsx');
+        } catch (error) {
+            console.error('Error exporting data:', error);
         }
-
-        const exportData = dataToExport.map(row => ({
-            ...row,
-            timestamp: moment(row.timestamp).local('th').format('LLL')
-        }));
-
-        const worksheet = XLSX.utils.json_to_sheet(exportData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Answers");
-        const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-        const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-        saveAs(blob, 'answers.xlsx');
+        setLoading(false);
     };
 
     const totalPages = Math.ceil(total / pageSize);

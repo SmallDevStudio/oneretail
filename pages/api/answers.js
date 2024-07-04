@@ -16,9 +16,19 @@ export default async function handler(req, res) {
 
     if (req.method === 'GET') {
       try {
-          const { page = 1, pageSize = 10 } = req.query;
+          const { page = 1, pageSize = 10, startDate, endDate } = req.query;
           const skip = (page - 1) * pageSize;
           const limit = parseInt(pageSize, 10);
+
+          const dateFilter = {};
+          if (startDate) {
+              dateFilter['$gte'] = new Date(startDate);
+          }
+          if (endDate) {
+              dateFilter['$lte'] = new Date(endDate);
+          }
+
+          const filter = startDate || endDate ? { createdAt: dateFilter } : {};
 
           const answers = await Answer.find()
               .populate('questionId')
