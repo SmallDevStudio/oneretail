@@ -12,7 +12,7 @@ const eventSchema = new mongoose.Schema({
   position: { type: String, default: '' },
   channel: { type: String, default: '' },
   place: { type: String, default: '' },
-  mapLocation: { type: String },
+  mapLocation: { type: String, default: '' },
   link: { type: String, default: '' },
   note: { type: String, default: '' },
   status: { type: Boolean, default: true },

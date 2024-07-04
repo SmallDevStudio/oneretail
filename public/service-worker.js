@@ -3,9 +3,9 @@ self.addEventListener('install', (event) => {
       caches.open('static-cache').then((cache) => {
         return cache.addAll([
           '/',
-          'dist/icons/apple-touch-icon.png',
-          'dist/icons/favicon-32x32.png',
-          'dist/icons/favicon-16x16.png',
+          '%PUBLIC_URL%/dist/icons/apple-touch-icon.png',
+          '%PUBLIC_URL%/dist/icons/favicon-32x32.png',
+          '%PUBLIC_URL%/dist/icons/favicon-16x16.png',
           // Add other assets you want to cache
         ]);
       })

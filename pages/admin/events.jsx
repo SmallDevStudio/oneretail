@@ -1,4 +1,3 @@
-// pages/events.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { DataGrid } from '@mui/x-data-grid';
@@ -7,6 +6,7 @@ import moment from 'moment';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import th from 'date-fns/locale/th';
 import 'react-datepicker/dist/react-datepicker.css';
+import { useSession } from 'next-auth/react';
 
 registerLocale('th', th);
 
@@ -14,22 +14,25 @@ const ManageEvents = () => {
   const [events, setEvents] = useState([]);
   const [form, setForm] = useState({
     title: '',
-      description: '',
-      startDate: '',
-      endDate: '',
-      startTime: '',
-      endTime: '',
-      No: '',
-      type: '',
-      position: '',
-      place: '',
-      mapLocation: '',
-      link: '',
-      note: '',
-      status: '',
-      creator: ''
+    description: '',
+    startDate: '',
+    endDate: '',
+    startTime: '',
+    endTime: '',
+    No: '',
+    type: '',
+    position: '',
+    place: '',
+    mapLocation: '',
+    link: '',
+    note: '',
+    status: '',
+    creator: '',
+    channel: '',
   });
   const [editId, setEditId] = useState(null);
+
+  const { data: session } = useSession();
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -44,7 +47,18 @@ const ManageEvents = () => {
     if (editId) {
       await axios.put(`/api/events/${editId}`, form);
     } else {
-      await axios.post('/api/events', form);
+      const formdata = {
+        ...form,
+        startDate: new Date(form.startDate).toISOString(),
+        endDate: new Date(form.endDate).toISOString(),
+        creator: session.user.id,
+      }
+      console.log('Submitting form data:', formdata);
+      try {
+        await axios.post('/api/events', formdata);
+      } catch (error) {
+        console.error('Error submitting form:', error.response ? error.response.data : error.message);
+      }
     }
     setForm({
       title: '',
@@ -61,7 +75,8 @@ const ManageEvents = () => {
       link: '',
       note: '',
       status: '',
-      creator: ''
+      creator: '',
+      channel: '',
     });
     setEditId(null);
     const response = await axios.get('/api/events');
@@ -79,8 +94,8 @@ const ManageEvents = () => {
     setForm({
       title: event.title,
       description: event.description,
-      startDate: new Date(event.startDate).toISOString().split('T')[0],
-      endDate: new Date(event.endDate).toISOString().split('T')[0],
+      startDate: event.startDate,
+      endDate: event.endDate,
       startTime: event.startTime,
       endTime: event.endTime,
       No: event.No,
@@ -91,22 +106,23 @@ const ManageEvents = () => {
       link: event.link,
       note: event.note,
       status: event.status,
-      creator: event.creator
+      creator: event.creator,
+      channel: event.channel,
     });
   };
 
   const columns = [
     { field: 'title', headerName: 'Title', width: 200 },
-    { field: 'description', headerName: 'description', width: 200},
+    { field: 'description', headerName: 'Description', width: 200 },
     { field: 'startDate', headerName: 'Start Date', width: 150, renderCell: (params) => moment(params.value).format('DD/MM/YYYY') },
     { field: 'endDate', headerName: 'End Date', width: 150, renderCell: (params) => moment(params.value).format('DD/MM/YYYY') },
-    { field: 'startTime', headerName: 'startTime', width: 80 },
-    { field: 'endTime', headerName: 'endTime', width: 80 },
-    { field: 'position', headerName: 'position', width: 150 },
-    { field: 'mapLocation', headerName: 'mapLocation', width: 150 },
-    { field: 'link', headerName: 'link', width: 150 },
-    { field: 'note', headerName: 'note', width: 150 },
-    { field: 'creator', headerName: 'creator', width: 80 },
+    { field: 'startTime', headerName: 'Start Time', width: 80 },
+    { field: 'endTime', headerName: 'End Time', width: 80 },
+    { field: 'position', headerName: 'Position', width: 150 },
+    { field: 'mapLocation', headerName: 'Map Location', width: 150 },
+    { field: 'link', headerName: 'Link', width: 150 },
+    { field: 'note', headerName: 'Note', width: 150 },
+    { field: 'creator', headerName: 'Creator', width: 80 },
     {
       field: 'actions',
       headerName: 'Actions',
@@ -132,159 +148,153 @@ const ManageEvents = () => {
 
   return (
     <React.Fragment>
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4 text-[#0056FF]">จัดการกิจกรรม</h1>
-      <div className=" mb-2"> 
-      <div style={{ height: 400, width: '100%' }}>
-        <DataGrid
-          rows={events}
-          columns={columns}
-          pageSize={5}
-          rowsPerPageOptions={[5, 10, 20]}
-          checkboxSelection={false}
-          getRowId={(row) => row._id}
-        />
+      <div className="p-4">
+        <h1 className="text-2xl font-bold mb-4 text-[#0056FF]">จัดการกิจกรรม</h1>
+        <div className="mb-2">
+          <div style={{ height: 400, width: '100%' }}>
+            <DataGrid
+              rows={events}
+              columns={columns}
+              pageSize={5}
+              rowsPerPageOptions={[5, 10, 20]}
+              checkboxSelection={false}
+              getRowId={(row) => row._id}
+            />
+          </div>
+        </div>
+        <form onSubmit={handleSubmit} className="mb-4 p-4 border rounded-lg shadow-md">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="title" className="font-bold">Title:</label>
+            <input
+              type="text"
+              placeholder="Title"
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              className="p-2 border rounded-xl"
+            />
+            <label htmlFor="description" className="font-bold">Description:</label>
+            <input
+              type="text"
+              placeholder="Description"
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              className="p-2 border rounded-xl"
+            />
+            <div className="flex flex-row gap-2 w-full items-center">
+              <label htmlFor="startDate" className="font-bold">Start Date:</label>
+              <DatePicker
+                selected={form.startDate ? new Date(form.startDate) : null}
+                onChange={(date) => setForm({ ...form, startDate: date.toISOString() })}
+                className="p-2 border rounded-xl"
+                placeholderText="Start Date"
+                locale="th"
+                dateFormat="dd/MM/yyyy"
+              />
+              <label htmlFor="endDate" className="font-bold">End Date:</label>
+              <DatePicker
+                selected={form.endDate ? new Date(form.endDate) : null}
+                onChange={(date) => setForm({ ...form, endDate: date.toISOString() })}
+                className="p-2 border rounded-xl"
+                placeholderText="End Date"
+                locale="th"
+                dateFormat="dd/MM/yyyy"
+              />
+            </div>
+            <div className="flex flex-row gap-2 w-full items-center">
+              <label htmlFor="startTime" className="font-bold">Start Time:</label>
+              <input
+                type="text"
+                placeholder="Start Time"
+                value={form.startTime}
+                onChange={(e) => setForm({ ...form, startTime: e.target.value })}
+                className="p-2 border rounded-xl"
+              />
+              <label htmlFor="endTime" className="font-bold">End Time:</label>
+              <input
+                type="text"
+                placeholder="End Time"
+                value={form.endTime}
+                onChange={(e) => setForm({ ...form, endTime: e.target.value })}
+                className="p-2 border rounded-xl"
+              />
+            </div>
+            <div className="flex flex-row gap-2 w-full items-center">
+              <label htmlFor="No" className="font-bold">No:</label>
+              <input
+                type="text"
+                placeholder="No"
+                value={form.No}
+                onChange={(e) => setForm({ ...form, No: e.target.value })}
+                className="p-2 border rounded-xl"
+              />
+              <label htmlFor="type" className="font-bold">Type:</label>
+              <input
+                type="text"
+                placeholder="Type"
+                value={form.type}
+                onChange={(e) => setForm({ ...form, type: e.target.value })}
+                className="p-2 border rounded-xl"
+              />
+              <label htmlFor="position" className="font-bold">Position:</label>
+              <input
+                type="text"
+                placeholder="Position"
+                value={form.position}
+                onChange={(e) => setForm({ ...form, position: e.target.value })}
+                className="p-2 border rounded-xl"
+              />
+              <label htmlFor="channel" className="font-bold">Channel:</label>
+              <input
+                type="text"
+                placeholder="Channel"
+                value={form.channel}
+                onChange={(e) => setForm({ ...form, channel: e.target.value })}
+                className="p-2 border rounded-xl"
+              />
+            </div>
+            <div className="flex flex-row gap-2 w-full items-center">
+              <label htmlFor="place" className="font-bold">Place:</label>
+              <input
+                type="text"
+                placeholder="Place"
+                value={form.place}
+                onChange={(e) => setForm({ ...form, place: e.target.value })}
+                className="p-2 border rounded-xl"
+              />
+              <label htmlFor="mapLocation" className="font-bold">Map Location:</label>
+              <input
+                type="text"
+                placeholder="Map Location"
+                value={form.mapLocation}
+                onChange={(e) => setForm({ ...form, mapLocation: e.target.value })}
+                className="p-2 border rounded-xl"
+              />
+              <label htmlFor="link" className="font-bold">Link:</label>
+              <input
+                type="text"
+                placeholder="Link"
+                value={form.link}
+                onChange={(e) => setForm({ ...form, link: e.target.value })}
+                className="p-2 border rounded-xl"
+              />
+            </div>
+            <label htmlFor="note" className="font-bold">Note:</label>
+            <textarea
+              placeholder="Note"
+              value={form.note}
+              onChange={(e) => setForm({ ...form, note: e.target.value })}
+              rows={4}
+              className="p-2 border rounded-xl"
+            />
+          </div>
+          <div className="flex justify-center">
+            <button type="submit" className="mt-4 p-2 bg-blue-600 text-white rounded-full font-bold w-1/4">
+              {editId ? 'อัพเดท Event' : 'เพิ่ม Event'}
+            </button>
+          </div>
+        </form>
       </div>
-    </div>
-      <form onSubmit={handleSubmit} className="mb-4 p-4 border rounded-lg shadow-md">
-        <div className="flex flex-col gap-2">
-          {/* Add form fields here */}
-          <label htmlFor="title" className='font-bold'>Title:</label>
-          <input
-            type="text"
-            placeholder="Title"
-            value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-            className="p-2 border rounded-xl"
-          />
-          <label htmlFor="description" className='font-bold'>Description:</label>
-          <input
-            type="text"
-            placeholder="Description"
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className="p-2 border rounded-xl"
-          />
-          <div className="flex flex-row gap-2 w-full items-center">
-            <label htmlFor="startDate" className='font-bold'>Start Date:</label>
-            <DatePicker
-              selected={form.startDate ? new Date(form.startDate) : null}
-              onChange={(date) => setForm({ ...form, startDate: date.toISOString().split('T')[0] })}
-              className="p-2 border rounded-xl"
-              placeholderText="Start Date"
-              locale="th"
-              dateFormat="dd/MM/yyyy"
-            />
-            <label htmlFor="endDate" className='font-bold'>End Date:</label>
-            <DatePicker
-              selected={form.endDate ? new Date(form.endDate) : null}
-              onChange={(date) => setForm({ ...form, endDate: date.toISOString().split('T')[0] })}
-              className="p-2 border rounded-xl"
-              placeholderText="End Date"
-              locale="th"
-              dateFormat="dd/MM/yyyy"
-            />
-          </div>
-          <div className="flex flex-row gap-2 w-full items-center">
-            <label htmlFor="startTime" className='font-bold'>Start Time:</label>
-            <input
-              type="text"
-              placeholder="startTime"
-              value={form.startTime}
-              onChange={(e) => setForm({ ...form, startTime: e.target.value })}
-              className="p-2 border rounded-xl"
-            />
-            <label htmlFor="endTime" className='font-bold'>End Time:</label>
-            <input
-              type="text"
-              placeholder="endTime"
-              value={form.endTime}
-              onChange={(e) => setForm({ ...form, endTime: e.target.value })}
-              className="p-2 border rounded-xl"
-            />
-          </div>
-          <div className="flex flex-row gap-2 w-full items-center">
-            <label htmlFor="No" className='font-bold'>No:</label>
-            <input
-              type="text"
-              placeholder="รุ่น"
-              value={form.No}
-              onChange={(e) => setForm({ ...form, No: e.target.value })}
-              className="p-2 border rounded-xl"
-            />
-            <label htmlFor="type" className='font-bold'>Type:</label>
-            <input
-              type="text"
-              placeholder="Type"
-              value={form.type}
-              onChange={(e) => setForm({ ...form, type: e.target.value })}
-              className="p-2 border rounded-xl"
-            />
-            <label htmlFor="position" className='font-bold'>Position:</label>
-            <input
-              type="text"
-              placeholder="position"
-              value={form.position}
-              onChange={(e) => setForm({ ...form, position: e.target.value })}
-              className="p-2 border rounded-xl"
-            />
-            <label htmlFor="channel" className='font-bold'>Channel:</label>
-            <input
-              type="text"
-              placeholder="Channel"
-              value={form.channel}
-              onChange={(e) => setForm({ ...form, channel: e.target.value })}
-              className="p-2 border rounded-xl"
-            />
-          </div>
-          <div className="flex flex-row gap-2 w-full items-center">
-            <label htmlFor="place" className='font-bold'>Place:</label>
-            <input
-              type="text"
-              placeholder="place"
-              value={form.place}
-              onChange={(e) => setForm({ ...form, place: e.target.value })}
-              className="p-2 border rounded-xl"
-            />
-            <label htmlFor="mapLocation" className='font-bold'>Map Location:</label>
-            <input
-              type="text"
-              placeholder="mapLocation"
-              value={form.mapLocation}
-              onChange={(e) => setForm({ ...form, mapLocation: e.target.value })}
-              className="p-2 border rounded-xl"
-            />
-            <label htmlFor="link" className='font-bold'>Link:</label>
-            <input
-              type="text"
-              placeholder="link"
-              value={form.link}
-              onChange={(e) => setForm({ ...form, link: e.target.value })}
-              className="p-2 border rounded-xl"
-            />
-          </div>
-          <label htmlFor="note" className='font-bold'>Note:</label>
-          <textarea
-            type="text"
-            placeholder="note"
-            value={form.note}
-            onChange={(e) => setForm({ ...form, note: e.target.value })}
-            rows={4}
-            className="p-2 border rounded-xl"
-          />
-          {/* Add other form fields similarly */}
-          {/* ... */}
-        </div>
-        <div className="flex justify-center">
-          <button type="submit" className="mt-4 p-2 bg-blue-600 text-white rounded-full font-bold w-1/4">
-            {editId ? 'อัพเดท Event' : 'เพิ่ม Event'}
-          </button>
-        </div>
-      </form>
-      
-    </div>
-    
-  </React.Fragment>
+    </React.Fragment>
   );
 };
 
