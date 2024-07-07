@@ -19,7 +19,25 @@ const Carousel = dynamic(() => import("@/components/Carousel"), {
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
-const manager = ['22392', '22393', '00000'];
+const manager = ['22392', '20569', '56428', '23782',
+    '11213',
+    '10483',
+    '11544',
+    '12857',
+    '22590',
+    '80220',
+    '80003',
+    '81195',
+    '81200',
+    '81196',
+    '81197',
+    '81198',
+    '81199',
+    '86486',
+    '43949',
+    '24653',
+    '33008'
+     ];
 
 const MainPage = () => {
     const { data: session, status } = useSession();
