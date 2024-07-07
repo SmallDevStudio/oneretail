@@ -5,6 +5,8 @@ import Image from 'next/image';
 import useSWR from 'swr';
 import moment from 'moment';
 import 'moment/locale/th';
+import * as XLSX from 'xlsx';
+import { SiMicrosoftexcel } from "react-icons/si";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -35,6 +37,32 @@ const UsersTable = () => {
         setUsers(prev =>
             prev.map(user => (user._id === userId ? { ...user, active: newActive } : user))
         );
+    };
+
+    const exportToExcel = () => {
+        const maxLength = 32767;
+        const trimmedUsers = users.map(user => {
+            const trimmedUser = { ...user };
+            for (let key in trimmedUser) {
+                if (typeof trimmedUser[key] === 'string' && trimmedUser[key].length > maxLength) {
+                    trimmedUser[key] = trimmedUser[key].substring(0, maxLength);
+                }
+            }
+            return trimmedUser;
+        });
+
+        const maxRows = 10000; // กำหนดจำนวนแถวสูงสุดต่อแผ่นงาน
+        const workbook = XLSX.utils.book_new();
+        let sheetIndex = 1;
+
+        for (let i = 0; i < trimmedUsers.length; i += maxRows) {
+            const chunk = trimmedUsers.slice(i, i + maxRows);
+            const worksheet = XLSX.utils.json_to_sheet(chunk);
+            XLSX.utils.book_append_sheet(workbook, worksheet, `Users_${sheetIndex}`);
+            sheetIndex++;
+        }
+
+        XLSX.writeFile(workbook, 'users.xlsx');
     };
 
     const columns = [
@@ -78,13 +106,19 @@ const UsersTable = () => {
             field: 'createdAt',
             headerName: 'Created At',
             width: 200,
-            valueFormatter: (params) => moment(params.value).locale('th').format('LLL')
+            renderCell: (params) => moment(params.value).locale('th').format('LLL')
         }
     ];
 
     return (
         <div style={{ height: 600, width: '100%' }}>
-            <h1 className='text-2xl font-bold mb-4 text-[#0056FF]'>จัดการผู้ใช้</h1>
+            <div className='flex justify-between mb-4'>
+            <h1 className='text-2xl font-bold text-[#0056FF]'>จัดการผู้ใช้</h1>
+            <button className="flex flex-row justify-center items-center gap-1 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2" onClick={exportToExcel}>
+                <SiMicrosoftexcel />
+                <span>Export</span>
+            </button>
+            </div>
            
             <DataGrid rows={users} columns={columns} pageSize={10} loading={loading} getRowId={(row) => row._id} />
         </div>
