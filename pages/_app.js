@@ -3,10 +3,10 @@ import { useRouter } from "next/router";
 import RequireAuth from "@/components/RequireAuth";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/react";
-import GoogleAnalytics from "./GoogleAnalytics";
 import { useEffect } from "react";
 import "@/styles/globals.css";
 import AddToHomeScreenPrompt from "@/lib/hook/AddToHomeScreenPrompt";
+import { initGA, logPageView } from "@/utils/analytics";
 
 
 function App({ Component, pageProps: { session, ...pageProps } }) {
@@ -25,13 +25,25 @@ function App({ Component, pageProps: { session, ...pageProps } }) {
     }
   }, []);
 
+  useEffect(() => {
+    initGA(process.env.NEXT_PUBLIC_GOOGLE_ID); // แทนที่ด้วยรหัสติดตาม Google Analytics ของคุณ
+
+    const handleRouteChange = (url) => {
+        logPageView(url);
+    };
+
+    router.events.on('routeChangeComplete', handleRouteChange);
+    return () => {
+        router.events.off('routeChangeComplete', handleRouteChange);
+    };
+}, [router.events]);
+
   
   return getLayout(
     <SessionProvider session={session}>
         {Component.auth ? (
           <>
                 <RequireAuth>
-                    <GoogleAnalytics />
                       <Component {...pageProps} />
                       <SpeedInsights />
                       <Analytics />
@@ -41,7 +53,6 @@ function App({ Component, pageProps: { session, ...pageProps } }) {
                 </>
             ) : (
                 <>
-                <GoogleAnalytics />
                 <Component {...pageProps} />
                 <SpeedInsights />
                 <Analytics />
