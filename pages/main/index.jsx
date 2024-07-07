@@ -73,13 +73,6 @@ const MainPage = () => {
 
     return (
         <React.Fragment>
-            <Head>
-                <title>One Retail</title>
-                <link rel="apple-touch-icon" sizes="180x180" href="/dist/icons/apple-touch-icon.png"/>
-                <link rel="icon" type="image/png" sizes="32x32" href="/dist/icons/favicon-32x32.png"/>
-                <link rel="icon" type="image/png" sizes="16x16" href="/dist/icons/favicon-16x16.png"/>
-                <link rel="manifest" href="/manifest.json"/>
-            </Head>
             <RecheckUser>
                 <main className="flex flex-col bg-gray-10 justify-between items-center text-center min-h-screen">
                     <div className="w-full">

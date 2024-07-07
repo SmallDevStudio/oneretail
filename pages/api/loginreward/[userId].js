@@ -15,13 +15,13 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
       const existingReward = await LoginReward.findOne({ userId });
-      const today = new Date().toDateString();
 
       if (existingReward) {
+        const today = new Date().toDateString();
         const receivedPointsToday = new Date(existingReward.lastLogin).toDateString() === today;
-        return res.status(200).json({ day: existingReward.day, receivedPointsToday });
+        return res.status(200).json({ day: existingReward.day, receivedPointsToday, lastLogin: existingReward.lastLogin });
       } else {
-        return res.status(200).json({ day: 0, receivedPointsToday: false });
+        return res.status(200).json({ day: 0, receivedPointsToday: false, lastLogin: null });
       }
     } catch (error) {
       console.error(error);
@@ -50,6 +50,7 @@ export default async function handler(req, res) {
         day = existingReward.day >= 30 ? 1 : existingReward.day + 1;
         await LoginReward.updateOne({ userId }, { day, lastLogin: today });
       }
+      console.log('newPoints:', newPoints);
 
       await Point.create({
         userId,

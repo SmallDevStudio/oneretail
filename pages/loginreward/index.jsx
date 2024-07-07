@@ -10,22 +10,36 @@ import LoginModal from "@/components/LoginModal";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
+const getDaysInMonth = (month, year) => {
+  return new Date(year, month, 0).getDate();
+};
+
 const Loginreward = () => {
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [points, setPoints] = useState(0);
+  const [welcomeBack, setWelcomeBack] = useState(false);
   const router = useRouter();
   const userId = session?.user?.id;
 
   const { data: loginData, error: loginDataError, isLoading: isLoginDataLoading } = useSWR(
-    () => userId ? `/api/loginreward/${userId}` : null, 
+    () => userId ? `/api/loginreward/${userId}` : null,
     fetcher
   );
 
   useEffect(() => {
-    if (loginData.receivedPointsToday && !modalOpen) {
+    if (loginData && loginData.receivedPointsToday && !modalOpen) {
       router.push("/");
+    }
+
+    if (loginData && loginData.lastLogin) {
+      const lastLoginDate = new Date(loginData.lastLogin);
+      const today = new Date();
+
+      if (lastLoginDate.getDate() !== today.getDate() - 1 && lastLoginDate.getDate() !== today.getDate()) {
+        setWelcomeBack(true);
+      }
     }
   }, [loginData, router, modalOpen]);
 
@@ -45,9 +59,10 @@ const Loginreward = () => {
     }
   };
 
-  const percent = loginData?.day ? Math.round((loginData.day / 30) * 100) : 0;
+  const percent = loginData?.day ? Math.round((loginData.day / getDaysInMonth(new Date().getMonth() + 1, new Date().getFullYear())) * 100) : 0;
 
-  const items = Array.from({ length: 30 }, (_, i) => i + 1);
+  const daysInMonth = getDaysInMonth(new Date().getMonth() + 1, new Date().getFullYear());
+  const items = Array.from({ length: daysInMonth }, (_, i) => i + 1);
   const getImageSrc = (index) => {
     if (index <= 10) return '/images/loginreward/Asset198.svg';
     if (index <= 20) return '/images/loginreward/Asset196.svg';
@@ -80,7 +95,7 @@ const Loginreward = () => {
               {items.map((item) => (
                 <div
                   key={item}
-                  className={`flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden border-2 border-[#C7DFF5] rounded-lg ${item <= (loginData?.day % 30) ? 'bg-[#C7DFF5]/70' : ''}`}
+                  className={`flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden border-2 border-[#C7DFF5] rounded-lg ${loginData?.daysLogged?.includes(item) ? 'bg-[#C7DFF5]/70' : ''}`}
                   style={{ width: 60, height: 60 }}
                   id={item.toString()}
                 >
@@ -108,6 +123,16 @@ const Loginreward = () => {
         </div>
       </div>
       {modalOpen && <LoginModal point={points} onRequestClose={handleModalClose} />}
+      {welcomeBack && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-4 rounded-lg">
+            <h2 className="text-lg font-bold">ยินดีต้อนรับกลับมา, {session?.user?.name}!</h2>
+            <button onClick={() => setWelcomeBack(false)} className="bg-blue-500 text-white px-4 py-2 rounded mt-4">
+              ปิด
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

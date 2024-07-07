@@ -3,7 +3,7 @@ import Image from "next/image";
 
 const Rules = () => {
     return (
-        <div className="flex flex-col bg-white p-4 rounded-2xl w-full text-sm mb-20">
+        <div className="flex flex-col w-full text-sm mb-20 text-white p-2">
             <h1 className="text-md font-bold text-[#0056FF]">One Retail Club คืออะไร?</h1>
             <p className="text-sm">One Retail Club คือ คลับที่รวบรวมคนเก่งของบ้าน Retail และ AL พร้อมจัดเต็มสิทธิประโยชน์แบบ Exclusive ต่างๆ มากมายแบบไม่เคยเป็นมาก่อน เช่น </p>
             <ul className="text-sm list-item list-disc ml-4 mt-2 mb-2">
