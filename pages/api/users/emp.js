@@ -2,6 +2,12 @@ import connectMongoDB from "@/lib/services/database/mongodb";
 import Users from "@/database/models/users";
 import Emp from "@/database/models/emp";
 
+export const config = {
+    api: {
+      responseLimit: false,
+    },
+  };
+
 export default async function handler(req, res) {
     await connectMongoDB();
     const { teamGrop } = req.query;

@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import "@/styles/globals.css";
 import AddToHomeScreenPrompt from "@/lib/hook/AddToHomeScreenPrompt";
 import { initGA, logPageView } from "@/utils/analytics";
+import Head from "next/head";
 
 
 function App({ Component, pageProps: { session, ...pageProps } }) {
@@ -44,6 +45,10 @@ function App({ Component, pageProps: { session, ...pageProps } }) {
         {Component.auth ? (
           <>
                 <RequireAuth>
+                      <Head>
+                        <title>One Retail</title>
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                      </Head>
                       <Component {...pageProps} />
                       <SpeedInsights />
                       <Analytics />
@@ -53,6 +58,10 @@ function App({ Component, pageProps: { session, ...pageProps } }) {
                 </>
             ) : (
                 <>
+                <Head>
+                  <title>One Retail</title>
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                </Head>
                 <Component {...pageProps} />
                 <SpeedInsights />
                 <Analytics />

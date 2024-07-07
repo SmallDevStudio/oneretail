@@ -1,6 +1,12 @@
 import connectMongoDB from "@/lib/services/database/mongodb";
 import Point from "@/database/models/Point";
 
+export const config = {
+    api: {
+      responseLimit: false,
+    },
+  };
+
 export default async function handler(req, res) {
     await connectMongoDB();
 

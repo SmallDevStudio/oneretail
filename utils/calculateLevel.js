@@ -1,8 +1,7 @@
 import mongoose from "mongoose";
 import Level from "@/database/models/Level";
 import Point from "@/database/models/Point";
-
-export const calculateLevel = async (totalpoint) => {
+const calculateLevel = async (totalpoint) => {
     const levels = await Level.find().sort({ requiredPoints: 1 });
     let userLevel = 0;
 
@@ -16,3 +15,5 @@ export const calculateLevel = async (totalpoint) => {
 
     return userLevel;
 }
+
+export default calculateLevel;

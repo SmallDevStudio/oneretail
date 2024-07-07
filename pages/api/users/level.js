@@ -4,6 +4,12 @@ import Users from "@/database/models/users";
 import Level from "@/database/models/Level";
 import calculateLevel from "@/utils/calculateLevel";
 
+export const config = {
+    api: {
+      responseLimit: false,
+    },
+  };
+
 
 export default async function handler(req, res) {
     const { method } = req;

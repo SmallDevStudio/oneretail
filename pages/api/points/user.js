@@ -2,6 +2,12 @@ import connetMongoDB from "@/lib/services/database/mongodb";
 import Users from "@/database/models/users";
 import Point from "@/database/models/Point";
 
+export const config = {
+  api: {
+    responseLimit: false,
+  },
+};
+
 
 export default async function handler(req, res) {
     const { userId } = req.query;

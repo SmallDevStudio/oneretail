@@ -2,6 +2,12 @@ import connetMongoDB from "@/lib/services/database/mongodb";
 import Coins from "@/database/models/Coins";
 import Users from "@/database/models/users";
 
+export const config = {
+  api: {
+    responseLimit: false,
+  },
+};
+
 export default async function handler(req, res) {
     await connetMongoDB();
     if (req.method === 'GET') {
