@@ -33,49 +33,49 @@ const Rules = () => {
             <Image
                src="/images/club/badge/Ambassador.png"
                 alt="Ambassador"
-                width={65}
-                height={65}
+                width={60}
+                height={60}
                 style={{
                     objectFit: "cover",
                     objectPosition: "center",
-                    height: "auto",
-                    width: "auto",
+                    height: "60px",
+                    width: "60px",
                 }}
             />
             <Image
                src="/images/club/badge/diamond.png"
                 alt="diamond"
-                width={65}
-                height={65}
+                width={60}
+                height={60}
                 style={{
                     objectFit: "cover",
                     objectPosition: "center",
-                    height: "auto",
-                    width: "auto",
+                    height: "60px",
+                    width: "60px",
                 }}
             />
              <Image
                src="/images/club/badge/Platinum.png"
                 alt="Platinum"
-                width={65}
-                height={65}
+                width={60}
+                height={60}
                 style={{
                     objectFit: "cover",
                     objectPosition: "center",
-                    height: "auto",
-                    width: "auto",
+                    height: "60px",
+                    width: "60px",
                 }}
             />
             <Image
                src="/images/club/badge/gold.png"
                 alt="gold"
-                width={65}
-                height={65}
+                width={60}
+                height={60}
                 style={{
                     objectFit: "cover",
                     objectPosition: "center",
-                    height: "auto",
-                    width: "auto",
+                    height: "60px",
+                    width: "60px",
                 }}
             />
             </div>
