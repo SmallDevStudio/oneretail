@@ -5,6 +5,12 @@ import Users from "@/database/models/users";
 import Coins from "@/database/models/Coins";
 import sendLineMessage from "@/lib/sendLineMessage";
 
+export const config = {
+    api: {
+      responseLimit: false,
+    },
+  };
+
 export default async function handler(req, res) {
     const { method } = req;
     await connectMongoDB();
