@@ -28,8 +28,6 @@ export default async function handler(req, res) {
           return res.status(404).json({ success: false, message: 'User not found' });
         }
 
-        console.log('user:', user);
-
         const transaction = new SentPointCoins({
           userId: adminUserId,
           trans: empId,

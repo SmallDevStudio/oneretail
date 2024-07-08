@@ -2,10 +2,14 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { useSession } from 'next-auth/react';
+import Loading from '@/components/Loading';
 
 const RedeemQrPage = () => {
     const router = useRouter();
-    const { transactionId, userId } = router.query;
+    const { transactionId } = router.query;
+    const { data: session } = useSession();
+    const userId = session?.user?.id;
   
     useEffect(() => {
       if (transactionId && userId) {
@@ -36,10 +40,7 @@ const RedeemQrPage = () => {
     };
   
     return (
-      <div>
-        <h1>Redeem Points and Coins</h1>
-        <p>Scan the QR code to redeem your points and coins.</p>
-      </div>
+      <Loading />
     );
   };
 
