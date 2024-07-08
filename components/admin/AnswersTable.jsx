@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Button, MenuItem, Select, FormControl, InputLabel, TextField } from '@mui/material';
+import { Button, MenuItem, Select, FormControl, InputLabel, TextField, LinearProgress, Box } from '@mui/material';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import moment from 'moment-timezone';
@@ -10,6 +10,8 @@ import Loading from '../Loading';
 const AnswersTable = () => {
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [exporting, setExporting] = useState(false);
+    const [progress, setProgress] = useState(0);
     const [pageSize, setPageSize] = useState(10);
     const [page, setPage] = useState(0);
     const [total, setTotal] = useState(0);
@@ -50,18 +52,33 @@ const AnswersTable = () => {
     }, [page, pageSize]);
 
     const handleExport = async () => {
-        setLoading(true);
+        setExporting(true);
+        setProgress(0);
         try {
-            const response = await axios.get('/api/answers', {
-                params: {
-                    page: 1,
-                    pageSize: total, // Fetch all records
-                    startDate: startDate ? startDate.toISOString() : null,
-                    endDate: endDate ? endDate.toISOString() : null,
-                },
-            });
-            
-            const dataToExport = response.data.data.map((item) => ({
+            let allData = [];
+            let currentPage = 1;
+            let hasMore = true;
+
+            while (hasMore) {
+                const response = await axios.get('/api/answers', {
+                    params: {
+                        page: currentPage,
+                        pageSize: 100, // ดึงข้อมูลทีละ 100 เรคคอร์ด
+                        startDate: startDate ? startDate.toISOString() : null,
+                        endDate: endDate ? endDate.toISOString() : null,
+                    },
+                });
+
+                if (response.data.data.length > 0) {
+                    allData = allData.concat(response.data.data);
+                    currentPage++;
+                    setProgress(Math.min(100, (allData.length / total) * 100));
+                } else {
+                    hasMore = false;
+                }
+            }
+
+            const dataToExport = allData.map((item) => ({
                 ...item,
                 id: item._id,
                 questionText: item.questionId.question,
@@ -73,7 +90,7 @@ const AnswersTable = () => {
                 fullname: item.user?.fullname || 'N/A',
                 empId: item.user?.empId || 'N/A',
             }));
-    
+
             const worksheet = XLSX.utils.json_to_sheet(dataToExport);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Answers");
@@ -83,7 +100,8 @@ const AnswersTable = () => {
         } catch (error) {
             console.error('Error exporting data:', error);
         }
-        setLoading(false);
+        setProgress(100);
+        setExporting(false);
     };
 
     const totalPages = Math.ceil(total / pageSize);
@@ -111,7 +129,7 @@ const AnswersTable = () => {
         <div style={{ width: '100%' }}>
             <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'space-between' }}>
                 <div>
-                    <Button variant="contained" color="primary" onClick={handleExport}>
+                    <Button variant="contained" color="primary" onClick={handleExport} disabled={exporting}>
                         Export to Excel
                     </Button>
                 </div>
@@ -149,6 +167,11 @@ const AnswersTable = () => {
                     />
                 </div>
             </div>
+            {exporting && (
+                <Box sx={{ width: '100%', marginBottom: 2 }}>
+                    <LinearProgress variant="determinate" value={progress} />
+                </Box>
+            )}
             <table style={{ width: '100%', borderCollapse: 'collapse' }} className='table text-sm mx-2'>
                 <thead className="bg-gray-200 border-2 border-gray-300 ">
                     <tr className="border-2 border-gray-300 ">
