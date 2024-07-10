@@ -4,7 +4,7 @@ const ArticleCommentsSchema = new mongoose.Schema({
   articleId: { type: mongoose.Schema.Types.ObjectId, ref: 'Article', required: true },
   userId: { type: String, ref: 'Users', required: true },
   comment: { type: String, required: true },
-  likes: { type: Number, default: 0 },
+  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Users' }],
   replies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ReplyArticleComment' }]
 }, { timestamps: true });
 

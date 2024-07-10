@@ -12,7 +12,7 @@ const ArticleSchema = new mongoose.Schema({
   new: { type: Boolean, default: false },
   pop: { type: Boolean, default: false },
   views: { type: Number, default: 0 },
-  likes: { type: Number, default: 0 },
+  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Users' }],
   tags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Tag' }],
   channel: { type: String, default: '' },
   position: { type: String, default: '' },

@@ -9,6 +9,8 @@ import { LuGroup, LuVote } from "react-icons/lu";
 import { RiPagesLine } from "react-icons/ri";
 import { MdOutlineSubtitles, MdOutlineCampaign, MdOutlineHowToVote } from "react-icons/md";
 import { FcSurvey } from "react-icons/fc";
+import { GrArticle } from "react-icons/gr";
+import { GoFileMedia } from "react-icons/go";
 import Image from "next/image";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
@@ -150,6 +152,14 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                 />
                 
               </SubMenu>
+
+              <Item
+                title="จัดการบทความ"
+                to="/admin/articles"
+                icon={<GrArticle />}
+                selected={selected}
+                setSelected={setSelected}
+              />
               
               <Item
                 title="จัดการ Events"
@@ -214,6 +224,14 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                   title="จัดการ Vote"
                   to="/admin/votes"
                   icon={<LuVote />}
+                  selected={selected}
+                  setSelected={setSelected}
+                  />
+
+                  <Item
+                  title="จัดการ Media"
+                  to="/admin/medias"
+                  icon={<GoFileMedia />}
                   selected={selected}
                   setSelected={setSelected}
                   />
