@@ -1,21 +1,118 @@
-import React from "react";
-import Image from "next/image";
+import React, { useState } from 'react';
+import useSWR from 'swr';
+import Image from 'next/image';
+import Loading from '@/components/Loading';
+import { Tab, Tabs, Avatar } from '@mui/material';
+
+const fetcher = (url) => fetch(url).then((res) => res.json());
+
+const rewardTypeImages = {
+    Ambassador: '/images/club/badge/Ambassador.png',
+    Diamond: '/images/club/badge/diamond.png',
+    Platinum: '/images/club/badge/Platinum.png',
+    Gold: '/images/club/badge/gold.png',
+};
+
+const normalizeRewardType = (rewardtype) => {
+    if (!rewardtype) return '';
+    return rewardtype.charAt(0).toUpperCase() + rewardtype.slice(1).toLowerCase();
+};
 
 const LeaderBoard = () => {
-    return <div>
-        <Image
-            src="/images/club/club.png"
-            alt="Leaderboard"
-            width={500}
-            height={500}
-            style={{
-                objectFit: "cover",
-                objectPosition: "center",
-                height: "auto",
-                width: "auto",
+    const { data, error } = useSWR('/api/club/leaderboard', fetcher);
+    const [selectedType, setSelectedType] = useState("BM");
+
+    if (error) return <div>Failed to load</div>;
+    if (!data) return <Loading />;
+
+    const types = ["BM", "IVS", "LS", "LSM", "GEN", "PB", "WB", "RPB", "MLS", "MAL", "GH", "NC", "UC", "CYC", "CAB"];
+
+    const handleTabChange = (event, newValue) => {
+        setSelectedType(newValue);
+    };
+
+    const filteredData = selectedType === "All" ? data.data : Object.fromEntries(
+        Object.entries(data.data).map(([key, value]) => [key, value.filter(item => item.type === selectedType)])
+    );
+
+    // Sort the data by rank
+    Object.keys(filteredData).forEach(rewardtype => {
+        filteredData[rewardtype].sort((a, b) => a.rank - b.rank);
+    });
+
+    return (
+        <div className='w-full mb-20'>
+
+            <Tabs value={selectedType} onChange={handleTabChange} variant="scrollable" scrollButtons="auto" sx={{
+                '& .MuiTabs-indicator': {
+                    display: 'flex',
+                    justifyContent: 'center',
+                    color: '#F2871F',
+                    backgroundColor: '#F2871F',
+                },
+                '& .Mui-selected': {
+                    color: '#0056FF',
+                    fontWeight: 'bold',
+                    fontFamily: 'ttb',
+                },
+                '& .MuiTab-root': {
+                    color: '#FFFFFF',
+                    fontFamily: 'ttb',
+                    textTransform: 'none',
+                    fontSize: '15px',
+                    fontWeight: 'bold',
+                    '&.Mui-selected': {
+                        color: '#0056FF',
+                    },
+                },
             }}
-        />
-    </div>;
-};
+            >
+                {types.map((type) => (
+                    <Tab key={type} label={type} value={type} />
+                ))}
+            </Tabs>
+
+            {Object.keys(filteredData).map(rewardtype => {
+                const normalizedRewardType = normalizeRewardType(rewardtype);
+                return filteredData[rewardtype].length > 0 && (
+                    <div key={rewardtype}>
+                        <div className="flex items-center gap-2 m-2 mt-4">
+                            <Image 
+                                src={rewardTypeImages[normalizedRewardType]} 
+                                alt={normalizedRewardType} 
+                                width="50" 
+                                height="50"
+                                className="mr-2"
+                            />
+                            <h2 className="text-[25px] font-bold text-[#0056FF] mt-5">{normalizedRewardType}</h2>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            {filteredData[rewardtype].map((item, index) => (
+                                <div key={index} className="flex items-center p-2 rounded-full shadow bg-gray-700">
+                                    <span className="font-bold text-white mr-2 text-xl ml-2">{item.rank}</span>
+                                    {item.pictureUrl ? (
+                                        <Image 
+                                            src={item.pictureUrl} 
+                                            alt={item.name} 
+                                            width="50" 
+                                            height="50"
+                                            className="rounded-full"
+                                        />
+                                    ) : (
+                                        <Avatar>{item.name[0]}</Avatar>
+                                    )}
+                                    <div className="ml-3">
+                                        <div className="font-bold text-white">{item.empId}</div>
+                                        <div className="text-sm text-white">{item.name}</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
 
 export default LeaderBoard;
