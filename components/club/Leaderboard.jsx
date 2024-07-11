@@ -3,6 +3,7 @@ import useSWR from 'swr';
 import Image from 'next/image';
 import Loading from '@/components/Loading';
 import { Tab, Tabs, Avatar } from '@mui/material';
+import ClubLeaderBoardModal from '../ClubLeaderBoardModal';
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -21,6 +22,8 @@ const normalizeRewardType = (rewardtype) => {
 const LeaderBoard = () => {
     const { data, error } = useSWR('/api/club/leaderboard', fetcher);
     const [selectedType, setSelectedType] = useState("BM");
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
 
     if (error) return <div>Failed to load</div>;
     if (!data) return <Loading />;
@@ -29,6 +32,16 @@ const LeaderBoard = () => {
 
     const handleTabChange = (event, newValue) => {
         setSelectedType(newValue);
+    };
+
+    const onRequestClose = () => {
+        setModalOpen(false);
+        setSelectedItem(null);
+    };
+
+    const handleItemClick = (item) => {
+        setSelectedItem(item);
+        setModalOpen(true);
     };
 
     const filteredData = selectedType === "All" ? data.data : Object.fromEntries(
@@ -45,10 +58,7 @@ const LeaderBoard = () => {
 
             <Tabs value={selectedType} onChange={handleTabChange} variant="scrollable" scrollButtons="auto" sx={{
                 '& .MuiTabs-indicator': {
-                    display: 'flex',
-                    justifyContent: 'center',
-                    color: '#F2871F',
-                    backgroundColor: '#F2871F',
+                    display: 'none',
                 },
                 '& .Mui-selected': {
                     color: '#0056FF',
@@ -88,7 +98,7 @@ const LeaderBoard = () => {
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                             {filteredData[rewardtype].map((item, index) => (
-                                <div key={index} className="flex items-center p-2 rounded-full shadow bg-gray-700">
+                                <div key={index} className="flex items-center p-2 rounded-full shadow bg-gray-700 cursor-pointer" onClick={() => handleItemClick(item)}>
                                     <span className="font-bold text-white mr-2 text-xl ml-2">{item.rank}</span>
                                     {item.pictureUrl ? (
                                         <Image 
@@ -111,8 +121,13 @@ const LeaderBoard = () => {
                     </div>
                 );
             })}
+
+            {selectedItem && (
+                <ClubLeaderBoardModal isOpen={modalOpen} onRequestClose={onRequestClose} data={selectedItem} />
+            )}
         </div>
     );
 }
 
 export default LeaderBoard;
+
