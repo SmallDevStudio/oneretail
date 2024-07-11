@@ -48,8 +48,8 @@ const ClubLeaderBoardModal = ({ isOpen, onRequestClose, data }) => {
                 <div className="flex flex-col">
                   <p className="mt-4 text-sm"><strong>Employee ID:</strong> {data.empId}</p>
                   <p className="text-sm"><strong>Rank:</strong> {data.rank}</p>
-                  <p className="text-sm"><strong>Branch:</strong> {data.branch}</p>
-                  <p className="text-sm"><strong>Zone:</strong> {data.zone}</p>
+                  {data.branch && <p className="text-sm"><strong>Branch:</strong> {data.branch}</p>}
+                  {data.zone && <p className="text-sm"><strong>Zone:</strong> {data.zone}</p>}
                   {data.position && <p className="text-sm"><strong>Position:</strong> {data.position}</p>}
                   {data.channel && <p className="text-sm"><strong>Channel:</strong> {data.channel}</p>}
                   {data.gh && <p className="text-sm"><strong>GH:</strong> {data.gh}</p>}
