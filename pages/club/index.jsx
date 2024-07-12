@@ -76,7 +76,7 @@ export default function Club() {
 
             <div className="p-5">
                 {activeTab === 'announce' && <Announce />}
-                {activeTab === 'leaderboard' && <LeaderBoard />}
+                {activeTab === 'leaderboard' && <Announce />}
                 {activeTab === 'rules' && <Rules />}
             </div>
         </div>

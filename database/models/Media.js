@@ -4,7 +4,9 @@ const MediaSchema = new mongoose.Schema({
   url: { type: String, required: true },
   name: { type: String, required: true },
   userId: { type: String, ref: 'Users', required: true },
-  type: { type: String, enum: ['image', 'video'], required: true }
+  type: { type: String, enum: ['image', 'video'], required: true },
+  path: { type: String },
+  isTemplate: { type: Boolean, default: false }
 }, { timestamps: true });
 
 export default mongoose.models.Media || mongoose.model('Media', MediaSchema);
