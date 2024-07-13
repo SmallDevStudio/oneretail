@@ -29,9 +29,7 @@ const Loginreward = () => {
   );
 
   useEffect(() => {
-    if (loginData && loginData.receivedPointsToday && !modalOpen) {
-      router.push("/");
-    }
+    
 
     if (loginData && loginData.lastLogin) {
       const lastLoginDate = new Date(loginData.lastLogin);
@@ -77,6 +75,9 @@ const Loginreward = () => {
   if (loginDataError) return <div>Error: {loginDataError.message}</div>;
   if (isLoginDataLoading) return <Loading />;
 
+  console.log("loginData:", loginData); // ตรวจสอบ loginData ว่ามี daysLogged หรือไม่
+  console.log(userId);
+
   return (
     <main className="flex items-center justify-center bg-[#0056FF]" style={{ minHeight: "100vh", width: "100%" }}>
       <div className="flex items-center text-center justify-center p-4 min-h-[100vh]">
@@ -95,7 +96,7 @@ const Loginreward = () => {
               {items.map((item) => (
                 <div
                   key={item}
-                  className={`flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden border-2 border-[#C7DFF5] rounded-lg ${loginData?.daysLogged?.includes(item) ? 'bg-[#C7DFF5]/70' : ''}`}
+                  className={`flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden border-2 border-[#C7DFF5] rounded-lg ${loginData?.daysLogged && loginData.daysLogged.includes(item) ? 'bg-[#C7DFF5]/70' : ''}`}
                   style={{ width: 60, height: 60 }}
                   id={item.toString()}
                 >

@@ -19,9 +19,14 @@ export default async function handler(req, res) {
       if (existingReward) {
         const today = new Date().toDateString();
         const receivedPointsToday = new Date(existingReward.lastLogin).toDateString() === today;
-        return res.status(200).json({ day: existingReward.day, receivedPointsToday, lastLogin: existingReward.lastLogin });
+        return res.status(200).json({ 
+          day: existingReward.day, 
+          receivedPointsToday, 
+          lastLogin: existingReward.lastLogin, 
+          daysLogged: existingReward.daysLogged || [] 
+        });
       } else {
-        return res.status(200).json({ day: 0, receivedPointsToday: false, lastLogin: null });
+        return res.status(200).json({ day: 0, receivedPointsToday: false, lastLogin: null, daysLogged: [] });
       }
     } catch (error) {
       console.error(error);
@@ -35,9 +40,13 @@ export default async function handler(req, res) {
 
       let newPoints = 1;
       let day = 1;
+      let daysLogged = [];
 
       if (!existingReward) {
-        await LoginReward.create({ userId, day, lastLogin: new Date() });
+        daysLogged.push(new Date().getDate());
+        console.log('Creating new reward:', { userId, day, lastLogin: new Date(), daysLogged });
+        const newReward = new LoginReward({ userId, day, lastLogin: new Date(), daysLogged });
+        await newReward.save();
         newPoints = Math.floor(Math.random() * 16) + 15;
       } else {
         const lastLogin = new Date(existingReward.lastLogin);
@@ -48,23 +57,31 @@ export default async function handler(req, res) {
         }
 
         day = existingReward.day >= 30 ? 1 : existingReward.day + 1;
-        await LoginReward.updateOne({ userId }, { day, lastLogin: today });
+        daysLogged = existingReward.daysLogged || [];
+        daysLogged.push(today.getDate());
+        existingReward.day = day;
+        existingReward.lastLogin = today;
+        existingReward.daysLogged = daysLogged;
+        console.log('Updating existing reward:', existingReward);
+        await existingReward.save();
       }
-      console.log('newPoints:', newPoints);
 
       await Point.create({
         userId,
         description: 'Login Reward',
-        contentId: null,
         type: 'earn',
         point: newPoints,
       });
 
-      // ส่งข้อความไปที่ LINE
       const message = `คุณได้รับ ${newPoints} คะแนนจากการ Login Reward!`;
       sendLineMessage(userId, message);
 
-      return res.status(200).json({ message: 'Points added', points: newPoints, day });
+      return res.status(200).json({ 
+        message: 'Points added', 
+        points: newPoints, 
+        day, 
+        daysLogged 
+      });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: 'Server error' });
