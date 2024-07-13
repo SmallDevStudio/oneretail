@@ -29,7 +29,9 @@ const Loginreward = () => {
   );
 
   useEffect(() => {
-    
+    if (loginData && loginData.receivedPointsToday && !modalOpen) {
+      router.push("/");
+    }
 
     if (loginData && loginData.lastLogin) {
       const lastLoginDate = new Date(loginData.lastLogin);
