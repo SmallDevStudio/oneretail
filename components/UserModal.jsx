@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
-import { CldUploadWidget } from 'next-cloudinary';
+import UserListMediaModal from './media/UserListMediaModal';
 
 Modal.setAppElement('#__next'); // เพื่อป้องกัน warning ในการใช้ Modal
 
@@ -21,12 +21,15 @@ const customStyles = {
     }
 };
 
-const UserModal = ({ isOpen, onRequestClose, onSubmit, user, handleImageUpload }) => {
+const UserModal = ({ isOpen, onRequestClose, onSubmit, user }) => {
     const [fullname, setFullname] = useState(user.user.fullname);
     const [birthdate, setBirthdate] = useState(user.user.birthdate ? new Date(user.user.birthdate).toISOString().split('T')[0] : '');
     const [phone, setPhone] = useState(user.user.phone);
     const [address, setAddress] = useState(user.user.address);
     const [pictureUrl, setPictureUrl] = useState(user.user.pictureUrl);
+    const [showModal, setShowModal] = useState(false);
+
+    console.log('pictureUrl:', pictureUrl);
 
     useEffect(() => {
         setFullname(user.user.fullname);
@@ -36,13 +39,9 @@ const UserModal = ({ isOpen, onRequestClose, onSubmit, user, handleImageUpload }
         setPictureUrl(user.user.pictureUrl);
     }, [user]);
 
-    const handleUpload = async (result) => {
-        if (result.event === "success") {
-            console.log({url: result.info.secure_url});
-            setPictureUrl({url: result.info.secure_url});
-            handleImageUpload({url: result.info.secure_url});
-        }
-        
+
+    const showListMediaModal = () => {
+        setShowModal(true);
     };
 
     const handleSubmit = (e) => {
@@ -75,28 +74,17 @@ const UserModal = ({ isOpen, onRequestClose, onSubmit, user, handleImageUpload }
             <div className="flex flex-col justify-center items-center">
                 {pictureUrl && (
                     <div className='mt-4'>
-                        <Image src={pictureUrl} alt="User Image" width={100} height={100} className='rounded-full' />
+                        <Image src={pictureUrl} alt="User Image" width={100} height={100} className='rounded-full' 
+                            onClick={showListMediaModal}
+                            style={{ 
+                                width: '100px', height: '100px', cursor: 'pointer', objectFit: 'cover'}}
+                        />
                     </div>
                 )}
-                <div className='mt-2 mb-4'>
-                    <CldUploadWidget
-                        uploadPreset="wtowunqx"
-                        onUpload={handleUpload}
-                    >
-                        {({ open }) => (
-                            <button
-                                className="bg-[#F68B1F] text-white font-bold py-2 px-4 rounded-full"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    open();
-                                }}
-                                
-                            >
-                                อัพโหลดรูปภาพ
-                            </button>
-                        )}
-                    </CldUploadWidget>
-                </div>
+
+                <UserListMediaModal isOpen={showModal} onRequestClose={() => setShowModal(false)} setPictureUrl={setPictureUrl} />
+                
+                <span className='text-[10px] font-bold mt-1 mb-2'>Click ที่รูปเพื่ออัปโหลด</span>
                 
                 <form className='flex flex-col justify-start items-center w-full gap-2 mt-2' onSubmit={handleSubmit}>
                     <div className='flex gap-2 items-center'>

@@ -19,11 +19,14 @@ const LineProgressBar = dynamic(() => import("@/components/ProfileLineProgressBa
 
 const ProfileContent = ({ session }) => {
     const [userLevels, setUserLevels] = useState({});
+    const [users, setUsers] = useState([]);
     const [percentage, setPercentage] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [profileImage, setProfileImage] = useState("");
+    const [profileImage, setProfileImage] = useState(users?.user?.pictureUrl);
 
-    const { data: user, error: userError } = useSWR(session ? `/api/users/${session.user.id}` : null, fetcher);
+    const { data: user, error: userError } = useSWR(session ? `/api/users/${session.user.id}` : null, fetcher, {
+        onSuccess: (data) => setUsers(data),
+    });
     const { data: level, error: levelError } = useSWR(session ? `/api/level/user?userId=${session.user.id}` : null, fetcher, {
         onSuccess: (data) => setUserLevels(data),
     });
@@ -45,13 +48,6 @@ const ProfileContent = ({ session }) => {
         setIsModalOpen(false);
     };
 
-    const handleImageUpload = (url) => {
-        setProfileImage(url);
-        console.log(url);
-        // Call API to update profile image in the database
-        axios.put(`/api/users?userId=${session.user.id}`, { pictureUrl: url });
-        mutate(`/api/users/${session.user.id}`);
-    };
 
     const onSubmit = async (formData) => {
         try {
@@ -84,12 +80,18 @@ const ProfileContent = ({ session }) => {
                     <div className="items-center text-center" style={{ width: "auto", height: "140px" }}>
                         <div className="mt-4 ml-5">
                             <Image
-                                src={profileImage || user?.user?.pictureUrl}
+                                src={profileImage || users?.user?.pictureUrl}
                                 alt="User Avatar"
                                 width={100}
                                 height={100}
                                 className="rounded-full"
                                 priority
+                                style={{
+                                    width: "100px",
+                                    height: "100px",
+                                    objectFit: "cover",
+                                    objectPosition: "center",
+                                }}
                             />
                         </div>
                         <div className="absolute top-0 mt-5 z-0">
@@ -105,7 +107,7 @@ const ProfileContent = ({ session }) => {
                     </div>
                 </div>
                 <div className="flex-1 flex-col items-center justify-center ml-10 mr-5">
-                    <span className="text-lg font-semibold text-[#0056FF] truncate">{user?.user?.fullname}</span>
+                    <span className="text-lg font-semibold text-[#0056FF] truncate">{users?.user?.fullname}</span>
                     <div className="relative">
                         <div className="relative mt-3">
                             <LineProgressBar percent={percent} />
@@ -169,7 +171,7 @@ const ProfileContent = ({ session }) => {
                     </button>
                 </div>
             </div>
-            <UserModal isOpen={isModalOpen} onRequestClose={onRequestClose} user={user} onSubmit={onSubmit} handleImageUpload={handleImageUpload} />
+            <UserModal isOpen={isModalOpen} onRequestClose={onRequestClose} user={user} onSubmit={onSubmit} />
             <div className="flex p-2 flex-col items-center justify-center text-center mt-3 mb-5">
                 <Link href="/redeem">
                     <button className="w-40 h-10 bg-[#F2871F] text-white rounded-3xl font-semibold text-xl mb-8 mt-3">
@@ -214,7 +216,6 @@ export default function Profile() {
     return (
         <SWRConfig
             value={{
-                refreshInterval: 30000,
                 fetcher: fetcher,
                 onError: (error) => {
                     console.error(error);
