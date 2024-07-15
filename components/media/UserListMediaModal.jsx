@@ -133,7 +133,7 @@ const UserListMediaModal = ({ isOpen, onRequestClose, setPictureUrl }) => {
                         onChange={updateImg}
                     />
                     <button
-                        className='w-24 h-8 bg-[#F68B1F] text-white rounded-full'
+                        className='w-35 h-8 bg-[#F68B1F] text-white text-sm rounded-full p-2 align-middle'
                         onClick={uploadImg}
                         disabled={loading}
                     >
