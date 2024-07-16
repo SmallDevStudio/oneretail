@@ -17,8 +17,18 @@ export default async function handler(req, res) {
       const existingReward = await LoginReward.findOne({ userId });
 
       if (existingReward) {
-        const today = new Date().toDateString();
-        const receivedPointsToday = new Date(existingReward.lastLogin).toDateString() === today;
+        const today = new Date();
+        const lastLoginDate = new Date(existingReward.lastLogin);
+
+        // ตรวจสอบว่าเป็นเดือนใหม่หรือไม่
+        if (today.getMonth() !== lastLoginDate.getMonth()) {
+          // รีเซ็ตข้อมูล daysLogged และ day เมื่อเป็นเดือนใหม่
+          existingReward.daysLogged = [];
+          existingReward.day = 0;
+          await existingReward.save();
+        }
+
+        const receivedPointsToday = lastLoginDate.toDateString() === today.toDateString();
         return res.status(200).json({ 
           day: existingReward.day, 
           receivedPointsToday, 
@@ -42,17 +52,25 @@ export default async function handler(req, res) {
       let day = 1;
       let daysLogged = [];
 
+      const today = new Date();
+
       if (!existingReward) {
-        daysLogged.push(new Date().getDate());
-        console.log('Creating new reward:', { userId, day, lastLogin: new Date(), daysLogged });
-        const newReward = new LoginReward({ userId, day, lastLogin: new Date(), daysLogged });
+        daysLogged.push(today.getDate());
+        console.log('Creating new reward:', { userId, day, lastLogin: today, daysLogged });
+        const newReward = new LoginReward({ userId, day, lastLogin: today, daysLogged });
         await newReward.save();
         newPoints = Math.floor(Math.random() * 16) + 15;
       } else {
-        const lastLogin = new Date(existingReward.lastLogin);
-        const today = new Date();
+        const lastLoginDate = new Date(existingReward.lastLogin);
 
-        if (lastLogin.toDateString() === today.toDateString()) {
+        // ตรวจสอบว่าเป็นเดือนใหม่หรือไม่
+        if (today.getMonth() !== lastLoginDate.getMonth()) {
+          // รีเซ็ตข้อมูล daysLogged และ day เมื่อเป็นเดือนใหม่
+          existingReward.daysLogged = [];
+          existingReward.day = 0;
+        }
+
+        if (lastLoginDate.toDateString() === today.toDateString()) {
           return res.status(400).json({ error: 'Already received points today' });
         }
 
