@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
-import { Button, LinearProgress, Box } from '@mui/material';
+import { Button, LinearProgress, Box, TextField } from '@mui/material';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import Image from 'next/image';
@@ -12,6 +12,8 @@ const SurveyTable = () => {
     const [rows, setRows] = useState([]);
     const [exporting, setExporting] = useState(false);
     const [progress, setProgress] = useState(0);
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -27,6 +29,18 @@ const SurveyTable = () => {
         fetchData();
     }, []);
 
+    const fetchDataForExport = async (currentPage, pageSize, startDate, endDate) => {
+        const response = await axios.get('/api/survey', {
+            params: {
+                page: currentPage,
+                pageSize: pageSize,
+                startDate: startDate,
+                endDate: endDate,
+            },
+        });
+        return response.data;
+    };
+
     const handleExport = async () => {
         setExporting(true);
         setProgress(0);
@@ -34,20 +48,15 @@ const SurveyTable = () => {
             let allData = [];
             let currentPage = 1;
             let hasMore = true;
-            const pageSize = 100; // ขนาดของแต่ละหน้าที่จะดึงข้อมูล
+            const pageSize = 100;
 
             while (hasMore) {
-                const response = await axios.get('/api/survey', {
-                    params: {
-                        page: currentPage,
-                        pageSize: pageSize,
-                    },
-                });
+                const data = await fetchDataForExport(currentPage, pageSize, startDate, endDate);
 
-                if (response.data.length > 0) {
-                    allData = allData.concat(response.data);
+                if (data.length > 0) {
+                    allData = allData.concat(data);
                     currentPage++;
-                    setProgress(Math.min(100, (allData.length / rows.length) * 100));
+                    setProgress((prevProgress) => Math.min(100, prevProgress + (data.length / rows.length) * 100));
                 } else {
                     hasMore = false;
                 }
@@ -95,7 +104,27 @@ const SurveyTable = () => {
 
     return (
         <div style={{ height: 500, width: '100%' }}>
-            <div className="flex justify-end mb-4">
+            <div className="flex justify-end mb-4 gap-2">
+                <div className="flex space-x-4">
+                    <TextField
+                        label="Start Date"
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                    />
+                    <TextField
+                        label="End Date"
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                    />
+                </div>
                 <Button variant="contained" color="primary" onClick={handleExport} disabled={exporting}>
                     Export to Excel
                 </Button>

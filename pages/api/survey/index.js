@@ -1,15 +1,15 @@
-// /api/survey
 import connectMongoDB from "@/lib/services/database/mongodb";
 import Survey from "@/database/models/Survey";
 import Users from "@/database/models/users";
 import Coins from "@/database/models/Coins";
 import sendLineMessage from "@/lib/sendLineMessage";
+import moment from 'moment-timezone';
 
 export const config = {
     api: {
       responseLimit: false,
     },
-  };
+};
 
 export default async function handler(req, res) {
     const { method } = req;
@@ -18,7 +18,20 @@ export default async function handler(req, res) {
     switch (method) {
         case 'GET':
             try {
-                const surveys = await Survey.find({}).lean();
+                const { startDate, endDate, page = 1, pageSize = 100 } = req.query;
+                const query = {};
+                
+                if (startDate && endDate) {
+                    query.createdAt = {
+                        $gte: moment(startDate).startOf('day').toDate(),
+                        $lte: moment(endDate).endOf('day').toDate(),
+                    };
+                }
+
+                const surveys = await Survey.find(query)
+                                            .skip((page - 1) * pageSize)
+                                            .limit(Number(pageSize))
+                                            .lean();
                 const userIds = surveys.map(survey => survey.userId);
                 const users = await Users.find({ userId: { $in: userIds } }).lean();
 
