@@ -163,7 +163,7 @@ const UserListMediaModal = ({ isOpen, onRequestClose, setPictureUrl }) => {
                                 layout="responsive" 
                                 width={100} 
                                 height={100} 
-                                style={{ borderRadius: '10px', objectFit: 'cover' }} 
+                                style={{ width: '100%', height: '100%', borderRadius: '10px', objectFit: 'cover' }} 
                             />
                         </div>
                     ))}

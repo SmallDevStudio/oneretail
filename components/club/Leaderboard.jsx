@@ -56,29 +56,45 @@ const LeaderBoard = () => {
     return (
         <div className='w-full mb-20'>
 
-            <Tabs value={selectedType} onChange={handleTabChange} variant="scrollable" scrollButtons="auto" sx={{
+            <Tabs value={selectedType} 
+            onChange={handleTabChange} 
+            variant="scrollable" 
+            scrollButtons="auto"
+            sx={{
                 '& .MuiTabs-indicator': {
                     display: 'none',
                 },
                 '& .Mui-selected': {
+                    position: 'relative',
                     color: '#0056FF',
                     fontWeight: 'bold',
                     fontFamily: 'ttb',
                 },
                 '& .MuiTab-root': {
-                    color: '#FFFFFF',
+                    color: '#c0bdbd',
                     fontFamily: 'ttb',
                     textTransform: 'none',
                     fontSize: '15px',
                     fontWeight: 'bold',
+                    borderRadius: '15px',
+                    backgroundColor: '#414344',
+                    marginLeft: '5px',
+                    minHeight: '28px',
+                    height: '28px',
                     '&.Mui-selected': {
-                        color: '#0056FF',
-                    },
+                        color: '#FFF',
+                        borderRadius: '15px',
+                        backgroundColor: '#0056FF',
+                    }, 
                 },
             }}
+            
             >
                 {types.map((type) => (
-                    <Tab key={type} label={type} value={type} />
+                    <Tab key={type} label={type} value={type} sx={{
+                        minHeight: '28px',
+                        height: '28px',
+                    }} />
                 ))}
             </Tabs>
 
@@ -86,7 +102,7 @@ const LeaderBoard = () => {
                 const normalizedRewardType = normalizeRewardType(rewardtype);
                 return filteredData[rewardtype].length > 0 && (
                     <div key={rewardtype}>
-                        <div className="flex items-center gap-2 m-2 mt-4">
+                        <div className="flex items-center gap-2 m-2 mt-2">
                             <Image 
                                 src={rewardTypeImages[normalizedRewardType]} 
                                 alt={normalizedRewardType} 
@@ -98,7 +114,7 @@ const LeaderBoard = () => {
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                             {filteredData[rewardtype].map((item, index) => (
-                                <div key={index} className="flex items-center p-2 rounded-full shadow bg-gray-700 cursor-pointer" onClick={() => handleItemClick(item)}>
+                                <div key={index} className="flex items-center p-2 rounded-full shadow bg-[#414344] cursor-pointer" onClick={() => handleItemClick(item)}>
                                     <span className="font-bold text-white mr-2 text-xl ml-2">{item.rank}</span>
                                     {item.pictureUrl ? (
                                         <Image 

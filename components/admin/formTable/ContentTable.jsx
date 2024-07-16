@@ -54,7 +54,6 @@ const ContentTable = () => {
       <Image src={params.value} alt="thumbnail" width={100} height={100} />
     )},
     { field: 'title', headerName: 'Title', width: 200 },
-    { field: 'description', headerName: 'Description', width: 300 },
     { field: 'categories', headerName: 'Category', width: 120, renderCell: (params) => params.row.categories?.title || '' },
     { field: 'subcategories', headerName: 'SubCategory', width: 120, renderCell: (params) => params.row.subcategories?.title || '' },
     { field: 'groups', headerName: 'Groups', width: 120, renderCell: (params) => params.row.groups?.name || '' },
@@ -89,7 +88,7 @@ const ContentTable = () => {
   ];
 
   return (
-    <div className="relative overflow-x-auto shadow-md sm:rounded-lg max-w-[100vw]">
+    <div className="relative overflow-x-auto shadow-md sm:rounded-lg w-full p-5">
       <div className="flex items-center justify-between flex-column flex-wrap md:flex-row space-y-4 md:space-y-0 pb-4 bg-white dark:bg-gray-900">
         <div className="flex">
           <Link href="/admin/contents/add">
