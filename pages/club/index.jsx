@@ -7,12 +7,12 @@ import LeaderBoard from "@/components/club/Leaderboard";
 import Rules from "@/components/club/Rules";
 
 export default function Club() {
-    const [activeTab, setActiveTab] = useState('rules');
+    const [activeTab, setActiveTab] = useState('leaderboard');
 
     const router = useRouter();
 
     useEffect(() => {
-        const tab = router.query.tab || "rules";
+        const tab = router.query.tab || "leaderboard";
         setActiveTab(tab);
     }, [router.query.tab]);
 
@@ -46,9 +46,9 @@ export default function Club() {
                             <a
                                 href="#"
                                 className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'announce' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
-                                onClick={() => handleTabClick('announce')}
+                                onClick={() => handleTabClick('experience')}
                             >
-                                ประกาศรางวัล
+                                Experience
                             </a>
                         </li>
                         <li className="me-2">
@@ -75,7 +75,7 @@ export default function Club() {
             </div>
 
             <div className="p-5">
-                {activeTab === 'announce' && <Announce />}
+                {activeTab === 'experience' && <Announce />}
                 {activeTab === 'leaderboard' && <LeaderBoard />}
                 {activeTab === 'rules' && <Rules />}
             </div>
