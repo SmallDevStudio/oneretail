@@ -10,7 +10,7 @@ const ArticleSchema = new mongoose.Schema({
   coins: { type: Number, default: 0 },
   pinned: { type: Boolean, default: false },
   new: { type: Boolean, default: false },
-  pop: { type: Boolean, default: false },
+  popular: { type: Boolean, default: false },
   views: { type: Number, default: 0 },
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Users' }],
   tags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Tag' }],
