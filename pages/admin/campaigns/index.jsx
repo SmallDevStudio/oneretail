@@ -5,8 +5,6 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { AdminLayout } from '@/themes';
 
-const CKEditor = dynamic(() => import('@/components/CKEditor'), { ssr: false });
-
 const AdminCampaignPage = () => {
   const [campaigns, setCampaigns] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -143,10 +141,6 @@ const AdminCampaignPage = () => {
                 className='mb-5'
             />
             
-            <CKEditor
-                data={formData.description}
-                onChange={handleEditorChange}
-            />
             <input
                 type="text"
                 name="link"
