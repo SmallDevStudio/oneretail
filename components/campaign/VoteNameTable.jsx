@@ -3,12 +3,18 @@ import axios from "axios";
 import moment from "moment";
 import "moment/locale/th";  // Import Thai locale
 import Image from "next/image";
+import { LinearProgress, Box, Button } from "@mui/material";
+import { saveAs } from 'file-saver';
+import * as XLSX from 'xlsx';
+import { SiMicrosoftexcel } from "react-icons/si";
 
 moment.locale('th'); // Set locale globally
 
 const VoteNameTable = () => {
     const [voteNames, setVoteNames] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [exporting, setExporting] = useState(false);
+    const [progress, setProgress] = useState(0);
     const [error, setError] = useState(null);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -42,13 +48,69 @@ const VoteNameTable = () => {
         }
     };
 
+    const handleExport = async () => {
+        setExporting(true);
+        setProgress(0);
+        try {
+            let allData = [];
+            let currentPage = 1;
+            let hasMore = true;
+            const pageSize = 100;
+
+            while (hasMore) {
+                const response = await axios.get('/api/campaigns/votename', {
+                    params: {
+                        page: currentPage,
+                        pageSize: pageSize,
+                    },
+                });
+
+                const data = response.data.data.voteNames;
+
+                if (data.length > 0) {
+                    allData = allData.concat(data);
+                    currentPage++;
+                    setProgress((prevProgress) => Math.min(100, prevProgress + (data.length / voteNames.length) * 100));
+                } else {
+                    hasMore = false;
+                }
+            }
+
+            const dataToExport = allData.map((vote) => ({
+                ...vote,
+                createdAt: moment(vote.createdAt).format('LLL')
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "VoteNames");
+            const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+            const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+            saveAs(blob, 'voteNames.xlsx');
+        } catch (error) {
+            console.error('Error exporting data:', error);
+        }
+        setProgress(100);
+        setExporting(false);
+    };
+
     if (loading) return <p>Loading...</p>;
     if (error) return <p>{error}</p>;
 
     return (
-        <div className="overflow-x-auto p-10">
+        <div className="overflow-x-auto p-5">
+            <div className="flex justify-end mb-4">
+                <Button variant="contained" color="primary" onClick={handleExport} disabled={exporting}>
+                    <SiMicrosoftexcel className="text-xl mr-2"/> <span>Export</span>
+                </Button>
+            </div>
+            {exporting && (
+                <Box sx={{ width: '100%', marginBottom: 2 }}>
+                    <LinearProgress variant="determinate" value={progress} />
+                </Box>
+            )}
             <table className="table-auto w-full">
-                <thead>
+                <thead className="bg-gray-200">
                     <tr>
                         <th className="px-4 py-2">รูปผู้ใช้</th>
                         <th className="px-4 py-2">ชื่อผู้ใช้</th>
@@ -68,7 +130,6 @@ const VoteNameTable = () => {
                             <td className="border px-4 py-2">{vote.user?.empId}</td>
                             <td className="border px-4 py-2">{vote.name}</td>
                             <td className="border px-4 py-2">{vote.description}</td>
-                           
                             <td className="border px-4 py-2">{moment(vote.createdAt).format('LLL')}</td>
                         </tr>
                     ))}
