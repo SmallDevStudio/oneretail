@@ -15,6 +15,7 @@ const customStyles = {
         borderRadius: '20px',
         height: 'auto',
         width: '350px',
+        zIndex: 150 // เพิ่ม zIndex ให้สูงกว่า PreviewModal
     }
 };
 
@@ -36,29 +37,21 @@ const ClubLeaderBoardModal = ({ isOpen, onRequestClose, data }) => {
             </div>
             <div className="flex flex-col justify-center items-center w-full">
                 <div className='flex justify-center mt-2 mb-2'>
-                  <h2 className="text-2xl font-bold">{data.name}</h2>
+                    <h2 className="text-2xl font-bold">{data.fullname}</h2>
                 </div>
                 <Image 
                     src={data.pictureUrl || '/images/avatar-placeholder.png'} 
-                    alt={data.name} 
+                    alt={data.fullname} 
                     width="100" 
                     height="100" 
                     className="rounded-full"
                 />
                 <div className="flex flex-col">
-                  <p className="mt-4 text-sm"><strong>Employee ID:</strong> {data.empId}</p>
-                  <p className="text-sm"><strong>Rank:</strong> {data.rank}</p>
-                  {data.branch && <p className="text-sm"><strong>Branch:</strong> {data.branch}</p>}
-                  {data.zone && <p className="text-sm"><strong>Zone:</strong> {data.zone}</p>}
-                  {data.position && <p className="text-sm"><strong>Position:</strong> {data.position}</p>}
-                  {data.channel && <p className="text-sm"><strong>Channel:</strong> {data.channel}</p>}
-                  {data.gh && <p className="text-sm"><strong>GH:</strong> {data.gh}</p>}
-                  {data.region && <p className="text-sm"><strong>Region:</strong> {data.region}</p>}
-                  {data.rsn && <p className="text-sm"><strong>RSN:</strong> {data.rsn}</p>}
-                  {data.rating && <p className="text-sm"><strong>Rating:</strong> {data.rating}</p>}
-                  {data.totalscore && <p className="text-sm"><strong>Total Score:</strong> {data.totalscore}</p>}
-                  {data.kpi && <p className="text-sm"><strong>KPI:</strong> {(data.kpi * 100).toFixed(2) + '%'}</p>}
-                  {data.achieve && <p className="text-sm"><strong>Achieve:</strong> {(data.achieve * 100).toFixed(2) + '%'}</p>}
+                    <p className="mt-4 text-sm"><strong>Employee ID:</strong> {data.empId}</p>
+                    {data.position && <p className="text-sm"><strong>Position:</strong> {data.position}</p>}
+                    {data.teamGrop && <p className="text-sm"><strong>Team Group:</strong> {data.teamGrop}</p>}
+                    {data.role && <p className="text-sm"><strong>Role:</strong> {data.role}</p>}
+                    {data.active !== undefined && <p className="text-sm"><strong>Active:</strong> {data.active ? "Yes" : "No"}</p>}
                 </div>
             </div>
         </Modal>

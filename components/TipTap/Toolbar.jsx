@@ -3,9 +3,9 @@ import React, { useState } from "react";
 import {
   Bold, Strikethrough, Italic, List, ListOrdered, Heading2,
   Underline, Quote, Undo, Redo, Code, Image as ImageIcon, Youtube,
-  AlignLeft, AlignCenter, AlignRight, AlignJustify, AArrowUp, AArrowDown 
+  AlignLeft, AlignCenter, AlignRight, AlignJustify, ArrowUp, ArrowDown 
 } from "lucide-react";
-import { SketchPicker } from "react-color";  // Import SketchPicker from react-color
+import { SketchPicker } from "react-color";
 import ImageUploadModal from "../media/ImageUploadModal";
 
 const Toolbar = ({ editor }) => {
@@ -22,14 +22,17 @@ const Toolbar = ({ editor }) => {
 
   const handleAddYoutube = () => {
     const url = prompt("Enter YouTube URL:");
+    const width = prompt("Enter width (e.g., 100% or 500px):", "100%");
+    const height = prompt("Enter height (e.g., 250px):", "250px");
     if (url) {
-      editor.chain().focus().setYoutubeVideo({ src: url }).run();
+      editor.chain().focus().insertContent(`<youtube-video src="${url}" width="${width}" height="${height}"></youtube-video>`).run();
     }
   };
 
   const handleColorChange = (color) => {
     setCurrentColor(color.hex);
     editor.chain().focus().setColor(color.hex).run();
+    setColorPickerVisible(false); // ปิด ColorPicker หลังจากเลือกสี
   };
 
   const handleFontSizeChange = (size) => {
@@ -128,7 +131,7 @@ const Toolbar = ({ editor }) => {
           }}
           className="text-gray-400 hover:bg-gray-700 hover:text-white p-1 hover:rounded-lg"
         >
-          <AArrowUp className="w-5 h-5" />
+          <ArrowUp className="w-5 h-5" />
         </button>
         
         <button
@@ -138,7 +141,7 @@ const Toolbar = ({ editor }) => {
           }}
           className="text-gray-400 hover:bg-gray-700 hover:text-white p-1 hover:rounded-lg"
         >
-          <AArrowDown className="w-5 h-5" />
+          <ArrowDown className="w-5 h-5" />
         </button>
 
         <span className="text-gray-400">|</span>
@@ -169,7 +172,6 @@ const Toolbar = ({ editor }) => {
             />
           </div>
         )}
-
 
         <button
           onClick={(e) => {
@@ -310,8 +312,6 @@ const Toolbar = ({ editor }) => {
 
         <span className="text-gray-400">|</span>
         
-        
-        
         <button
           onClick={(e) => {
             e.preventDefault();
@@ -338,7 +338,6 @@ const Toolbar = ({ editor }) => {
         >
           <Redo className="w-5 h-5" />
         </button>
-        
       </div>
       <ImageUploadModal isOpen={isImageModalOpen} onClose={handleImageModalClose} editor={editor} />
     </div>

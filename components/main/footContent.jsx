@@ -5,7 +5,7 @@ export default function FooterContant() {
     return (
         <div className="relative w-full h-[250px] footer-content">
             <ReactPlayer
-                url="https://www.youtube.com/watch?v=LpW8cTkt7rk"
+                url="https://www.youtube.com/watch?v=GzPK4K5HCX0"
                 loop={true}
                 playing={true}
                 controls={false}

@@ -1,3 +1,4 @@
+// components/media/ImageUploadModal.js
 import React, { useState } from 'react';
 import Modal from 'react-modal';
 import axios from 'axios';
@@ -23,7 +24,7 @@ const customStyles = {
   },
 };
 
-const ImageUploadModal = ({ isOpen, onClose, editor }) => {
+const ImageUploadModal = ({ isOpen, onClose, onImageSelect }) => {
   const [imageSrc, setImageSrc] = useState(null);
   const [selectImg, setSelectImg] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -87,9 +88,11 @@ const ImageUploadModal = ({ isOpen, onClose, editor }) => {
   };
 
   const handleConfirmSelection = () => {
-    editor.chain().focus().setImage({ src: selectedImageUrl }).run();
-    setSelectedImageUrl(null);
-    onClose();
+    if (onImageSelect && selectedImageUrl) {
+      onImageSelect(selectedImageUrl);
+      setSelectedImageUrl(null);
+      onClose();
+    }
   };
 
   return (

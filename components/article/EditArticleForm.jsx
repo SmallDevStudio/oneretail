@@ -1,54 +1,71 @@
-// components/AddArticleForm.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import CustomJoditEditor from "@/components/CustomJoditEditor";
 import axios from "axios";
 import { useRouter } from "next/router";
-import PreviewModal from "./PreviewModal";
 
-
-const AddArticleForm = () => {
+const EditArticleForm = ({ articleId }) => {
   const { data: session } = useSession();
   const [content, setContent] = useState("");
   const [article, setArticle] = useState({});
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-
   const router = useRouter();
 
+  useEffect(() => {
+    const fetchArticle = async () => {
+      try {
+        const res = await axios.get(`/api/articles/${articleId}`);
+        setArticle(res.data.data);
+        setContent(res.data.data.content);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    if (articleId) {
+      fetchArticle();
+    }
+  }, [articleId]);
+
   const handleChange = (e) => {
+    e.preventDefault();
     const { name, value, type, checked } = e.target;
-    setArticle({ ...article, [name]: type === "checkbox" ? checked : value, });
+    setArticle({
+      ...article,
+      [name]: type === "checkbox" ? checked : value,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const newArticle = {
+    const updatedArticle = {
       ...article,
       content: content,
-      userId: session.user.id,
-      status: article.status ? article.status : "draft",
-      published: article.published? article.published : true,
+      pinned: article.pinned ? true : false,
+      new: article.new ? true : false,
+      popular: article.popular ? true : false,
     };
     try {
-      const res = await axios.post("/api/articles", newArticle);
+      console.log("Updated Article: ", updatedArticle);  // เพิ่ม console log เพื่อตรวจสอบข้อมูล
+      const res = await axios.put(`/api/articles/${articleId}`, updatedArticle);
       console.log(res.data);
-      router.push("/admin/articles");
+      router.push('/admin/articles');
     } catch (error) {
       console.error(error);
+      setError(error.message);
     }
     setLoading(false);
   };
 
   const handlePreview = (e) => {
     e.preventDefault();
-    const newArticle = {
+    const updatedArticle = {
       ...article,
       content: content,
-      userId: session.user.id,
     };
-    console.log("article", newArticle);
+    console.log("article", updatedArticle);
   };
 
   return (
@@ -63,6 +80,7 @@ const AddArticleForm = () => {
                 placeholder="Title"
                 name="title"
                 className="text-black mb-4 border-2 p-2 rounded-xl w-2/3 ml-4"
+                value={article.title || ''}
                 onChange={handleChange}
                 required
             />
@@ -79,6 +97,7 @@ const AddArticleForm = () => {
                     placeholder="Channel"
                     name="channel"
                     className="text-black mb-4 border-2 p-2 rounded-xl w-2/3 ml-4"
+                    value={article.channel || ''}
                     onChange={handleChange}
                 />
             </div>
@@ -91,6 +110,7 @@ const AddArticleForm = () => {
                     placeholder="Position"
                     name="position"
                     className="text-black mb-4 border-2 p-2 rounded-xl w-2/3 ml-4"
+                    value={article.position || ''}
                     onChange={handleChange}
                 />
             </div>
@@ -103,6 +123,7 @@ const AddArticleForm = () => {
                     placeholder="Group"
                     name="group"
                     className="text-black mb-4 border-2 p-2 rounded-xl w-2/3 ml-4"
+                    value={article.group || ''}
                     onChange={handleChange}
                 />
             </div>
@@ -110,7 +131,7 @@ const AddArticleForm = () => {
 
         <div className="flex flex-row w-2/3 gap-4 ml-4">
             <div className="flex flex-row w-1/2 p-4 border-2 rounded-2xl gap-4 items-center mb-4 justify-between">
-            <div className="flex items-center">
+                <div className="flex items-center">
                     <input 
                         id="pinned" 
                         name="pinned" 
@@ -150,14 +171,15 @@ const AddArticleForm = () => {
 
             <div className="flex flex-row w-1/2 border-2 p-2 rounded-2xl gap-4 items-center mb-4 justify-between">
                 <div>
-                    <label className=" text-black font-bold ml-4" htmlFor="point">
+                    <label className="text-black font-bold ml-4" htmlFor="point">
                         Point
                     </label>
                     <input
                         type="text"
                         placeholder="point"
                         name="point"
-                        className=" text-black border-2 p-2 rounded-xl w-2/3 ml-4"
+                        className="text-black border-2 p-2 rounded-xl w-2/3 ml-4"
+                        value={article.point || ''}
                         onChange={handleChange}
                     />
                 </div>
@@ -168,8 +190,9 @@ const AddArticleForm = () => {
                     <input
                         type="text"
                         placeholder="Coins"
-                        name="Coins"
+                        name="coins"
                         className="text-black border-2 p-2 rounded-xl w-2/3 ml-4"
+                        value={article.coins || ''}
                         onChange={handleChange}
                     />
                 </div>
@@ -185,7 +208,7 @@ const AddArticleForm = () => {
                     <select
                         name="status"
                         className="text-black mb-4 border-2 p-2 rounded-xl w-30 ml-4"
-                        value={'draft'}
+                        value={article.status || 'draft'}
                         onChange={handleChange}
                     >
                         <option value="draft">Draft</option>
@@ -199,11 +222,11 @@ const AddArticleForm = () => {
                     <select
                         name="published"
                         className="text-black mb-4 border-2 p-2 rounded-xl w-30 ml-4"
-                        value={true}
+                        value={article.published ? 'true' : 'false'}
                         onChange={handleChange}
                     >
-                        <option value={true}>Yes</option>
-                        <option value={false}>No</option>
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
                     </select>
                 </div>
             </div>
@@ -216,6 +239,7 @@ const AddArticleForm = () => {
                     placeholder="Tags"
                     name="tags"
                     className="text-black mb-4 border-2 p-2 rounded-xl ml-4 w-1/3"
+                    value={article.tags || ''}
                     onChange={handleChange}
                 />
             </div>
@@ -227,7 +251,6 @@ const AddArticleForm = () => {
         <div className="flex flex-row w-full justify-center items-center gap-4 m-4">
             <button
             className="bg-[#0056FF] hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
-            type="submit"
             onClick={handleSubmit}
             >
             {loading ? "Loading..." : "Save"}
@@ -243,4 +266,4 @@ const AddArticleForm = () => {
   );
 };
 
-export default AddArticleForm;
+export default EditArticleForm;

@@ -1,5 +1,6 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
 import Article from "@/database/models/Article";
+import Users from "@/database/models/users";
 
 export default async function handler(req, res) {
     const { method } = req;
@@ -9,8 +10,23 @@ export default async function handler(req, res) {
     switch (method) {
         case 'GET':
             try {
-                const articles = await Article.find({});
-                res.status(200).json({ success: true, data: articles });
+                const articles = await Article.find().sort({ createdAt: -1 });
+                if (articles.length === 0) {
+                    return res.status(200).json({ success: true, data: [] });
+                };
+
+                const userPromises = articles.map(async (article) => {
+                    const user = await Users.findOne({userId: article.userId});
+                    return { ...article._doc, 
+                        user: user ? user : null,
+                    };
+                });
+
+                // const users = await Users.find({ userId: { $in: articleIds } });
+
+                const articlesWithUser = await Promise.all(userPromises);
+                
+                res.status(200).json({ success: true, data: articlesWithUser });
             } catch (error) {
                 res.status(400).json({ success: false });
             }

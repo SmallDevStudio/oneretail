@@ -1,5 +1,6 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
 import Media from "@/database/models/Media";
+import axios from 'axios';
 
 export default async function handler(req, res) {
     const { method } = req;
@@ -7,24 +8,42 @@ export default async function handler(req, res) {
     await connetMongoDB();
 
     switch (method) {
-        case "GET":
-            try {
-                const media = await Media.find({});
-                res.status(200).json(media);
-            } catch (error) {
-                res.status(400).json({ success: false, error: error.message });
-            }
-            break;
+        case 'POST':
+        try {
+            const { file, name, userId } = req.body;
+            const data = new FormData();
+            data.append('file', file);
+            data.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET);
+            data.append('cloud_name', process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME);
 
-        case "POST":
-            console.log("req.body", req.body);
-            try {
-                const media = await Media.create(req.body);
-                res.status(201).json(media);
-            } catch (error) {
-                res.status(400).json({ success: false, error: error.message });
-            }
-            break;
+            const response = await axios.post(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`, data);
+            const fileData = response.data;
+
+            const fileType = fileData.resource_type === 'image' ? 'image' : 'file';
+
+            const media = await Media.create({
+            url: fileData.secure_url,
+            publicId: fileData.public_id,
+            name,
+            userId,
+            type: fileType,
+            path: 'article',
+            isTemplate: false,
+            });
+
+            res.status(201).json({ success: true, data: media });
+        } catch (error) {
+            res.status(400).json({ success: false, error: error.message });
+        }
+        break;
+        case 'GET':
+        try {
+            const media = await Media.find({});
+            res.status(200).json(media);
+        } catch (error) {
+            res.status(400).json({ success: false, error: error.message });
+        }
+        break;
 
         case "PUT":
             try {

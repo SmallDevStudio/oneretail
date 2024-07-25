@@ -39,6 +39,10 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
     return (
       <Box
         sx={{
+          "& .pro-sidebar": {
+            height: "100vh",
+            zIndex: "50",
+          },
           "& .pro-sidebar-inner": {
             background: "#ffffff !important",
           },

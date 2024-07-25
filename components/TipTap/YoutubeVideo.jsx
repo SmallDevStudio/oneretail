@@ -1,22 +1,50 @@
-import React from 'react';
-import { Node, mergeAttributes } from '@tiptap/react';
-import getEmbedComponent from '@/utils/getEmbedComponent';
+// components/YoutubeVideo.js
+import { Node } from '@tiptap/core';
+import { ReactNodeViewRenderer, NodeViewWrapper } from '@tiptap/react';
+import ReactPlayer from 'react-player';
 
-export default Node.create({
+const YouTubeComponent = ({ node, updateAttributes, deleteNode }) => {
+  const { src, width, height } = node.attrs;
+
+  return (
+    <NodeViewWrapper className="youtube-video" style={{ position: 'relative' }}>
+      <ReactPlayer url={src} controls width={width} height={height} />
+      <button
+        style={{
+          position: 'absolute',
+          top: 5,
+          right: 5,
+          background: 'red',
+          color: 'white',
+          border: 'none',
+          borderRadius: '50%',
+          cursor: 'pointer',
+        }}
+        onClick={deleteNode}
+      >
+        X
+      </button>
+    </NodeViewWrapper>
+  );
+};
+
+const YouTube = Node.create({
   name: 'youtubeVideo',
-
   group: 'block',
-
   atom: true,
-
   addAttributes() {
     return {
       src: {
         default: null,
       },
+      width: {
+        default: '100%',
+      },
+      height: {
+        default: '250px',
+      },
     };
   },
-
   parseHTML() {
     return [
       {
@@ -24,19 +52,12 @@ export default Node.create({
       },
     ];
   },
-
   renderHTML({ HTMLAttributes }) {
-    return ['youtube-video', mergeAttributes(HTMLAttributes)];
+    return ['youtube-video', HTMLAttributes];
   },
-
   addNodeView() {
-    return ({ node }) => {
-      const { src } = node.attrs;
-      return (
-        <div className="embed">
-          {getEmbedComponent(src)}
-        </div>
-      );
-    };
+    return ReactNodeViewRenderer(YouTubeComponent);
   },
 });
+
+export default YouTube;
