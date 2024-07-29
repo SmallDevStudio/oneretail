@@ -1,55 +1,65 @@
 import connectMongoDB from "@/lib/services/database/mongodb";
 import Article from "@/database/models/Article";
+import Users from "@/database/models/users";
+import ArticleComments from "@/database/models/ArticleComments";
+import ReplyArticleComment from "@/database/models/ReplyArticleComment";
 
 export default async function handler(req, res) {
-    const { method, query: { id }, body } = req;
+    const { method } = req;
+    const { id } = req.query;
 
     await connectMongoDB();
 
     switch (method) {
         case 'GET':
             try {
-                const article = await Article.findById(id);
-                if (!article) {
-                    return res.status(404).json({ success: false, message: "Article not found" });
-                }
-                res.status(200).json({ success: true, data: article });
+                const article = await Article.findById(id).lean();
+                const user = await Users.findOne({ userId: article.userId }).lean();
+
+                const comments = await ArticleComments.find({ articleId: id }).lean();
+                const commentIds = comments.map(comment => comment._id);
+                const replyComments = await ReplyArticleComment.find({ commentId: { $in: commentIds } }).lean();
+
+                const userIds = [
+                    article.userId,
+                    ...comments.map(comment => comment.userId),
+                    ...replyComments.map(reply => reply.userId),
+                ];
+
+                const users = await Users.find({ userId: { $in: userIds } }).lean();
+
+                const userMap = users.reduce((acc, user) => {
+                    acc[user.userId] = user;
+                    return acc;
+                }, {});
+
+                const enrichedComments = comments.map(comment => ({
+                    ...comment,
+                    user: userMap[comment.userId] || null,
+                    replies: replyComments.filter(reply => reply.commentId.toString() === comment._id.toString()).map(reply => ({
+                        ...reply,
+                        user: userMap[reply.userId] || null,
+                    }))
+                }));
+
+                res.status(200).json({ success: true, data: { article: { ...article, user: user || null }, comments: enrichedComments } });
             } catch (error) {
-                res.status(400).json({ success: false, message: error.message });
+                res.status(400).json({ success: false, error: error.message });
             }
             break;
 
         case 'PUT':
-            // update article
-            console.log(body);
             try {
-                const article = await Article.findByIdAndUpdate(id, body, {
-                    new: true,
-                    runValidators: true,
-                });
-                if (!article) {
-                    return res.status(404).json({ success: false, message: "Article not found" });
-                }
+                const { likes } = req.body;
+                const article = await Article.findByIdAndUpdate(id, { likes }, { new: true });
                 res.status(200).json({ success: true, data: article });
             } catch (error) {
-                res.status(400).json({ success: false, message: error.message });
-            }
-            break;
-
-        case 'DELETE':
-            try {
-                const article = await Article.findByIdAndDelete(id);
-                if (!article) {
-                    return res.status(404).json({ success: false, message: "Article not found" });
-                }
-                res.status(200).json({ success: true, data: {} });
-            } catch (error) {
-                res.status(400).json({ success: false, message: error.message });
+                res.status(400).json({ success: false, error: error.message });
             }
             break;
 
         default:
-            res.status(400).json({ success: false, message: "Method not allowed" });
+            res.status(400).json({ success: false });
             break;
     }
 }

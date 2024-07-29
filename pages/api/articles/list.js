@@ -3,41 +3,41 @@ import Article from "@/database/models/Article";
 import Users from "@/database/models/users";
 
 export default async function handler(req, res) {
-    const { method } = req;
+    const { method, query } = req;
+    const { page = 1, pageSize = 10, search = '' } = query;
+    const skip = (page - 1) * pageSize;
 
     await connectMongoDB();
 
     switch (method) {
         case 'GET':
             try {
-                // Fetch all published articles with status 'published'
-                const articles = await Article.find({ status: 'published', published: true });
+                const searchQuery = search
+                    ? {
+                        $or: [
+                            { title: { $regex: search, $options: 'i' } },
+                            { tags: { $elemMatch: { name: { $regex: search, $options: 'i' } } } },
+                        ],
+                    }
+                    : {};
 
-                // Sort articles
-                const sortedArticles = articles.sort((a, b) => {
-                    if (a.pinned !== b.pinned) {
-                        return a.pinned ? -1 : 1;
-                    }
-                    if (a.popular !== b.popular) {
-                        return a.popular ? -1 : 1;
-                    }
-                    if (a.new !== b.new) {
-                        return a.new ? -1 : 1;
-                    }
-                    return new Date(b.createdAt) - new Date(a.createdAt);
-                });
+                const articles = await Article.find(searchQuery)
+                    .skip(skip)
+                    .limit(parseInt(pageSize))
+                    .sort({ createdAt: -1 });
 
-                const userPromises = sortedArticles.map(async (article) => {
+                const totalRecords = await Article.countDocuments(searchQuery);
+
+                const userPromises = articles.map(async (article) => {
                     const user = await Users.findOne({ userId: article.userId });
                     return { ...article._doc, user: user ? user : null };
                 });
 
                 const articlesWithUser = await Promise.all(userPromises);
 
-                res.status(200).json({ success: true, data: articlesWithUser });
+                res.status(200).json({ success: true, articles: articlesWithUser, totalRecords });
             } catch (error) {
-                console.error(error);
-                res.status(400).json({ success: false, error: error.message });
+                res.status(400).json({ success: false });
             }
             break;
 

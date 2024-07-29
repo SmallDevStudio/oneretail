@@ -8,6 +8,7 @@ import LearnFeed2 from "@/components/learning/LearnFeed2";
 import LearnSkeleton from "@/components/SkeletonLoader/LearnSkeleton";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import ArticleList from "@/components/article/ArticleList";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -90,6 +91,15 @@ export default function Learning() {
                             เรื่องน่ารู้
                         </Link>
                     </li>
+                    <li className="me-2">
+                        <Link
+                            href="#"
+                            className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'article' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
+                            onClick={() => handleTabClick('article')}
+                        >
+                            เรื่องน่าอ่าน
+                        </Link>
+                    </li>
 
                     
                 </ul>
@@ -116,6 +126,14 @@ export default function Learning() {
                     {activeTab === 'learn2' && (
                         <>
                         {contents3.length > 0 ? <LearnFeed2 contents={contents3} /> : <LearnSkeleton />}
+                        </>
+                    )}
+
+                    {activeTab === 'article' && (
+                        <>
+                            <div className="flex flex-col items-center w-full p-2">
+                                <ArticleList />
+                            </div>
                         </>
                     )}
             </div>

@@ -1,5 +1,6 @@
 import React from "react";
 import ArticleList from "@/components/article/ArticleList";
+import { AppLayout } from "@/themes";
 
 const ArticlesPage = () => {
     return (
@@ -11,3 +12,9 @@ const ArticlesPage = () => {
 };
 
 export default ArticlesPage;
+
+ArticlesPage.getLayout = function getLayout(page) {
+    return <AppLayout>{page}</AppLayout>;
+};
+
+ArticlesPage.auth = true;

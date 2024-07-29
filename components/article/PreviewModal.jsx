@@ -18,9 +18,10 @@ const PreviewModal = ({ article, onClose }) => {
                 <div className="flex flex-col">
                     <h1 className="text-3xl font-bold">{article.title}</h1>
                     <p className="text-[12px] text-gray-500">{moment(article.createdAt).format("LLL")}</p>
-                    <div className="flex flex-row mt-2 items-center">
-                        <span className="text-[12px] text-gray-500 mr-2">ผู้สร้าง</span>
-                        <Tooltip
+                    <div className="flex flex-row items-center">
+                        <span className="text-[10px] text-gray-500 mr-2">ผู้สร้าง</span>
+                        {article.user && article.user ? (
+                            <Tooltip
                             title={
                                 <div className="flex flex-col items-center">
                                     <Image 
@@ -43,6 +44,11 @@ const PreviewModal = ({ article, onClose }) => {
                                 {article.user.fullname}
                             </span>
                         </Tooltip>
+                            ): (
+                                <>
+                                
+                                </>
+                            )}
                     </div>
                 </div>
                 <div className="mt-4" dangerouslySetInnerHTML={{ __html: article.content }} />

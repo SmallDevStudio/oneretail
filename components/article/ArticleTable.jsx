@@ -8,10 +8,13 @@ import PreviewModal from "./PreviewModal";
 import Image from "next/image";
 import Swal from "sweetalert2";
 import { useRouter } from "next/router";
+import Autocomplete from '@mui/material/Autocomplete';
+import TextField from '@mui/material/TextField';
 
-const ArticleTable = ({ articles, onDelete, onStatusChange, onPublishedChange }) => {
+const ArticleTable = ({ articles, onDelete, onStatusChange, onPublishedChange, onSearch }) => {
     const [selectedArticle, setSelectedArticle] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
     const router = useRouter();
 
     const handleView = (article) => {
@@ -54,8 +57,38 @@ const ArticleTable = ({ articles, onDelete, onStatusChange, onPublishedChange })
         });
     };
 
+    const handleSearchChange = (event, value) => {
+        setSearchTerm(value);
+        onSearch(value);
+    };
+
+    const tagsAndNames = articles.flatMap(article => [article.title, ...article.tags.map(tag => tag.name)]);
+
     return (
         <div className="flex flex-col w-full p-2">
+            <div className="flex mb-4 justify-between">
+                <Autocomplete
+                    options={tagsAndNames}
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            label="Search by title or tags"
+                            variant="outlined"
+                            size="small"
+                            style={{
+                                width: '300px',
+                            }}
+                        />
+                    )}
+                />
+                <button className="text-white text-sm font-bold bg-[#0056FF] p-2 rounded-full"
+                        onClick={() => router.push('/admin/articles/add')}
+                    >
+                        เพิ่มบทความ
+                </button>
+            </div>
             <table className="table-auto border-collapse border-2 border-gray-200">
                 <thead className="bg-gray-200 text-sm">
                     <tr className="text-center">

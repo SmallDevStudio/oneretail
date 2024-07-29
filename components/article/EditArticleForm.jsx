@@ -3,6 +3,7 @@ import { useSession } from "next-auth/react";
 import CustomJoditEditor from "@/components/CustomJoditEditor";
 import axios from "axios";
 import { useRouter } from "next/router";
+import PreviewModal from "./PreviewModal";
 
 const EditArticleForm = ({ articleId }) => {
   const { data: session } = useSession();
@@ -10,7 +11,11 @@ const EditArticleForm = ({ articleId }) => {
   const [article, setArticle] = useState({});
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [previewModal, setPreviewModal] = useState(false);
+  const [preview, setPreview] = useState(null);
   const router = useRouter();
+
+  console.log("article", article);
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -61,12 +66,21 @@ const EditArticleForm = ({ articleId }) => {
 
   const handlePreview = (e) => {
     e.preventDefault();
+    setLoading(true);
     const updatedArticle = {
       ...article,
       content: content,
     };
-    console.log("article", updatedArticle);
+    setPreview(updatedArticle);
+    setLoading(false);
+    setPreviewModal(true);
   };
+
+  const handleClosePreviewModal = () => {
+    setPreviewModal(false);
+  };
+
+  if (loading) return <p>Loading...</p>;
 
   return (
     <div className="flex flex-col w-full p-5 border-2 rounded-3xl">
@@ -262,6 +276,7 @@ const EditArticleForm = ({ articleId }) => {
             Preview
             </button>
         </div>
+        {previewModal && <PreviewModal article={preview} onClose={handleClosePreviewModal} />}
     </div>
   );
 };
