@@ -107,6 +107,7 @@
     "react-icons": "^5.2.1",
     "react-id-swiper": "^4.0.0",
     "react-images-uploading": "^3.1.7",
+    "react-mentions": "^4.4.10",
     "react-modal": "^3.16.1",
     "react-paginate": "^8.2.0",
     "react-papaparse": "^4.4.0",

@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import Announce from "@/components/club/Announce";
 import LeaderBoard from "@/components/club/Leaderboard";
 import Rules from "@/components/club/Rules";
+import Experience from "@/components/club/Experience";
 
 export default function Club() {
     const [activeTab, setActiveTab] = useState('leaderboard');
@@ -44,7 +45,7 @@ export default function Club() {
                     <ul className="flex flex-wrap text-white">
                         <li className="me-2">
                             <a
-                                href="#"
+                                href="#experience"
                                 className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'announce' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
                                 onClick={() => handleTabClick('experience')}
                             >
@@ -53,7 +54,7 @@ export default function Club() {
                         </li>
                         <li className="me-2">
                             <a
-                                href="#"
+                                href="#leaderboard"
                                 className={`inline-block p-2 border-b-2 rounded-t-lg ml-5 font-bold ${activeTab === 'leaderboard' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
                                 onClick={() => handleTabClick('leaderboard')}
                             >
@@ -62,7 +63,7 @@ export default function Club() {
                         </li>
                         <li className="me-2">
                             <a
-                                href="#"
+                                href="#rules"
                                 className={`inline-block p-2 border-b-2 rounded-t-lg ml-5 font-bold ${activeTab === 'rules' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
                                 onClick={() => handleTabClick('rules')}
                             >
@@ -74,10 +75,10 @@ export default function Club() {
 
             </div>
 
-            <div className="p-5">
-                {activeTab === 'experience' && <Announce />}
-                {activeTab === 'leaderboard' && <LeaderBoard />}
-                {activeTab === 'rules' && <Rules />}
+            <div className="p-2">
+                {activeTab === 'experience' && <Experience id="experience" />}
+                {activeTab === 'leaderboard' && <LeaderBoard id="leaderboard"/>}
+                {activeTab === 'rules' && <Rules id="rules"/>}
             </div>
         </div>
     );

@@ -77,8 +77,6 @@ const Loginreward = () => {
   if (loginDataError) return <div>Error: {loginDataError.message}</div>;
   if (isLoginDataLoading) return <Loading />;
 
-  console.log("loginData:", loginData); // ตรวจสอบ loginData ว่ามี daysLogged หรือไม่
-  console.log(userId);
 
   return (
     <main className="flex items-center justify-center bg-[#0056FF]" style={{ minHeight: "100vh", width: "100%" }}>
@@ -98,7 +96,7 @@ const Loginreward = () => {
               {items.map((item) => (
                 <div
                   key={item}
-                  className={`flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden border-2 border-[#C7DFF5] rounded-lg ${loginData?.daysLogged && loginData.daysLogged.includes(item) ? 'bg-[#C7DFF5]/70' : ''}`}
+                  className={`flex-col inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-x-hidden border-2 border-[#C7DFF5] rounded-lg ${loginData?.daysLogged && loginData.daysLogged.includes(item) ? 'bg-gray-500' : ''}`}
                   style={{ width: 60, height: 60 }}
                   id={item.toString()}
                 >
@@ -109,8 +107,8 @@ const Loginreward = () => {
                     height={40}
                     className="relative"
                   />
-                  <span className="absolute text-white mt-16 mb-1 pz-1 bg-[#C7DFF5] font-bold rounded-lg text-[8px] w-8">
-                    {item}
+                  <span className={`absolute mt-16 mb-1 pz-1 bg-[#C7DFF5] font-bold rounded-lg w-8 ${loginData?.daysLogged && loginData.daysLogged.includes(item) ? 'text-green-600 font-bold text-xs' : 'text-white text-[8px]'}`}>
+                    {loginData?.daysLogged && loginData.daysLogged.includes(item) ? '✓' : item}
                   </span>
                 </div>
               ))}
