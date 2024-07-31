@@ -10,7 +10,7 @@ const LearnFeed2 = ({ contents }) => {
             {contents.map((content) => (
                 <div key={content._id} className="flex flex-row bg-gray-200 mb-2 rounded-md p-2">
                     {/* thumbnail */}
-                    <div className="flex justify-center items-center max-h-[150px] min-w-[150px]">
+                    <div className="flex flex-col justify-center items-center max-h-[150px] min-w-[150px]">
                         <Link href={`/learning/${content._id}`}>
                             <Image
                                 src={content.thumbnailUrl}
@@ -21,7 +21,9 @@ const LearnFeed2 = ({ contents }) => {
                                 style={{ width: 'auto', height: 'auto' }}
                                 loading="lazy"
                             />
+                            
                         </Link>
+                        {/*<hr className="relative flex border-[#F2871F] border-[2px] w-[135px] top-[-4px]"/>*/}
                     </div>
                     {/* content */}
                     <div className="flex flex-col text-left ml-2">

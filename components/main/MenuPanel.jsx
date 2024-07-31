@@ -5,7 +5,7 @@ import useSWR from 'swr';
 
 const MenuPanel = () => {
     return (
-        <div className="flex flex-row absolute top-2 right-4 gap-2 text-gray-400">
+        <div className="flex flex-row absolute top-2 right-5 gap-2 text-gray-400">
              <button>
                 <MdInsertChart />
             </button>

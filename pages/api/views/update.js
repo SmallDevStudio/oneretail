@@ -1,6 +1,6 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
-import View from "@/database/models/View";
 import Content from "@/database/models/Content";
+import ContentViews from "@/database/models/ContentViews";
 
 
 export default async function handler(req, res) {
@@ -16,6 +16,12 @@ export default async function handler(req, res) {
         // Update the view count
         content.views += 1;
         await content.save();
+
+        const view = await ContentViews.create({ contentId, userId });
+
+        if (!view) {
+          return res.status(500).json({ success: false, message: 'Failed to create view' });
+        }
     
         res.status(200).json({ success: true, data: content });
       } catch (error) {

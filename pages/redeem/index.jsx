@@ -132,7 +132,7 @@ export default function Redeem() {
           {/* Avatar */}
           <div className="flex flex-col items-center justify-center mb-8">
             <Image
-              src={image}
+              src={level?.user?.pictureUrl}
               alt="User Avatar"
               width={100}
               height={100}

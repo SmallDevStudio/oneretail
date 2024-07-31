@@ -15,8 +15,6 @@ export default function FooterContant() {
     const { data: article, error: articleError } = useSWR("/api/articles/main", fetcher);
     const router = useRouter();
 
-    console.log(article);
-
     const handleClick = (categories, id ) => {
         if (categories === "Learning") {
             router.push(`/learning/${id}`);

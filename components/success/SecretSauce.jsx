@@ -56,7 +56,8 @@ const SecretSauce = ({ content, user, onCommentAdded, setShowInput, showInput, c
     const viewed = state.playedSeconds;
 
     if (viewed / duration >= 0.6 && !seen60Percent) {
-      await axios.post('/api/views/update', { contentId: content._id });
+      await axios.post('/api/views/update', { contentId: content._id, userId });
+
       setSeen60Percent(true); // set a flag to avoid multiple calls
     }
 
