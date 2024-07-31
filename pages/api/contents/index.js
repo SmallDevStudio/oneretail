@@ -11,6 +11,11 @@ export default async function handler(req, res) {
     if (req.method === "GET") {
         try {
             const contents = await Content.find({})
+            .sort({ createdAt: -1 })
+            .populate('categories')
+            .populate('subcategories')
+            .populate('groups')
+            .limit(10);
             res.status(200).json(contents);
         } catch (error) {
             res.status(400).json({ success: false });

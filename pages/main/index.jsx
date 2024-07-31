@@ -11,6 +11,7 @@ import dynamic from "next/dynamic";
 import RecheckUser from "@/components/RecheckUser";
 import ManagerModal from "@/components/ManagerModal";
 import PilotModal from "@/components/PilotModal";
+import UserPanel from "@/components/main/UserPanel";
 
 const Carousel = dynamic(() => import("@/components/Carousel"), {
     ssr: false,
@@ -88,6 +89,7 @@ const MainPage = () => {
     const userId = session?.user?.id;
 
     const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
+    const { data: level, error: levelError } = useSWR(session ? `/api/level/user?userId=${userId}` : null, fetcher);
 
     useEffect(() => {
         if (status === "loading" || !session || !user) return;
@@ -153,20 +155,35 @@ const MainPage = () => {
         setShowModal(false);
     };
 
-    if (status === "loading" || !user) return <Loading />;
+    if (status === "loading" || !user || !level) return <Loading />;
     if (userError) return <div>Error loading data</div>;
 
     return (
         <React.Fragment>
             <RecheckUser>
                 <main className="flex flex-col bg-gray-10 justify-between items-center text-center min-h-screen">
-                    <div className="w-full">
-                        <Carousel />
+                    <div className="flex flex-row">
+
+                    </div>
+                    <div className="w-full p-5">
+                        <UserPanel user={user} level={level} />
                     </div>
                     <div className="flex-grow flex items-center justify-center">
                         <MainIconMenu />
+                        
                     </div>
-                    <div className="relative bottom-0 w-full footer-content">
+                    <div className="flex w-full p-5 mb-5">
+                        <div className="w-full border-4 p-4 border-[#0056FF] rounded-xl">
+                            <span className="text-[#0056FF] font-bold">
+                                รวม Link
+                            </span>
+                        </div>
+                        
+                    </div>
+                    <div className="w-full">
+                        <Carousel />
+                    </div>
+                    <div className="relative w-full footer-content">
                         <FooterContant />
                     </div>
                     <ManagerModal isOpen={showModal} onRequestClose={onRequestClose} score={100} />
