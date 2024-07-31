@@ -12,6 +12,8 @@ import RecheckUser from "@/components/RecheckUser";
 import ManagerModal from "@/components/ManagerModal";
 import PilotModal from "@/components/PilotModal";
 import UserPanel from "@/components/main/UserPanel";
+import MenuPanel from "@/components/main/MenuPanel";
+import LinkModal from "@/components/LinkModal";
 
 const Carousel = dynamic(() => import("@/components/Carousel"), {
     ssr: false,
@@ -85,11 +87,12 @@ const MainPage = () => {
     const { data: session, status } = useSession();
     const [showModal, setShowModal] = useState(false);
     const [pilotModal, setPilotModal] = useState(false);
+    const [linkModal, setLinkModal] = useState(false);
     const router = useRouter();
     const userId = session?.user?.id;
 
     const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
-    const { data: level, error: levelError } = useSWR(session ? `/api/level/user?userId=${userId}` : null, fetcher);
+    const { data: level, error: levelError, mutate } = useSWR(session ? `/api/level/user?userId=${userId}` : null, fetcher);
 
     useEffect(() => {
         if (status === "loading" || !session || !user) return;
@@ -155,6 +158,10 @@ const MainPage = () => {
         setShowModal(false);
     };
 
+    const onExchangeAdd = async () => {
+        mutate();
+      }
+
     if (status === "loading" || !user || !level) return <Loading />;
     if (userError) return <div>Error loading data</div>;
 
@@ -162,18 +169,20 @@ const MainPage = () => {
         <React.Fragment>
             <RecheckUser>
                 <main className="flex flex-col bg-gray-10 justify-between items-center text-center min-h-screen">
-                    <div className="flex flex-row">
-
+                    <div className="flex w-full">
+                        <MenuPanel />
                     </div>
-                    <div className="w-full p-5">
-                        <UserPanel user={user} level={level} />
+                    <div className="w-full p-5 mt-2">
+                        <UserPanel user={user} level={level} onExchangeAdd={onExchangeAdd} />
                     </div>
                     <div className="flex-grow flex items-center justify-center">
                         <MainIconMenu />
                         
                     </div>
                     <div className="flex w-full p-5 mb-5">
-                        <div className="w-full border-4 p-4 border-[#0056FF] rounded-xl">
+                        <div className="w-full border-4 p-4 border-[#0056FF] rounded-xl"
+                            onClick={() => setLinkModal(true)}
+                        >
                             <span className="text-[#0056FF] font-bold">
                                 รวม Link
                             </span>
@@ -185,9 +194,15 @@ const MainPage = () => {
                     </div>
                     <div className="relative w-full footer-content">
                         <FooterContant />
+                        <div className="text-center text-xs text-gray-300 mb-10">
+                            <p>Copyright © 2024. All Rights Reserved.</p>
+                            <span className=""> Powered by <span className="text-[#0056FF]/50 font-bold">One Retail</span></span>
+                            <span className="ml-2">v.1.5.0</span>
+                        </div>
                     </div>
                     <ManagerModal isOpen={showModal} onRequestClose={onRequestClose} score={100} />
                     <PilotModal isOpen={pilotModal} onRequestClose={onRequestClose} score={50} />
+                    <LinkModal isOpen={linkModal} onRequestClose={() => setLinkModal(false)} />
                 </main>
             </RecheckUser>
         </React.Fragment>

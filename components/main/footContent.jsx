@@ -1,14 +1,21 @@
 import React, { useState } from "react";
 import useSWR from "swr";
 import Image from "next/image";
+import moment from "moment";
+import "moment/locale/th";
 import { useRouter } from "next/router";
+
+moment.locale('th');
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function FooterContant() {
 
     const { data, error } = useSWR("/api/contents", fetcher);
+    const { data: article, error: articleError } = useSWR("/api/articles/main", fetcher);
     const router = useRouter();
+
+    console.log(article);
 
     const handleClick = (categories, id ) => {
         if (categories === "Learning") {
@@ -19,7 +26,7 @@ export default function FooterContant() {
     };
 
     if (error) return <div>Failed to load</div>;
-    if (!data) return <div>Loading...</div>;
+    if (!data || !article) return <div>Loading...</div>;
 
     return (
         <div className="relative w-full footer-content mt-4">
@@ -27,7 +34,7 @@ export default function FooterContant() {
                 <span className="text-xl text-[#0056FF] font-bold">
                     วีดีโอแนะนำ
                 </span>
-                <div className="flex flex-row flex-wrap justify-between gap-2">
+                <div className="flex flex-row flex-wrap justify-evenly gap-2">
                     {Array.isArray(data) && data.map((content, index) => (
                         <div 
                             key={index} 
@@ -69,8 +76,23 @@ export default function FooterContant() {
                 <span className="text-xl text-[#0056FF] font-bold">
                     บทความแนะนำ
                 </span>
-                <div>
-                    
+
+                <div className="flex bg-gray-200 rounded-lg p-2 mt-2 w-full">
+                    {Array.isArray(article.data) && article.data.map((article, index) => (
+                        <div key={index} 
+                            className="flex flex-col items-center w-full mb-2 divide-y divide-gray-700"
+                            onClick={() => router.push(`/article/${article._id}`)}
+                        >
+                            <div className="flex flex-row justify-between items-center p-1 w-full">
+                            <p className="flex text-sm text-[#0056FF] font-bold line-clamp-2">
+                                {article.title}
+                            </p>
+                            <p className="flex text-xs text-gray-400">
+                                {article.updatedAt && moment(article.updatedAt).fromNow()}
+                            </p>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>

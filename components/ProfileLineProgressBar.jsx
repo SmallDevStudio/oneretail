@@ -21,12 +21,12 @@ const ProfileLineProgressBar = ({ percent }) => {
                         color: '#fff',
                         position: 'absolute',
                         left: '50%',
-                        top: '50%',
+                        top: '100%',
                         padding: 0,
                         margin: 0,
                         transform: 'translate(-50%, -50%)', // Center the text
-                        fontSize: '14px',
-                        lineHeight: '14px', // Add this line to ensure Safari handles the text size correctly
+                        fontSize: '12px',
+                        lineHeight: '12px', // Add this line to ensure Safari handles the text size correctly
                     },
                     autoStyleContainer: false
                 },
