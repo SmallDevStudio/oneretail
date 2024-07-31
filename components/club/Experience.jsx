@@ -231,6 +231,7 @@ const Experience = () => {
                                 displayTransform={(id, display) => `@${display}`}
                                 appendSpaceOnAdd
                                 style={{ fontWeight: 'bold', padding: '0 5px', outline: 'none' }}
+                                markup="@__display__"
                             />
                         </MentionsInput>
                     </div>

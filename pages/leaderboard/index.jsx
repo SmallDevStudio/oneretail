@@ -48,7 +48,7 @@ export default function LeaderBoard() {
 
             <div className="relative bg-[#0056FF] min-h-[30vh] rounded-b-2xl p-2 shadow-lg">
                 <div className="flex justify-center bg-[#0056FF]">
-                    {["All", "Retail", "AL"].map(team => (
+                    {["All", "Retail", "AL", "TCON"].map(team => (
                         <button 
                             key={team} 
                             className={`p-2 mx-2 ${selectedTeam === team ? 'bg-[#F68B1F] text-white' : 'bg-gray-200'} w-20 text-center justify-center rounded-full mt-2 font-bold text-[#0056FF]`}
