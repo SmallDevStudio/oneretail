@@ -9,6 +9,7 @@ import Image from "next/image";
 import moment from "moment";
 import "moment/locale/th";
 moment.locale('th');
+import { MentionsInput, Mention } from "react-mentions";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -26,6 +27,7 @@ const Experience = () => {
     const [reply, setReply] = useState('');
     const [showReply, setShowReply] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [users, setUsers] = useState([]);
 
     const { data, error, mutate } = useSWR('/api/club/experience', fetcher, {
         onSuccess: (data) => {
@@ -33,8 +35,13 @@ const Experience = () => {
         }
     });
 
-    console.log('reply:', reply);
+    const { data: userData, error: userError } = useSWR('/api/users', fetcher, {
+        onSuccess: (data) => {
+            setUsers(data.users);
+        }
+    });
 
+    console.log('users', users);
     const PostSubmit = async () => {
         setLoading(true);
         try {
@@ -211,13 +218,22 @@ const Experience = () => {
             {/* Input Post */}
             <div className="flex flex-col w-full">
                 <div className="flex flex-row items-center px-2 w-full gap-1">
-                    <textarea
-                        className="p-2 bg-gray-200 text-black text-xs outline-none rounded-full w-full"
-                        placeholder="คุณกำลังคิดอะไรอยู่"
-                        value={post}
-                        onChange={(e) => setPost(e.target.value)}
-                        rows="1"
-                    />
+                    <div className="relative w-full p-2 text-xs bg-gray-200 outline-none rounded-full h-8">
+                        <MentionsInput
+                            className="p-2 text-black text-xs w-full outline-none h-8"
+                            placeholder="คุณกำลังคิดอะไรอยู่"
+                            value={post}
+                            onChange={(e) => setPost(e.target.value)}
+                        >
+                            <Mention
+                                trigger="@"
+                                data={users.map(user => ({ id: user.empId, display: user.fullname }))}
+                                displayTransform={(id, display) => `@${display}`}
+                                appendSpaceOnAdd
+                                style={{ fontWeight: 'bold', padding: '0 5px', outline: 'none' }}
+                            />
+                        </MentionsInput>
+                    </div>
                     <button className="relative">
                         <ImFilePicture />
                     </button>
