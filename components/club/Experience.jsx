@@ -249,7 +249,7 @@ const Experience = () => {
             {/* Post Container */}
             <div className="flex flex-col w-full mt-2">
                 {Array.isArray(experiences) && experiences.map((experience, index) => (
-                    <div key={index} className="flex flex-col px-2 w-full gap-2 bg-black/70 py-2 rounded-xl" id={experience?._id}>
+                    <div key={index} className="flex flex-col px-2 w-full gap-2 bg-black/70 py-2 rounded-xl mb-2" id={experience?._id}>
                         <div className="flex flex-row items-center">
                             <div className="flex items-center justify-center align-top w-[35px]">
                                 <Image
