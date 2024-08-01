@@ -24,38 +24,31 @@ const UserPanel = ({user, level, onExchangeAdd}) => {
     const closeLevelModal = () => setIsLevelModal(false);
 
     return (
-        <div className="flex flex-row bg-[#0056FF] text-white items-start justify-between rounded-xl px-2">
+        <div className="flex flex-row bg-[#0056FF] text-white items-start justify-between rounded-xl px-2 shadow-lg">
             <div className="flex flex-col w-2/3">
                 <div className="flex flex-row gap-4">
                     <div className="flex flex-col" style={{ width: "auto", height: "auto" }} onClick={() => setIsModalOpen(true)}>
                         <div className="items-center text-center" style={{ width: "auto", height: "90px" }}>
-                            <div className="mt-6 ml-4">
+                            <div className="mt-3">
                                 <Image
                                     src={level?.user?.pictureUrl}
                                     alt="User Avatar"
-                                    width={60}
-                                    height={60}
+                                    width={80}
+                                    height={80}
                                     className="rounded-full"
                                     loading="lazy"
                                     style={{
-                                        width: "60px",
-                                        height: "60px",
+                                        width: "80px",
+                                        height: "80px",
                                         objectFit: "cover",
                                         objectPosition: "center",
                                     }}
                                 />
                             </div>
-                            <div className="absolute top-0 mt-9 z-0">
-                                <Image
-                                    src="/images/profile/Badge.svg"
-                                    alt="Badge"
-                                    width={90}
-                                    height={90}
-                                />
-                            </div>
+                            
                         </div>
                     </div>
-                    <div className="flex flex-col justify-start items-start text-lg font-bold mt-5 px-2 leading-6">
+                    <div className="flex flex-col justify-start items-start text-lg font-bold mt-5 gap-1">
                         <span className="text-xs">{level?.user?.fullname}</span>
                         <span className="text-xs">Level: {level?.level + 1}</span>
                     </div>

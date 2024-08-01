@@ -79,7 +79,7 @@ export default function FooterContant() {
                     {Array.isArray(article.data) && article.data.map((article, index) => (
                         <div key={index} 
                             className="flex flex-col items-center w-full mb-2 divide-y divide-gray-700"
-                            onClick={() => router.push(`/article/${article._id}`)}
+                            onClick={() => router.push(`/articles/${article._id}`)}
                         >
                             <div className="flex flex-row justify-between items-center p-1 w-full">
                             <p className="flex text-sm text-[#0056FF] font-bold line-clamp-2">

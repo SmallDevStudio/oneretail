@@ -16,6 +16,7 @@ const customStyles = {
       borderRadius: '20px',
       height: 'auto',
       width: '350px',
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.5)',
     }
 };
 
