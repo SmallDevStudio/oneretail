@@ -99,6 +99,12 @@ const LeaderBoard = () => {
                 ))}
             </Tabs>
 
+            <div className="flex justify-center items-center w-full">
+                <span className="text-xl font-bold text-white">
+                    ลำดับประจำเดือน <span className="text-[#0056FF]">เมษายน</span>
+                </span>
+            </div>
+
             {Object.keys(filteredData).map(rewardtype => {
                 const normalizedRewardType = normalizeRewardType(rewardtype);
                 return filteredData[rewardtype].length > 0 && (
@@ -107,11 +113,12 @@ const LeaderBoard = () => {
                             <Image 
                                 src={rewardTypeImages[normalizedRewardType]} 
                                 alt={normalizedRewardType} 
-                                width="50" 
-                                height="50"
+                                width="40" 
+                                height="40"
                                 className="mr-2"
+                                style={{width: 'auto', height: '40px'}}
                             />
-                            <h2 className="text-[25px] font-bold text-[#0056FF] mt-5">{normalizedRewardType}</h2>
+                            <h2 className="text-lg font-bold text-[#0056FF] mt-5">{normalizedRewardType}</h2>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                             {filteredData[rewardtype].map((item, index) => (
