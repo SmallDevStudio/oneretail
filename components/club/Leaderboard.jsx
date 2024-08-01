@@ -133,9 +133,9 @@ const LeaderBoard = () => {
                                         <div className="text-sm text-white">{item.name}</div>
                                     </div>
                                     <div className="ml-auto">
-                                        {item.arrow < 0 && <ArrowDownwardIcon style={{ color: 'red' }} />}
-                                        {item.arrow === 0 && <HorizontalRuleIcon style={{ color: 'yellow' }} />}
-                                        {item.arrow > 0 && <ArrowUpwardIcon style={{ color: 'green' }} />}
+                                        {item.arrow < 0 && <ArrowDownwardIcon style={{ color: 'red' }} className='animate-bounce'/>}
+                                        {item.arrow === 0 && <HorizontalRuleIcon style={{ color: 'yellow' }}/>}
+                                        {item.arrow > 0 && <ArrowUpwardIcon style={{ color: 'green' }} className='animate-bounce'/>}
                                     </div>
                                 </div>
                             ))}
