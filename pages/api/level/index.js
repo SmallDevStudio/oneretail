@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     switch (method) {
         case "GET":
             try {
-                const levels = await Level.find({});
+                const levels = await Level.find({}).sort({ level: 1 });
                 res.status(200).json(levels);
             } catch (error) {
                 res.status(400).json({ success: false });

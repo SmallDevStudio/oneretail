@@ -4,11 +4,13 @@ import dynamic from "next/dynamic";
 import { LuInfo } from "react-icons/lu";
 import { IoMdArrowRoundForward } from "react-icons/io";
 import ExchangeModal from "@/components/ExchangeModal";
+import LevelModal from "@/components/LevelModal";
 
 const LineProgressBar = dynamic(() => import("@/components/ProfileLineProgressBar"), { ssr: false });
 
 const UserPanel = ({user, level, onExchangeAdd}) => {
     const [modalIsOpen, setModalIsOpen] = useState(false);
+    const [IsLevelModal, setIsLevelModal] = useState(false);
     const [conversionRate, setConversionRate] = useState(25);
     const percent = level?.nextLevelRequiredPoints
         ? parseFloat((level?.totalPoints / level?.nextLevelRequiredPoints ) * 100)
@@ -17,6 +19,9 @@ const UserPanel = ({user, level, onExchangeAdd}) => {
     const coins = (level?.totalPoints / 25).toFixed(0);
     const openModal = () => setModalIsOpen(true);
     const closeModal = () => setModalIsOpen(false);
+
+    const openLevelModal = () => setIsLevelModal(true);
+    const closeLevelModal = () => setIsLevelModal(false);
 
     return (
         <div className="flex flex-row bg-[#0056FF] text-white items-start justify-between rounded-xl px-2">
@@ -52,13 +57,15 @@ const UserPanel = ({user, level, onExchangeAdd}) => {
                     </div>
                     <div className="flex flex-col justify-start items-start text-lg font-bold mt-5 px-2 leading-6">
                         <span className="text-xs">{level?.user?.fullname}</span>
-                        <span className="text-xs">Level: {level?.level}</span>
+                        <span className="text-xs">Level: {level?.level + 1}</span>
                     </div>
                 </div>
                 <div className="flex flex-col mb-2">
                     <div className="flex flex-row items-center gap-1 text-xs justify-end">
                         <span>{level?.totalPoints} / {level?.nextLevelRequiredPoints}</span>
-                        <LuInfo />
+                        <LuInfo 
+                            onClick={openLevelModal}
+                        />
                     </div>
                     <LineProgressBar percent={percent} />
                     <span className="text-xs font-medium mt-3">
@@ -74,7 +81,7 @@ const UserPanel = ({user, level, onExchangeAdd}) => {
                     </span>
                     <div className="flex flex-col items-end gap-2">
                         <span className="font-bold text-[4em]">
-                            {level?.totalPoints}
+                            {level?.point}
                         </span>
                         <span>
                             คะแนน
@@ -129,6 +136,11 @@ const UserPanel = ({user, level, onExchangeAdd}) => {
                 conversionRate={conversionRate}
                 userId={user?.user?.userId}
                 onExchangeAdd={onExchangeAdd}
+            />
+
+            <LevelModal
+                isOpen={IsLevelModal}
+                onRequestClose={closeLevelModal}
             />
         </div>
     )

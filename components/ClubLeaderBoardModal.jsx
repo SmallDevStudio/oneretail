@@ -23,7 +23,6 @@ const customStyles = {
 };
 
 const ClubLeaderBoardModal = ({ isOpen, onRequestClose, data }) => {
-    console.log(data);
     return (
         <Modal
             isOpen={isOpen}
