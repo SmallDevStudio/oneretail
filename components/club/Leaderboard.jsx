@@ -4,6 +4,9 @@ import Image from 'next/image';
 import Loading from '@/components/Loading';
 import { Tab, Tabs, Avatar } from '@mui/material';
 import ClubLeaderBoardModal from '../ClubLeaderBoardModal';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule';
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -28,7 +31,7 @@ const LeaderBoard = () => {
     if (error) return <div>Failed to load</div>;
     if (!data) return <Loading />;
 
-    const types = ["BM", "IVS", "LS", "LSM", "GEN", "PB", "WB", "RPB", "MLS", "MAL", "GH", "NC", "UC", "CYC", "CAB"];
+    const types = ["BM", "CAB", "CYC", "GEN", "GH", "IVS", "LS", "NC", "PB", "RPB", "UC", "WB"];
 
     const handleTabChange = (event, newValue) => {
         setSelectedType(newValue);
@@ -55,7 +58,6 @@ const LeaderBoard = () => {
 
     return (
         <div className='w-full mb-20'>
-
             <Tabs value={selectedType} 
             onChange={handleTabChange} 
             variant="scrollable" 
@@ -88,7 +90,6 @@ const LeaderBoard = () => {
                     }, 
                 },
             }}
-            
             >
                 {types.map((type) => (
                     <Tab key={type} label={type} value={type} sx={{
@@ -131,6 +132,11 @@ const LeaderBoard = () => {
                                         <div className="font-bold text-white">{item.empId}</div>
                                         <div className="text-sm text-white">{item.name}</div>
                                     </div>
+                                    <div className="ml-auto">
+                                        {item.arrow < 0 && <ArrowDownwardIcon style={{ color: 'red' }} />}
+                                        {item.arrow === 0 && <HorizontalRuleIcon style={{ color: 'yellow' }} />}
+                                        {item.arrow > 0 && <ArrowUpwardIcon style={{ color: 'green' }} />}
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -146,4 +152,3 @@ const LeaderBoard = () => {
 }
 
 export default LeaderBoard;
-

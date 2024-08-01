@@ -5,11 +5,12 @@ const clubLeaderBoardSchema = new mongoose.Schema({
     name: { type: String, required: true },
     branch: { type: String },
     zone: { type: String },
-    position: { type: String },
+    type: { type: String },
     region: { type: String },
     achieve: { type: Number },
     rating: { type: String },
     rank: { type: Number },
+    arrow: { type: String },
     rewerdtype: { type: String },
 }, { timestamps: true });
 
