@@ -29,8 +29,6 @@ const LevelModal = ({ isOpen, onRequestClose }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 20;
 
-  console.log(data);
-
   if (error) return <div>Failed to load</div>;
   if (!data) return <div>Loading...</div>;
 

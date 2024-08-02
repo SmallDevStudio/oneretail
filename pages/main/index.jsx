@@ -169,7 +169,7 @@ const MainPage = () => {
         <React.Fragment>
             <RecheckUser>
                 <main className="flex flex-col bg-gray-10 justify-between items-center text-center min-h-screen">
-                    <div className="flex justify-end mt-2 mr-5 px-5 w-full">
+                    <div className="flex justify-end mt-2 mr-3 w-full">
                         <MenuPanel />
                     </div>
                     <div className="w-full p-5 mt-[-10px]">

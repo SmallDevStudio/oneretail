@@ -44,7 +44,7 @@ export default function QuizGame() {
         }}>
           <Tab label="จัดการคำถาม" />
           <Tab label="รายงานคำตอบ" />
-          <Tab label="Quiz Admin" />
+          <Tab label="เลือกGroup" />
           <Tab label="User Scores" />
         </Tabs>
         <TabPanel value={tabIndex} index={0}>

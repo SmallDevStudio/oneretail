@@ -7,17 +7,20 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     try {
-      const userQuizzes = await UserQuiz.find({});
+      const userQuizzes = await UserQuiz.find({}).sort({ createdAt: -1 });
       const userIds = userQuizzes.map(userQuiz => userQuiz.userId);
       const users = await Users.find({ userId: { $in: userIds } });
 
-      const data = userQuizzes.map(userQuiz => {
+      const data = userQuizzes.flatMap(userQuiz => {
         const user = users.find(user => user.userId === userQuiz.userId);
-        return {
-          ...userQuiz._doc,
+        return userQuiz.scores.map(scoreItem => ({
+          userId: user ? user.userId : '',
+          empId: user ? user.empId : '',
           fullname: user ? user.fullname : 'Unknown',
           pictureUrl: user ? user.pictureUrl : '',
-        };
+          score: scoreItem.score,
+          date: scoreItem.date,
+        }));
       });
 
       res.status(200).json({ success: true, data });

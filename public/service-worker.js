@@ -6,6 +6,7 @@ self.addEventListener('install', (event) => {
           '/dist/icons/apple-touch-icon.png',
           '/dist/icons/favicon-32x32.png',
           '/dist/icons/favicon-16x16.png',
+          '/dist/icons/favicon.ico',
           // Add other assets you want to cache
         ]);
       })
