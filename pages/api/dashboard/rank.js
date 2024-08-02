@@ -1,4 +1,3 @@
-// pages/api/leaderboard.js
 import connetMongoDB from "@/lib/services/database/mongodb";
 import Point from "@/database/models/Point";
 import Users from "@/database/models/users";
@@ -11,6 +10,8 @@ export default async function handler(req, res) {
     switch (method) {
         case 'GET':
             try {
+                const { limit = 10, offset = 0 } = req.query; // Default limit is 10 if not specified
+
                 const points = await Point.find();
                 const userPoints = points.reduce((acc, point) => {
                     const userId = point.userId.toString();
@@ -31,11 +32,12 @@ export default async function handler(req, res) {
                 const empIds = users.map(user => user.empId);
                 const employees = await Emp.find({ empId: { $in: empIds } });
 
-                const leaderboard = userPointsArray.map(up => {
+                let leaderboard = userPointsArray.map((up, index) => {
                     const user = users.find(u => u.userId === up.userId);
                     if (user) {
                         const employee = employees.find(e => e.empId === user.empId);
                         return {
+                            rank: index + 1, // Rank is determined by position in sorted array
                             userId: up.userId,
                             fullname: user.fullname || "Unknown User",
                             pictureUrl: user.pictureUrl || null,
@@ -53,6 +55,7 @@ export default async function handler(req, res) {
                         };
                     } else {
                         return {
+                            rank: index + 1, // Rank is determined by position in sorted array
                             userId: up.userId,
                             fullname: "Unknown User",
                             pictureUrl: null,
@@ -64,9 +67,16 @@ export default async function handler(req, res) {
                     }
                 });
 
-                // Sort by totalPoints descending and limit to top 50
+                // Sort by totalPoints descending
                 leaderboard.sort((a, b) => b.totalPoints - a.totalPoints);
-                const limitedLeaderboard = leaderboard.slice(0, 50);
+
+                // Limit to the specified number of records
+                const limitedLeaderboard = leaderboard.slice(parseInt(offset), parseInt(offset) + parseInt(limit));
+
+                // Update rank based on the sorted and limited array
+                limitedLeaderboard.forEach((item, index) => {
+                    item.rank = parseInt(offset) + index + 1;
+                });
 
                 res.status(200).json({ success: true, data: limitedLeaderboard });
             } catch (error) {

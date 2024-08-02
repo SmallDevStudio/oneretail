@@ -11,6 +11,7 @@ import { MdOutlineSubtitles, MdOutlineCampaign, MdOutlineHowToVote } from "react
 import { FcSurvey } from "react-icons/fc";
 import { GrArticle } from "react-icons/gr";
 import { GoFileMedia } from "react-icons/go";
+import { TbReportAnalytics } from "react-icons/tb";
 import Image from "next/image";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
@@ -253,6 +254,14 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                   title="Survey"
                   to="/admin/survey"
                   icon={<FcSurvey />}
+                  selected={selected}
+                  setSelected={setSelected}
+                  />
+
+                  <Item
+                  title="Report"
+                  to="/admin/reports"
+                  icon={<TbReportAnalytics />}
                   selected={selected}
                   setSelected={setSelected}
                   />
