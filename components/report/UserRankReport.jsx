@@ -14,9 +14,7 @@ const UserRankReport = () => {
     const [loading, setLoading] = useState(false);
     const [progress, setProgress] = useState(0);
 
-    const { data, error } = useSWR(`/api/dashboard/rank?limit=${limit}`, fetcher);
-
-    if (error) return <p>Error loading data</p>;
+    console.log('limit', limit);
 
     const handleExport = async () => {
         setLoading(true);
@@ -29,13 +27,13 @@ const UserRankReport = () => {
             };
     
             const allData = [];
-            const chunkSize = 100;
+            const chunkSize = parseInt(limit); // ตั้งค่า chunkSize ตามต้องการ
             let offset = 0;
-    
+
             while (offset < limit) {
-                const { data: chunkData } = await fetchData(chunkSize, offset);
+                const { data: chunkData } = await fetchData(limit, offset);
                 allData.push(...chunkData);
-                offset += chunkSize;
+                offset += chunkSize; // เพิ่ม offset ตาม chunkSize ไม่ใช่ limit
                 setProgress(Math.min((offset / limit) * 100, 100));
             }
     
@@ -115,6 +113,9 @@ const UserRankReport = () => {
                         <option value={20}>Top 20</option>
                         <option value={50}>Top 50</option>
                         <option value={100}>Top 100</option>
+                        <option value={120}>Top 120</option>
+                        <option value={150}>Top 150</option>
+                        <option value={200}>Top 200</option>
                         {/* Add more options as needed */}
                     </select>
                 </div>
