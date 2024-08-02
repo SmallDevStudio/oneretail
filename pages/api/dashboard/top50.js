@@ -15,11 +15,12 @@ export default async function handler(req, res) {
                 const userPoints = points.reduce((acc, point) => {
                     const userId = point.userId.toString();
                     if (!acc[userId]) {
-                        acc[userId] = { userId, totalPoints: 0 };
+                        acc[userId] = { userId, totalPoints: 0, points: [] };
                     }
                     if (point.type === 'earn') {
                         acc[userId].totalPoints += point.point;
                     }
+                    acc[userId].points.push(point); // Add each point detail
                     return acc;
                 }, {});
 
@@ -39,6 +40,7 @@ export default async function handler(req, res) {
                             fullname: user.fullname || "Unknown User",
                             pictureUrl: user.pictureUrl || null,
                             totalPoints: up.totalPoints,
+                            points: up.points, // Include all point details
                             empId: user.empId || "Unknown EmpId",
                             teamGrop: employee ? employee.teamGrop : "Unknown Team",
                             sex: employee ? employee.sex : null,
@@ -48,8 +50,6 @@ export default async function handler(req, res) {
                             chief_th: employee ? employee.chief_th : null,
                             chief_eng: employee ? employee.chief_eng : null,
                             position: employee ? employee.position : null
-                            // Add more properties as needed
-
                         };
                     } else {
                         return {
@@ -57,15 +57,18 @@ export default async function handler(req, res) {
                             fullname: "Unknown User",
                             pictureUrl: null,
                             totalPoints: up.totalPoints,
+                            points: up.points, // Include all point details
                             empId: "Unknown EmpId",
                             teamGrop: "Unknown Team"
                         };
                     }
                 });
 
+                // Sort by totalPoints descending and limit to top 50
                 leaderboard.sort((a, b) => b.totalPoints - a.totalPoints);
+                const limitedLeaderboard = leaderboard.slice(0, 50);
 
-                res.status(200).json({ success: true, data: leaderboard });
+                res.status(200).json({ success: true, data: limitedLeaderboard });
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });
             }

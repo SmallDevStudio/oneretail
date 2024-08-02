@@ -9,8 +9,6 @@ const ContentWidget = () => {
     const [error, setError] = useState(null);
     const [filter, setFilter] = useState("All");
 
-    console.log(contents);
-
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);

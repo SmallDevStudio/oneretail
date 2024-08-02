@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import useSWR from "swr";
 import CircularProgress from '@mui/material/CircularProgress';
+import UserModal from "./UserModal";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -10,8 +11,8 @@ const LeaderboardWidget = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [filter, setFilter] = useState("All");
-
-    console.log(leaderboard);
+    const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null);
 
     const { data, error: swrError } = useSWR("/api/dashboard/leaderboard", fetcher, {
         onSuccess: (data) => {
@@ -21,6 +22,15 @@ const LeaderboardWidget = () => {
     });
 
     const filteredLeaderboard = leaderboard.filter(user => filter === "All" || user.teamGrop === filter);
+
+    const handleRowClick = (user) => {
+        setSelectedUser(user);
+        setIsUserModalOpen(true);
+    };
+
+    const onRequestClose = () => {
+        setIsUserModalOpen(false);
+    };
 
     if (!data || !leaderboard) return <p>Loading...</p>;
     if (error || swrError) return <p>{error || swrError}</p>;
@@ -65,7 +75,7 @@ const LeaderboardWidget = () => {
                     </thead>
                     <tbody>
                         {filteredLeaderboard.slice(0, 10).map((user, index) => (
-                            <tr key={user.userId}>
+                            <tr key={user.userId} onClick={() => handleRowClick(user)}>
                                 <td className="border px-4 py-2">{index + 1}</td>
                                 <td className="border px-4 py-2">
                                     <Image src={user.pictureUrl} alt="user" width="30" height="30" style={{ borderRadius: "50%", objectFit: "cover", width: "30px", height: "30px" }}/>
@@ -77,9 +87,11 @@ const LeaderboardWidget = () => {
                     </tbody>
                 </table>
             )}
+            {isUserModalOpen && selectedUser && (
+                <UserModal isOpen={isUserModalOpen} onRequestClose={onRequestClose} data={selectedUser} />
+            )}
         </div>
     );
 };
-
 
 export default LeaderboardWidget;
