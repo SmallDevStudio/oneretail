@@ -69,6 +69,7 @@ const LeaderboardWidget = () => {
                         <tr>
                             <th className="px-4 py-2">Rank</th>
                             <th className="px-4 py-2">Picture</th>
+                            <th className="px-4 py-2">รหัสพนักงาน</th>
                             <th className="px-4 py-2">Name</th>
                             <th className="px-4 py-2">Total Points</th>
                         </tr>
@@ -80,6 +81,7 @@ const LeaderboardWidget = () => {
                                 <td className="border px-4 py-2">
                                     <Image src={user.pictureUrl} alt="user" width="30" height="30" style={{ borderRadius: "50%", objectFit: "cover", width: "30px", height: "30px" }}/>
                                 </td>
+                                <td className="border px-4 py-2">{user.empId}</td>
                                 <td className="border px-4 py-2">{user.fullname}</td>
                                 <td className="border px-4 py-2 font-bold">{user.totalPoints}</td>
                             </tr>
