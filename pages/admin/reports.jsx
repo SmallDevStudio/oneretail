@@ -1,13 +1,11 @@
 import React from "react";
 import { AdminLayout } from "@/themes";
-import UserRankReport from "@/components/report/UserRankReport";
-import ContentReport from "@/components/report/ContentReport";
+import UserRankReport from "@/components/reports/UserRankReport";
 
 const Reports = () => {
     return (
         <div>
             <UserRankReport />
-            <ContentReport />
         </div>
     );
 };
