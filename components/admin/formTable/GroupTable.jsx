@@ -116,15 +116,6 @@ const GroupTable = () => {
     headerGroups,
     prepareRow,
     page,
-    canPreviousPage,
-    canNextPage,
-    pageOptions,
-    pageCount,
-    gotoPage,
-    nextPage,
-    previousPage,
-    setPageSize,
-    state: { pageIndex, pageSize }
   } = useTable({ columns, data }, usePagination);
 
   return (
@@ -164,16 +155,16 @@ const GroupTable = () => {
         placeholder="Name" 
         value={newGroup.name} 
         onChange={(e) => setNewGroup({ ...newGroup, name: e.target.value })} 
-        className={styles.input}
+        className='border-2 rounded-xl p-2'
       />
       <input 
         type="text" 
         placeholder="Description" 
         value={newGroup.description} 
         onChange={(e) => setNewGroup({ ...newGroup, description: e.target.value })} 
-        className={styles.input}
+       className='border-2 rounded-xl p-2 ml-2'
       />
-      <button onClick={handleAdd} className={styles.button}>Add Group</button>
+      <button onClick={handleAdd} className='rounded-full bg-blue-500 text-white font-bold py-2 px-4 ml-2'>Add Group</button>
     </div>
   );
 };

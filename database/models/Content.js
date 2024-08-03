@@ -2,6 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import Category from "@/database/models/Category";
 import Subcategory from "@/database/models/Subcategory";
 import Group from "@/database/models/Group";
+import SubGroup from "@/database/models/SubGroup";
 import Users from "@/database/models/users";
 
 const ContentSchema = new Schema({
@@ -13,6 +14,7 @@ const ContentSchema = new Schema({
     categories: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
     subcategories: { type: mongoose.Schema.Types.ObjectId, ref: 'Subcategory', },
     groups: { type: mongoose.Schema.Types.ObjectId, ref: 'Group', },
+    subgroups: { type: mongoose.Schema.Types.ObjectId, ref: 'Subgroup', },
     author: { type: String, ref: 'Users' },
     publisher: { type: Boolean, default: true, },
     point: { type: Number, default: 0, },
@@ -20,6 +22,9 @@ const ContentSchema = new Schema({
     views: { type: Number, default: 0,},
     likes: [{ type: String, ref: 'Users', default: [] }],
     tags: { type: [String], default: [] }, // Store tags as an array of strings
+    pinned: { type: Boolean, default: false },
+    new: { type: Boolean, default: false },
+    recommend: { type: Boolean, default: false },
 }, {
     timestamps: true
 });

@@ -11,18 +11,21 @@ const FormEdit = ({ initialData }) => {
         categories: initialData?.categories?._id || '',
         subcategories: initialData?.subcategories?._id || '',
         groups: initialData?.groups?._id || '',
+        subgroups: initialData?.subgroups?._id || '',
         tags: Array.isArray(initialData?.tags) ? initialData.tags.join(' ') : (initialData?.tags || '')
     });
 
     const [categorys, setCategorys] = useState([]);
     const [subcategorys, setSubcategorys] = useState([]);
     const [groups, setGroups] = useState([]);
+    const [subgroups, setSubgroups] = useState([]);
     const router = useRouter();
 
     useEffect(() => {
         fetchCategories();
         fetchSubcategories();
         fetchGroups();
+        fetchSubgroups();
     }, []);
 
     const fetchCategories = async () => {
@@ -49,6 +52,15 @@ const FormEdit = ({ initialData }) => {
             setGroups(response.data);
         } catch (error) {
             console.error("Error fetching groups:", error);
+        }
+    };
+
+    const fetchSubgroups = async () => {
+        try {
+            const response = await axios.get('/api/subgroup');
+            setSubgroups(response.data);
+        } catch (error) {
+            console.error("Error fetching subgroups:", error);
         }
     };
 
@@ -113,8 +125,60 @@ const FormEdit = ({ initialData }) => {
                                 <option key={group._id} value={group._id}>{group.name}</option>
                             ))}
                         </select>
+                        <select className="border-2 border-gray-300 rounded-lg p-2" id="subgroups"
+                            onChange={(e) => setFormData({...formData, subgroups: e.target.value})} value={formData.subgroups}
+                        >
+                            <option value="">เลือกSubgroup</option>
+                            {subgroups.data && subgroups.data.map((subgroup) => (
+                                <option key={subgroup._id} value={subgroup._id}>{subgroup.name}</option>
+                            ))}
+                        </select>
                     </div>
-                    <div className="flex flex-row">
+                    <div className="flex flex-row w-full gap-4 items-center">
+                        <div className="flex flex-row gap-4">
+                            <div className="flex flex-row p-4 border-2 rounded-2xl gap-4 items-center mb-4 justify-between">
+                            <div className="flex items-center">
+                                <input
+                                id="pinned"
+                                name="pinned"
+                                type="checkbox"
+                                checked={formData.pinned}
+                                onChange={(e) => setFormData({ ...formData, pinned: e.target.checked })}
+                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-xl focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2"
+                                />
+                                <label htmlFor="pinned" className="ms-2 text-md font-bold text-gray-900">
+                                ปักหมุด
+                                </label>
+                            </div>
+                            <div className="flex items-center">
+                                <input
+                                id="new"
+                                name="new"
+                                type="checkbox"
+                                checked={formData.new}
+                                onChange={(e) => setFormData({ ...formData, new: e.target.checked })}
+                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-xl focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2"
+                                />
+                                <label htmlFor="new" className="ms-2 text-md font-bold text-gray-900">
+                                ใหม่
+                                </label>
+                            </div>
+                            <div className="flex items-center">
+                                <input
+                                id="recommend"
+                                name="recommend"
+                                type="checkbox"
+                                checked={formData.recommend}
+                                onChange={(e) => setFormData({ ...formData, recommend: e.target.checked })}
+                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-xl focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2"
+                                />
+                                <label htmlFor="recommend" className="ms-2 text-md font-bold text-gray-900">
+                                แนะนำ
+                                </label>
+                            </div>
+                            </div>
+                        </div>
+
                         <input type="text" className="border-2 border-gray-300 rounded-lg p-2" placeholder="Point" id="point"
                             onChange={(e) => setFormData({...formData, point: e.target.value})} value={formData.point}
                         />

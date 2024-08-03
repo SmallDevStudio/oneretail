@@ -17,6 +17,7 @@ const FormAdd = () => {
         categories: '',
         subcategories: '',
         groups: '',
+        subgroups: '',
         point: 0,
         coins: 0,
         slug: '',
@@ -26,12 +27,16 @@ const FormAdd = () => {
         thumbnailUrl: '',
         youtubeMeta: {},
         tags: '',
+        new: '',
+        pinned: '',
+        recommend: ''
     });
     const [youtube, setYoutube] = useState(null);
     const [youtubeData, setYoutubeData] = useState(null);
     const [categorys, setCategorys] = useState([]);
     const [subcategorys, setSubcategorys] = useState([]);
     const [groups, setGroups] = useState([]);
+    const [subgroups, setSubgroups] = useState([]);
     const router = useRouter();
     const { data: session } = useSession();
     const userId = session?.user?.id;
@@ -50,6 +55,7 @@ const FormAdd = () => {
         fetchCategories();
         fetchSubcategories();
         fetchGroups();
+        fetchSubgroups();
     }, []);
 
     const fetchCategories = async () => {
@@ -65,6 +71,11 @@ const FormAdd = () => {
     const fetchGroups = async () => {
         const response = await axios.get('/api/groups');
         setGroups(response.data);
+    };
+
+    const fetchSubgroups = async () => {
+        const response = await axios.get('/api/content/subgroup');
+        setSubgroups(response.data);
     };
 
     const handleSubmit = async (e) => {
@@ -173,12 +184,66 @@ const FormAdd = () => {
                                 <option key={group._id} value={group._id}>{group.name}</option>
                             ))}
                         </select>
+                        <select className="border-2 border-gray-300 rounded-lg p-2" id="subgroups"
+                            onChange={(e) => setFormData({ ...formData, subgroups: e.target.value })}
+                        >
+                            <option value="">เลือกsSubgroup</option>
+                            {subgroups.data && subgroups.data.map((subgroup) => (
+                                <option key={subgroup._id} value={subgroup._id}>{subgroup.name}</option>
+                            ))}
+                        </select>
                     </div>
-                    <div className="flex flex-row">
-                        <input type="text" className="border-2 border-gray-300 rounded-lg p-2" placeholder="Point" id="Point"
+
+                    <div className="flex flex-row w-full gap-4 items-center">
+                        <div className="flex flex-row gap-4">
+                            <div className="flex flex-row p-4 border-2 rounded-2xl gap-4 items-center mb-4 justify-between">
+                            <div className="flex items-center">
+                                <input
+                                id="pinned"
+                                name="pinned"
+                                type="checkbox"
+                                checked={formData.pinned}
+                                onChange={(e) => setFormData({ ...formData, pinned: e.target.checked })}
+                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-xl focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2"
+                                />
+                                <label htmlFor="pinned" className="ms-2 text-md font-bold text-gray-900">
+                                ปักหมุด
+                                </label>
+                            </div>
+                            <div className="flex items-center">
+                                <input
+                                id="new"
+                                name="new"
+                                type="checkbox"
+                                checked={formData.new}
+                                onChange={(e) => setFormData({ ...formData, new: e.target.checked })}
+                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-xl focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2"
+                                />
+                                <label htmlFor="new" className="ms-2 text-md font-bold text-gray-900">
+                                ใหม่
+                                </label>
+                            </div>
+                            <div className="flex items-center">
+                                <input
+                                id="recommend"
+                                name="recommend"
+                                type="checkbox"
+                                checked={formData.recommend}
+                                onChange={(e) => setFormData({ ...formData, recommend: e.target.checked })}
+                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-xl focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2"
+                                />
+                                <label htmlFor="recommend" className="ms-2 text-md font-bold text-gray-900">
+                                แนะนำ
+                                </label>
+                            </div>
+                            </div>
+                        </div>
+
+
+                        <input type="text" className="border-2 border-gray-300 rounded-lg p-2 h-10" placeholder="Point" id="Point"
                             onChange={(e) => setFormData({ ...formData, point: e.target.value })}
                         />
-                        <input type="text" className="border-2 border-gray-300 rounded-lg p-2" placeholder="Coin" id="Coin"
+                        <input type="text" className="border-2 border-gray-300 rounded-lg p-2 h-10" placeholder="Coin" id="Coin"
                             onChange={(e) => setFormData({ ...formData, coins: e.target.value })}
                         />
                     </div>

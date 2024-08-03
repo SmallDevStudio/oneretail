@@ -24,7 +24,6 @@ const AddArticleForm = () => {
     fetcher
   );
 
-  console.log("Data:", data);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -41,14 +40,17 @@ const AddArticleForm = () => {
       status: article.status ? article.status : "draft",
       published: article.published ? article.published : true,
     };
+    console.log("New Article:", newArticle);
     try {
       const res = await axios.post("/api/articles", newArticle);
-      console.log(res.data);
-      router.push("/admin/articles");
+      
     } catch (error) {
       console.error(error);
     }
+
     setLoading(false);
+    router.push("/admin/articles");
+
   };
 
   const handlePreview = (e) => {
