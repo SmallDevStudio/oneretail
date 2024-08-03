@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 
-const JoditEditor = dynamic(() => import('jodit-pro-react'), { ssr: false });
+const JoditEditor = dynamic(() => import('jodit-react'), { ssr: false });
 
 const CustomJoditEditor = ({ onChange, value }) => {
   const editor = useRef(null);
@@ -60,10 +60,26 @@ const CustomJoditEditor = ({ onChange, value }) => {
   const config = useMemo(() => ({
     insertImageAsBase64URI: true,
     toolbarButtonSize: 'small',
+    uploader: {
+      insertImage(file) {
+        return new Promise((resolve, reject) => {
+          handleFileUpload([file]);
+          resolve();
+        });
+      },
+    },
+    
+    height: '100%',
+    language: 'en',
+    placeholder: 'Type here...',
+    uploader: {
+      insertImageAsBase64URI: true,
+    },
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }), []);
 
   return (
-    <div>
+    <div className="w-full">
       <JoditEditor
         ref={editor}
         value={value}

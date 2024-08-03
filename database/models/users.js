@@ -10,6 +10,7 @@ const userSchema = new Schema({
     active: { type: Boolean, default: true },
     empId: { type: String, required: true, unique: true },
     userId: { type: String, required: true, unique: true },
+    isTeam: { type: Boolean, default: false },
 }, {
     timestamps: true
 });

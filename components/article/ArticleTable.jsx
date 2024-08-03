@@ -61,9 +61,7 @@ const ArticleTable = ({ articles, onDelete, onStatusChange, onPublishedChange, o
         setSearchTerm(value);
         onSearch(value);
     };
-
     const tagsAndNames = articles.flatMap(article => [article.title, ...article.tags.map(tag => tag.name)]);
-
     return (
         <div className="flex flex-col w-full p-2">
             <div className="flex mb-4 justify-between">
