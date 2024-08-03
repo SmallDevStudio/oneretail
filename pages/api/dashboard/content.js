@@ -3,6 +3,7 @@ import connetMongoDB from "@/lib/services/database/mongodb";
 import Content from "@/database/models/Content";
 import Users from "@/database/models/users";
 import Category from "@/database/models/Category";  // Ensure you have the Category model
+import ContentComment from "@/database/models/ContentComment";
 
 export default async function handler(req, res) {
     await connetMongoDB();
@@ -31,6 +32,8 @@ export default async function handler(req, res) {
                         .populate('groups');
                 }
 
+                const comments = await ContentComment.find({ contentId: { $in: contents.map(content => content._id) } });
+
                 const userIds = contents.map(content => content.author);
                 const users = await Users.find({ userId: { $in: userIds } }).select('userId fullname pictureUrl role');
                 const userMap = users.reduce((acc, user) => {
@@ -41,6 +44,7 @@ export default async function handler(req, res) {
                 contents = contents.map(content => {
                     content = content.toObject();
                     content.author = userMap[content.author] || null;
+                    content.comments = comments.filter(comment => comment.contentId.equals(content._id));
                     return content;
                 });
 

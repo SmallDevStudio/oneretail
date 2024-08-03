@@ -67,6 +67,8 @@ const ContentWidget = () => {
                         <tr>
                             <th className="px-4 py-2">Rank</th>
                             <th className="px-4 py-2">Views</th>
+                            <th className="px-4 py-2">Likes</th>
+                            <th className="px-4 py-2">Comments</th>
                             <th className="px-4 py-2">Thumbnail</th>
                             <th className="px-4 py-2">Title</th>
                             <th className="px-4 py-2">Category</th>
@@ -79,6 +81,8 @@ const ContentWidget = () => {
                             <tr key={content._id}>
                                 <td className="border px-4 py-2">{index + 1}</td>
                                 <td className="border px-4 py-2">{content.views}</td>
+                                <td className="border px-4 py-2">{Array.isArray(content.likes) ? content.likes.length : 0}</td>
+                                <td className="border px-4 py-2">{Array.isArray(content.comments) ? content.comments.length : 0}</td>
                                 <td className="border px-4 py-2">
                                     <Image
                                         src={content.thumbnailUrl}
