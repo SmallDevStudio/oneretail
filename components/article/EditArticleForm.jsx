@@ -21,8 +21,8 @@ const EditArticleForm = ({ articleId }) => {
     const fetchArticle = async () => {
       try {
         const res = await axios.get(`/api/articles/${articleId}`);
-        setArticle(res.data.data);
-        setContent(res.data.data.content);
+        setArticle(res.data.data.article);
+        setContent(res.data.data.article.content);
       } catch (error) {
         console.error(error);
       }

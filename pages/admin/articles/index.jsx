@@ -13,23 +13,24 @@ const Articles = () => {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [searchTerm, setSearchTerm] = useState('');
+
     const { data, error, mutate } = useSWR(`/api/articles/list?page=${page}&pageSize=${pageSize}&search=${searchTerm}`, fetcher);
 
     const onDelete = async (id) => {
         await axios.delete(`/api/articles/${id}`);
-        mutate('/api/articles');
+        mutate();
     };
 
     const onStatusChange = async (article) => {
         const newStatus = article.status === "draft" ? "published" : "draft";
         await axios.put(`/api/articles?id=${article._id}`, { ...article, status: newStatus });
-        mutate('/api/articles');
+        mutate();
     };
 
     const onPublishedChange = async (article) => {
         const newPublished = !article.published;
         await axios.put(`/api/articles?id=${article._id}`, { ...article, published: newPublished });
-        mutate('/api/articles');
+        mutate();
     };
 
     const handlePageChange = (event, value) => {

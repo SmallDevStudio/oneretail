@@ -75,10 +75,10 @@ export default function FooterContant() {
                     บทความแนะนำ
                 </span>
 
-                <div className="flex bg-gray-200 rounded-lg p-2 mt-2 w-full">
+                <div className="flex flex-col bg-gray-200 rounded-lg p-2 mt-2 w-full">
                     {Array.isArray(article.data) && article.data.map((article, index) => (
                         <div key={index} 
-                            className="flex flex-col items-center w-full mb-2 divide-y divide-gray-700"
+                            className="flex flex-col w-full mb-1 divide-y divide-black"
                             onClick={() => router.push(`/articles/${article._id}`)}
                         >
                             <div className="flex flex-row justify-between items-center p-1 w-full">
