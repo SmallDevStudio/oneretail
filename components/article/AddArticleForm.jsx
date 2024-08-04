@@ -41,8 +41,6 @@ const AddArticleForm = () => {
       ...article,
       content: content,
       userId: session.user.id,
-      status: article.status ? article.status : "draft",
-      published: article.published ? article.published : true,
     };
     console.log("New Article:", newArticle);
     try {

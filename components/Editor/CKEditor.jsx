@@ -7,11 +7,11 @@ import MyUploadAdapter from './CustomUploadAdapter';
 const editorConfiguration = {
   extraPlugins: [MyCustomUploadAdapterPlugin],
   toolbar: [
+    'undo', 'redo', '|',
     'heading', '|',
-    'fontSize', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|',
+    'fontSize', 'bold', 'italic', 'link','fontColor', 'fontBackgroundColor', 'bulletedList', 'numberedList', '|',
     'outdent', 'indent', '|',
-    'imageUpload', 'blockQuote', 'insertTable', 'mediaEmbed', 'undo', 'redo', '|',
-    'fontColor', 'fontBackgroundColor'
+    'blockQuote', 'insertTable','imageUpload',  'mediaEmbed', 
   ],
   fontColor: {
     colors: [
