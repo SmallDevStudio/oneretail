@@ -58,6 +58,15 @@ export default async function handler(req, res) {
             }
             break;
 
+        case 'DELETE':
+            try {
+                const article = await Article.findByIdAndDelete(id);
+                res.status(200).json({ success: true, data: article });
+            } catch (error) {
+                res.status(400).json({ success: false, error: error.message });
+            }
+            break;
+
         default:
             res.status(400).json({ success: false });
             break;
