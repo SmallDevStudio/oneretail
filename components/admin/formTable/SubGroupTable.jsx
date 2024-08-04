@@ -3,60 +3,69 @@ import axios from 'axios';
 import { useTable, usePagination } from 'react-table';
 import styles from '@/styles/CategoryTable.module.css';
 
-const SubcategoryTable = () => {
+const SubGroupTable = () => {
   const [data, setData] = useState([]);
-  const [categories, setCategories] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
-  const [newSubcategory, setNewSubcategory] = useState({ title: '', subtitle: '', category: '' });
+  const [newSubGroup, setNewSubGroup] = useState({ name: '', description: '' });
 
   useEffect(() => {
-    fetchSubcategories();
-    fetchCategories();
+    fetchSubGroups();
   }, []);
 
-  const fetchSubcategories = async () => {
-    const response = await axios.get('/api/subcategories');
-    setData(response.data.data);
-  };
-
-  const fetchCategories = async () => {
-    const response = await axios.get('/api/categories');
-    setCategories(response.data.data);
+  const fetchSubGroups = async () => {
+    try {
+      const response = await axios.get('/api/subgroups');
+      setData(response.data.data);
+    } catch (error) {
+      console.error('Failed to fetch groups:', error);
+    }
   };
 
   const handleDelete = async (id) => {
-    await axios.delete(`/api/subcategories?id=${id}`);
-    fetchSubcategories();
+    try {
+      await axios.delete(`/api/subgroups?id=${id}`);
+      fetchGroups();
+    } catch (error) {
+      console.error('Failed to delete group:', error);
+    }
   };
 
   const handleEdit = (index) => {
     setEditIndex(index);
   };
 
-  const handleSave = async (subcategory, index) => {
-    await axios.put('/api/subcategories', subcategory);
-    setEditIndex(null);
-    fetchSubcategories();
+  const handleSave = async (subgroup, index) => {
+    try {
+      await axios.put('/api/subgroups', subgroup);
+      setEditIndex(null);
+      fetchGroups();
+    } catch (error) {
+      console.error('Failed to save group:', error);
+    }
   };
 
   const handleAdd = async () => {
-    await axios.post('/api/subcategories', newSubcategory);
-    setNewSubcategory({ title: '', subtitle: '', category: '' });
-    fetchSubcategories();
+    try {
+      await axios.post('/api/subgroups', newSubGroup);
+      setNewSubGroup({ name: '', description: '' });
+      fetchSubGroups();
+    } catch (error) {
+      console.error('Failed to add group:', error);
+    }
   };
 
   const columns = React.useMemo(
     () => [
       {
-        Header: 'Title',
-        accessor: 'title',
+        Header: 'Name',
+        accessor: 'name',
         Cell: ({ row, value }) => (
           editIndex === row.index ? 
             <input 
               value={value} 
               onChange={(e) => {
                 const newData = [...data];
-                newData[row.index].title = e.target.value;
+                newData[row.index].name = e.target.value;
                 setData(newData);
               }}
               className={styles.input}
@@ -65,15 +74,15 @@ const SubcategoryTable = () => {
         )
       },
       {
-        Header: 'Subtitle',
-        accessor: 'subtitle',
+        Header: 'Description',
+        accessor: 'description',
         Cell: ({ row, value }) => (
           editIndex === row.index ? 
             <input 
               value={value} 
               onChange={(e) => {
                 const newData = [...data];
-                newData[row.index].subtitle = e.target.value;
+                newData[row.index].description = e.target.value;
                 setData(newData);
               }}
               className={styles.input}
@@ -104,22 +113,22 @@ const SubcategoryTable = () => {
   const {
     getTableProps,
     getTableBodyProps,
-    headerGroups,
+    headerSubGroups,
     prepareRow,
-    page
+    page,
   } = useTable({ columns, data }, usePagination);
 
   return (
     <div className={styles.container}>
-     
+    
       <table {...getTableProps()} className={styles.table}>
         <thead>
-          {headerGroups.map(headerGroup => (
+          {headerSubGroups.map(headerSubGroup => (
             // eslint-disable-next-line react/jsx-key
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map(column => (
+            <tr {...headerSubGroup.getHeaderSubGroupProps()}>
+              {headerSubGroup.headers.map(column => (
                 // eslint-disable-next-line react/jsx-key
-                <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+                <th {...column.getSubHeaderProps()}>{column.render('Header')}</th>
               ))}
             </tr>
           ))}
@@ -140,36 +149,24 @@ const SubcategoryTable = () => {
         </tbody>
       </table>
       
-      <h2>Add New Subcategory</h2>
+      <h2>Add New SubGroup</h2>
       <input 
         type="text" 
-        placeholder="Title" 
-        value={newSubcategory.title} 
-        onChange={(e) => setNewSubcategory({ ...newSubcategory, title: e.target.value })} 
-        className={styles.input}
+        placeholder="Name" 
+        value={newSubGroup.name} 
+        onChange={(e) => setNewGroup({ ...newSubGroup, name: e.target.value })} 
+        className='border-2 rounded-xl p-2'
       />
       <input 
         type="text" 
-        placeholder="Subtitle" 
-        value={newSubcategory.subtitle} 
-        onChange={(e) => setNewSubcategory({ ...newSubcategory, subtitle: e.target.value })} 
-        className={styles.input}
+        placeholder="Description" 
+        value={newSubGroup.description} 
+        onChange={(e) => setNewGroup({ ...newSubGroup, description: e.target.value })} 
+       className='border-2 rounded-xl p-2 ml-2'
       />
-      <select
-        value={newSubcategory.category}
-        onChange={(e) => setNewSubcategory({ ...newSubcategory, category: e.target.value })}
-        className={styles.input}
-      >
-        <option value="">Select Category</option>
-        {categories.map(category => (
-          <option key={category._id} value={category._id}>
-            {category.title}
-          </option>
-        ))}
-      </select>
-      <button onClick={handleAdd} className={styles.button}>Add Subcategory</button>
+      <button onClick={handleAdd} className='rounded-full bg-blue-500 text-white font-bold py-2 px-4 ml-2'>Add Group</button>
     </div>
   );
 };
 
-export default SubcategoryTable;
+export default SubGroupTable;

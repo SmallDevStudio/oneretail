@@ -8,6 +8,7 @@ import Alert from "@/lib/notification/Alert";
 import { useRouter } from "next/router";
 import useSWR from "swr";
 import { useSession } from "next-auth/react";
+import { IoIosArrowBack } from "react-icons/io";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 const FormAdd = () => {
@@ -128,7 +129,10 @@ const FormAdd = () => {
     return (
         <div className="flex flex-col justify-center text-center items-center mt-10">
             <div className="flex flex-col space-y-2 border-2 p-5 rounded-xl shadow-xl">
-                <span className="text-3xl font-bold text-gray-800 mb-3">เพิ่มเนื้อหา</span>
+                <div className="flex flex-row items-center mb-4 gap-4">
+                    <IoIosArrowBack className="flex text-3xl text-gray-700" onClick={() => router.back()} />
+                    <span className="text-3xl font-bold text-gray-800 mb-3">เพิ่มเนื้อหา</span>
+                </div>
                 <hr className="border-gray-300 "/>
                 <div className="flex flex-col justify-center items-center">
                     {youtubeData && (

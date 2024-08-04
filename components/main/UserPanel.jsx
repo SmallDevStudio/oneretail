@@ -61,7 +61,7 @@ const UserPanel = ({user, level, onExchangeAdd}) => {
                         />
                     </div>
                     <LineProgressBar percent={percent} />
-                    <span className="text-xs font-medium mt-3">
+                    <span className="text-xs font-medium mt-6">
                         สะสมอีก {level?.nextLevelRequiredPoints - level?.totalPoints} คะแนน เพื่ออัปเดตระดับ
                     </span>
                 </div>

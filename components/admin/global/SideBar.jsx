@@ -155,6 +155,14 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                   selected={selected}
                   setSelected={setSelected}
                 />
+
+                <Item
+                  title="จัดการ Groups"
+                  to="/admin/contents/subgroups"
+                  icon={<LuGroup />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
                 
               </SubMenu>
 

@@ -2,16 +2,21 @@ import React, { useState } from "react";
 import { useSession } from "next-auth/react";
 import useSWR from "swr";
 import { FiSend } from "react-icons/fi";
-import { ImFilePicture } from "react-icons/im";
-import { MdOutlineSlowMotionVideo } from "react-icons/md";
 import axios from "axios";
+import { Dialog, Slide } from "@mui/material";
 import Image from "next/image";
+import { IoIosArrowBack } from "react-icons/io";
+import CommentInput from "../comments/CommentInput";
 import moment from "moment";
 import "moment/locale/th";
 moment.locale('th');
-import { MentionsInput, Mention } from "react-mentions";
+
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const Experience = () => {
     const { data: session } = useSession();
@@ -28,7 +33,9 @@ const Experience = () => {
     const [showReply, setShowReply] = useState(false);
     const [loading, setLoading] = useState(false);
     const [users, setUsers] = useState([]);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+    
     const { data, error, mutate } = useSWR('/api/club/experience', fetcher, {
         onSuccess: (data) => {
             setExperiences(data.data);
@@ -41,7 +48,14 @@ const Experience = () => {
         }
     });
 
-    console.log('users', users);
+    const handleClickOpen = () => {
+        setIsDialogOpen(true);
+    };
+
+    const handleClose = () => {
+        setIsDialogOpen(false);
+    };
+    
     const PostSubmit = async () => {
         setLoading(true);
         try {
@@ -219,31 +233,13 @@ const Experience = () => {
             <div className="flex flex-col w-full">
                 <div className="flex flex-row items-center px-2 w-full gap-1">
                     <div className="relative w-full p-2 text-xs bg-gray-200 outline-none rounded-full h-8">
-                        <MentionsInput
-                            className="p-2 text-black text-xs w-full outline-none h-8"
-                            placeholder="คุณกำลังคิดอะไรอยู่"
-                            value={post}
-                            onChange={(e) => setPost(e.target.value)}
-                        >
-                            <Mention
-                                trigger="@"
-                                data={users.map(user => ({ id: user.empId, display: user.fullname }))}
-                                displayTransform={(id, display) => `@${display}`}
-                                appendSpaceOnAdd
-                                style={{ fontWeight: 'bold', padding: '0 5px', outline: 'none' }}
-                                markup="@__display__"
-                            />
-                        </MentionsInput>
+                        <input
+                            type="text"
+                            placeholder="คุณคิดอะไรอยู่..?"
+                            className="w-full bg-transparent focus:outline-none"
+                            onClick={() => handleClickOpen()}
+                        />
                     </div>
-                    <button className="relative">
-                        <ImFilePicture />
-                    </button>
-                    <button className="relative">
-                        <MdOutlineSlowMotionVideo />
-                    </button>
-                    <button className="p-2 bg-gray-800 text-white text-xs outline-none rounded-full" onClick={PostSubmit}>
-                        <FiSend />
-                    </button>
                 </div>
             </div>
 
@@ -425,6 +421,20 @@ const Experience = () => {
                     </div>
                 ))}
             </div>
+            <Dialog 
+                fullScreen
+                open={isDialogOpen}
+                onClose={handleClose}
+                TransitionComponent={Transition}
+            >
+                <div className="flex flex-col mt-2 p-2">
+                    <div className="flex flex-row items-center mb-4 gap-4">
+                        <IoIosArrowBack className="text-xl inline text-gray-700" onClick={handleClose} />
+                        <span>แสดงความคิดเห็น</span>
+                    </div>
+                    <CommentInput handleSubmit={PostSubmit}/>
+                </div>
+            </Dialog>
         </div>
     )
 }

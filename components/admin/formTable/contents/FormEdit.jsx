@@ -4,6 +4,7 @@ import axios from "axios";
 import Alert from "@/lib/notification/Alert";
 import { useRouter } from "next/router";
 import Image from "next/image";
+import { IoIosArrowBack } from "react-icons/io";
 
 const FormEdit = ({ initialData }) => {
     const [formData, setFormData] = useState({
@@ -12,7 +13,11 @@ const FormEdit = ({ initialData }) => {
         subcategories: initialData?.subcategories?._id || '',
         groups: initialData?.groups?._id || '',
         subgroups: initialData?.subgroups?._id || '',
-        tags: Array.isArray(initialData?.tags) ? initialData.tags.join(' ') : (initialData?.tags || '')
+        tags: Array.isArray(initialData?.tags) ? initialData.tags.join(' ') : (initialData?.tags || ''),
+        pinned: initialData?.pinned || false,
+        new: initialData?.new || false,
+        recommend: initialData?.recommend || false
+
     });
 
     const [categorys, setCategorys] = useState([]);
@@ -88,7 +93,10 @@ const FormEdit = ({ initialData }) => {
     return (
         <div className="flex flex-col justify-center text-center items-center mt-10">
             <div className="flex flex-col space-y-2 border-2 p-5 rounded-xl shadow-xl">
-                <span className="text-3xl font-bold text-gray-800 mb-3">แก้ไขเนื้อหา</span>
+                <div className="flex flex-row items-center mb-4 gap-4">
+                <IoIosArrowBack className="flex text-3xl text-gray-700" onClick={() => router.back()} />
+                <span className="flex text-3xl font-bold text-gray-800 mb-3">แก้ไขเนื้อหา</span>
+                </div>
                 <hr className="border-gray-300 "/>
                 <div className="flex justify-center items-center">
                     <Image src={initialData?.thumbnailUrl} alt="image" width={200} height={200} className=""/>

@@ -105,7 +105,7 @@ export default function Stores() {
                          marginBottom: "20px",
                          width: "100%"
                      }}>
-                        <span className="text-lg font-black">รอพบกับแคมเปญเร็วๆนี้</span>
+                        <ShareYourStory />
                     </div>
                 )}
             </div>

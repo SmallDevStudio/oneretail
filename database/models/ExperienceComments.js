@@ -2,7 +2,8 @@ import mongoose from 'mongoose';
 
 const ExperienceCommentSchema = new mongoose.Schema({
     comment: { type: String, required: true },
-    image: { type: String },
+    files: [{ type: String }],
+    tagusers: [{ type: String, ref: 'Users' }],
     reply: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ExperienceReplyComments' }],
     userId: { type: String, ref: 'Users', required: true },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Users' }],

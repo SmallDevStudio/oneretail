@@ -29,7 +29,6 @@ const AddArticleForm = () => {
   const [quizEdit, setQuizEdit] = useState({});
   const [edit, setEdit] = useState(false);
 
-
   const router = useRouter();
 
   const { data, error: swrError } = useSWR(
