@@ -56,22 +56,23 @@ const Experience = () => {
         setIsDialogOpen(false);
     };
     
-    const PostSubmit = async () => {
+    const PostSubmit = async (data) => {
         setLoading(true);
         try {
             const userId = session?.user?.id;
             await axios.post('/api/club/experience', {
-                post,
+                post: data.post,
                 userId,
                 link,
-                image,
-                video
+                files: data.files,
+                tagusers: data.tagusers
             });
             setPost('');
             setLink('');
             setImage('');
             setVideo('');
             setLoading(false);
+            handleClose();
             mutate();
         } catch (error) {
             console.error(error);
@@ -87,7 +88,8 @@ const Experience = () => {
                 experienceId,
                 userId,
                 comment,
-                image
+                files,
+                tagusers
             });
             setComment('');
             setLoading(false);
@@ -108,7 +110,8 @@ const Experience = () => {
                 commentId,
                 userId,
                 reply,
-                image
+                files,
+                tagusers
             });
             setReply('');
             setLoading(false);
@@ -292,7 +295,7 @@ const Experience = () => {
                                     
                                 <div className="flex flex-row items-center gap-2">
                                     <span className="text-xs cursor-pointer" onClick={() => setShowComments(showComments !== experience._id ? experience._id : null)}>
-                                        ดูความคิดเห็น
+                                        {showComments === experience._id ? 'ซ่อนความคิดเห็น' : 'ดูความคิดเห็น'}
                                     </span>
                                     <span className="text-xs">{Array.isArray(experience.comments) ? experience.comments.length : 0}</span>
                                 </div>
@@ -358,7 +361,7 @@ const Experience = () => {
                                             
                                             <div className="flex flex-row items-center gap-2">
                                                 <span className="text-xs cursor-pointer" onClick={() => setShowReply(showReply !== comment.reply._id ? comment.reply._id : null)}>
-                                                    ดูความคิดเห็น
+                                                    {showReply === comment.reply._id ? 'ซ่อนความคิดเห็น' : 'ดูความคิดเห็น'}
                                                 </span>
                                                 <span className="text-xs">{Array.isArray(comment.reply) ? comment.reply.length : 0}</span>
                                             </div>

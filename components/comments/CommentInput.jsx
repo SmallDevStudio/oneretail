@@ -7,6 +7,7 @@ import Divider from '@mui/material/Divider';
 import TagUsers from "./TagUsers";
 
 const CommentInput = ({ handleSubmit }) => {
+    const [post, setPost] = useState("");
     const [files, setFiles] = useState([]);
     const [inputKey, setInputKey] = useState(Date.now());
     const [selectedUsers, setSelectedUser] = useState([]);
@@ -33,6 +34,20 @@ const CommentInput = ({ handleSubmit }) => {
         setIsOpen(false);
     };
 
+    const handleSubmitComment = () => {
+        const newPost = {
+            post,
+            files,
+            selectedUsers,
+        };
+
+        setPost("");
+        setFiles([]);
+        setSelectedUser([]);
+        handleSubmit(newPost);
+    
+    };
+
     return (
         <div>
             <div>
@@ -45,7 +60,10 @@ const CommentInput = ({ handleSubmit }) => {
                 </div>
                 <textarea
                     className="w-full min-h-32 border-gray-300 rounded-lg outline-none"
+                    value={post}
+                    name="post"
                     placeholder="แสดงความคิดเห็น"
+                    onChange={(e) => setPost(e.target.value)}
                 />
                 {/* Previews */}
                 <div className="flex flex-row gap-2 mt-2 mb-2">
@@ -99,7 +117,7 @@ const CommentInput = ({ handleSubmit }) => {
             <div>
                 <button
                     className="w-full py-2 bg-[#0056FF] text-white rounded-lg mt-2"
-                    onClick={handleSubmit}
+                    onClick={handleSubmitComment}
                 >
                     ส่ง
                 </button>
