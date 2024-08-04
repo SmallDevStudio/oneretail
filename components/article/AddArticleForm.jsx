@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useSession } from "next-auth/react";
-import CustomJoditEditor from "@/components/Editor/CustomJoditEditor";
 import axios from "axios";
 import { useRouter } from "next/router";
 import PreviewModal from "./PreviewModal";

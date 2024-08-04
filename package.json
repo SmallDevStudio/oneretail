@@ -78,8 +78,6 @@
     "formik": "^2.4.6",
     "fs": "^0.0.1-security",
     "iron-session": "^8.0.1",
-    "jodit-pro-react": "^4.1.13",
-    "jodit-react": "^4.1.2",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.408.0",
     "moment": "^2.30.1",
