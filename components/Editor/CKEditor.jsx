@@ -8,7 +8,7 @@ const editorConfiguration = {
   extraPlugins: [MyCustomUploadAdapterPlugin],
   toolbar: [
     'heading', '|',
-    'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|',
+    'fontSize', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|',
     'outdent', 'indent', '|',
     'imageUpload', 'blockQuote', 'insertTable', 'mediaEmbed', 'undo', 'redo', '|',
     'fontColor', 'fontBackgroundColor'

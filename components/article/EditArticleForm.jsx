@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import CustomJoditEditor from "@/components/Editor/CustomJoditEditor";
 import axios from "axios";
 import { useRouter } from "next/router";
 import PreviewModal from "./PreviewModal";
+import dynamic from "next/dynamic";
+
+const CKEditor = dynamic(() => import("@/components/Editor/CKEditor"), {
+  ssr: false,
+});
 
 const EditArticleForm = ({ articleId }) => {
   const { data: session } = useSession();
@@ -259,7 +263,7 @@ const EditArticleForm = ({ articleId }) => {
             </div>
         </div>
         <div className="flex w-full justify-start items-center ml-4">
-            <CustomJoditEditor value={content} onChange={setContent} />
+            <CKEditor data={content} onChange={setContent} />
         </div>
 
         <div className="flex flex-row w-full justify-center items-center gap-4 m-4">
