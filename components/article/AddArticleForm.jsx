@@ -5,6 +5,10 @@ import { useRouter } from "next/router";
 import PreviewModal from "./PreviewModal";
 import useSWR from "swr";
 import dynamic from "next/dynamic";
+import { FaPlusCircle, FaMinusCircle } from "react-icons/fa";
+import ArticleQuiz from "./ArticleQuiz";
+import { FaRegEdit } from "react-icons/fa";
+import { RiDeleteBin5Line } from "react-icons/ri";
 
 const CKEditor = dynamic(() => import("@/components/Editor/CKEditor"), {
   ssr: false,
@@ -20,6 +24,11 @@ const AddArticleForm = () => {
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState(null); // Change to null
   const [showModal, setShowModal] = useState(false);
+  const [questions, setQuestions] = useState([]);
+  const [quizOpen, setQuizOpen] = useState(false);
+  const [quizEdit, setQuizEdit] = useState({});
+  const [edit, setEdit] = useState(false);
+
 
   const router = useRouter();
 
@@ -27,7 +36,6 @@ const AddArticleForm = () => {
     session?.user?.id ? `/api/users/${session?.user?.id}` : null,
     fetcher
   );
-
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -37,24 +45,36 @@ const AddArticleForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+  
     const newArticle = {
       ...article,
       content: content,
       userId: session.user.id,
     };
-    console.log("New Article:", newArticle);
+  
     try {
+      // Save the article
       const res = await axios.post("/api/articles", newArticle);
-      if (res.data) {
-        setLoading(false);
-        router.push("/admin/articles");
-        console.log(res.data);
-      }
+  
+      // Prepare quiz data
+      const quizData = {
+        articleId: res.data.data._id,
+        question: questions.map(q => ({
+          question: q.quiz,
+          options: q.options,
+          correctAnswer: q.answer,
+        })),
+      };
+  
+      // Save the quiz
+      const resQuiz = await axios.post("/api/articles/quiz", quizData);
+  
+      setLoading(false);
+      router.push("/admin/articles");
     } catch (error) {
       console.error(error);
     }
     setLoading(false);
-
   };
 
   const handlePreview = (e) => {
@@ -78,6 +98,35 @@ const AddArticleForm = () => {
     console.log("Content:", value);
     setContent(value);
   };
+
+  const handleQuizClose = () => {
+    setQuizOpen(false);
+    setQuizEdit({});
+    setEdit(false);
+  };
+
+  const saveQuiz = (questionData) => {
+    const newQuestions = [...questions, questionData];
+    console.log("New Questions:", newQuestions);
+    setQuestions(newQuestions);
+    setQuizOpen(false);
+  };
+
+  const handleQuizDelete = (index) => {
+    setQuestions((prevQuestions) => {
+      const updatedQuestions = [...prevQuestions];
+      updatedQuestions.splice(index, 1);
+      return updatedQuestions;
+    });
+  };
+
+  const handleQuizEdit = (index) => {
+    setQuizEdit({ ...questions[index] });
+    setEdit(true);
+    setQuizOpen(true);
+  };
+
+
 
   if (swrError) return <div>Failed to load</div>;
   if (!data) return <div>Loading...</div>;
@@ -257,6 +306,48 @@ const AddArticleForm = () => {
       </div>
       <div className="flex w-full justify-start items-center ml-4">
         <CKEditor data={article.content} onChange={handleContentChange}/>
+      </div>
+
+      <div className="flex flex-col w-full gap-4 mt-4">
+        <div className="flex flex-row w-full items-center gap-2">
+          <span className="text-xl font-bold text-left">เพิ่มคำถาม</span>
+          {quizOpen ? (
+            <FaMinusCircle
+              className="text-xl font-bold text-left text-[#F68B1F] cursor-pointer"
+              onClick={handleQuizClose}
+            />
+          ) : (
+            <FaPlusCircle 
+            className="text-xl font-bold text-left text-[#0056FF] cursor-pointer"
+            onClick={() => setQuizOpen(true)}
+          />
+          )}
+        </div>
+        {/* Quiz table */}
+          {questions.map((question, index) => (
+            <div key={index} className="flex flex-row items-center gap-4">
+              <span className="text-black font-bold">{index + 1}</span>
+              <span className="text-black">{question.quiz}</span> {/* Correctly render the question text */}
+              <FaRegEdit
+                className="text-gray-500"
+                onClick={() => handleQuizEdit(index)}
+              />
+              <RiDeleteBin5Line
+                className="text-red-500"
+                onClick={() => handleQuizDelete(index)}
+              />
+            </div>
+          ))}
+        {/* Quiz form */}
+        {quizOpen && (
+            <ArticleQuiz 
+              saveQuiz={saveQuiz}
+              handleQuizClose={handleQuizClose}
+              data={quizEdit}
+            />
+        )}
+        
+
       </div>
 
       <div className="flex flex-row w-full justify-center items-center gap-4 m-4">
