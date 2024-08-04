@@ -12,6 +12,7 @@ export default class MyUploadAdapter {
             const formData = new FormData();
             formData.append("file", file);
             formData.append("upload_preset", this.preset);
+            formData.append('cloud_name', process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME);
   
             fetch(this.url, {
               method: "POST",

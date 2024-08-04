@@ -1,10 +1,15 @@
 import React, { useState } from "react";
 import { useSession } from "next-auth/react";
-import CustomJoditEditor from "@/components/CustomJoditEditor";
+import CustomJoditEditor from "@/components/Editor/CustomJoditEditor";
 import axios from "axios";
 import { useRouter } from "next/router";
 import PreviewModal from "./PreviewModal";
 import useSWR from "swr";
+import dynamic from "next/dynamic";
+
+const CKEditor = dynamic(() => import("@/components/Editor/CKEditor"), {
+  ssr: false,
+});
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -43,13 +48,15 @@ const AddArticleForm = () => {
     console.log("New Article:", newArticle);
     try {
       const res = await axios.post("/api/articles", newArticle);
-      
+      if (res.data) {
+        setLoading(false);
+        router.push("/admin/articles");
+        console.log(res.data);
+      }
     } catch (error) {
       console.error(error);
     }
-
     setLoading(false);
-    router.push("/admin/articles");
 
   };
 
@@ -68,6 +75,11 @@ const AddArticleForm = () => {
 
   const onClose = () => {
     setShowModal(false);
+  };
+
+  const handleContentChange = (value) => {
+    console.log("Content:", value);
+    setContent(value);
   };
 
   if (swrError) return <div>Failed to load</div>;
@@ -247,7 +259,7 @@ const AddArticleForm = () => {
         </div>
       </div>
       <div className="flex w-full justify-start items-center ml-4">
-        <CustomJoditEditor value={content} onChange={setContent} />
+        <CKEditor data={article.content} onChange={handleContentChange}/>
       </div>
 
       <div className="flex flex-row w-full justify-center items-center gap-4 m-4">

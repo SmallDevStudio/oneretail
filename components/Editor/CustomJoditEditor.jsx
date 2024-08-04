@@ -58,23 +58,28 @@ const CustomJoditEditor = ({ onChange, value }) => {
   };
 
   const config = useMemo(() => ({
-    insertImageAsBase64URI: true,
-    toolbarButtonSize: 'small',
+    insertImageAsBase64URI: false,
+    toolbarButtonSize: 'large',
     uploader: {
-      insertImage(file) {
-        return new Promise((resolve, reject) => {
-          handleFileUpload([file]);
-          resolve();
-        });
+      insertImageAsBase64URI: false,
+      url: `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`,
+      headers: {
+        'Content-Type': 'multipart/form-data',
       },
-    },
-    
+      method: 'POST',
+      allowedExtensions: ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx'],
+      fieldName: 'file',
+      prepareData: (data) => {
+        data.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET);
+        data.append('cloud_name', process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME);
+        data.append('api_key', process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY);
+      }
+      
+      },
+      
     height: '100%',
     language: 'en',
     placeholder: 'Type here...',
-    uploader: {
-      insertImageAsBase64URI: true,
-    },
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }), []);
 
