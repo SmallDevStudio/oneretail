@@ -12,7 +12,7 @@ import fetchLinkPreview from '@/utils/fetchLinkPreview';
 import axios from 'axios';
 import Link from "next/link";
 
-const CommentInput = ({ handleSubmit, userId }) => {
+const PostInput = ({ handleSubmit, userId }) => {
     const [post, setPost] = useState("");
     const [images, setImages] = useState([]);
     const [videos, setVideos] = useState([]);
@@ -300,4 +300,4 @@ const CommentInput = ({ handleSubmit, userId }) => {
     );
 };
 
-export default CommentInput;
+export default PostInput;

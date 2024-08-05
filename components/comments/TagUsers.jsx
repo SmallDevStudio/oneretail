@@ -5,30 +5,32 @@ import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
 import Image from 'next/image';
-import useSWR from 'swr';
 import debounce from 'lodash/debounce';
 
-const fetcher = (url) => fetch(url).then((res) => res.json());
-
 const TagUsers = ({ isOpen, handleCloseModal, setSelectedUser }) => {
-  const { data, error } = useSWR('/api/users', fetcher);
   const [options, setOptions] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selected, setSelected] = useState([]);
 
-  useEffect(() => {
-    if (data && searchQuery) {
-      const regex = new RegExp(searchQuery, 'i');
-      const filteredUsers = data.users.filter(user => regex.test(user.fullname) || regex.test(user.empId));
-      setOptions(filteredUsers);
-    } else {
-      setOptions(data?.users || []);
+  const fetchUsers = debounce(async (query) => {
+    try {
+      const res = await fetch(`/api/users/tag?search=${query}`);
+      const data = await res.json();
+      setOptions(data.users);
+    } catch (error) {
+      console.error('Failed to fetch users:', error);
     }
-  }, [data, searchQuery]);
-
-  const handleSearch = debounce((event, value) => {
-    setSearchQuery(value);
   }, 300);
+
+  useEffect(() => {
+    if (searchQuery) {
+      fetchUsers(searchQuery);
+    }
+  }, [searchQuery]);
+
+  const handleSearch = (event, value) => {
+    setSearchQuery(value);
+  };
 
   const handleChange = (event, value) => {
     setSelected(value);

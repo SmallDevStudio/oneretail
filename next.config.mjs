@@ -12,6 +12,7 @@ const nextConfig = {
     return config;
   },
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
@@ -44,6 +45,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'scdn.line-apps.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'p16-sign-sg.tiktokcdn.com',
       },
     ],
   },

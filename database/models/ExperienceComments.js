@@ -2,14 +2,14 @@ import mongoose from 'mongoose';
 
 const ExperienceCommentSchema = new mongoose.Schema({
     comment: { type: String, required: true },
-    files: [{ type: String }],
-    tagusers: [{ type: String, ref: 'Users' }],
-    reply: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ExperienceReplyComments' }],
+    images: [{ public_id: { type: String }, url: { type: String } }],
+    videos: [{ public_id: { type: String }, url: { type: String } }],
+    files: [{ public_id: { type: String }, url: { type: String } }],
+    tagusers: [{ userId: { type: String, ref: 'Users' }, fullname: { type: String } }],
     userId: { type: String, ref: 'Users', required: true },
-    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Users' }],
+    likes: [{ userId: { type: String, ref: 'Users' }, createAt: { type: Date, default: Date.now } }],
     experienceId: { type: mongoose.Schema.Types.ObjectId, ref: 'Experiences', required: true },
-    createdAt: { type: Date, default: Date.now },
-
-  });
+    reply: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ExperienceReplyComments' }],
+  }, { timestamps: true });
   
   export default mongoose.models.ExperienceComments || mongoose.model('ExperienceComments', ExperienceCommentSchema);

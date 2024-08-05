@@ -3,11 +3,12 @@ import mongoose from 'mongoose';
 const ExperienceReplyCommentSchema = new mongoose.Schema({
     commentId: { type: mongoose.Schema.Types.ObjectId, ref: 'ExperienceComments', required: true },
     reply: { type: String, required: true },
-    files: [{ type: String }],
-    tagusers: [{ type: String, ref: 'Users' }],
-    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Users' }],
+    images: [{ public_id: { type: String }, url: { type: String } }],
+    videos: [{ public_id: { type: String }, url: { type: String } }],
+    files: [{ public_id: { type: String }, url: { type: String } }],
+    tagusers: [{ userId: { type: String, ref: 'Users' }, fullname: { type: String } }],
+    likes: [{ userId: { type: String, ref: 'Users' }, createAt: { type: Date, default: Date.now } }],
     userId: { type: String, ref: 'Users', required: true },
-    createdAt: { type: Date, default: Date.now },
-  });
+  }, { timestamps: true });
   
   export default mongoose.models.ExperienceReplyComments || mongoose.model('ExperienceReplyComments', ExperienceReplyCommentSchema);

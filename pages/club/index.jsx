@@ -29,12 +29,12 @@ export default function Club() {
                 <Image
                     src="/images/club/logo-club.png"
                     alt="one Retail club Logo"
-                    width={100}
-                    height={100}
+                    width={50}
+                    height={50}
                     style={{
                         objectFit: "cover",
                         objectPosition: "center",
-                        height: "auto",
+                        height: "60px",
                         width: "auto",
                     }}
                 />

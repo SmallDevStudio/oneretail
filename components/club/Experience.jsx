@@ -1,16 +1,19 @@
 import React, { useState } from "react";
 import { useSession } from "next-auth/react";
-import useSWR from "swr";
-import { FiSend } from "react-icons/fi";
 import axios from "axios";
+import useSWR from "swr";
 import { Dialog, Slide } from "@mui/material";
+import CommentInput from "../comments/CommentInput";
+import PostInput from "../comments/PostInput";
+import ReplyInput from "../comments/ReplyInput";
 import Image from "next/image";
 import { IoIosArrowBack } from "react-icons/io";
-import CommentInput from "../comments/CommentInput";
+import { PiUserCircleDuotone } from "react-icons/pi";
+import { RiDeleteBin5Line } from "react-icons/ri";
+import ImageGallery from "./ImageGallery";
 import moment from "moment";
 import "moment/locale/th";
 moment.locale('th');
-
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -34,8 +37,8 @@ const Experience = () => {
     const [loading, setLoading] = useState(false);
     const [users, setUsers] = useState([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [currentDialog, setCurrentDialog] = useState(null); // แทนที่ด้วย input type
 
-    
     const { data, error, mutate } = useSWR('/api/club/experience', fetcher, {
         onSuccess: (data) => {
             setExperiences(data.data);
@@ -48,30 +51,45 @@ const Experience = () => {
         }
     });
 
-    const handleClickOpen = () => {
+    const handleClickOpen = (type, id) => {
+        setCurrentDialog({ type, id });
         setIsDialogOpen(true);
     };
 
     const handleClose = () => {
         setIsDialogOpen(false);
+        setCurrentDialog(null);
     };
-    
-    const PostSubmit = async (data) => {
+
+    const handlePostSubmit = async (data) => {
         setLoading(true);
         try {
             const userId = session?.user?.id;
-            await axios.post('/api/club/experience', {
+    
+            const response = await axios.post('/api/club/experience', {
                 post: data.post,
-                userId,
                 link,
-                media: data.media,
+                images: data.images,
+                videos: data.video,
                 files: data.files,
-                tagusers: data.tagusers
+                tagusers: data.selectedUsers,
+                userId
             });
-            setPost('');
-            setLink('');
-            setImage('');
-            setVideo('');
+    
+            const experience = response.data;
+    
+            if (data.selectedUsers && data.selectedUsers.length > 0) {
+                for (const user of data.selectedUsers) {
+                    await axios.post('/api/notifications', {
+                        userId: user.userId,
+                        description: `${session?.user?.fullname} ได้แท็คโพสใน Experience`,
+                        contentId: experience._id,
+                        link: `${window.location.origin}/club?tab=experience#${experience._id}`,
+                        type: 'Tag'
+                    });
+                }
+            }
+    
             setLoading(false);
             handleClose();
             mutate();
@@ -79,113 +97,125 @@ const Experience = () => {
             console.error(error);
             setLoading(false);
         }
-    }
+    };
 
-    const handleCommentSubmit = async (experienceId) => {
+    const handleCommentSubmit = async (experienceId, data) => {
         setLoading(true);
         try {
             const userId = session?.user?.id;
-            await axios.post('/api/club/experiencecomment', {
+            const response = await axios.post('/api/club/experiencecomment', {
+                comment: data.post,
+                images: data.images,
+                videos: data.video,
+                files: data.files,
+                tagusers: data.selectedUsers,
                 experienceId,
                 userId,
-                comment,
-                files,
-                tagusers
             });
-            setComment('');
+
+            const experience = response.data;
+    
+            if (data.selectedUsers && data.selectedUsers.length > 0) {
+                for (const user of data.selectedUsers) {
+                    await axios.post('/api/notifications', {
+                        userId: user.userId,
+                        description: `${session?.user?.fullname} ได้แท็คโพสใน Experience`,
+                        contentId: experience._id,
+                        link: `${window.location.origin}/club?tab=experience#${experience._id}`,
+                        type: 'Tag'
+                    });
+                }
+            }
+
             setLoading(false);
             mutate();
-            setShowInputComment(false);
+            handleClose();
             setShowComments({ ...showComments, [experienceId]: true });
         } catch (error) {
             console.error(error);
             setLoading(false);
         }
-    }
+    };
 
-    const handleReplySubmit = async (commentId) => {
+    const handleReplySubmit = async (commentId, data) => {
         setLoading(true);
         try {
             const userId = session?.user?.id;
             await axios.post('/api/club/experiencereply', {
+                reply: data.post,
+                images: data.images,
+                videos: data.video,
+                files: data.files,
+                tagusers: data.selectedUsers,
                 commentId,
-                userId,
-                reply,
-                files,
-                tagusers
+                userId
             });
-            setReply('');
+           
             setLoading(false);
             mutate();
-            setShowInputReply(false);
-            setShowComments(true);
+            handleClose();
+            showReply({ ...showReply, [commentId]: true });
         } catch (error) {
             console.error(error);
             setLoading(false);
         }
-    }
+    };
 
     const handleLike = async (experience) => {
         const userId = session?.user?.id;
-      
+
         try {
-          // อัปเดต like ในฐานข้อมูล
-          await axios.post('/api/club/experience/like', {
-            experienceId: experience._id,
-            userId
-          });
-      
-          // เพิ่ม notification
-          await axios.post('/api/notifications', {
-            userId: experience.userId,
-            description: `Your post has been liked by ${session?.user?.fullname}`,
-            contentId: experience._id,
-            link: `/club?tab=experience?experience=${experience._id}`,
-            type: 'like'
-          });
-      
-          mutate(); // อัปเดตข้อมูลใหม่
+            await axios.post('/api/club/experience/like', {
+                experienceId: experience._id,
+                userId
+            });
+
+            await axios.post('/api/notifications', {
+                userId: experience.userId,
+                description: `Your post has been liked by ${session?.user?.fullname}`,
+                contentId: experience._id,
+                link: `/club?tab=experience?experience=${experience._id}`,
+                type: 'like'
+            });
+
+            mutate();
         } catch (error) {
-          console.error(error);
+            console.error(error);
         }
-      };
+    };
 
     const handleCommentLike = async (comment, experience) => {
         const userId = session?.user?.id;
-      
-        try {
-          // อัปเดต like ในฐานข้อมูล
-          await axios.post('/api/club/experiencecomment/like', {
-            commentId: comment._id,
-            userId
-          });
-      
-          // เพิ่ม notification
-          await axios.post('/api/notifications', {
-            userId: comment.userId,
-            description: `Your comment has been liked by ${session?.user?.fullname}`,
-            contentId: comment._id,
-            link: `/club?tab=experience?experience=${experience._id}`,
-            type: 'like'
-          });
-      
-          mutate(); // อัปเดตข้อมูลใหม่
-        } catch (error) {
-          console.error(error);
-        }
-      };
 
-      const handleReplyLike = async (reply, experience) => {
+        try {
+            await axios.post('/api/club/experiencecomment/like', {
+                commentId: comment._id,
+                userId
+            });
+
+            await axios.post('/api/notifications', {
+                userId: comment.userId,
+                description: `Your comment has been liked by ${session?.user?.fullname}`,
+                contentId: comment._id,
+                link: `/club?tab=experience?experience=${experience._id}`,
+                type: 'like'
+            });
+
+            mutate();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleReplyLike = async (reply, experience) => {
         const userId = session?.user?.id;
 
         try {
-            // อัปเดต like ในฐานข้อมูล
             await axios.post('/api/club/experiencereply/like', {
                 replyId: reply._id,
                 userId
             });
 
-            // เพิ่ม notification
             await axios.post('/api/notifications', {
                 userId: reply.userId,
                 description: `Your reply has been liked by ${session?.user?.fullname}`,
@@ -194,11 +224,11 @@ const Experience = () => {
                 type: 'like'
             });
 
-            mutate(); // อัปเดตข้อมูลใหม่
+            mutate();
         } catch (error) {
             console.error(error);
         }
-    }
+    };
 
     const handleCommentDelete = async (commentId) => {
         setLoading(true);
@@ -241,18 +271,18 @@ const Experience = () => {
                             type="text"
                             placeholder="คุณคิดอะไรอยู่..?"
                             className="w-full bg-transparent focus:outline-none"
-                            onClick={() => handleClickOpen()}
+                            onClick={() => handleClickOpen('post')}
                         />
                     </div>
                 </div>
             </div>
 
             {/* Post Container */}
-            <div className="flex flex-col w-full mt-2">
+            <div className="flex flex-col w-full align-top mt-2">
                 {Array.isArray(experiences) && experiences.map((experience, index) => (
                     <div key={index} className="flex flex-col px-2 w-full gap-2 bg-black/70 py-2 rounded-xl mb-2" id={experience?._id}>
-                        <div className="flex flex-row items-center">
-                            <div className="flex items-center justify-center align-top w-[35px]">
+                        <div className="flex flex-row align-top items-start">
+                            <div className="flex items-start align-top w-[35px] h-[auto] pt-1">
                                 <Image
                                     src={experience?.user?.pictureUrl}
                                     alt="user"
@@ -267,7 +297,19 @@ const Experience = () => {
                                     <p className="text-xs font-bold text-[#0056FF]">{experience?.user?.fullname}</p>
                                     <p className="text-[8px]">{moment(experience?.createdAt).fromNow()}</p>
                                 </div>
+                                
+                                {experience?.tagusers.length > 0 && experience?.tagusers.map((taguser, index) => (
+                                    <div className="flex flex-row w-full items-center gap-1 mb-2 mt-[-5px]">
+                                    <PiUserCircleDuotone className="flex text-md"/>
+                                    <div key={index} className="flex w-full">
+                                        <span className="text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
+                                    </div>
+                                    </div>
+                                ))}
                                 <p className="text-xs">{experience?.post}</p>
+                                {experience?.images.length > 0 && (
+                                    <ImageGallery images={experience.images} />
+                                )}
                             </div>
                         </div>
                         <div className="flex flex-col w-full mt-2">
@@ -289,7 +331,7 @@ const Experience = () => {
                                     <path fill='currentColor' d="M150.02,188.95h-66.43c-5.9,0-10.69-4.79-10.69-10.69s4.78-10.69,10.69-10.69h66.43c5.9,0,10.69,4.79,10.69,10.69s-4.79,10.69-10.69,10.69Z"/>
                                     </svg>
                         
-                                    <span className="text-xs cursor-pointer" onClick={() => setShowInputComment(showInputComment !== experience._id ? experience._id : null)}>
+                                    <span className="text-xs cursor-pointer" onClick={() => handleClickOpen('comment', experience._id)}>
                                         แสดงความคิดเห็น
                                     </span>
                                 </div>
@@ -302,24 +344,11 @@ const Experience = () => {
                                 </div>
                             </div>
 
-                            {showInputComment === experience._id && (
-                                <div className="flex flex-row items-center p-2 gap-2 mt-2">
-                                    <textarea
-                                        className="p-2 bg-gray-200 text-black text-xs outline-none rounded-full w-full"
-                                        placeholder="เขียนความคิดเห็น"
-                                        value={comment}
-                                        onChange={(e) => setComment(e.target.value)}
-                                        rows={1}
-                                    />
-                                    <button className="p-2 bg-gray-800 text-white text-xs outline-none rounded-full" onClick={() => handleCommentSubmit(experience._id)}>
-                                        <FiSend />
-                                    </button>
-                                </div>
-                            )}
 
                             {showComments === experience._id && Array.isArray(experience.comments) && experience.comments.map((comment, commentIndex) => (
-                                <div key={commentIndex} className="flex flex-col w-full bg-black/50 rounded-lg mt-2 ml-2">
-                                    <div className="flex flex-row items-center px-2 w-full gap-2 bg-black/50 rounded-lg mt-1">
+                                <>
+                                <div key={commentIndex} className="flex flex-col w-full bg-gray-800 rounded-lg mt-2 ml-2">
+                                    <div className="flex flex-row items-center px-2 w-full gap-2 bg-gray-800 rounded-lg mt-1">
                                         <div className="flex items-center justify-center align-top w-[25px]">
                                             <Image
                                                 src={comment?.user?.pictureUrl}
@@ -336,6 +365,9 @@ const Experience = () => {
                                                 <p className="text-[8px]">{moment(comment?.createdAt).fromNow()}</p>
                                             </div>
                                             <p className="text-xs">{comment?.comment}</p>
+                                            {comment?.images.length > 0 && (
+                                                <ImageGallery images={comment.images} />
+                                            )}
                                         </div>
                                     </div>
                                     <div>
@@ -355,53 +387,39 @@ const Experience = () => {
                                                 <path fill='currentColor' d="M196.75,149.21h-113.16c-5.9,0-10.69-4.79-10.69-10.69s4.79-10.69,10.69-10.69h113.16c5.9,0,10.69,4.79,10.69,10.69s-4.78,10.69-10.69,10.69Z"/>
                                                 <path fill='currentColor' d="M150.02,188.95h-66.43c-5.9,0-10.69-4.79-10.69-10.69s4.78-10.69,10.69-10.69h66.43c5.9,0,10.69,4.79,10.69,10.69s-4.79,10.69-10.69,10.69Z"/>
                                                 </svg>
-                                                <span className="text-xs cursor-pointer" onClick={() => setShowInputReply(showInputReply !== comment._id ? comment._id : null)}>
+                                                <span className="text-xs cursor-pointer" onClick={() => handleClickOpen('reply', comment._id)}>
                                                  แสดงความคิดเห็น
                                                 </span>
                                             </div>
                                             
                                             <div className="flex flex-row items-center gap-2">
                                                 <span className="text-xs cursor-pointer" onClick={() => setShowReply(showReply !== comment.reply._id ? comment.reply._id : null)}>
-                                                    {showReply === comment.reply._id ? 'ซ่อนความคิดเห็น' : 'ดูความคิดเห็น'}
+                                                    {showReply === comment.reply._id ? 'ซ่อนตอบกลับ' : 'ดูตอบกลับ'}
                                                 </span>
                                                 <span className="text-xs">{Array.isArray(comment.reply) ? comment.reply.length : 0}</span>
                                             </div>
                                         </div>
                                     </div>
-                                    {showInputReply === comment._id && (
-                                        <div className="flex flex-row items-center p-2 gap-2">
-                                            <textarea
-                                                className="p-2 bg-gray-200 text-black text-xs outline-none rounded-full w-full"
-                                                placeholder="เขียนความคิดเห็น"
-                                                value={reply}
-                                                onChange={(e) => setReply(e.target.value)}
-                                                rows={1}
-                                            />
-                                            <button className="p-2 bg-gray-800 text-white text-xs outline-none rounded-full" 
-                                                onClick={() => handleReplySubmit(comment._id)}>
-                                                <FiSend />
-                                            </button>
-                                        </div>
-                                    )}
+                                </div>
 
-                                    {showReply === comment.reply._id && Array.isArray(comment.reply) && comment.reply.map((reply, replyIndex) => (
-                                        <div key={replyIndex} className="flex flex-col w-5/7 justify-end bg-black/10 rounded-lg px-2 pb-2 ml-4 mb-1">
-                                            <div className="flex flex-row items-center px-2 w-full gap-2 justify-end bg-black/10 rounded-lg">
-                                                <div className="flex items-center justify-center align-top w-[25px]">
-                                                    <Image
-                                                        src={reply?.user?.pictureUrl}
-                                                        alt="user"
-                                                        width={20}
-                                                        height={20}
-                                                        className="rounded-full"
-                                                        style={{ width: '20px', height: '20px' }}
-                                                    />
+                                {showReply === comment.reply._id && Array.isArray(comment.reply) && comment.reply.map((reply, replyIndex) => (
+                                    <div key={replyIndex} className="flex flex-col w-5/7 justify-end bg-gray-700 rounded-lg px-2 pb-2 ml-4 mb-1">
+                                        <div className="flex flex-row items-center px-2 w-full gap-2 justify-end bg-gray-700 rounded-lg">
+                                            <div className="flex items-center justify-center align-top w-[25px]">
+                                                <Image
+                                                    src={reply?.user?.pictureUrl}
+                                                    alt="user"
+                                                    width={20}
+                                                    height={20}
+                                                    className="rounded-full"
+                                                    style={{ width: '20px', height: '20px' }}
+                                                />
+                                            </div>
+                                            <div className="flex flex-col w-full">
+                                                <div className="flex flex-row justify-between items-center">
+                                                    <p className="text-xs font-bold text-[#0056FF]">{reply?.user?.fullname}</p>
+                                                    <p className="text-[8px]">{moment(reply?.createdAt).fromNow()}</p>
                                                 </div>
-                                                <div className="flex flex-col w-full">
-                                                    <div className="flex flex-row justify-between items-center">
-                                                        <p className="text-xs font-bold text-[#0056FF]">{reply?.user?.fullname}</p>
-                                                        <p className="text-[8px]">{moment(reply?.createdAt).fromNow()}</p>
-                                                    </div>
                                                     <p className="text-xs">{reply?.reply}</p>
                                                 </div>
                                             </div>
@@ -417,10 +435,10 @@ const Experience = () => {
                                             </div>
                                         </div>
                                     ))}
-
-                                </div>
-                                
+                                    </>
                             ))}
+
+                            
                         </div>
                     </div>
                 ))}
@@ -436,7 +454,15 @@ const Experience = () => {
                         <IoIosArrowBack className="text-xl inline text-gray-700" onClick={handleClose} />
                         <span>แสดงความคิดเห็น</span>
                     </div>
-                    <CommentInput handleSubmit={PostSubmit}/>
+                    {currentDialog?.type === 'post' && (
+                        <PostInput handleSubmit={handlePostSubmit} userId={session?.user?.id} />
+                    )}
+                    {currentDialog?.type === 'comment' && (
+                        <CommentInput handleSubmit={(data) => handleCommentSubmit(currentDialog.id, data)} userId={session?.user?.id} />
+                    )}
+                    {currentDialog?.type === 'reply' && (
+                        <ReplyInput handleSubmit={(data) => handleReplySubmit(currentDialog.id, data)} userId={session?.user?.id} />
+                    )}
                 </div>
             </Dialog>
         </div>
