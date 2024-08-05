@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { useSession } from "next-auth/react";
-import axios from "axios";
 import useSWR from "swr";
+import { FiSend } from "react-icons/fi";
+import axios from "axios";
 import { Dialog, Slide } from "@mui/material";
+import Image from "next/image";
+import { IoIosArrowBack } from "react-icons/io";
 import CommentInput from "../comments/CommentInput";
 import PostInput from "../comments/PostInput";
 import ReplyInput from "../comments/ReplyInput";
-import Image from "next/image";
-import { IoIosArrowBack } from "react-icons/io";
 import { PiUserCircleDuotone } from "react-icons/pi";
-import { RiDeleteBin5Line } from "react-icons/ri";
 import ImageGallery from "./ImageGallery";
 import moment from "moment";
 import "moment/locale/th";
@@ -37,7 +37,7 @@ const Experience = () => {
     const [loading, setLoading] = useState(false);
     const [users, setUsers] = useState([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [currentDialog, setCurrentDialog] = useState(null); // แทนที่ด้วย input type
+    const [currentDialog, setCurrentDialog] = useState(null);
 
     const { data, error, mutate } = useSWR('/api/club/experience', fetcher, {
         onSuccess: (data) => {
@@ -66,6 +66,7 @@ const Experience = () => {
         try {
             const userId = session?.user?.id;
     
+            // ส่งข้อมูลโพสต์ไปยัง API
             const response = await axios.post('/api/club/experience', {
                 post: data.post,
                 link,
@@ -78,6 +79,7 @@ const Experience = () => {
     
             const experience = response.data;
     
+            // ตรวจสอบว่ามีการแท็กผู้ใช้หรือไม่
             if (data.selectedUsers && data.selectedUsers.length > 0) {
                 for (const user of data.selectedUsers) {
                     await axios.post('/api/notifications', {
@@ -115,6 +117,7 @@ const Experience = () => {
 
             const experience = response.data;
     
+            // ตรวจสอบว่ามีการแท็กผู้ใช้หรือไม่
             if (data.selectedUsers && data.selectedUsers.length > 0) {
                 for (const user of data.selectedUsers) {
                     await axios.post('/api/notifications', {
@@ -150,11 +153,11 @@ const Experience = () => {
                 commentId,
                 userId
             });
-           
+            setReply('');
             setLoading(false);
             mutate();
-            handleClose();
-            showReply({ ...showReply, [commentId]: true });
+            setShowInputReply(false);
+            setShowComments(true);
         } catch (error) {
             console.error(error);
             setLoading(false);
@@ -165,11 +168,13 @@ const Experience = () => {
         const userId = session?.user?.id;
 
         try {
+            // อัปเดต like ในฐานข้อมูล
             await axios.post('/api/club/experience/like', {
                 experienceId: experience._id,
                 userId
             });
 
+            // เพิ่ม notification
             await axios.post('/api/notifications', {
                 userId: experience.userId,
                 description: `Your post has been liked by ${session?.user?.fullname}`,
@@ -178,7 +183,7 @@ const Experience = () => {
                 type: 'like'
             });
 
-            mutate();
+            mutate(); // อัปเดตข้อมูลใหม่
         } catch (error) {
             console.error(error);
         }
@@ -188,11 +193,13 @@ const Experience = () => {
         const userId = session?.user?.id;
 
         try {
+            // อัปเดต like ในฐานข้อมูล
             await axios.post('/api/club/experiencecomment/like', {
                 commentId: comment._id,
                 userId
             });
 
+            // เพิ่ม notification
             await axios.post('/api/notifications', {
                 userId: comment.userId,
                 description: `Your comment has been liked by ${session?.user?.fullname}`,
@@ -201,7 +208,7 @@ const Experience = () => {
                 type: 'like'
             });
 
-            mutate();
+            mutate(); // อัปเดตข้อมูลใหม่
         } catch (error) {
             console.error(error);
         }
@@ -211,11 +218,13 @@ const Experience = () => {
         const userId = session?.user?.id;
 
         try {
+            // อัปเดต like ในฐานข้อมูล
             await axios.post('/api/club/experiencereply/like', {
                 replyId: reply._id,
                 userId
             });
 
+            // เพิ่ม notification
             await axios.post('/api/notifications', {
                 userId: reply.userId,
                 description: `Your reply has been liked by ${session?.user?.fullname}`,
@@ -224,7 +233,7 @@ const Experience = () => {
                 type: 'like'
             });
 
-            mutate();
+            mutate(); // อัปเดตข้อมูลใหม่
         } catch (error) {
             console.error(error);
         }
@@ -299,7 +308,7 @@ const Experience = () => {
                                 </div>
                                 
                                 {experience?.tagusers.length > 0 && experience?.tagusers.map((taguser, index) => (
-                                    <div className="flex flex-row w-full items-center gap-1 mb-2 mt-[-5px]">
+                                    <div className="flex flex-row w-full items-center gap-1 mb-2 mt-[-5px]" key={index}>
                                     <PiUserCircleDuotone className="flex text-md"/>
                                     <div key={index} className="flex w-full">
                                         <span className="text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
@@ -344,11 +353,9 @@ const Experience = () => {
                                 </div>
                             </div>
 
-
                             {showComments === experience._id && Array.isArray(experience.comments) && experience.comments.map((comment, commentIndex) => (
-                                <>
-                                <div key={commentIndex} className="flex flex-col w-full bg-gray-800 rounded-lg mt-2 ml-2">
-                                    <div className="flex flex-row items-center px-2 w-full gap-2 bg-gray-800 rounded-lg mt-1">
+                                <div key={commentIndex} className="flex flex-col w-full bg-black/50 rounded-lg mt-2 ml-2">
+                                    <div className="flex flex-row items-center px-2 w-full gap-2 bg-black/50 rounded-lg mt-1">
                                         <div className="flex items-center justify-center align-top w-[25px]">
                                             <Image
                                                 src={comment?.user?.pictureUrl}
@@ -365,9 +372,6 @@ const Experience = () => {
                                                 <p className="text-[8px]">{moment(comment?.createdAt).fromNow()}</p>
                                             </div>
                                             <p className="text-xs">{comment?.comment}</p>
-                                            {comment?.images.length > 0 && (
-                                                <ImageGallery images={comment.images} />
-                                            )}
                                         </div>
                                     </div>
                                     <div>
@@ -393,33 +397,47 @@ const Experience = () => {
                                             </div>
                                             
                                             <div className="flex flex-row items-center gap-2">
-                                                <span className="text-xs cursor-pointer" onClick={() => setShowReply(showReply !== comment.reply._id ? comment.reply._id : null)}>
-                                                    {showReply === comment.reply._id ? 'ซ่อนตอบกลับ' : 'ดูตอบกลับ'}
+                                                <span className="text-xs cursor-pointer" onClick={() => setShowReply(showReply !== comment._id ? comment._id : null)}>
+                                                    {showReply === comment._id ? 'ซ่อนความคิดเห็น' : 'ดูความคิดเห็น'}
                                                 </span>
                                                 <span className="text-xs">{Array.isArray(comment.reply) ? comment.reply.length : 0}</span>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                    {showInputReply === comment._id && (
+                                        <div className="flex flex-row items-center p-2 gap-2">
+                                            <textarea
+                                                className="p-2 bg-gray-200 text-black text-xs outline-none rounded-full w-full"
+                                                placeholder="เขียนความคิดเห็น"
+                                                value={reply}
+                                                onChange={(e) => setReply(e.target.value)}
+                                                rows={1}
+                                            />
+                                            <button className="p-2 bg-gray-800 text-white text-xs outline-none rounded-full" 
+                                                onClick={() => handleReplySubmit(comment._id)}>
+                                                <FiSend />
+                                            </button>
+                                        </div>
+                                    )}
 
-                                {showReply === comment.reply._id && Array.isArray(comment.reply) && comment.reply.map((reply, replyIndex) => (
-                                    <div key={replyIndex} className="flex flex-col w-5/7 justify-end bg-gray-700 rounded-lg px-2 pb-2 ml-4 mb-1">
-                                        <div className="flex flex-row items-center px-2 w-full gap-2 justify-end bg-gray-700 rounded-lg">
-                                            <div className="flex items-center justify-center align-top w-[25px]">
-                                                <Image
-                                                    src={reply?.user?.pictureUrl}
-                                                    alt="user"
-                                                    width={20}
-                                                    height={20}
-                                                    className="rounded-full"
-                                                    style={{ width: '20px', height: '20px' }}
-                                                />
-                                            </div>
-                                            <div className="flex flex-col w-full">
-                                                <div className="flex flex-row justify-between items-center">
-                                                    <p className="text-xs font-bold text-[#0056FF]">{reply?.user?.fullname}</p>
-                                                    <p className="text-[8px]">{moment(reply?.createdAt).fromNow()}</p>
+                                    {showReply === comment._id && Array.isArray(comment.reply) && comment.reply.map((reply, replyIndex) => (
+                                        <div key={replyIndex} className="flex flex-col w-5/7 justify-end bg-black/10 rounded-lg px-2 pb-2 ml-4 mb-1">
+                                            <div className="flex flex-row items-center px-2 w-full gap-2 justify-end bg-black/10 rounded-lg">
+                                                <div className="flex items-center justify-center align-top w-[25px]">
+                                                    <Image
+                                                        src={reply?.user?.pictureUrl}
+                                                        alt="user"
+                                                        width={20}
+                                                        height={20}
+                                                        className="rounded-full"
+                                                        style={{ width: '20px', height: '20px' }}
+                                                    />
                                                 </div>
+                                                <div className="flex flex-col w-full">
+                                                    <div className="flex flex-row justify-between items-center">
+                                                        <p className="text-xs font-bold text-[#0056FF]">{reply?.user?.fullname}</p>
+                                                        <p className="text-[8px]">{moment(reply?.createdAt).fromNow()}</p>
+                                                    </div>
                                                     <p className="text-xs">{reply?.reply}</p>
                                                 </div>
                                             </div>
@@ -435,10 +453,10 @@ const Experience = () => {
                                             </div>
                                         </div>
                                     ))}
-                                    </>
-                            ))}
 
-                            
+                                </div>
+                                
+                            ))}
                         </div>
                     </div>
                 ))}
@@ -454,15 +472,9 @@ const Experience = () => {
                         <IoIosArrowBack className="text-xl inline text-gray-700" onClick={handleClose} />
                         <span>แสดงความคิดเห็น</span>
                     </div>
-                    {currentDialog?.type === 'post' && (
-                        <PostInput handleSubmit={handlePostSubmit} userId={session?.user?.id} />
-                    )}
-                    {currentDialog?.type === 'comment' && (
-                        <CommentInput handleSubmit={(data) => handleCommentSubmit(currentDialog.id, data)} userId={session?.user?.id} />
-                    )}
-                    {currentDialog?.type === 'reply' && (
-                        <ReplyInput handleSubmit={(data) => handleReplySubmit(currentDialog.id, data)} userId={session?.user?.id} />
-                    )}
+                    {currentDialog?.type === 'post' && <PostInput handleSubmit={handlePostSubmit} userId={session?.user?.id} />}
+                    {currentDialog?.type === 'comment' && <CommentInput handleSubmit={(data) => handleCommentSubmit(currentDialog.id, data)} userId={session?.user?.id} />}
+                    {currentDialog?.type === 'reply' && <ReplyInput handleSubmit={(data) => handleReplySubmit(currentDialog.id, data)} userId={session?.user?.id} />}
                 </div>
             </Dialog>
         </div>
