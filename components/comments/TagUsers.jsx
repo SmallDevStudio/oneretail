@@ -26,6 +26,7 @@ const TagUsers = ({ isOpen, handleCloseModal, setSelectedUser }) => {
     if (searchQuery) {
       fetchUsers(searchQuery);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
 
   const handleSearch = (event, value) => {
