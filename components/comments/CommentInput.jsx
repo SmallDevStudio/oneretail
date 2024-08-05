@@ -2,24 +2,33 @@ import React, { useState, useEffect } from "react";
 import { ImFilePicture } from "react-icons/im";
 import { FaUserPlus } from "react-icons/fa";
 import { IoIosCloseCircle } from "react-icons/io";
+import { LuFileSpreadsheet } from "react-icons/lu";
 import Image from "next/image";
 import Divider from '@mui/material/Divider';
 import TagUsers from "./TagUsers";
 
 const CommentInput = ({ handleSubmit }) => {
     const [post, setPost] = useState("");
-    const [files, setFiles] = useState([]);
+    const [link, setLink] = useState("");
+    const [files, setFiles] = useState();
+    const [medias, setMedias] = useState([]);
     const [inputKey, setInputKey] = useState(Date.now());
     const [selectedUsers, setSelectedUser] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
 
-    const handleUpdate = (event) => {
-        setFiles([...event.target.files]);
+    console.log('files', files);
+
+    const handleMediaUpdate = (event) => {
+        setMedias([...event.target.files]);
+    };
+
+    const handleFileUpdate = (event) => {
+        setsetFiles([...event.target.files]);
     };
 
     const handleRemoveFile = (index) => {
         const updatedFiles = files.filter((_, i) => i !== index);
-        setFiles(updatedFiles);
+        setMedias(updatedFiles);
     };
 
     useEffect(() => {
@@ -52,7 +61,7 @@ const CommentInput = ({ handleSubmit }) => {
         <div>
             <div>
                 <div className="flex flex-row gap-2">
-                {selectedUsers.length > 0 && Array.from(selectedUsers).map((user, index) => (
+                {selectedUsers.length > 0 && selectedUsers.map((user, index) => (
                     <div key={index} className="flex flex-row gap-2">
                         <span className="text-xs text-[#0056FF]">{user.fullname}</span>
                     </div>
@@ -91,9 +100,9 @@ const CommentInput = ({ handleSubmit }) => {
                 <Divider />
                 <input
                     type="file"
-                    name="file"
-                    id="file"
-                    onChange={handleUpdate}
+                    name="media"
+                    id="media"
+                    onChange={handleMediaUpdate}
                     className="hidden"
                     multiple
                     key={inputKey} // ใช้ key เพื่อรีเซ็ต input
@@ -105,7 +114,22 @@ const CommentInput = ({ handleSubmit }) => {
                     </div>
                 </label>
                 <Divider />
-                <div className="flex flex-row items-center gap-2 p-2"
+                <input
+                    type="file"
+                    name="file"
+                    id="file"
+                    onChange={handleFileUpdate}
+                    className="hidden"
+                    multiple
+                />
+                <label htmlFor="file">
+                    <div className="flex flex-row items-center gap-2 p-2 cursor-pointer">
+                        <LuFileSpreadsheet className="text-xl text-[#0056FF]" />
+                        <span>อัพโหลดเอกสาร</span>
+                    </div>
+                </label>
+                <Divider />
+                <div className="flex flex-row items-center gap-2 p-2 cursor-pointer"
                     onClick={handleOpenModal}
                 >
                     <FaUserPlus className="text-xl text-[#0056FF]" />

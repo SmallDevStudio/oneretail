@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     switch (method) {
         case "GET":
             try {
-                const experiences = await Experience.find({});
+                const experiences = await Experience.find({}).sort({ createdAt: -1 });
                 const userIds = experiences.map(experience => experience.userId);
                 const users = await Users.find({ userId: { $in: userIds } });
                 const userMap = users.reduce((acc, user) => {

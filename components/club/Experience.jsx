@@ -64,6 +64,7 @@ const Experience = () => {
                 post: data.post,
                 userId,
                 link,
+                media: data.media,
                 files: data.files,
                 tagusers: data.tagusers
             });

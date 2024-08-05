@@ -32,7 +32,7 @@ const TagUsers = ({ isOpen, handleCloseModal, setSelectedUser }) => {
 
   const handleChange = (event, value) => {
     setSelected(value);
-    setSelectedUser(value);
+    setSelectedUser(value); // ส่งข้อมูลกลับไปที่ CommentInput
   };
 
   return (
@@ -46,15 +46,16 @@ const TagUsers = ({ isOpen, handleCloseModal, setSelectedUser }) => {
           </button>
         </div>
       </div>
-      <div className="flex flex-col justify-center items-center p-4 w-full">
+      <div className="flex flex-col justify-center items-center p-4">
         <p className="text-xl font-bold text-[#0056FF] mb-2">แท็กผู้คน</p>
-        <div className="flex w-full">
         <Autocomplete
           multiple
           options={options}
           getOptionLabel={(option) => `${option.empId} - ${option.fullname}`}
           onInputChange={handleSearch}
           onChange={handleChange}
+          value={selected}
+          sx={{ width: 300 }} // เพิ่มขนาดความกว้าง
           renderOption={(props, option) => (
             <li {...props} className="flex items-center">
               <Image
@@ -73,7 +74,6 @@ const TagUsers = ({ isOpen, handleCloseModal, setSelectedUser }) => {
             <TextField {...params} label="ค้นหาชื่อผู้ใช้" variant="outlined" />
           )}
         />
-        </div>
       </div>
     </Dialog>
   );
