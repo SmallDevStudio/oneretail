@@ -156,23 +156,14 @@ const Experience = () => {
         }
     };
 
-    const handleLike = async (experience) => {
+    const handleLike = async (experienceId) => {
         const userId = session?.user?.id;
 
         try {
             // อัปเดต like ในฐานข้อมูล
-            await axios.post('/api/club/experience/like', {
-                experienceId: experience._id,
+            await axios.put('/api/club/postlike', {
+                experienceId,
                 userId
-            });
-
-            // เพิ่ม notification
-            await axios.post('/api/notifications', {
-                userId: experience.userId,
-                description: `Your post has been liked by ${session?.user?.fullname}`,
-                contentId: experience._id,
-                link: `/club?tab=experience?experience=${experience._id}`,
-                type: 'like'
             });
 
             mutate(); // อัปเดตข้อมูลใหม่
@@ -181,23 +172,14 @@ const Experience = () => {
         }
     };
 
-    const handleCommentLike = async (comment, experience) => {
+    const handleCommentLike = async (commentId) => {
         const userId = session?.user?.id;
 
         try {
             // อัปเดต like ในฐานข้อมูล
-            await axios.post('/api/club/experiencecomment/like', {
-                commentId: comment._id,
+            await axios.put('/api/club/commentlike', {
+                commentId,
                 userId
-            });
-
-            // เพิ่ม notification
-            await axios.post('/api/notifications', {
-                userId: comment.userId,
-                description: `Your comment has been liked by ${session?.user?.fullname}`,
-                contentId: comment._id,
-                link: `/club?tab=experience?experience=${experience._id}`,
-                type: 'like'
             });
 
             mutate(); // อัปเดตข้อมูลใหม่
@@ -206,23 +188,14 @@ const Experience = () => {
         }
     };
 
-    const handleReplyLike = async (reply, experience) => {
+    const handleReplyLike = async (replyId) => {
         const userId = session?.user?.id;
 
         try {
             // อัปเดต like ในฐานข้อมูล
-            await axios.post('/api/club/experiencereply/like', {
-                replyId: reply._id,
+            await axios.put('/api/club/replylike', {
+                replyId,
                 userId
-            });
-
-            // เพิ่ม notification
-            await axios.post('/api/notifications', {
-                userId: reply.userId,
-                description: `Your reply has been liked by ${session?.user?.fullname}`,
-                contentId: reply._id,
-                link: `/club?tab=experience?experience=${experience._id}`,
-                type: 'like'
             });
 
             mutate(); // อัปเดตข้อมูลใหม่
@@ -324,7 +297,9 @@ const Experience = () => {
                                     </span>
                                 </div>
                                 
-                                <div className="flex flex-row items-center gap-2">
+                                <div className="flex flex-row items-center gap-2"
+                                    onClick={() => handleLike(experience._id)}
+                                >
                                     <svg className='w-3 h-3' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 277.04 277.04">
                                     <path fill='currentColor' d="M138.52,277.04c-24.29,0-48.18-6.38-69.11-18.45-.2-.12-.4-.23-.6-.35-.12.04-.25.08-.37.12l-32.61,10.87c-.08.03-.15.05-.23.08-8.66,2.89-13.89,4.63-19.67,2.57-5.05-1.8-8.98-5.73-10.78-10.78-2.06-5.77-.33-10.98,2.54-19.59.01-.04.02-.07.03-.1l10.92-32.76c.03-.08.05-.15.08-.23.02-.06.04-.13.06-.19-.1-.18-.21-.36-.31-.53C6.38,186.71,0,162.81,0,138.52,0,62.14,62.14,0,138.52,0s138.52,62.14,138.52,138.52-62.14,138.52-138.52,138.52ZM25.64,256.03h0s0,0,0,0ZM69.24,236.54c1.58,0,3.13.21,4.71.65,2.17.6,3.83,1.55,6.13,2.88,17.69,10.2,37.9,15.59,58.44,15.59,64.59,0,117.14-52.55,117.14-117.14S203.11,21.38,138.52,21.38,21.38,73.93,21.38,138.52c0,20.54,5.39,40.75,15.59,58.43,1.35,2.33,2.29,3.97,2.89,6.14.55,1.97.74,3.92.6,5.96-.15,2.25-.75,4.03-1.5,6.29-.03.08-.06.16-.08.24l-10.85,32.54s-.02.07-.03.09c-.14.41-.27.82-.41,1.24.36-.12.71-.24,1.07-.36.07-.03.15-.05.22-.08l32.8-10.93c2.26-.76,4.06-1.35,6.32-1.51.42-.03.83-.04,1.24-.04Z"/>
                                     <path fill='currentColor' d="M196.75,109.47h-113.16c-5.9,0-10.69-4.79-10.69-10.69s4.79-10.69,10.69-10.69h113.16c5.9,0,10.69,4.79,10.69,10.69s-4.78,10.69-10.69,10.69Z"/>
@@ -364,6 +339,9 @@ const Experience = () => {
                                                 <p className="text-[8px]">{moment(comment?.createdAt).fromNow()}</p>
                                             </div>
                                             <p className="text-xs">{comment?.comment}</p>
+                                            {comment?.images.length > 0 && (
+                                                <ImageGallery images={comment.images} />
+                                            )}
                                         </div>
                                     </div>
                                     <div>
@@ -431,6 +409,9 @@ const Experience = () => {
                                                         <p className="text-[8px]">{moment(reply?.createdAt).fromNow()}</p>
                                                     </div>
                                                     <p className="text-xs">{reply?.reply}</p>
+                                                    {reply?.images.length > 0 && (
+                                                        <ImageGallery images={reply.images} />
+                                                    )}
                                                 </div>
                                             </div>
                                             <div className="flex flex-row items-center gap-2 justify-between pl-10 pr-1 mt-1 w-full">
