@@ -11,6 +11,7 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const UserRankReport = () => {
     const [limit, setLimit] = useState(10);
+    const [teamGroup, setTeamGroup] = useState('All'); // Default to 'All'
     const [loading, setLoading] = useState(false);
     const [progress, setProgress] = useState(0);
 
@@ -21,8 +22,10 @@ const UserRankReport = () => {
         setProgress(0);
     
         try {
+            // Ensure that teamGroup is not undefined or null before appending to the query
+            const teamGroupQuery = teamGroup ? `&teamGroup=${teamGroup}` : '';
             const fetchData = async (limit, offset) => {
-                const response = await fetch(`/api/dashboard/rank?limit=${limit}&offset=${offset}`);
+                const response = await fetch(`/api/dashboard/rank?limit=${limit}&offset=${offset}${teamGroupQuery}`);
                 return response.json();
             };
     
@@ -69,6 +72,7 @@ const UserRankReport = () => {
                 user.points.forEach((point) => {
                     pointDetailsData.push({
                         fullname: '', // แสดงชื่อครั้งเดียวเมื่อเริ่ม group
+                        type: point.type === 'earn' ? 'รายได้' : 'รายจ่าย',
                         point: point.point,
                         description: point.description,
                         createdAt: moment(point.createdAt).locale('th').format('LLL'), // ใช้ moment เพื่อแสดงวันที่ในรูปแบบไทย
@@ -87,7 +91,7 @@ const UserRankReport = () => {
             XLSX.utils.book_append_sheet(wb, wsPointDetails, "Point Details");
     
             // บันทึกไฟล์
-            XLSX.writeFile(wb, `UserRankReport_Top${limit}.xlsx`);
+            XLSX.writeFile(wb, `UserRankReport_Top${limit}-${teamGroup}.xlsx`);
     
         } catch (err) {
             console.error("Error exporting data: ", err);
@@ -102,7 +106,17 @@ const UserRankReport = () => {
             <h2 className="text-lg font-bold mb-4">User Rank Top</h2>
             <div className="flex flex-row gap-4 items-center">
                 <div className="mb-4">
-                    <label htmlFor="rankLimit" className="mr-2">Select Rank:</label>
+                    <label htmlFor="rankLimit" className="mr-2">TeamGroup:</label>
+                    <select value={teamGroup} 
+                        onChange={(e) => setTeamGroup(e.target.value)}  
+                        className="p-1 border rounded-md"    
+                    >
+                        <option value="All">All</option>
+                        <option value="AL">AL</option>
+                        <option value="Retail">Retail</option>
+                        <option value="TCON">TCON</option>
+                    </select>
+                    <label htmlFor="rankLimit" className="mr-2 ml-2">Rank:</label>
                     <select
                         id="rankLimit"
                         value={limit}

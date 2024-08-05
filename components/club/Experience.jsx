@@ -23,19 +23,11 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const Experience = () => {
     const { data: session } = useSession();
-    const [post, setPost] = useState('');
-    const [link, setLink] = useState('');
-    const [image, setImage] = useState('');
-    const [video, setVideo] = useState('');
     const [experiences, setExperiences] = useState([]);
-    const [comment, setComment] = useState('');
-    const [showInputComment, setShowInputComment] = useState(false);
     const [showComments, setShowComments] = useState(false);
     const [showInputReply, setShowInputReply] = useState({});
     const [reply, setReply] = useState('');
     const [showReply, setShowReply] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [users, setUsers] = useState([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [currentDialog, setCurrentDialog] = useState(null);
 
