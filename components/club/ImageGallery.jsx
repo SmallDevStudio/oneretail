@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import ReactPlayer from "react-player";
 import { Modal, Box } from "@mui/material";
@@ -8,6 +8,10 @@ import { FaRegPlayCircle } from "react-icons/fa";
 const ImageGallery = ({ medias }) => {
     const [open, setOpen] = useState(false);
     const [currentImage, setCurrentImage] = useState(null);
+    const [playing, setPlaying] = useState(false);
+    const [controlsVisible, setControlsVisible] = useState(false);
+    const [showPlayIcon, setShowPlayIcon] = useState(true);
+    const timeoutRef = useRef(null);
 
     const handleOpen = (media) => {
         if (media.type === 'image') {
@@ -20,6 +24,22 @@ const ImageGallery = ({ medias }) => {
         setOpen(false);
         setCurrentImage(null);
     };
+
+    const handleVideoClick = () => {
+        setPlaying(!playing);
+        setShowPlayIcon(false);
+        setControlsVisible(true);
+        clearTimeout(timeoutRef.current);
+        if (!playing) {
+            timeoutRef.current = setTimeout(() => {
+                setControlsVisible(false);
+            }, 3000);
+        }
+    };
+
+    useEffect(() => {
+        return () => clearTimeout(timeoutRef.current);
+    }, []);
 
     return (
         <div className="flex flex-wrap gap-2">
@@ -36,12 +56,16 @@ const ImageGallery = ({ medias }) => {
                         />
                     </div>
                 ) : (
-                    <div className="flex w-full relative">
+                    <div className="flex w-full relative" onClick={handleVideoClick}>
+                        {showPlayIcon && (
+                            <FaRegPlayCircle className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-5xl" />
+                        )}
                         <ReactPlayer
                             url={medias[0].url}
                             width="100%"
-                            height="250px"
-                            controls
+                            height="230px"
+                            playing={playing}
+                            controls={controlsVisible}
                         />
                     </div>
                 )
@@ -60,18 +84,17 @@ const ImageGallery = ({ medias }) => {
                                 />
                             </div>
                         ) : (
-                            <ReactPlayer
-                                url={media.url}
-                                width="100%"
-                                height="400px"
-                                controls
-                                light={
-                                    <div className="relative w-full h-full flex items-center justify-center">
-                                        <FaRegPlayCircle className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-3xl" />
-                                    </div>
-                                }
-                                playIcon={<FaRegPlayCircle className="text-white text-5xl" />}
-                            />
+                            <div className="flex w-full relative" onClick={() => handleOpen(media)}>
+                                <Image
+                                    src={media.url}
+                                    alt="video thumbnail"
+                                    width={600}
+                                    height={400}
+                                    className="rounded-xl object-cover cursor-pointer"
+                                    style={{ width: '100%', height: 'auto' }}
+                                />
+                                <FaRegPlayCircle className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-3xl" />
+                            </div>
                         )}
                     </div>
                 ))
@@ -101,14 +124,29 @@ const ImageGallery = ({ medias }) => {
                                     onClick={handleClose}
                                 />
                             </div>
-                            <Image
-                                src={currentImage.url}
-                                alt="image"
-                                width={600}
-                                height={400}
-                                className="rounded-xl mt-2 object-cover cursor-pointer"
-                                style={{ width: '100%', height: 'auto' }}
-                            />
+                            {currentImage.type === "image" ? (
+                                <Image
+                                    src={currentImage.url}
+                                    alt="image"
+                                    width={600}
+                                    height={400}
+                                    className="rounded-xl mt-2 object-cover cursor-pointer"
+                                    style={{ width: '100%', height: 'auto' }}
+                                />
+                            ) : (
+                                <div className="relative w-full" onClick={handleVideoClick}>
+                                    {showPlayIcon && (
+                                        <FaRegPlayCircle className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-5xl" />
+                                    )}
+                                    <ReactPlayer
+                                        url={currentImage.url}
+                                        width="100%"
+                                        height="500px"
+                                        playing={playing}
+                                        controls={controlsVisible}
+                                    />
+                                </div>
+                            )}
                         </div>
                     )}
                 </Box>
