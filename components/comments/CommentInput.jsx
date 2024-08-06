@@ -7,7 +7,7 @@ import Divider from '@mui/material/Divider';
 import TagUsers from "./TagUsers";
 import fetchLinkPreview from '@/utils/fetchLinkPreview';
 import Link from "next/link";
-
+import axios from 'axios';
 const CommentInput = ({ handleSubmit, userId }) => {
     const [post, setPost] = useState("");
     const [media, setMedia] = useState([]);

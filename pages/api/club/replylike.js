@@ -1,5 +1,8 @@
+// api/club/replylike.js
 import connectMongoDB from "@/lib/services/database/mongodb";
 import ExperienceReplyComments from "@/database/models/ExperienceReplyComments";
+import Users from "@/database/models/users";
+import Notifications from "@/database/models/Notification";
 
 export default async function handler(req, res) {
     const { method } = req;
@@ -7,32 +10,44 @@ export default async function handler(req, res) {
     await connectMongoDB();
 
     switch (method) {
-        case "PUT":
+        case 'PUT':
+            const { replyId, userId } = req.body;
+
             try {
-                const { replyId, userId } = req.body;
-                const reply = await ExperienceReplyComments.findOne({ _id: replyId });
+                const reply = await ExperienceReplyComments.findById(replyId);
+
                 if (!reply) {
                     return res.status(404).json({ success: false, error: "Reply not found" });
                 }
 
-                const likesSet = new Set(reply.likes.map(String));
-                if (likesSet.has(userId)) {
-                    likesSet.delete(userId);
+                const alreadyLiked = reply.likes.some(like => like.userId === userId);
+                const user = await Users.findOne({ userId: userId });
+
+                if (alreadyLiked) {
+                    reply.likes = reply.likes.filter(like => like.userId !== userId);
                 } else {
-                    likesSet.add(userId);
+                    reply.likes.push({ userId });
+
+                    await Notifications.create({
+                        userId: reply.userId,
+                        description: `${user.fullname} ได้กด like การตอบกลับใน Experience`,
+                        contentId: reply._id,
+                        link: `${process.env.NEXTAUTH_URL}/club?tab=experience#${reply.commentId}`,
+                        type: 'Like'
+                    });
                 }
 
-                reply.likes = Array.from(likesSet);
                 await reply.save();
 
                 res.status(200).json({ success: true, data: reply });
+
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });
             }
             break;
 
         default:
-            res.status(400).json({ success: false });
+            res.status(400).json({ success: false, error: 'Invalid request method' });
             break;
     }
 }

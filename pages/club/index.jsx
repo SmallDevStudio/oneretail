@@ -8,12 +8,12 @@ import Rules from "@/components/club/Rules";
 import Experience from "@/components/club/Experience";
 
 export default function Club() {
-    const [activeTab, setActiveTab] = useState('leaderboard');
+    const [activeTab, setActiveTab] = useState('experience');
 
     const router = useRouter();
 
     useEffect(() => {
-        const tab = router.query.tab || "leaderboard";
+        const tab = router.query.tab || "experience";
         setActiveTab(tab);
     }, [router.query.tab]);
 
@@ -40,13 +40,13 @@ export default function Club() {
                 />
             </div>
             <div className="w-full flex justify-center mt-4">
-                 {/* Tabs */}
+                {/* Tabs */}
                 <div className="flex justify-center mb-4 text-sm">
                     <ul className="flex flex-wrap text-white">
                         <li className="me-2">
                             <a
-                                href="#experience"
-                                className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'announce' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
+                                href="#"
+                                className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'experience' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
                                 onClick={() => handleTabClick('experience')}
                             >
                                 Experience
@@ -54,7 +54,7 @@ export default function Club() {
                         </li>
                         <li className="me-2">
                             <a
-                                href="#leaderboard"
+                                href="#"
                                 className={`inline-block p-2 border-b-2 rounded-t-lg ml-5 font-bold ${activeTab === 'leaderboard' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
                                 onClick={() => handleTabClick('leaderboard')}
                             >
@@ -63,7 +63,7 @@ export default function Club() {
                         </li>
                         <li className="me-2">
                             <a
-                                href="#rules"
+                                href="#"
                                 className={`inline-block p-2 border-b-2 rounded-t-lg ml-5 font-bold ${activeTab === 'rules' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
                                 onClick={() => handleTabClick('rules')}
                             >
@@ -72,7 +72,6 @@ export default function Club() {
                         </li>
                     </ul>
                 </div>
-
             </div>
 
             <div className="p-2">

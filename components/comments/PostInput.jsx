@@ -2,14 +2,11 @@ import React, { useState, useEffect } from "react";
 import { ImFilePicture } from "react-icons/im";
 import { FaUserPlus, FaRegPlayCircle } from "react-icons/fa";
 import { IoIosCloseCircle } from "react-icons/io";
-import { LuFileSpreadsheet } from "react-icons/lu";
 import Image from "next/image";
 import Divider from '@mui/material/Divider';
 import TagUsers from "./TagUsers";
-import expandUrl from '@/utils/expandUrl';
 import fetchLinkPreview from '@/utils/fetchLinkPreview';
 import Link from "next/link";
-import axios from 'axios';
 
 const PostInput = ({ handleSubmit, userId }) => {
     const [post, setPost] = useState("");
