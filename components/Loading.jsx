@@ -13,7 +13,11 @@ export default function Loading() {
         >
             <div className='text-center justify-center items-center'>
                 <div className='flex mb-10'>
-                    <Image src="/dist/img/logo-one-retail.png" alt="one Retail Logo" width={150} height={150} style={{width: 'auto', height: 'auto'}}/>
+                    <Image src="/dist/img/logo-one-retail.png" 
+                    alt="one Retail Logo" 
+                    width={150} 
+                    height={150} 
+                    style={{width: '150px', height: 'auto'}}/>
                 </div>
                 <CircularProgress />
             </div>

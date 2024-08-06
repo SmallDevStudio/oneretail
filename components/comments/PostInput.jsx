@@ -1,7 +1,6 @@
-// CommentInput.js
 import React, { useState, useEffect } from "react";
 import { ImFilePicture } from "react-icons/im";
-import { FaUserPlus } from "react-icons/fa";
+import { FaUserPlus, FaRegPlayCircle } from "react-icons/fa";
 import { IoIosCloseCircle } from "react-icons/io";
 import { LuFileSpreadsheet } from "react-icons/lu";
 import Image from "next/image";
@@ -9,47 +8,44 @@ import Divider from '@mui/material/Divider';
 import TagUsers from "./TagUsers";
 import expandUrl from '@/utils/expandUrl';
 import fetchLinkPreview from '@/utils/fetchLinkPreview';
-import axios from 'axios';
 import Link from "next/link";
+import axios from 'axios';
 
 const PostInput = ({ handleSubmit, userId }) => {
     const [post, setPost] = useState("");
-    const [images, setImages] = useState([]);
-    const [videos, setVideos] = useState([]);
+    const [media, setMedia] = useState([]);
     const [files, setFiles] = useState(null); // สำหรับการอัพโหลดเอกสารครั้งละ 1 ไฟล์
     const [link, setLink] = useState("");
     const [linkPreview, setLinkPreview] = useState(null);
     const [inputKey, setInputKey] = useState(Date.now());
     const [selectedUsers, setSelectedUser] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
 
-
-    const generateUniqueKey = (file) => {
-        return `${file.name}-${file.lastModified}`;
+    const handleUploadClick = () => {
+        window.cloudinary.openUploadWidget(
+            {
+                cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+                uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
+                sources: ['local', 'url', 'camera', 'image_search'],
+                multiple: true,
+                resourceType: 'auto', // Automatically determines if it's image or video
+            },
+            (error, result) => {
+                if (result.event === 'success') {
+                    setMedia(prevMedia => [
+                        ...prevMedia,
+                        { url: result.info.secure_url, public_id: result.info.public_id, type: result.info.resource_type }
+                    ]);
+                }
+            }
+        );
     };
 
-    const handleMediaUpdate = (event) => {
-        const uploadedFiles = Array.from(event.target.files);
-        const newImages = uploadedFiles.filter(file => file.type.startsWith('image/'));
-        const newVideos = uploadedFiles.filter(file => file.type.startsWith('video/'));
-        setImages(prevImages => [...prevImages, ...newImages]);
-        setVideos(prevVideos => [...prevVideos, ...newVideos]);
-        setInputKey(Date.now());
-    };
-
-    const handleFileUpdate = (event) => {
-        const uploadedFile = event.target.files[0];
-        setFiles(uploadedFile);
-    };
-
-    const handleRemoveImage = (index) => {
-        const updatedImages = images.filter((_, i) => i !== index);
-        setImages(updatedImages);
-    };
-
-    const handleRemoveVideo = (index) => {
-        const updatedVideos = videos.filter((_, i) => i !== index);
-        setVideos(updatedVideos);
+    const handleRemoveMedia = (index) => {
+        const updatedMedia = media.filter((_, i) => i !== index);
+        setMedia(updatedMedia);
     };
 
     const handleRemoveFile = () => {
@@ -63,7 +59,7 @@ const PostInput = ({ handleSubmit, userId }) => {
 
     useEffect(() => {
         setInputKey(Date.now());
-    }, [images, videos, files]);
+    }, [media, files]);
 
     const handleOpenModal = () => {
         setIsOpen(true);
@@ -73,51 +69,23 @@ const PostInput = ({ handleSubmit, userId }) => {
         setIsOpen(false);
     };
 
-    const uploadToCloudinary = async (file, type) => {
-        const data = new FormData();
-        data.append("file", file);
-        data.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET);
-        data.append("cloud_name", process.env.REACT_APP_CLOUD_NAME);
-
-        try {
-            const resp = await axios.post("https://api.cloudinary.com/v1_1/dxshvbc9c/image/upload", data);
-            await axios.post('/api/media/add', {
-                url: resp.data.secure_url,
-                publicId: resp.data.public_id,
-                name: file.name,
-                userId: userId,
-                type: type,
-                path: 'Experience/Post',
-                isTemplate: false,
-            });
-            return { url: resp.data.secure_url, public_id: resp.data.public_id };
-        } catch (error) {
-            console.log(error);
-            return null;
-        }
-    };
-
     const handleSubmitComment = async () => {
-        const uploadedImages = await Promise.all(images.map(image => uploadToCloudinary(image, 'image')));
-        const uploadedVideos = await Promise.all(videos.map(video => uploadToCloudinary(video, 'video')));
-        const uploadedFile = files ? await uploadToCloudinary(files, 'file') : null;
-
+        setIsLoading(true);
         const newPost = {
             post: post.replace(link, "").trim(),
-            images: uploadedImages,
-            videos: uploadedVideos,
-            files: uploadedFile,
+            media,
+            files: files ? [{ url: files.url, public_id: files.public_id, type: 'file' }] : [],
             link,
             selectedUsers,
         };
 
         setPost("");
         setLink("");
-        setImages([]);
-        setVideos([]);
+        setMedia([]);
         setFiles(null);
         setSelectedUser([]);
         handleSubmit(newPost);
+        setIsLoading(false);
     };
 
     const handlePostChange = async (event) => {
@@ -153,7 +121,7 @@ const PostInput = ({ handleSubmit, userId }) => {
                 <div className="flex flex-row gap-2">
                     {selectedUsers.length > 0 ? (
                         <span className="text-xs font-bold">แท็กผู้คน</span>
-                    ): null}
+                    ) : null}
 
                     {selectedUsers.length > 0 && selectedUsers.map((user, index) => (
                         <div key={index} className="flex flex-row gap-2">
@@ -168,47 +136,39 @@ const PostInput = ({ handleSubmit, userId }) => {
                     placeholder="แสดงความคิดเห็น"
                     onChange={handlePostChange}
                 />
-                {/* Previews */}
                 <div className="flex flex-col gap-2 mt-2 mb-2">
                     <div className="flex flex-row items-center w-full">
-                    {images.length > 0 && images.map((image, index) => (
-                        <div key={generateUniqueKey(image)} className="flex gap-2 ml-2">
-                            <div className="relative flex flex-col p-2 border-2 rounded-xl">
-                                <IoIosCloseCircle
-                                    className="absolute top-0 right-0 text-xl cursor-pointer"
-                                    onClick={() => handleRemoveImage(index)}
-                                />
-                                <Image
-                                    src={URL.createObjectURL(image)}
-                                    alt="Preview"
-                                    width={40}
-                                    height={40}
-                                    className="rounded-lg object-cover"
-                                    style={{ width: 'auto', height: '50px' }}
-                                />
+                        {media.map((item, index) => (
+                            <div key={index} className="flex gap-2 ml-2">
+                                <div className="relative flex flex-col p-2 border-2 rounded-xl">
+                                    <IoIosCloseCircle
+                                        className="absolute top-0 right-0 text-xl cursor-pointer"
+                                        onClick={() => handleRemoveMedia(index)}
+                                    />
+                                    {item.type === 'image' ? (
+                                        <Image
+                                            src={item.url}
+                                            alt="Preview"
+                                            width={40}
+                                            height={40}
+                                            className="rounded-lg object-cover"
+                                            style={{ width: 'auto', height: '50px' }}
+                                        />
+                                    ) : (
+                                        <div className="relative">
+                                            <video width="50" height="50" controls>
+                                                <source src={item.url} type="video/mp4" />
+                                                Your browser does not support the video tag.
+                                            </video>
+                                            <FaRegPlayCircle className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-500 text-3xl" />
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
                     </div>
-                    <div className="flex flex-row w-full">
-                    {videos.length > 0 && videos.map((video, index) => (
-                        <div key={generateUniqueKey(video)} className="flex">
-                            <div className="relative flex-col p-2 border-2 rounded-xl">
-                                <IoIosCloseCircle
-                                    className="absolute top-0 right-0 text-xl cursor-pointer"
-                                    onClick={() => handleRemoveVideo(index)}
-                                />
-                                <video width="50" height="50" controls>
-                                    <source src={URL.createObjectURL(video)} type={video.type} />
-                                    Your browser does not support the video tag.
-                                </video>
-                            </div>
-                        </div>
-                    ))}
-                    </div>
-                    <div className="flex flex-row w-full">
                     {files && (
-                        <div key={generateUniqueKey(files)} className="relative flex-col p-2 border-2 rounded-xl">
+                        <div key={files.name} className="relative flex-col p-2 border-2 rounded-xl">
                             <IoIosCloseCircle
                                 className="absolute top-0 right-0 text-xl cursor-pointer"
                                 onClick={handleRemoveFile}
@@ -216,8 +176,6 @@ const PostInput = ({ handleSubmit, userId }) => {
                             <span>{files.name}</span>
                         </div>
                     )}
-                    </div>
-                    <div className="flex w-full">
                     {link && linkPreview && (
                         <div className="relative flex-col p-2 border-2 rounded-xl">
                             <div className="flex flex-row w-full">
@@ -240,41 +198,17 @@ const PostInput = ({ handleSubmit, userId }) => {
                             </div>
                         </div>
                     )}
-                    </div>
                 </div>
             </div>
             <div className="flex flex-col w-full mb-5">
                 <Divider />
-                <input
-                    type="file"
-                    name="medias"
-                    id="medias"
-                    onChange={handleMediaUpdate}
-                    className="hidden"
-                    multiple
-                    key={inputKey}
-                />
-                <label htmlFor="medias">
-                    <div className="flex flex-row items-center gap-2 p-2 cursor-pointer">
-                        <ImFilePicture className="text-xl text-[#0056FF]" />
-                        <span>อัพโหลดรูปภาพ/วิดีโอ</span>
-                    </div>
-                </label>
-                <Divider />
-                <input
-                    type="file"
-                    name="file"
-                    id="file"
-                    onChange={handleFileUpdate}
-                    className="hidden"
-                    key={inputKey}
-                />
-                <label htmlFor="file">
-                    <div className="flex flex-row items-center gap-2 p-2 cursor-pointer">
-                        <LuFileSpreadsheet className="text-xl text-[#0056FF]" />
-                        <span>อัพโหลดเอกสาร</span>
-                    </div>
-                </label>
+                <button
+                    onClick={handleUploadClick}
+                    className="flex flex-row items-center gap-2 p-2 cursor-pointer"
+                >
+                    <ImFilePicture className="text-xl text-[#0056FF]" />
+                    <span>อัพโหลดรูปภาพ/วิดีโอ</span>
+                </button>
                 <Divider />
                 <div className="flex flex-row items-center gap-2 p-2 cursor-pointer"
                     onClick={handleOpenModal}

@@ -24,13 +24,13 @@ export default function Club() {
     }, []);
 
     return (
-        <div className="flex flex-col w-[100%] min-h-[100vh] bg-[#120d0f]">
+        <div className="flex flex-col w-[100%] min-h-[100vh] bg-[#120d0f] mb-10 py-5">
             <div className="w-full flex justify-center">
                 <Image
                     src="/images/club/logo-club.png"
                     alt="one Retail club Logo"
-                    width={50}
-                    height={50}
+                    width={60}
+                    height={60}
                     style={{
                         objectFit: "cover",
                         objectPosition: "center",

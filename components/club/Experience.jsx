@@ -3,7 +3,7 @@ import { useSession } from "next-auth/react";
 import useSWR from "swr";
 import { FiSend } from "react-icons/fi";
 import axios from "axios";
-import { Dialog, Slide } from "@mui/material";
+import { Dialog, Slide, CircularProgress } from "@mui/material";
 import Image from "next/image";
 import { IoIosArrowBack } from "react-icons/io";
 import CommentInput from "../comments/CommentInput";
@@ -11,6 +11,7 @@ import PostInput from "../comments/PostInput";
 import ReplyInput from "../comments/ReplyInput";
 import { PiUserCircleDuotone } from "react-icons/pi";
 import ImageGallery from "./ImageGallery";
+import { BsThreeDotsVertical } from "react-icons/bs";
 import moment from "moment";
 import "moment/locale/th";
 moment.locale('th');
@@ -30,6 +31,8 @@ const Experience = () => {
     const [showReply, setShowReply] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [currentDialog, setCurrentDialog] = useState(null);
+    const [loading, setLoading] = useState(false);
+    
 
     const { data, error, mutate } = useSWR('/api/club/experience', fetcher, {
         onSuccess: (data) => {
@@ -54,6 +57,7 @@ const Experience = () => {
     };
 
     const handlePostSubmit = async (data) => {
+        console.log('data',data);
         setLoading(true);
         try {
             const userId = session?.user?.id;
@@ -61,13 +65,14 @@ const Experience = () => {
             // ส่งข้อมูลโพสต์ไปยัง API
             const response = await axios.post('/api/club/experience', {
                 post: data.post,
-                link,
-                images: data.images,
-                videos: data.video,
+                link: data.link,
+                medias: data.media,
                 files: data.files,
                 tagusers: data.selectedUsers,
                 userId
             });
+
+            console.log('res', response.data);
     
             const experience = response.data;
     
@@ -99,8 +104,7 @@ const Experience = () => {
             const userId = session?.user?.id;
             const response = await axios.post('/api/club/experiencecomment', {
                 comment: data.post,
-                images: data.images,
-                videos: data.video,
+                medias: data.media,
                 files: data.files,
                 tagusers: data.selectedUsers,
                 experienceId,
@@ -138,8 +142,7 @@ const Experience = () => {
             const userId = session?.user?.id;
             await axios.post('/api/club/experiencereply', {
                 reply: data.post,
-                images: data.images,
-                videos: data.video,
+                medias: data.media,
                 files: data.files,
                 tagusers: data.selectedUsers,
                 commentId,
@@ -269,9 +272,10 @@ const Experience = () => {
                             <div className="flex flex-col w-full ml-2">
                                 <div className="flex flex-row justify-between items-center">
                                     <p className="text-xs font-bold text-[#0056FF]">{experience?.user?.fullname}</p>
-                                    <p className="text-[8px]">{moment(experience?.createdAt).fromNow()}</p>
+                                    {/* Options */}
+                                    <BsThreeDotsVertical />
                                 </div>
-                                
+                                <p className="text-[8px]">{moment(experience?.createdAt).fromNow()}</p>
                                 {experience?.tagusers.length > 0 && experience?.tagusers.map((taguser, index) => (
                                     <div className="flex flex-row w-full items-center gap-1 mb-2 mt-[-5px]" key={index}>
                                     <PiUserCircleDuotone className="flex text-md"/>
@@ -280,11 +284,15 @@ const Experience = () => {
                                     </div>
                                     </div>
                                 ))}
-                                <p className="text-xs">{experience?.post}</p>
-                                {experience?.images.length > 0 && (
-                                    <ImageGallery images={experience.images} />
-                                )}
                             </div>
+                        </div>
+                        <div className="flex flex-col w-full">
+                                {experience?.post ? (
+                                     <p className="text-xs">{experience?.post}</p>
+                                ): null}
+                                {experience?.medias.length > 0 && (
+                                    <ImageGallery medias={experience.medias} />
+                                )}
                         </div>
                         <div className="flex flex-col w-full mt-2">
                             <div className="flex flex-row items-center justify-between w-full pl-4 pr-2">
@@ -339,8 +347,8 @@ const Experience = () => {
                                                 <p className="text-[8px]">{moment(comment?.createdAt).fromNow()}</p>
                                             </div>
                                             <p className="text-xs">{comment?.comment}</p>
-                                            {comment?.images.length > 0 && (
-                                                <ImageGallery images={comment.images} />
+                                            {comment?.medias.length > 0 && (
+                                                <ImageGallery images={comment.medias} />
                                             )}
                                         </div>
                                     </div>
@@ -409,8 +417,8 @@ const Experience = () => {
                                                         <p className="text-[8px]">{moment(reply?.createdAt).fromNow()}</p>
                                                     </div>
                                                     <p className="text-xs">{reply?.reply}</p>
-                                                    {reply?.images.length > 0 && (
-                                                        <ImageGallery images={reply.images} />
+                                                    {reply?.medias.length > 0 && (
+                                                        <ImageGallery images={reply.medias} />
                                                     )}
                                                 </div>
                                             </div>
@@ -448,6 +456,11 @@ const Experience = () => {
                     {currentDialog?.type === 'post' && <PostInput handleSubmit={handlePostSubmit} userId={session?.user?.id} />}
                     {currentDialog?.type === 'comment' && <CommentInput handleSubmit={(data) => handleCommentSubmit(currentDialog.id, data)} userId={session?.user?.id} />}
                     {currentDialog?.type === 'reply' && <ReplyInput handleSubmit={(data) => handleReplySubmit(currentDialog.id, data)} userId={session?.user?.id} />}
+                </div>
+            </Dialog>
+            <Dialog open={loading} onClose={() => setIsLoading(false)}>
+                <div className="flex justify-center items-center w-full h-full p-10">
+                    <CircularProgress />
                 </div>
             </Dialog>
         </div>

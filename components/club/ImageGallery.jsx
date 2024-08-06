@@ -1,15 +1,19 @@
 import React, { useState } from "react";
 import Image from "next/image";
+import ReactPlayer from "react-player";
 import { Modal, Box } from "@mui/material";
 import { IoIosCloseCircleOutline } from "react-icons/io";
+import { FaRegPlayCircle } from "react-icons/fa";
 
-const ImageGallery = ({ images }) => {
+const ImageGallery = ({ medias }) => {
     const [open, setOpen] = useState(false);
     const [currentImage, setCurrentImage] = useState(null);
 
-    const handleOpen = (image) => {
-        setCurrentImage(image);
-        setOpen(true);
+    const handleOpen = (media) => {
+        if (media.type === 'image') {
+            setCurrentImage(media);
+            setOpen(true);
+        }
     };
 
     const handleClose = () => {
@@ -19,28 +23,56 @@ const ImageGallery = ({ images }) => {
 
     return (
         <div className="flex flex-wrap gap-2">
-            {images.length === 1 ? (
-                <div className="flex w-full" onClick={() => handleOpen(images[0])}>
-                    <Image
-                        src={images[0].url}
-                        alt="image"
-                        width={600}
-                        height={400}
-                        className="rounded-xl mt-2 object-cover cursor-pointer"
-                        style={{ width: '100%', height: 'auto' }}
-                    />
-                </div>
-            ) : (
-                images.map((image, index) => (
-                    <div key={index} className="flex w-1/2" onClick={() => handleOpen(image)}>
+            {medias.length === 1 ? (
+                medias[0].type === "image" ? (
+                    <div className="flex w-full" onClick={() => handleOpen(medias[0])}>
                         <Image
-                            src={image.url}
+                            src={medias[0].url}
                             alt="image"
-                            width={300}
-                            height={200}
+                            width={600}
+                            height={400}
                             className="rounded-xl mt-2 object-cover cursor-pointer"
                             style={{ width: '100%', height: 'auto' }}
                         />
+                    </div>
+                ) : (
+                    <div className="flex w-full relative">
+                        <ReactPlayer
+                            url={medias[0].url}
+                            width="100%"
+                            height="250px"
+                            controls
+                        />
+                    </div>
+                )
+            ) : (
+                medias.map((media, index) => (
+                    <div key={index} className="flex w-1/2 relative">
+                        {media.type === "image" ? (
+                            <div className="flex w-full" onClick={() => handleOpen(media)}>
+                                <Image
+                                    src={media.url}
+                                    alt="image"
+                                    width={600}
+                                    height={400}
+                                    className="rounded-xl object-cover cursor-pointer"
+                                    style={{ width: '100%', height: 'auto' }}
+                                />
+                            </div>
+                        ) : (
+                            <ReactPlayer
+                                url={media.url}
+                                width="100%"
+                                height="400px"
+                                controls
+                                light={
+                                    <div className="relative w-full h-full flex items-center justify-center">
+                                        <FaRegPlayCircle className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-3xl" />
+                                    </div>
+                                }
+                                playIcon={<FaRegPlayCircle className="text-white text-5xl" />}
+                            />
+                        )}
                     </div>
                 ))
             )}
@@ -72,9 +104,9 @@ const ImageGallery = ({ images }) => {
                             <Image
                                 src={currentImage.url}
                                 alt="image"
-                                width={800}
-                                height={600}
-                                className="rounded-xl object-cover"
+                                width={600}
+                                height={400}
+                                className="rounded-xl mt-2 object-cover cursor-pointer"
                                 style={{ width: '100%', height: 'auto' }}
                             />
                         </div>

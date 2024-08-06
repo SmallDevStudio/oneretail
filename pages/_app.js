@@ -8,6 +8,7 @@ import "@/styles/globals.css";
 import AddToHomeScreenPrompt from "@/lib/hook/AddToHomeScreenPrompt";
 import { initGA, logPageView } from "@/utils/analytics";
 import Head from "next/head";
+import Script from "next/script";
 import '@/styles/editor.scss';
 
 
