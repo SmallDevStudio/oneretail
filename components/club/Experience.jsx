@@ -344,13 +344,25 @@ const Experience = () => {
                                         <div className="flex flex-col w-full">
                                             <div className="flex flex-row justify-between items-center">
                                                 <p className="text-xs font-bold text-[#0056FF]">{comment?.user?.fullname}</p>
-                                                <p className="text-[8px]">{moment(comment?.createdAt).fromNow()}</p>
+                                
                                             </div>
-                                            <p className="text-xs">{comment?.comment}</p>
+                                            <p className="text-[8px]">{moment(comment?.createdAt).fromNow()}</p>
+                                            {comment?.tagusers.length > 0 && comment?.tagusers.map((taguser, index) => (
+                                                <div className="flex flex-row w-full items-center gap-1 mb-2 mt-[-5px]" key={index}>
+                                                <PiUserCircleDuotone className="flex text-md"/>
+                                                <div key={index} className="flex w-full">
+                                                    <span className="text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
+                                                </div>
+                                                </div>
+                                            ))}
+
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col w-full">
+                                        <p className="text-xs">{comment?.comment}</p>
                                             {comment?.medias.length > 0 && (
                                                 <ImageGallery images={comment.medias} />
                                             )}
-                                        </div>
                                     </div>
                                     <div>
                                         <div className="flex flex-row items-center justify-between w-full px-4 pb-2 mt-1">
@@ -382,21 +394,6 @@ const Experience = () => {
                                             </div>
                                         </div>
                                     </div>
-                                    {showInputReply === comment._id && (
-                                        <div className="flex flex-row items-center p-2 gap-2">
-                                            <textarea
-                                                className="p-2 bg-gray-200 text-black text-xs outline-none rounded-full w-full"
-                                                placeholder="เขียนความคิดเห็น"
-                                                value={reply}
-                                                onChange={(e) => setReply(e.target.value)}
-                                                rows={1}
-                                            />
-                                            <button className="p-2 bg-gray-800 text-white text-xs outline-none rounded-full" 
-                                                onClick={() => handleReplySubmit(comment._id)}>
-                                                <FiSend />
-                                            </button>
-                                        </div>
-                                    )}
 
                                     {showReply === comment._id && Array.isArray(comment.reply) && comment.reply.map((reply, replyIndex) => (
                                         <div key={replyIndex} className="flex flex-col w-5/7 justify-end bg-black/10 rounded-lg px-2 pb-2 ml-4 mb-1">
@@ -416,11 +413,13 @@ const Experience = () => {
                                                         <p className="text-xs font-bold text-[#0056FF]">{reply?.user?.fullname}</p>
                                                         <p className="text-[8px]">{moment(reply?.createdAt).fromNow()}</p>
                                                     </div>
-                                                    <p className="text-xs">{reply?.reply}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col w-full">
+                                                <p className="text-xs">{reply?.reply}</p>
                                                     {reply?.medias.length > 0 && (
                                                         <ImageGallery images={reply.medias} />
                                                     )}
-                                                </div>
                                             </div>
                                             <div className="flex flex-row items-center gap-2 justify-between pl-10 pr-1 mt-1 w-full">
                                                 <div className="flex flex-row items-center gap-2">
