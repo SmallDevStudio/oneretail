@@ -11,9 +11,11 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function FooterContant() {
 
-    const { data, error } = useSWR("/api/list", fetcher);
+    const { data, error } = useSWR("/api/contents/list", fetcher);
     const { data: article, error: articleError } = useSWR("/api/articles/main", fetcher);
     const router = useRouter();
+
+    console.log(data);
 
     const handleClick = (categories, id ) => {
         if (categories === "Learning") {
@@ -33,7 +35,7 @@ export default function FooterContant() {
                     วีดีโอแนะนำ
                 </span>
                 <div className="flex flex-row flex-wrap justify-evenly gap-2">
-                    {Array.isArray(data) && data.map((content, index) => (
+                    {Array.isArray(data.data) && data.data.map((content, index) => (
                         <div 
                             key={index} 
                             className="flex flex-col bg-gray-200 rounded-lg p-2 mt-2 max-w-[180px] min-w-[150px]"
