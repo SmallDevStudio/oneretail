@@ -36,6 +36,7 @@ const FormAdd = () => {
     const [subcategorys, setSubcategorys] = useState([]);
     const [groups, setGroups] = useState([]);
     const [subgroups, setSubgroups] = useState([]);
+    const [errors, setErrors] = useState({});
     const router = useRouter();
     const { data: session } = useSession();
     const userId = session?.user?.id;
@@ -80,9 +81,10 @@ const FormAdd = () => {
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData({ ...formData, [name]: type === "checkbox" ? checked : value });
-      };
+        setErrors({ ...errors, [name]: '' }); // Clear error for the field when user starts typing
+    };
 
-      const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
     
         if (!formData.title && youtubeData) {
@@ -119,10 +121,12 @@ const FormAdd = () => {
             }
         } catch (error) {
             console.error("Error submitting form:", error);
+            if (error.response && error.response.data && error.response.data.errors) {
+                setErrors(error.response.data.errors);
+            }
             new Alert("ผิดพลาด", "เพิ่มข้อมูลไม่สำเร็จ", "error");
         }
     };
-    
 
     const handleYoutube = async (e) => {
         try {
@@ -166,44 +170,55 @@ const FormAdd = () => {
                 </div>
                 <form className="flex flex-col space-y-2" onSubmit={handleSubmit}>
                     <input type="text" className="border-2 border-gray-300 rounded-lg p-2" placeholder="ชื่อเนื้อหา" id="title" 
-                        onChange={(e) => setFormData({ ...formData, title: e.target.value })} ref={titleRef}
+                        onChange={handleChange} ref={titleRef} name="title"
                     />
+                    {errors.title && <div className="text-red-500">{errors.title}</div>}
+                    
                     <textarea className="border-2 border-gray-300 rounded-lg p-2" placeholder="รายละเอียดเนื้อหา" id="description" 
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })} ref={descriptionRef}
+                        onChange={handleChange} ref={descriptionRef} name="description"
                     />
+                    {errors.description && <div className="text-red-500">{errors.description}</div>}
+                    
                     <div className="flex flex-row">
-                        <select className="border-2 border-gray-300 rounded-lg p-2" id="caterogy"
-                            onChange={(e) => setFormData({ ...formData, categories: e.target.value })}
+                        <select className="border-2 border-gray-300 rounded-lg p-2" id="caterogy" name="categories"
+                            onChange={handleChange}
                         >
                             <option value="">เลือกหมวดหมู่</option>
                             {categorys.data && categorys.data.map((category) => (
                                 <option key={category._id} value={category._id}>{category.title}</option>
                             ))}
                         </select>
-                        <select className="border-2 border-gray-300 rounded-lg p-2" id="subcaterogy"
-                            onChange={(e) => setFormData({ ...formData, subcategories: e.target.value })}
+                        {errors.categories && <div className="text-red-500">{errors.categories}</div>}
+                        
+                        <select className="border-2 border-gray-300 rounded-lg p-2" id="subcaterogy" name="subcategories"
+                            onChange={handleChange}
                         >
                             <option value="">เลือกหมวดหมู่ย่อย</option>
                             {subcategorys.data && subcategorys.data.map((subcategory) => (
                                 <option key={subcategory._id} value={subcategory._id}>{subcategory.title}</option>
                             ))}
                         </select>
-                        <select className="border-2 border-gray-300 rounded-lg p-2" id="groups"
-                            onChange={(e) => setFormData({ ...formData, groups: e.target.value })}
+                        {errors.subcategories && <div className="text-red-500">{errors.subcategories}</div>}
+                        
+                        <select className="border-2 border-gray-300 rounded-lg p-2" id="groups" name="groups"
+                            onChange={handleChange}
                         >
                             <option value="">เลือกกลุ่ม</option>
                             {groups.data && groups.data.map((group) => (
                                 <option key={group._id} value={group._id}>{group.name}</option>
                             ))}
                         </select>
-                        <select className="border-2 border-gray-300 rounded-lg p-2" id="subgroups"
-                            onChange={(e) => setFormData({ ...formData, subgroups: e.target.value })}
+                        {errors.groups && <div className="text-red-500">{errors.groups}</div>}
+                        
+                        <select className="border-2 border-gray-300 rounded-lg p-2" id="subgroups" name="subgroups"
+                            onChange={handleChange}
                         >
                             <option value="">เลือกsSubgroup</option>
                             {subgroups.data && subgroups.data.map((subgroup) => (
                                 <option key={subgroup._id} value={subgroup._id}>{subgroup.name}</option>
                             ))}
                         </select>
+                        {errors.subgroups && <div className="text-red-500">{errors.subgroups}</div>}
                     </div>
 
                     <div className="flex flex-row w-full gap-4 items-center">
@@ -222,7 +237,6 @@ const FormAdd = () => {
                                 ปักหมุด
                                 </label>
                             </div>
-
                             <div className="flex items-center">
                                 <input
                                 id="recommend"
@@ -239,17 +253,21 @@ const FormAdd = () => {
                             </div>
                         </div>
 
-
-                        <input type="text" className="border-2 border-gray-300 rounded-lg p-2 h-10" placeholder="Point" id="Point"
-                            onChange={(e) => setFormData({ ...formData, point: e.target.value })}
+                        <input type="text" className="border-2 border-gray-300 rounded-lg p-2 h-10" placeholder="Point" id="Point" name="point"
+                            onChange={handleChange}
                         />
-                        <input type="text" className="border-2 border-gray-300 rounded-lg p-2 h-10" placeholder="Coin" id="Coin"
-                            onChange={(e) => setFormData({ ...formData, coins: e.target.value })}
+                        {errors.point && <div className="text-red-500">{errors.point}</div>}
+                        
+                        <input type="text" className="border-2 border-gray-300 rounded-lg p-2 h-10" placeholder="Coin" id="Coin" name="coins"
+                            onChange={handleChange}
                         />
+                        {errors.coins && <div className="text-red-500">{errors.coins}</div>}
                     </div>
-                    <input type="text" className="border-2 border-gray-300 rounded-lg p-2" placeholder="Tags" id="Tags"
-                        onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                    <input type="text" className="border-2 border-gray-300 rounded-lg p-2" placeholder="Tags" id="Tags" name="tags"
+                        onChange={handleChange}
                     />
+                    {errors.tags && <div className="text-red-500">{errors.tags}</div>}
+                    
                     <button className="border-2 border-gray-300 rounded-lg p-2 bg-blue-500">บันทึก</button>
                 </form>
             </div>

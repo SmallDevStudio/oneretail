@@ -47,7 +47,7 @@ export default async function handler(req, res) {
     if (req.method === "POST") {
         console.log("Request body:", req.body);
 
-        const { title, description, slug, author, categories, subcategories, groups, subgroup, pinned, recommend } = req.body;
+        const { title, description, slug, author, categories, subcategories, groups, subgroups, pinned, recommend } = req.body;
 
         if (!title || !description || !slug || !author) {
             return res.status(400).json({ success: false, message: 'Required fields are missing' });
@@ -58,7 +58,7 @@ export default async function handler(req, res) {
             categories: categories || null,
             subcategories: subcategories || null,
             groups: groups || null,
-            subgroup: subgroup || null,
+            subgroups: subgroups || null,
             pinned: pinned === '' ? false : pinned,
             recommend: recommend === '' ? false : recommend,
         };
@@ -68,7 +68,7 @@ export default async function handler(req, res) {
             res.status(201).json(content);
         } catch (error) {
             console.error("Error creating content:", error);
-            res.status(400).json({ success: false, error: error.message });
+            res.status(400).json({ success: false, errors: error.errors });
         }
     }
 }

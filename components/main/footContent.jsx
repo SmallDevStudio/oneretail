@@ -11,7 +11,7 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function FooterContant() {
 
-    const { data, error } = useSWR("/api/contents", fetcher);
+    const { data, error } = useSWR("/api/list", fetcher);
     const { data: article, error: articleError } = useSWR("/api/articles/main", fetcher);
     const router = useRouter();
 
