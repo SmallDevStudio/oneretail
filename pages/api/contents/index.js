@@ -1,4 +1,3 @@
-// api/contents/index.js
 import connectMongoDB from "@/lib/services/database/mongodb";
 import Content from "@/database/models/Content";
 import Users from "@/database/models/users";
@@ -7,37 +6,36 @@ export default async function handler(req, res) {
     await connectMongoDB();
 
     if (req.method === "GET") {
-        const { page = 1, pageSize = 10, search = "" } = req.query;
-
-        const skip = (page - 1) * pageSize;
-        const limit = parseInt(pageSize, 10);
-
         try {
-            const query = search ? { title: { $regex: search, $options: "i" } } : {};
+            const { page = 1, limit = 10, search = '' } = req.query;
 
-            const totalItems = await Content.countDocuments(query);
-            let contents = await Content.find(query)
+            const query = search ? { title: { $regex: search, $options: 'i' } } : {};
+
+            const contents = await Content.find(query)
                 .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(limit)
+                .skip((page - 1) * limit)
+                .limit(parseInt(limit))
                 .populate('categories')
                 .populate('subcategories')
                 .populate('groups');
 
+            const totalItems = await Content.countDocuments(query);
+
+            // Manually populate author data
             const userIds = contents.map(content => content.author);
             const users = await Users.find({ userId: { $in: userIds } }).select('userId fullname pictureUrl role');
             const userMap = users.reduce((acc, user) => {
-                acc[user.userId] = user;
-                return acc;
+              acc[user.userId] = user;
+              return acc;
             }, {});
-
-            contents = contents.map(content => {
-                const contentObj = content.toObject();
-                contentObj.author = userMap[contentObj.author] || null;
-                return contentObj;
+    
+            const populatedContents = contents.map(content => {
+              content = content.toObject();
+              content.author = userMap[content.author] || null;
+              return content;
             });
 
-            res.status(200).json({ success: true, data: contents, totalItems });
+            res.status(200).json({ success: true, data: populatedContents, totalItems });
         } catch (error) {
             console.error('Error fetching content:', error);
             res.status(400).json({ success: false, error: error.message });
@@ -47,7 +45,7 @@ export default async function handler(req, res) {
     if (req.method === "POST") {
         console.log("Request body:", req.body);
 
-        const { title, description, slug, author, categories, subcategories, groups, subgroups, pinned, recommend } = req.body;
+        const { title, description, slug, author, categories, subcategories, groups, pinned, recommend } = req.body;
 
         if (!title || !description || !slug || !author) {
             return res.status(400).json({ success: false, message: 'Required fields are missing' });
@@ -58,7 +56,6 @@ export default async function handler(req, res) {
             categories: categories || null,
             subcategories: subcategories || null,
             groups: groups || null,
-            subgroups: subgroups || null,
             pinned: pinned === '' ? false : pinned,
             recommend: recommend === '' ? false : recommend,
         };
@@ -68,7 +65,7 @@ export default async function handler(req, res) {
             res.status(201).json(content);
         } catch (error) {
             console.error("Error creating content:", error);
-            res.status(400).json({ success: false, errors: error.errors });
+            res.status(400).json({ success: false, error: error.message });
         }
     }
 }

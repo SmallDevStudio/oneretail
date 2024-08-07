@@ -186,7 +186,13 @@ const UsersTable = () => {
             </button>
             </div>
            
-            <DataGrid rows={filteredUsers} columns={columns} pageSize={10} loading={loading} getRowId={(row) => row._id} />
+            <DataGrid 
+                rows={filteredUsers} 
+                columns={columns} 
+                pageSize={10} 
+                loading={loading} 
+                getRowId={(row) => row._id} 
+            />
 
             <Dialog open={openViewModal} onClose={() => setOpenViewModal(false)}>
                 <DialogTitle>

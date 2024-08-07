@@ -15,7 +15,6 @@ const FormEdit = ({ initialData }) => {
         subgroups: initialData?.subgroups?._id || '',
         tags: Array.isArray(initialData?.tags) ? initialData.tags.join(' ') : (initialData?.tags || ''),
         pinned: initialData?.pinned || false,
-        new: initialData?.new || false,
         recommend: initialData?.recommend || false
 
     });
@@ -69,6 +68,11 @@ const FormEdit = ({ initialData }) => {
         }
     };
 
+    const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setFormData({ ...formData, [name]: type === "checkbox" ? checked : value });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -77,6 +81,7 @@ const FormEdit = ({ initialData }) => {
                 tags: typeof formData.tags === 'string' ? formData.tags.split(' ').filter(tag => tag) : formData.tags
             };
 
+            console.log('update:', updatedFormData);
             const response = await axios.put(`/api/content/edit/${formData._id}`, updatedFormData);
             if (response.data.success) {
                 new Alert("สำเร็จ", "อัปเดตข้อมูลเรียบร้อย", "success");
@@ -151,33 +156,21 @@ const FormEdit = ({ initialData }) => {
                                 name="pinned"
                                 type="checkbox"
                                 checked={formData.pinned}
-                                onChange={(e) => setFormData({ ...formData, pinned: e.target.checked })}
+                                onChange={handleChange}
                                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-xl focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2"
                                 />
                                 <label htmlFor="pinned" className="ms-2 text-md font-bold text-gray-900">
                                 ปักหมุด
                                 </label>
                             </div>
-                            <div className="flex items-center">
-                                <input
-                                id="new"
-                                name="new"
-                                type="checkbox"
-                                checked={formData.new}
-                                onChange={(e) => setFormData({ ...formData, new: e.target.checked })}
-                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-xl focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2"
-                                />
-                                <label htmlFor="new" className="ms-2 text-md font-bold text-gray-900">
-                                ใหม่
-                                </label>
-                            </div>
+                            
                             <div className="flex items-center">
                                 <input
                                 id="recommend"
                                 name="recommend"
                                 type="checkbox"
                                 checked={formData.recommend}
-                                onChange={(e) => setFormData({ ...formData, recommend: e.target.checked })}
+                                onChange={handleChange}
                                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-xl focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2"
                                 />
                                 <label htmlFor="recommend" className="ms-2 text-md font-bold text-gray-900">

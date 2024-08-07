@@ -12,17 +12,7 @@ export default async function handler(req, res) {
     }
     
     try {
-        const {
-          title,
-          description,
-          categories,
-          subcategories,
-          groups,
-          publisher,
-          point,
-          coins,
-          tags
-        } = req.body;
+      const { title, description, categories, subcategories, groups,subgroups, publisher, point, coins, tags, pinned, recommend } = req.body;
 
         const content = await Content.findById(id);
 
@@ -36,11 +26,14 @@ export default async function handler(req, res) {
         content.categories = categories;
         content.subcategories = subcategories;
         content.groups = groups;
-        content.publisher = publisher;
+        content.publisher = publisher === '' ? false : publisher,
         content.point = point;
         content.coins = coins;
         content.tags = typeof tags === 'string' ? tags.split(' ').filter(tag => tag) : tags; // Convert space-separated string to array
-
+        content.pinned = pinned === '' ? false : pinned,
+        content.recommend = recommend === '' ? false : recommend
+        
+        // Save the updated content
         await content.save();
 
         res.status(200).json({ success: true, data: content });

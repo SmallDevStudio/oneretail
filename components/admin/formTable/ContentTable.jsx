@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
 import Image from 'next/image';
@@ -8,40 +8,25 @@ import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
 import RemoveBtn from "@/components/btn/removePage";
 import TimeDisplay from "@/components/TimeDisplay";
 import Link from 'next/link';
+import useSWR from 'swr';
+import { useRouter } from 'next/router';
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 const ContentTable = () => {
-    const [contents, setContents] = useState([]);
     const [page, setPage] = useState(0); // Note: DataGrid uses zero-based indexing
-    const [pageSize, setPageSize] = useState(10);
-    const [rowCount, setRowCount] = useState(0);
-    const [loading, setLoading] = useState(true);
+    const [limit, setLimit] = useState(10);
     const [searchTerm, setSearchTerm] = useState('');
 
-    const fetchContents = async (page, pageSize, search) => {
-        setLoading(true);
-        try {
-            const res = await axios.get(`/api/contents`, {
-                params: {
-                    page: page + 1, // Convert to one-based indexing for the backend
-                    pageSize: pageSize,
-                    search: search
-                }
-            });
-            const data = res.data;
-            setContents(data.data);
-            setRowCount(data.totalItems);
-            setLoading(false);
-        } catch (error) {
-            console.error("Failed to fetch contents:", error);
-            setLoading(false);
-        }
-    };
+    const router = useRouter();
 
-    useEffect(() => {
-        fetchContents(page, pageSize, searchTerm);
-    }, [page, pageSize, searchTerm]);
+    const { data, error, mutate } = useSWR(`/api/contents?page=${page + 1}&limit=${limit}&search=${searchTerm}`, fetcher, {
+        revalidateOnFocus: false
+    });
+
+    const loading = !data && !error;
+    const rowCount = data ? data.totalItems : 0;
+    const contents = data ? data.data : [];
 
     const handleSearch = (event) => {
         setSearchTerm(event.target.value);
@@ -50,7 +35,7 @@ const ContentTable = () => {
     const togglePublisher = async (id, currentStatus) => {
         try {
             await axios.put(`/api/contents/${id}`, { publisher: !currentStatus });
-            fetchContents(page, pageSize, searchTerm);
+            mutate(); // Re-fetch the data after updating publisher status
         } catch (error) {
             console.error("Failed to update publisher status:", error);
         }
@@ -62,7 +47,7 @@ const ContentTable = () => {
             headerName: 'Thumbnail',
             width: 130,
             renderCell: (params) => (
-                <Image src={params.value} alt="thumbnail" width={100} height={100} style={{ width: '100px', height: '50px', objectFit: 'cover'}} />
+                <Image src={params.value} alt="thumbnail" width={100} height={100} style={{ width: 'auto', height: 'auto', objectFit: 'cover' }} />
             )
         },
         { field: 'title', headerName: 'Title', width: 200 },
@@ -141,13 +126,13 @@ const ContentTable = () => {
                 rows={contents}
                 columns={columns}
                 page={page}
-                pageSize={pageSize}
+                pageSize={limit}
                 rowCount={rowCount}
                 pagination
                 paginationMode="server"
                 loading={loading}
                 onPageChange={(newPage) => setPage(newPage)}
-                onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
+                onPageSizeChange={(newLimit) => setLimit(newLimit)}
                 rowsPerPageOptions={[10, 20, 30]}
                 getRowId={(row) => row._id}
             />
