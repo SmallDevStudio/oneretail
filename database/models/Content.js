@@ -23,7 +23,6 @@ const ContentSchema = new Schema({
     likes: [{ type: String, ref: 'Users', default: [] }],
     tags: { type: [String], default: [] }, // Store tags as an array of strings
     pinned: { type: Boolean, default: false },
-    new: { type: Boolean, default: false },
     recommend: { type: Boolean, default: false },
 }, {
     timestamps: true
