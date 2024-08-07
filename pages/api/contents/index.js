@@ -1,9 +1,6 @@
+// api/contents
 import connetMongoDB from "@/lib/services/database/mongodb";
 import Content from "@/database/models/Content";
-import Category from "@/database/models/Category";
-import Group from "@/database/models/Group";
-import Subcategory from "@/database/models/Subcategory";
-import Users from "@/database/models/users";
 
 export default async function handler(req, res) {
     await connetMongoDB();
@@ -23,11 +20,30 @@ export default async function handler(req, res) {
     }
 
     if (req.method === "POST") {
+        console.log("Request body:", req.body);
+
+        const { title, description, slug, author, categories, subcategories, groups, subgroups, pinned, recommend } = req.body;
+
+        if (!title || !description || !slug || !author) {
+            return res.status(400).json({ success: false, message: 'Required fields are missing' });
+        }
+
+        const sanitizedData = {
+            ...req.body,
+            categories: categories || null,
+            subcategories: subcategories || null,
+            groups: groups || null,
+            subgroups: subgroups || null,
+            pinned: pinned === '' ? false : pinned,
+            recommend: recommend === '' ? false : recommend,
+        };
+
         try {
-            const content = await Content.create(req.body);
+            const content = await Content.create(sanitizedData);
             res.status(201).json(content);
         } catch (error) {
-            res.status(400).json({ success: false });
+            console.error("Error creating content:", error);
+            res.status(400).json({ success: false, error: error.message });
         }
     }
 }

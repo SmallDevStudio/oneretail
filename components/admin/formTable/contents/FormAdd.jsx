@@ -26,7 +26,6 @@ const FormAdd = () => {
         youtubeUrl: '',
         duration: '',
         thumbnailUrl: '',
-        youtubeMeta: {},
         tags: '',
         new: '',
         pinned: '',
@@ -79,29 +78,38 @@ const FormAdd = () => {
         setSubgroups(response.data);
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setFormData({ ...formData, [name]: type === "checkbox" ? checked : value });
+      };
 
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+    
         if (!formData.title && youtubeData) {
             formData.title = youtubeData.title;
         }
         if (!formData.description && youtubeData) {
             formData.description = youtubeData.description;
         }
-
+    
         const form = {
             ...formData,
-            slug: youtubeData.videoId,
-            duration: youtubeData.duration,
-            youtube: { ...youtubeData },
-            youtubeMeta: JSON.stringify(youtubeData),
+            slug: youtubeData ? youtubeData.videoId : '',
+            duration: youtubeData ? youtubeData.duration : '',
             youtubeUrl: youtube,
-            thumbnailUrl: youtubeData.thumbnailUrl,
+            thumbnailUrl: youtubeData ? youtubeData.thumbnailUrl : '',
             author: userId,
+            categories: formData.categories || null,
+            subcategories: formData.subcategories || null,
+            groups: formData.groups || null,
+            subgroups: formData.subgroups || null,
+            pinned: formData.pinned || false,
+            recommend: formData.recommend || false,
         };
-
-        console.log(form);
-
+    
+        console.log("Form data:", form);
+    
         try {
             const response = await axios.post('/api/contents', form);
             if (response.data) {
@@ -111,10 +119,11 @@ const FormAdd = () => {
                 new Alert("ผิดพลาด", "เพิ่มข้อมูลไม่สำเร็จ", "error");
             }
         } catch (error) {
-            console.error(error);
+            console.error("Error submitting form:", error);
             new Alert("ผิดพลาด", "เพิ่มข้อมูลไม่สำเร็จ", "error");
         }
     };
+    
 
     const handleYoutube = async (e) => {
         try {
@@ -206,8 +215,8 @@ const FormAdd = () => {
                                 id="pinned"
                                 name="pinned"
                                 type="checkbox"
-                                checked={formData.pinned}
-                                onChange={(e) => setFormData({ ...formData, pinned: e.target.checked })}
+                                checked={formData.pinned || false}
+                                onChange={handleChange}
                                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-xl focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2"
                                 />
                                 <label htmlFor="pinned" className="ms-2 text-md font-bold text-gray-900">
@@ -219,8 +228,8 @@ const FormAdd = () => {
                                 id="new"
                                 name="new"
                                 type="checkbox"
-                                checked={formData.new}
-                                onChange={(e) => setFormData({ ...formData, new: e.target.checked })}
+                                checked={formData.new || false}
+                                onChange={handleChange}
                                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-xl focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2"
                                 />
                                 <label htmlFor="new" className="ms-2 text-md font-bold text-gray-900">
@@ -232,8 +241,8 @@ const FormAdd = () => {
                                 id="recommend"
                                 name="recommend"
                                 type="checkbox"
-                                checked={formData.recommend}
-                                onChange={(e) => setFormData({ ...formData, recommend: e.target.checked })}
+                                checked={formData.recommend || false}
+                                onChange={handleChange}
                                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-xl focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2"
                                 />
                                 <label htmlFor="recommend" className="ms-2 text-md font-bold text-gray-900">
