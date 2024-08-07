@@ -6,8 +6,9 @@ export default async function handler(req, res) {
     connetMongoDB();
     switch (method) {
         case 'GET':
+            const { userId } = req.query;
             try {
-                const notifications = await Notification.find({ userId: req.query.userId });
+                const notifications = await Notification.find({ userId: userId, isReading: false });
                 res.status(200).json({ success: true, data: notifications });
             } catch (error) {
                 res.status(400).json({ success: false });

@@ -84,141 +84,133 @@ const manager = ['22392', '20569', '56428', '23782',
         '83452', '59261', '83994', '41929', '00000'
     ];
 
-const MainPage = () => {
-    const { data: session, status } = useSession();
-    const [showModal, setShowModal] = useState(false);
-    const [pilotModal, setPilotModal] = useState(false);
-    const [linkModal, setLinkModal] = useState(false);
-    const router = useRouter();
-    const userId = session?.user?.id;
-
-    const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
-    const { data: level, error: levelError, mutate } = useSWR(session ? `/api/level/user?userId=${userId}` : null, fetcher);
-
-    useEffect(() => {
-        if (status === "loading" || !session || !user) return;
-        if (userError || !user || user?.user === null) {
-            router.push('/register');
-            return;
-        }
-
-        // Check if user is a manager and if they need to receive points
-        if (manager.includes(user.user.empId)) {
-            axios.get(`/api/manager/check?userId=${user.user.userId}`)
+    const MainPage = () => {
+        const { data: session, status } = useSession();
+        const [showModal, setShowModal] = useState(false);
+        const [pilotModal, setPilotModal] = useState(false);
+        const [linkModal, setLinkModal] = useState(false);
+        const router = useRouter();
+        const userId = session?.user?.id;
+    
+        const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
+        const { data: level, error: levelError, mutate } = useSWR(session ? `/api/level/user?userId=${userId}` : null, fetcher);
+        const { data: users, error: usersError } = useSWR('/api/users/emp', fetcher);
+    
+        useEffect(() => {
+            if (status === "loading" || !session || !user) return;
+            if (userError || !user || user?.user === null) {
+                router.push('/register');
+                return;
+            }
+    
+            if (manager.includes(user.user.empId)) {
+                axios.get(`/api/manager/check?userId=${user.user.userId}`)
+                    .then(res => {
+                        if (!res.data.hasLoggedIn) {
+                            axios.post('/api/points/point', {
+                                userId: session.user.id,
+                                description: 'point พิเศษ',
+                                contentId: null,
+                                type: 'earn',
+                                points: 100,
+                            });
+    
+                            axios.post('/api/manager', {
+                                userId: session.user.id,
+                                loginDate: new Date(),
+                            });
+    
+                            setShowModal(true);
+                        }
+                    })
+                    .catch(err => console.error(err));
+            }
+    
+            if (CoinsPilot.includes(user.user.empId)) {
+                axios.get(`/api/coinspilot/check?userId=${user.user.userId}`)
                 .then(res => {
                     if (!res.data.hasLoggedIn) {
-                        // Award points to the user
-                        axios.post('/api/points/point', {
+                        axios.post('/api/coins/coins', {
                             userId: session.user.id,
-                            description: 'point พิเศษ',
-                            contentId: null,
+                            description: 'pilot',
                             type: 'earn',
-                            points: 100,
+                            coins: 50,
                         });
-
-                        // Update the manager login record
-                        axios.post('/api/manager', {
+    
+                        axios.post('/api/coinspilot', {
                             userId: session.user.id,
                             loginDate: new Date(),
                         });
-
-                        // Show quiz modal
-                        setShowModal(true);
+    
+                        setPilotModal(true);
                     }
                 })
                 .catch(err => console.error(err));
+            }
+        }, [router, session, status, user, userError]);
+    
+        const onRequestClose = () => {
+            setShowModal(false);
+        };
+    
+        const onExchangeAdd = async () => {
+            mutate();
         }
-
-        if (CoinsPilot.includes(user.user.empId)) {
-            axios.get(`/api/coinspilot/check?userId=${user.user.userId}`)
-            .then(res => {
-                if (!res.data.hasLoggedIn) {
-                    // Award points to the user
-                    axios.post('/api/coins/coins', {
-                        userId: session.user.id,
-                        description: 'pilot',
-                        type: 'earn',
-                        coins: 50,
-                    });
-
-                    // Update the manager login record
-                    axios.post('/api/coinspilot', {
-                        userId: session.user.id,
-                        loginDate: new Date(),
-                    });
-
-                    // Show quiz modal
-                    setPilotModal(true);
-                }
-            })
-            .catch(err => console.error(err));
-        }
-    }, [router, session, status, user, userError]);
-
-    const onRequestClose = () => {
-        setShowModal(false);
+    
+        if (status === "loading" || !user || !level) return <Loading />;
+        if (userError) return <div>Error loading data</div>;
+    
+        return (
+            <React.Fragment>
+                <RecheckUser>
+                    <main className="flex flex-col bg-gray-10 justify-between items-center text-center min-h-screen">
+                        <div className="flex justify-end mt-2 mr-3 w-full">
+                            <MenuPanel user={user} />
+                        </div>
+                        <div className="w-full p-5 mt-[-10px]">
+                            <UserPanel user={user} level={level} onExchangeAdd={onExchangeAdd} />
+                        </div>
+                        <div className="flex-grow flex items-center justify-center">
+                            <MainIconMenu />
+                        </div>
+                        <div className="flex w-full mb-10 px-5">
+                            <div className="flex flex-row justify-center w-full border-4 p-4 border-[#0056FF] rounded-xl gap-2"
+                                onClick={() => setLinkModal(true)}
+                            >
+                                <Image
+                                    src="/images/Link-01.svg"
+                                    width={40}
+                                    height={40}
+                                    alt="Link"
+                                    style={{ width: '30px', height: 'auto' }}
+                                />
+                                <span className="text-[#0056FF] font-bold">
+                                    รวม Link
+                                </span>
+                            </div>
+                        </div>
+                        <div className="w-full">
+                            <Carousel />
+                        </div>
+                        <div className="relative w-full footer-content">
+                            <FooterContant />
+                            <div className="text-center text-xs text-gray-300 mb-10">
+                                <p>Copyright © 2024. All Rights Reserved.</p>
+                                <span className=""> Powered by <span className="text-[#0056FF]/50 font-bold">One Retail</span></span>
+                                <span className="ml-2">v.1.5.0</span>
+                            </div>
+                        </div>
+                        <ManagerModal isOpen={showModal} onRequestClose={onRequestClose} score={100} />
+                        <PilotModal isOpen={pilotModal} onRequestClose={onRequestClose} score={50} />
+                        <LinkModal isOpen={linkModal} onRequestClose={() => setLinkModal(false)} />
+                    </main>
+                </RecheckUser>
+            </React.Fragment>
+        );
     };
-
-    const onExchangeAdd = async () => {
-        mutate();
-      }
-
-    if (status === "loading" || !user || !level) return <Loading />;
-    if (userError) return <div>Error loading data</div>;
-
-    return (
-        <React.Fragment>
-            <RecheckUser>
-                <main className="flex flex-col bg-gray-10 justify-between items-center text-center min-h-screen">
-                    <div className="flex justify-end mt-2 mr-3 w-full">
-                        <MenuPanel />
-                    </div>
-                    <div className="w-full p-5 mt-[-10px]">
-                        <UserPanel user={user} level={level} onExchangeAdd={onExchangeAdd} />
-                    </div>
-                    <div className="flex-grow flex items-center justify-center">
-                        <MainIconMenu />
-                        
-                    </div>
-                    <div className="flex w-full mb-10 px-5">
-                        <div className="flex flex-row justify-center w-full border-4 p-4 border-[#0056FF] rounded-xl gap-2"
-                            onClick={() => setLinkModal(true)}
-                        >
-                            <Image
-                                src="/images/Link-01.svg"
-                                width={40}
-                                height={40}
-                                alt="Link"
-                                style={{ width: '30px', height: 'auto' }}
-                            />
-                            <span className="text-[#0056FF] font-bold">
-                                รวม Link
-                            </span>
-                        </div>
-                        
-                    </div>
-                    <div className="w-full">
-                        <Carousel />
-                    </div>
-                    <div className="relative w-full footer-content">
-                        <FooterContant />
-                        <div className="text-center text-xs text-gray-300 mb-10">
-                            <p>Copyright © 2024. All Rights Reserved.</p>
-                            <span className=""> Powered by <span className="text-[#0056FF]/50 font-bold">One Retail</span></span>
-                            <span className="ml-2">v.1.5.0</span>
-                        </div>
-                    </div>
-                    <ManagerModal isOpen={showModal} onRequestClose={onRequestClose} score={100} />
-                    <PilotModal isOpen={pilotModal} onRequestClose={onRequestClose} score={50} />
-                    <LinkModal isOpen={linkModal} onRequestClose={() => setLinkModal(false)} />
-                </main>
-            </RecheckUser>
-        </React.Fragment>
-    );
-};
-
-MainPage.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-
-MainPage.auth = true;
-
-export default MainPage;
+    
+    MainPage.getLayout = (page) => <AppLayout>{page}</AppLayout>;
+    
+    MainPage.auth = true;
+    
+    export default MainPage;
