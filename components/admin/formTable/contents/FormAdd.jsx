@@ -27,7 +27,6 @@ const FormAdd = () => {
         duration: '',
         thumbnailUrl: '',
         tags: '',
-        new: '',
         pinned: '',
         recommend: ''
     });
@@ -223,19 +222,7 @@ const FormAdd = () => {
                                 ปักหมุด
                                 </label>
                             </div>
-                            <div className="flex items-center">
-                                <input
-                                id="new"
-                                name="new"
-                                type="checkbox"
-                                checked={formData.new || false}
-                                onChange={handleChange}
-                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-xl focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2"
-                                />
-                                <label htmlFor="new" className="ms-2 text-md font-bold text-gray-900">
-                                ใหม่
-                                </label>
-                            </div>
+
                             <div className="flex items-center">
                                 <input
                                 id="recommend"
