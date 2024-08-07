@@ -35,20 +35,6 @@ export default async function handler(req, res) {
                 return res.status(404).json({ success: false, message: 'User not found' });
               }
 
-              // Add 20 points to the user's account
-                const newPoint = new Point({
-                  userId: user.userId,
-                  description: 'Received points for creating a post',
-                  type: 'earn',
-                  contentId: null,
-                  point: 15,
-                });
-                await newPoint.save();
-
-                // Send a LINE message to the user
-                await sendLineMessage(user.userId, 'คุณได้รับ 15 points จากการสร้าง Share Your Story!');
-
-
               res.status(201).json({ success: true, data: post });
             } catch (error) {
               console.error('Error creating post:', error);
