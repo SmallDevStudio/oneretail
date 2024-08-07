@@ -33,7 +33,6 @@ const CreatePost = ({ user, onPostCreated }) => {
       setContent('');
       setLink('');
       setPreview(null);
-      setIsModalOpen(true);
     } catch (error) {
       console.error('Error submitting post:', error);
     }
@@ -103,7 +102,6 @@ const CreatePost = ({ user, onPostCreated }) => {
             {getEmbedPreview(preview)}
           </div>
         )}
-        <PostModal isOpen={isModalOpen} onRequestClose={onRequestClose} score={15} />
       </div>
     </>
   );
