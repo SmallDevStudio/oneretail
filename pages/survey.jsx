@@ -47,7 +47,17 @@ const Survey = () => {
     };
 
     if (surveyError) return <div>Error loading data</div>;
-    if (!survey) return <CircularProgress />;
+    if (!survey) return <CircularProgress className="w-full" style={{
+        height: '100%',
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        zIndex: 9999
+    }}/>;
 
     const handlePrevPage = () => {
         if (page > 1) setPage(page - 1);
