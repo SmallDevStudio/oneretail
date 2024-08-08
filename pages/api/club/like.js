@@ -31,8 +31,10 @@ export default async function handler(req, res) {
                     await Notifications.create({
                         userId: experience.userId,
                         description: `${user.fullname} ได้กด like โพสใน Experience`,
-                        contentId: experience._id,
-                        link: `${process.env.NEXTAUTH_URL}/club?tab=experience#${experience._id}`,
+                        referId: experience._id,
+                        path: 'Experience',
+                        subpath: 'Post',
+                        url: `${process.env.NEXTAUTH_URL}/club?tab=experience#${experience._id}`,
                         type: 'Like'
                     });
                 }

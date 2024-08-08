@@ -204,14 +204,17 @@ const CommentInput = ({ handleSubmit, userId }) => {
                     className="flex flex-row items-center gap-2 p-2 cursor-pointer"
                 >
                     <ImFilePicture className="text-xl text-[#0056FF]" />
-                    <span>อัพโหลดรูปภาพ/วิดีโอ</span>
+                    <div className="flex flex-col text-left">
+                        <span className="text-sm font-bold">อัพโหลดรูปภาพ/วิดีโอ</span>
+                        <span className="text-[10px] text-red-500 ">* สามารถอัพโหลดได้ไม่เกิน 100MB</span>
+                    </div>
                 </button>
                 <Divider />
                 <div className="flex flex-row items-center gap-2 p-2 cursor-pointer"
                     onClick={handleOpenModal}
                 >
                     <FaUserPlus className="text-xl text-[#0056FF]" />
-                    <span>แท็กผู้คน</span>
+                    <span className="text-sm font-bold">แท็กผู้คน</span>
                 </div>
                 <Divider />
             </div>

@@ -101,8 +101,10 @@ const Experience = () => {
                     await axios.post('/api/notifications', {
                         userId: user.userId,
                         description: `${session?.user?.fullname} ได้แท็คโพสใน Experience`,
-                        contentId: experience._id,
-                        link: `${window.location.origin}/club?tab=experience#${experience._id}`,
+                        referId: experience._id,
+                        path: 'Experience',
+                        subpath: 'Post',
+                        url: `${window.location.origin}/club?tab=experience#${experience._id}`,
                         type: 'Tag'
                     });
                 }
@@ -137,8 +139,10 @@ const Experience = () => {
                     await axios.post('/api/notifications', {
                         userId: user.userId,
                         description: `${session?.user?.fullname} ได้แท็คโพสใน Experience`,
-                        contentId: experience._id,
-                        link: `${window.location.origin}/club?tab=experience#${experience._id}`,
+                        referId: experience._id,
+                        path: 'Experience',
+                        subpath: 'Comment',
+                        url: `${window.location.origin}/club?tab=experience#${experience._id}`,
                         type: 'Tag'
                     });
                 }
@@ -166,6 +170,23 @@ const Experience = () => {
                 commentId,
                 userId
             });
+
+            const experience = response.data;
+
+            if (data.selectedUsers && data.selectedUsers.length > 0) {
+                for (const user of data.selectedUsers) {
+                    await axios.post('/api/notifications', {
+                        userId: user.userId,
+                        description: `${session?.user?.fullname} ได้แท็คโพสใน Experience`,
+                        referId: experience._id,
+                        path: 'Experience',
+                        subpath: 'Reply',
+                        url: `${window.location.origin}/club?tab=experience#${experience.commentId}`,
+                        type: 'Tag'
+                    });
+                }
+            }
+
             setLoading(false);
             mutate();
             handleClose();
@@ -214,7 +235,7 @@ const Experience = () => {
         }
     };
 
-    const handleReplyLike = async (replyId) => {
+    const handleReplyLike = async (replyId, experienceId) => {
         const userId = session?.user?.id;
     
         try {
@@ -492,9 +513,9 @@ const Experience = () => {
                                             <div className="flex flex-row items-center gap-2 justify-between pl-10 pr-1 mt-1 w-full">
                                                 <div className="flex flex-row items-center gap-2">
                                                     {likes[reply._id] ? (
-                                                        <AiFillHeart className="w-3 h-3 text-red-500" onClick={() => handleReplyLike(reply._id)} />
+                                                        <AiFillHeart className="w-3 h-3 text-red-500" onClick={() => handleReplyLike(reply._id, comment.experienceId)} />
                                                     ) : (
-                                                        <AiOutlineHeart className="w-3 h-3" onClick={() => handleReplyLike(reply._id)} />
+                                                        <AiOutlineHeart className="w-3 h-3" onClick={() => handleReplyLike(reply._id, comment.experienceId)} />
                                                     )}
                                                     <span className="text-sm">
                                                         {Array.isArray(reply?.likes)? reply?.likes?.length : 0}

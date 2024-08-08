@@ -100,11 +100,7 @@ export default function Stores() {
                     </>
                 )}
                 {activeTab === 'share-your-story' && (
-                     <div className="flex flex-col items-center w-full" style={{
-                         marginTop: "20px",
-                         marginBottom: "20px",
-                         width: "100%"
-                     }}>
+                    <div className="w-full">
                         <ShareYourStory />
                     </div>
                 )}

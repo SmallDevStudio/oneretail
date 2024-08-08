@@ -1,6 +1,5 @@
-// api/club/commentlike.js
 import connectMongoDB from "@/lib/services/database/mongodb";
-import ExperienceComments from "@/database/models/ExperienceComments";
+import Comment from "@/database/models/Comment";
 import Users from "@/database/models/users";
 import Notifications from "@/database/models/Notification";
 
@@ -14,7 +13,7 @@ export default async function handler(req, res) {
             const { commentId, userId } = req.body;
 
             try {
-                const comment = await ExperienceComments.findById(commentId);
+                const comment = await Comment.findById(commentId);
 
                 if (!comment) {
                     return res.status(404).json({ success: false, error: "Comment not found" });
@@ -30,11 +29,11 @@ export default async function handler(req, res) {
 
                     await Notifications.create({
                         userId: comment.userId,
-                        description: `${user.fullname} ได้กด like คอมเมนต์ใน Experience`,
-                        referId: comment._id,
-                        path: 'Experience',
+                        description: `${user.fullname} ได้กด like คอมเมนต์ใน Share Your Story, Comment`,
+                        contentId: comment._id,
+                        path: 'Share Your Story',
                         subpath: 'Comment',
-                        url: `${process.env.NEXTAUTH_URL}/club?tab=experience#${comment.experienceId}`,
+                        url: `${process.env.NEXTAUTH_URL}/stores?tab=share-your-story#${comment.postId}`,
                         type: 'Like'
                     });
                 }
@@ -49,7 +48,7 @@ export default async function handler(req, res) {
             break;
 
         default:
-            res.status(400).json({ success: false, error: 'Invalid request method' });
+            res.status(400).json({ success: false });
             break;
     }
 }

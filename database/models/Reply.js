@@ -1,14 +1,13 @@
 import mongoose from 'mongoose';
 
-const PostSchema = new mongoose.Schema({
-  post: { type: String }, // This will store the text content
-  link: { type: String }, // This will store the link (if any)
+const ReplySchema = new mongoose.Schema({
+  commentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Comment', required: true },
+  reply: { type: String },
   medias: [{ public_id: { type: String }, url: { type: String }, type: { type: String } }],
   files: [{ public_id: { type: String }, url: { type: String } }],
   tagusers: [{ userId: { type: String, ref: 'Users' }, fullname: { type: String } }],
-  userId: { type: String, ref: 'Users', required: true },
   likes: [{ userId: { type: String, ref: 'Users' }, createAt: { type: Date, default: Date.now } }],
-  comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
+  userId: { type: String, ref: 'Users', required: true },
 }, { timestamps: true });
 
-export default mongoose.models.Post || mongoose.model('Post', PostSchema);
+export default mongoose.models.Reply || mongoose.model('Reply', ReplySchema);
