@@ -299,7 +299,7 @@ const ShareYourStory = () => {
     );
 
     return (
-        <div className="flex flex-col text-white text-sm mb-20">
+        <div className="flex flex-col text-white text-sm">
             {/* Input Post */}
             <div className="flex flex-col w-full">
                 <div className="flex flex-row items-center px-2 w-full gap-1">
@@ -342,6 +342,7 @@ const ShareYourStory = () => {
                                                 classes={{ paper: "text-xs" }}
                                             >
                                                 <MenuItem onClick={() => { handleDelete(currentOption.id); handleOptionClose(); }}>Delete</MenuItem>
+                                                <MenuItem >Point</MenuItem>
                                             </Menu>
                                         </div>
                                     )}
@@ -423,6 +424,7 @@ const ShareYourStory = () => {
                                                             classes={{ paper: "text-xs" }}
                                                         >
                                                             <MenuItem onClick={() => { handleCommentDelete(currentOption.id); handleOptionClose(); }}>Delete</MenuItem>
+                                                            <MenuItem >Point</MenuItem>
                                                         </Menu>
                                                     </div>
                                                 )}
@@ -502,6 +504,7 @@ const ShareYourStory = () => {
                                                                     classes={{ paper: "text-xs" }}
                                                                 >
                                                                     <MenuItem onClick={() => { handleReplyDelete(currentOption.id); handleOptionClose(); }}>Delete</MenuItem>
+                                                                    <MenuItem >Point</MenuItem>
                                                                 </Menu>
                                                             </div>
                                                         )}
