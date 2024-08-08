@@ -29,8 +29,6 @@ const UserModal = ({ isOpen, onRequestClose, onSubmit, user }) => {
     const [pictureUrl, setPictureUrl] = useState(user.user.pictureUrl);
     const [showModal, setShowModal] = useState(false);
 
-    console.log('pictureUrl:', pictureUrl);
-
     useEffect(() => {
         setFullname(user.user.fullname);
         setBirthdate(user.user.birthdate ? new Date(user.user.birthdate).toISOString().split('T')[0] : '');
@@ -53,6 +51,10 @@ const UserModal = ({ isOpen, onRequestClose, onSubmit, user }) => {
             address,
             pictureUrl,
         });
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
     };
 
     return (
@@ -82,7 +84,7 @@ const UserModal = ({ isOpen, onRequestClose, onSubmit, user }) => {
                     </div>
                 )}
 
-                <UserListMediaModal isOpen={showModal} onRequestClose={() => setShowModal(false)} setPictureUrl={setPictureUrl} />
+                <UserListMediaModal isOpen={showModal} onRequestClose={handleCloseModal} setPictureUrl={setPictureUrl} />
                 
                 <span className='text-[10px] font-bold mt-1 mb-2'>Click ที่รูปเพื่ออัปโหลด</span>
                 

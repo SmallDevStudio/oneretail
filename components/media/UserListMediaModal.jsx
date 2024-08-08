@@ -127,13 +127,13 @@ const UserListMediaModal = ({ isOpen, onRequestClose, setPictureUrl }) => {
                         />
                     </div>
                 )}
-                <div className='flex flex-row w-full p-2 items-center'>
+                <div className='flex flex-row w-full items-center py-2'>
                     <input 
                         type="file"
                         onChange={updateImg}
                     />
                     <button
-                        className='w-35 h-8 bg-[#F68B1F] text-white text-sm rounded-full p-2 align-middle'
+                        className='w-35 h-8 bg-[#F68B1F] text-white text-sm rounded-full p-2 ml-[-50px]'
                         onClick={uploadImg}
                         disabled={loading}
                     >
