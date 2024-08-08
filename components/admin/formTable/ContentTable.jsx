@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { DataGrid } from '@mui/x-data-grid';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Image from 'next/image';
 import moment from 'moment';
@@ -10,11 +9,12 @@ import TimeDisplay from "@/components/TimeDisplay";
 import Link from 'next/link';
 import useSWR from 'swr';
 import { useRouter } from 'next/router';
+import { IoIosArrowBack, IoMdSkipBackward ,IoIosArrowForward, IoMdSkipForward } from "react-icons/io";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 const ContentTable = () => {
-    const [page, setPage] = useState(0); // Note: DataGrid uses zero-based indexing
+    const [page, setPage] = useState(0);
     const [limit, setLimit] = useState(10);
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -35,70 +35,19 @@ const ContentTable = () => {
     const togglePublisher = async (id, currentStatus) => {
         try {
             await axios.put(`/api/contents/${id}`, { publisher: !currentStatus });
-            mutate(); // Re-fetch the data after updating publisher status
+            mutate();
         } catch (error) {
             console.error("Failed to update publisher status:", error);
         }
     };
 
-    const columns = [
-        {
-            field: 'thumbnailUrl',
-            headerName: 'Thumbnail',
-            width: 130,
-            renderCell: (params) => (
-                <Image src={params.value} alt="thumbnail" width={100} height={100} style={{ width: 'auto', height: 'auto', objectFit: 'cover' }} />
-            )
-        },
-        { field: 'title', headerName: 'Title', width: 200 },
-        { field: 'categories', headerName: 'Category', width: 120, renderCell: (params) => params.row.categories?.title || '' },
-        { field: 'subcategories', headerName: 'SubCategory', width: 120, renderCell: (params) => params.row.subcategories?.title || '' },
-        { field: 'groups', headerName: 'Groups', width: 120, renderCell: (params) => params.row.groups?.name || '' },
-        {
-            field: 'publisher',
-            headerName: 'Publisher',
-            width: 100,
-            renderCell: (params) => (
-                <div className="flex justify-center items-center w-full">
-                    <button
-                        onClick={() => togglePublisher(params.row._id, params.row.publisher)}
-                        className={`flex w-20 h-15 rounded-xl ${params.row.publisher ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}
-                    >
-                        <span className="flex m-auto font-bold">{params.row.publisher ? 'True' : 'False'}</span>
-                    </button>
-                </div>
-            )
-        },
-        { field: 'point', headerName: 'Point', width: 50 },
-        { field: 'coins', headerName: 'Coins', width: 50 },
-        {
-            field: 'author',
-            headerName: 'Author',
-            width: 100,
-            renderCell: (params) => (
-                params.row.author?.pictureUrl ? <Image src={params.row.author.pictureUrl} alt={params.row.author.fullname} width={50} height={50} className="rounded-full" /> : ''
-            )
-        },
-        {
-            field: 'createdAt',
-            headerName: 'Date Created',
-            width: 180,
-            renderCell: (params) => <TimeDisplay time={params.value} />
-        },
-        {
-            field: 'action',
-            headerName: 'Action',
-            width: 150,
-            renderCell: (params) => (
-                <div className="flex w-20 items-center justify-between">
-                    <button onClick={() => router.push(`/admin/contents/update?id=${params.row._id}`)}>
-                        <BorderColorOutlinedIcon />
-                    </button>
-                    <RemoveBtn id={params.row._id} />
-                </div>
-            )
-        }
-    ];
+    const handlePageChange = (newPage) => {
+        setPage(newPage);
+    };
+
+    const handleLimitChange = (event) => {
+        setLimit(Number(event.target.value));
+    };
 
     return (
         <div className="relative overflow-x-auto shadow-md sm:rounded-lg w-full p-5">
@@ -122,20 +71,103 @@ const ContentTable = () => {
                 </div>
             </div>
 
-            <DataGrid
-                rows={contents}
-                columns={columns}
-                page={page}
-                pageSize={limit}
-                rowCount={rowCount}
-                pagination
-                paginationMode="server"
-                loading={loading}
-                onPageChange={(newPage) => setPage(newPage)}
-                onPageSizeChange={(newLimit) => setLimit(newLimit)}
-                rowsPerPageOptions={[10, 20, 30]}
-                getRowId={(row) => row._id}
-            />
+            {loading ? (
+                <div className="flex justify-center items-center">
+                    Loading...
+                </div>
+            ) : (
+                <table className="min-w-full bg-white">
+                    <thead>
+                        <tr>
+                            <th className="px-6  border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Thumbnail</th>
+                            <th className="px-6  border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Title</th>
+                            <th className="px-6  border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Category</th>
+                            <th className="px-6  border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">SubCategory</th>
+                            <th className="px-6  border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Groups</th>
+                            <th className="px-6  border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Publisher</th>
+                            <th className="px-6  border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Author</th>
+                            <th className="px-6  border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date Created</th>
+                            <th className="px-6  border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {contents.map((content) => (
+                            <tr key={content._id}>
+                                <td className="px-6  whitespace-nowrap text-sm font-medium text-gray-900">
+                                    <Image src={content.thumbnailUrl} alt="thumbnail" width={100} height={100} style={{ width: 'auto', height: 'auto', objectFit: 'cover' }} />
+                                </td>
+                                <td className="px-6  whitespace-nowrap text-sm font-medium text-gray-900">{content.title}</td>
+                                <td className="px-6  whitespace-nowrap text-sm font-medium text-gray-900">{content.categories?.title || ''}</td>
+                                <td className="px-6  whitespace-nowrap text-sm font-medium text-gray-900">{content.subcategories?.title || ''}</td>
+                                <td className="px-6  whitespace-nowrap text-sm font-medium text-gray-900">{content.groups?.name || ''}</td>
+                                <td className="px-6  whitespace-nowrap text-sm font-medium text-gray-900">
+                                    <div className="flex justify-center items-center w-full">
+                                        <button
+                                            onClick={() => togglePublisher(content._id, content.publisher)}
+                                            className={`flex w-20 h-15 rounded-xl ${content.publisher ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}
+                                        >
+                                            <span className="flex m-auto font-bold">{content.publisher ? 'True' : 'False'}</span>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td className="px-6  whitespace-nowrap text-sm font-medium text-gray-900">
+                                    {content.author?.pictureUrl ? (
+                                        <Image src={content.author.pictureUrl} alt={content.author.fullname} width={50} height={50} className="rounded-full" />
+                                    ) : ''}
+                                </td>
+                                <td className="px-6  whitespace-nowrap text-sm font-medium text-gray-900">
+                                    <TimeDisplay time={content.createdAt} />
+                                </td>
+                                <td className="px-6  whitespace-nowrap text-sm font-medium text-gray-900">
+                                    <div className="flex w-20 items-center justify-between">
+                                        <button onClick={() => router.push(`/admin/contents/update?id=${content._id}`)}>
+                                            <BorderColorOutlinedIcon />
+                                        </button>
+                                        <RemoveBtn id={content._id} />
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            )}
+
+            <div className="flex justify-between items-center ">
+                <div></div>
+                <div className="flex gap-8">
+                    <button onClick={() => handlePageChange(0)} disabled={page === 0}>
+                        <IoMdSkipBackward />
+                    </button>
+                    <button onClick={() => handlePageChange(page - 1)} disabled={page === 0}>
+                        <IoIosArrowBack />
+                    </button>
+                    <div>
+                    Page{' '}
+                    <strong>
+                        {page + 1} of {Math.ceil(rowCount / limit)}
+                    </strong>
+                    </div>
+                    <button onClick={() => handlePageChange(page + 1)} disabled={(page + 1) * limit >= rowCount}>
+                        <IoIosArrowForward />
+                    </button>
+                    <button onClick={() => handlePageChange(Math.floor(rowCount / limit))} disabled={(page + 1) * limit >= rowCount}>
+                        <IoMdSkipForward />
+                    </button>
+                </div>
+                
+                <div>
+                    <select
+                        value={limit}
+                        onChange={handleLimitChange}
+                    >
+                        {[10, 20, 30].map(size => (
+                            <option key={size} value={size}>
+                                Show {size}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            </div>
         </div>
     );
 }

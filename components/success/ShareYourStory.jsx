@@ -332,7 +332,7 @@ const ShareYourStory = () => {
                             <div className="flex flex-col w-full ml-2">
                                 <div className="flex flex-row justify-between items-center">
                                     <p className="text-xs font-bold text-[#0056FF]">{post?.user?.fullname}</p>
-                                    {(post.userId === session?.user?.id || session?.user?.role === 'admin' || session?.user?.role === 'manager') && (
+                                    {(post.userId === session?.user?.id || user?.user?.role === 'admin' || user?.user?.role === 'manager') && (
                                         <div className="relative">
                                             <BsThreeDotsVertical onClick={(e) => handleOptionClick(e, 'post', post._id)} />
                                             <Menu
@@ -414,7 +414,7 @@ const ShareYourStory = () => {
                                         <div className="flex flex-col w-full">
                                             <div className="flex flex-row justify-between items-center">
                                                 <p className="text-xs font-bold text-[#0056FF]">{comment?.user?.fullname}</p>
-                                                {(comment.userId === session?.user?.id || session?.user?.role === 'admin' || session?.user?.role === 'manager') && (
+                                                {(comment.userId === session?.user?.id || user?.user?.role === 'admin' || user?.user?.role === 'manager') && (
                                                     <div className="relative">
                                                         <BsThreeDotsVertical onClick={(e) => handleOptionClick(e, 'comment', comment._id)} />
                                                         <Menu
@@ -494,7 +494,7 @@ const ShareYourStory = () => {
                                                 <div className="flex flex-col w-full">
                                                     <div className="flex flex-row justify-between items-center">
                                                         <p className="text-xs font-bold text-[#0056FF]">{reply?.user?.fullname}</p>
-                                                        {(reply.userId === session?.user?.id || session?.user?.role === 'admin' || session?.user?.role === 'manager') && (
+                                                        {(reply.userId === session?.user?.id || user?.user?.role === 'admin' || user?.user?.role === 'manager') && (
                                                             <div className="relative">
                                                                 <BsThreeDotsVertical onClick={(e) => handleOptionClick(e, 'reply', reply._id)} />
                                                                 <Menu
