@@ -24,7 +24,7 @@ const SubGroupTable = () => {
   const handleDelete = async (id) => {
     try {
       await axios.delete(`/api/subgroups?id=${id}`);
-      fetchGroups();
+      fetchSubGroups();
     } catch (error) {
       console.error('Failed to delete group:', error);
     }
@@ -38,7 +38,7 @@ const SubGroupTable = () => {
     try {
       await axios.put('/api/subgroups', subgroup);
       setEditIndex(null);
-      fetchGroups();
+      fetchSubGroups();
     } catch (error) {
       console.error('Failed to save group:', error);
     }
@@ -106,6 +106,7 @@ const SubGroupTable = () => {
         )
       }
     ],
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [data, editIndex]
   );
@@ -113,7 +114,7 @@ const SubGroupTable = () => {
   const {
     getTableProps,
     getTableBodyProps,
-    headerSubGroups,
+    headerGroups,
     prepareRow,
     page,
   } = useTable({ columns, data }, usePagination);
@@ -123,12 +124,10 @@ const SubGroupTable = () => {
     
       <table {...getTableProps()} className={styles.table}>
         <thead>
-          {headerSubGroups.map(headerSubGroup => (
-            // eslint-disable-next-line react/jsx-key
-            <tr {...headerSubGroup.getHeaderSubGroupProps()}>
-              {headerSubGroup.headers.map(column => (
-                // eslint-disable-next-line react/jsx-key
-                <th {...column.getSubHeaderProps()}>{column.render('Header')}</th>
+          {headerGroups.map(headerGroup => (
+            <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
+              {headerGroup.headers.map(column => (
+                <th {...column.getHeaderProps()} key={column.id}>{column.render('Header')}</th>
               ))}
             </tr>
           ))}
@@ -137,11 +136,9 @@ const SubGroupTable = () => {
           {page.map(row => {
             prepareRow(row);
             return (
-              // eslint-disable-next-line react/jsx-key
-              <tr {...row.getRowProps()}>
+              <tr {...row.getRowProps()} key={row.id}>
                 {row.cells.map(cell => (
-                  // eslint-disable-next-line react/jsx-key
-                  <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                  <td {...cell.getCellProps()} key={cell.column.id}>{cell.render('Cell')}</td>
                 ))}
               </tr>
             );
@@ -154,15 +151,15 @@ const SubGroupTable = () => {
         type="text" 
         placeholder="Name" 
         value={newSubGroup.name} 
-        onChange={(e) => setNewGroup({ ...newSubGroup, name: e.target.value })} 
+        onChange={(e) => setNewSubGroup({ ...newSubGroup, name: e.target.value })} 
         className='border-2 rounded-xl p-2'
       />
       <input 
         type="text" 
         placeholder="Description" 
         value={newSubGroup.description} 
-        onChange={(e) => setNewGroup({ ...newSubGroup, description: e.target.value })} 
-       className='border-2 rounded-xl p-2 ml-2'
+        onChange={(e) => setNewSubGroup({ ...newSubGroup, description: e.target.value })} 
+        className='border-2 rounded-xl p-2 ml-2'
       />
       <button onClick={handleAdd} className='rounded-full bg-blue-500 text-white font-bold py-2 px-4 ml-2'>Add Group</button>
     </div>

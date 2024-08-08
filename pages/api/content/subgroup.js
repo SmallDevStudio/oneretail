@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     switch (method) {
         case "GET":
             try {
-                const supgroup = await SupGroup.find().populate('groupId');
+                const supgroup = await SupGroup.find().sort({ createdAt: -1 });
                 res.status(200).json({ success: true, data: supgroup });
             } catch (error) {
                 res.status(400).json({ success: false });

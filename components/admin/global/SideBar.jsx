@@ -157,7 +157,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                 />
 
                 <Item
-                  title="จัดการ Groups"
+                  title="จัดการ SubGroups"
                   to="/admin/contents/subgroups"
                   icon={<LuGroup />}
                   selected={selected}

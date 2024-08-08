@@ -2,7 +2,7 @@ import { AdminLayout } from "@/themes";
 import Header from "@/components/admin/global/Header";
 import { Suspense } from "react";
 import Loading from "@/components/Loading";
-import GroupTable from "@/components/admin/formTable/GroupTable";
+import SubGroupTable from "@/components/admin/formTable/SubGroupTable";
 
 
 const CategoryPage = () => {
@@ -14,7 +14,7 @@ const CategoryPage = () => {
             </div>
             <div className="p-5">
                 <Suspense fallback={<Loading />}>
-                    <GroupTable />
+                    <SubGroupTable />
                 </Suspense>
             </div>
         </div>

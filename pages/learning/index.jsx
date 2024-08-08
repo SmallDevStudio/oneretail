@@ -107,16 +107,6 @@ export default function Learning() {
 
             {/* Tabs Content */}
             <div className="flex flex-col items-center w-full">
-                <div className="justify-center flex min-w-[100vw]">
-                    <ReactPlayer
-                        url={`https://www.youtube.com/watch?v=${videoUrl}`}
-                        loop={true}
-                        width="100%"
-                        height="250px"
-                        playing={true}
-                    />
-                </div>
-                    
                     {activeTab === 'learn' && (
                         <>
                         {contents2.length > 0 ? <LearnFeed2 contents={contents2} /> : <LearnSkeleton />}
@@ -130,11 +120,9 @@ export default function Learning() {
                     )}
 
                     {activeTab === 'article' && (
-                        <>
-                            <div className="flex flex-col items-center w-full p-2">
-                                <ArticleList />
-                            </div>
-                        </>
+                        <ArticleList />
+                            
+                        
                     )}
             </div>
         </div>
