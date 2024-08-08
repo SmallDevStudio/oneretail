@@ -17,7 +17,6 @@ export default function Learning() {
     const subcategory = "665c565a46d171292cbda9f7";
     const subcategory2 = "665c566846d171292cbda9fb";
     const [activeTab, setActiveTab] = useState("learn");
-    const [videoUrl, setVideoUrl] = useState('');
     const [contents, setContents] = useState([]);
     const [contents2, setContents2] = useState([]);
     const [contents3, setContents3] = useState([]);
@@ -29,11 +28,7 @@ export default function Learning() {
         setActiveTab(tab);
     }, [router.query.tab]);
 
-    const { data: video, error: videoError } = useSWR(`/api/content/video?categoryId=${category}`, fetcher, {
-        onSuccess: (data) => {
-            setVideoUrl(data?.data?.slug);
-        }
-    });
+
 
     const { data: contentsData, error: contentsError } = useSWR(`/api/content/category?categoryId=${category}`, fetcher, {
         onSuccess: (data) => {
@@ -58,8 +53,8 @@ export default function Learning() {
         window.history.pushState(null, "", `?tab=${tab}`);
     };
 
-    if (!contents || !contents2 || !contents3 || !video) return <Loading />;
-    if (contentsError || contentsError1 || contentsError2 || videoError) return <p>Error: {contentsError || contentsError1 || contentsError2 || videoError}</p>;
+    if (!contents || !contents2 || !contents3 ) return <Loading />;
+    if (contentsError || contentsError1 || contentsError2 ) return <p>Error: {contentsError || contentsError1 || contentsError2 || videoError}</p>;
 
     return (
         <div className="flex flex-col bg-gray-10 justify-between items-center text-center">
