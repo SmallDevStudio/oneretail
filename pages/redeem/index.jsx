@@ -227,7 +227,7 @@ export default function Redeem() {
         <ExchangeModal
           isOpen={modalIsOpen}
           onRequestClose={closeModal}
-          points={userPoints}
+          points={level?.totalPoints}
           conversionRate={conversionRate}
           userId={id}
           onExchangeAdd={onExchangeAdd}
