@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
-import { useTable, usePagination } from 'react-table';
+import { useTable } from 'react-table';
 import styles from '@/styles/CategoryTable.module.css';
 
 const GroupTable = () => {
   const [data, setData] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
   const [newGroup, setNewGroup] = useState({ name: '', description: '' });
-  const [pageCount, setPageCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -19,7 +18,6 @@ const GroupTable = () => {
       setLoading(true);
       const response = await axios.get('/api/groups');
       setData(response.data.data);
-      setPageCount(Math.ceil(response.data.total / 10)); // Assuming 10 items per page
       setLoading(false);
     } catch (error) {
       console.error('Failed to fetch groups:', error);
@@ -27,20 +25,20 @@ const GroupTable = () => {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = useCallback(async (id) => {
     try {
       await axios.delete(`/api/groups?id=${id}`);
       fetchGroups();
     } catch (error) {
       console.error('Failed to delete group:', error);
     }
-  };
+  }, []);
 
   const handleEdit = (index) => {
     setEditIndex(index);
   };
 
-  const handleSave = async (group, index) => {
+  const handleSave = useCallback(async (group, index) => {
     try {
       await axios.put('/api/groups', group);
       setEditIndex(null);
@@ -48,7 +46,7 @@ const GroupTable = () => {
     } catch (error) {
       console.error('Failed to save group:', error);
     }
-  };
+  }, []);
 
   const handleAdd = async () => {
     try {
@@ -60,7 +58,7 @@ const GroupTable = () => {
     }
   };
 
-  const columns = React.useMemo(
+  const columns = useMemo(
     () => [
       {
         Header: 'Name',
@@ -112,7 +110,7 @@ const GroupTable = () => {
         )
       }
     ],
-    [data, editIndex]
+    [data, editIndex, handleDelete, handleSave]
   );
 
   const {
@@ -120,77 +118,35 @@ const GroupTable = () => {
     getTableBodyProps,
     headerGroups,
     prepareRow,
-    page,
-    canPreviousPage,
-    canNextPage,
-    nextPage,
-    previousPage,
-    setPageSize,
-    state: { pageIndex, pageSize },
-  } = useTable(
-    {
-      columns,
-      data,
-      initialState: { pageIndex: 0 }, // Start from the first page
-      manualPagination: true,
-      pageCount,
-    },
-    usePagination
-  );
+    rows, // Use `rows` instead of `page` to show all rows
+  } = useTable({ columns, data });
 
   return (
     <div className={styles.container}>
       {loading && <p>Loading...</p>}
       <table {...getTableProps()} className={styles.table}>
         <thead>
-          {headerGroups.map(headerGroup => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map(column => (
-                <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+          {headerGroups.map((headerGroup, index) => (
+            <tr key={index} {...headerGroup.getHeaderGroupProps()}>
+              {headerGroup.headers.map((column, colIndex) => (
+                <th key={colIndex} {...column.getHeaderProps()}>{column.render('Header')}</th>
               ))}
             </tr>
           ))}
         </thead>
         <tbody {...getTableBodyProps()}>
-          {page.map(row => {
+          {rows.map((row, rowIndex) => {
             prepareRow(row);
             return (
-              <tr {...row.getRowProps()}>
-                {row.cells.map(cell => (
-                  <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+              <tr key={rowIndex} {...row.getRowProps()}>
+                {row.cells.map((cell, cellIndex) => (
+                  <td key={cellIndex} {...cell.getCellProps()}>{cell.render('Cell')}</td>
                 ))}
               </tr>
             );
           })}
         </tbody>
       </table>
-      
-      <div className={styles.pagination}>
-        <button onClick={() => previousPage()} disabled={!canPreviousPage}>
-          Previous
-        </button>
-        <button onClick={() => nextPage()} disabled={!canNextPage}>
-          Next
-        </button>
-        <span>
-          Page{' '}
-          <strong>
-            {pageIndex + 1} of {pageCount}
-          </strong>{' '}
-        </span>
-        <select
-          value={pageSize}
-          onChange={e => {
-            setPageSize(Number(e.target.value));
-          }}
-        >
-          {[10, 20, 30].map(pageSize => (
-            <option key={pageSize} value={pageSize}>
-              Show {pageSize}
-            </option>
-          ))}
-        </select>
-      </div>
       
       <h2>Add New Group</h2>
       <input 
