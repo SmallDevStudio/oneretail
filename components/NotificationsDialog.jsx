@@ -61,7 +61,7 @@ const NotificationsDialog = ({ open, onClose, userId }) => {
 
                     <div className="w-full text-xs mt-2">
                         {Array.isArray(notifications.data) && notifications.data.map((notification) => (
-                            <div className={`${notification.isReading ? '' : 'font-bold text-[#0056FF]'} mb-1`}
+                            <div key={notification._id} className={`${notification.isReading ? '' : 'font-bold text-[#0056FF]'} mb-1`}
                             >
                                 <div className='flex flex-row items-center justify-between w-full gap-2'>
                                     <div className='' onClick={() => handleClick(notification)}>
