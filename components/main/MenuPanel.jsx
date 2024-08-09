@@ -55,7 +55,7 @@ const MenuPanel = ({ user }) => {
             {/* survey report */}
             {(user.user.role === 'admin' || user.user.role === 'manager') && (
                 <button onClick={() => router.push('/survey')}>
-                    <MdInsertChart size={18}/>
+                    <MdInsertChart size={25}/>
                 </button>
             )}
              
@@ -66,10 +66,10 @@ const MenuPanel = ({ user }) => {
                 aria-label="Notification"
                 onClick={handleDropdownOpen}
             >
-                <IoNotifications size={18}/>
+                <IoNotifications size={25}/>
                 {notifications.data && notifications.data.length > 0 && (
                     <div 
-                    className="absolute inline-flex items-center justify-center w-4 h-4 text-[8px] font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-2"
+                    className="absolute inline-flex items-center justify-center w-5 h-5 text-[8px] font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-2"
                     >
                         {notifications.data.length}
                     </div>
@@ -77,7 +77,7 @@ const MenuPanel = ({ user }) => {
             </button>
 
             <button>
-                <BsThreeDotsVertical size={18}/>
+                <BsThreeDotsVertical size={25}/>
             </button>
 
             <Menu
