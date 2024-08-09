@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import useSWR from "swr";
-import { FiSend } from "react-icons/fi";
 import axios from "axios";
 import { Dialog, Slide, CircularProgress, Menu, MenuItem } from "@mui/material";
 import Image from "next/image";
-import { IoIosArrowBack } from "react-icons/io";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import CommentInput from "../comments/CommentInput";
@@ -307,7 +305,6 @@ const ShareYourStory = () => {
             try {
                 await axios.delete(`/api/posts?postId=${postId}`);
                 mutate();
-                Swal.fire('Deleted!', 'Your post has been deleted.', 'success');
             } catch (error) {
                 console.error(error);
                 Swal.fire('Error!', 'There was an issue deleting the post.', 'error');
@@ -334,7 +331,6 @@ const ShareYourStory = () => {
             try {
                 await axios.delete(`/api/posts/comment?commentId=${commentId}`);
                 mutate();
-                Swal.fire('Deleted!', 'Your comment has been deleted.', 'success');
             } catch (error) {
                 console.error('Error deleting comment:', error);
                 Swal.fire('Error!', 'There was an issue deleting the comment.', 'error');
@@ -361,7 +357,6 @@ const ShareYourStory = () => {
             try {
                 await axios.delete(`/api/posts/reply?replyId=${replyId}`);
                 mutate();
-                Swal.fire('Deleted!', 'Your reply has been deleted.', 'success');
             } catch (error) {
                 console.error(error);
                 Swal.fire('Error!', 'There was an issue deleting the reply.', 'error');
