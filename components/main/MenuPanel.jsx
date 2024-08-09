@@ -21,7 +21,6 @@ const MenuPanel = ({ user }) => {
     const { data: notifications, error: notificationsError, mutate } = useSWR(`/api/notifications/${user.user.userId}`, fetcher);
     const [anchorEl, setAnchorEl] = useState(null);
     const [openDialog, setOpenDialog] = useState(false);
-
     const router = useRouter();
 
     const handleDropdownOpen = (event) => {
@@ -117,7 +116,7 @@ const MenuPanel = ({ user }) => {
                         >
                                 <div>
                                     <Image
-                                        src={notification.sender.pictureUrl}
+                                        src={notification?.sender?.pictureUrl}
                                         alt="Picture of the author"
                                         width={40}
                                         height={40}
@@ -125,7 +124,7 @@ const MenuPanel = ({ user }) => {
                                     />
                                 </div>
                                 <div className="flex flex-col cursor-pointer text-sm">
-                                    <span className={`text-xs text-left text-[#F68B1F] ${notification.isReading ? 'font-normal' : 'font-bold'}`}>{notification.sender.fullname}</span>
+                                    <span className={`text-xs text-left text-[#F68B1F] ${notification.isReading ? 'font-normal' : 'font-bold'}`}>{notification?.sender?.fullname}</span>
                                     <span className={`text-xs ${notification.isReading ? 'font-normal' : 'font-bold'}`}>{notification.description}</span>
                                     <span className="text-[10px] text-gray-500">{moment(notification.createAt).fromNow()}</span>
                                 </div>
@@ -141,7 +140,7 @@ const MenuPanel = ({ user }) => {
                 </div>
             </Menu>
 
-            <NotificationsDialog open={openDialog} onClose={handleCloseDialog} userId={user.user.userId} />
+            <NotificationsDialog open={openDialog} onClose={handleCloseDialog} userId={user.user.userId} notifications={notifications} mutate={mutate} />
         </div>
     );
 };

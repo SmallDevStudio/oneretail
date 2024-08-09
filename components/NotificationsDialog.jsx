@@ -15,10 +15,9 @@ moment.locale('th');
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
-const NotificationsDialog = ({ open, onClose, userId }) => {
+const NotificationsDialog = ({ open, onClose, userId, notifications, mutate }) => {
     const router = useRouter();
-    const { data: notifications, error: notificationsError, mutate } = useSWR(`/api/notifications/all/${userId}`, fetcher);
-
+    
     const MakeReading = async (id) => {
         try {
             const res = axios.put('/api/notifications/markAsRead', { ids: [id] });
@@ -46,8 +45,8 @@ const NotificationsDialog = ({ open, onClose, userId }) => {
         }
     }
 
-    if (notificationsError) return <div>Error loading data</div>;
     if (!notifications) return <Loading />;
+    
 
     return (
         <Dialog fullScreen open={open} onClose={onClose}>
@@ -60,13 +59,13 @@ const NotificationsDialog = ({ open, onClose, userId }) => {
                     <Divider />
 
                     <div className="w-full text-xs mt-2">
-                        {Array.isArray(notifications.data) && notifications.data.map((notification) => (
-                            <div key={notification._id} className={`${notification.isReading ? '' : 'font-bold text-[#0056FF]'} mb-1`}
+                        {notifications.data.map((notification , index) => (
+                            <div key={index} className={`${notification.isReading ? '' : 'font-bold text-[#0056FF]'} mb-1`}
                             >
                                 <div className='flex flex-row items-center justify-between w-full gap-2'>
                                     <div className='' onClick={() => handleClick(notification)}>
                                         <Image
-                                            src={notification.sender.pictureUrl}
+                                            src={notification?.sender?.pictureUrl}
                                             alt="avatar"
                                             width={40}
                                             height={40}
@@ -76,7 +75,7 @@ const NotificationsDialog = ({ open, onClose, userId }) => {
                                         />
                                     </div>
                                     <div className='flex flex-col w-3/6' onClick={() => handleClick(notification)}>
-                                        <span className='text-xs'>{notification.sender.fullname}</span>
+                                        <span className='text-xs'>{notification?.sender?.fullname}</span>
                                         <span >{notification.description}</span>
                                     </div>
                                     <span className='text-[10px]'>{moment(notification.createAt).fromNow()}</span>
