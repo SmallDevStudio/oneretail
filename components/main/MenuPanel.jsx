@@ -67,7 +67,7 @@ const MenuPanel = ({ user }) => {
                 onClick={handleDropdownOpen}
             >
                 <IoNotifications size={18}/>
-                {notifications.data.length > 0 && (
+                {notifications.data && notifications.data.length > 0 && (
                     <div 
                     className="absolute inline-flex items-center justify-center w-4 h-4 text-[8px] font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-2"
                     >
@@ -95,9 +95,9 @@ const MenuPanel = ({ user }) => {
                 {notifications.data.slice(0, 10).map((notification) => (
                     <li key={notification._id} className='p-1'>
                         <Link href={notification.url || '#'}>
-                            <div className="flex flex-row items-center gap-2 cursor-pointer text-sm">
                             {notification.type === 'like' ? <FcLike size={18}/> : <FaTag size={18} className='text-[#0056FF]'/>}
-                            <span className={`text-xs ${notification.isReading ? 'font-normal' : 'font-bold'}`}>{notification.description}</span>
+                            <div className="flex flex-row items-center gap-2 cursor-pointer text-sm">
+                                <span className={`text-xs ${notification.isReading ? 'font-normal' : 'font-bold'}`}>{notification.description}</span>
                             </div>
                         </Link>
                     </li>
