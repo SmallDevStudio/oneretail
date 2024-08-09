@@ -9,7 +9,7 @@ import fetchLinkPreview from '@/utils/fetchLinkPreview';
 import Link from "next/link";
 import { IoIosArrowBack } from "react-icons/io";
 
-const PostInput = ({ handleSubmit, userId, handleClose }) => {
+const PostInput = ({ handleSubmit, userId, handleClose, checkError }) => {
     const [post, setPost] = useState("");
     const [media, setMedia] = useState([]);
     const [files, setFiles] = useState(null); // สำหรับการอัพโหลดเอกสารครั้งละ 1 ไฟล์
@@ -20,8 +20,10 @@ const PostInput = ({ handleSubmit, userId, handleClose }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
+    const [error, setError] = useState(null);
 
     const handleUploadClick = () => {
+        setError(null);
         window.cloudinary.openUploadWidget(
             {
                 cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -69,6 +71,12 @@ const PostInput = ({ handleSubmit, userId, handleClose }) => {
 
     const handleSubmitComment = async () => {
         setIsLoading(true);
+        if (!post && (!media || media.length === 0)) {
+            setError('กรุณากรอกข้อความหรืออัพโหลดไฟล์');
+            setIsLoading(false);
+            return;
+        }
+
         const newPost = {
             post: post.replace(link, "").trim(),
             media,
@@ -88,6 +96,7 @@ const PostInput = ({ handleSubmit, userId, handleClose }) => {
 
     const handlePostChange = async (event) => {
         const inputValue = event.target.value;
+        setError(null);
         setPost(inputValue);
         const extractedLink = await extractLink(inputValue);
         if (extractedLink) {
@@ -138,6 +147,9 @@ const PostInput = ({ handleSubmit, userId, handleClose }) => {
                     placeholder="คุณคิดอะไรอยู่...?"
                     onChange={handlePostChange}
                 />
+                {error && (
+                    <span className="text-red-500 text-sm">{error}</span>
+                )}
                 <div className="flex flex-col gap-2 mt-2 mb-2">
                     <div className="flex flex-row items-center w-full">
                         {media.map((item, index) => (

@@ -19,6 +19,8 @@ const fetcher = (url) => axios.get(url).then((res) => res.data);
 const AddArticleForm = () => {
   const { data: session } = useSession();
   const [content, setContent] = useState("");
+  const [medias, setMedias] = useState([]);
+  const [thumbnail, setThumbnail] = useState();
   const [article, setArticle] = useState({});
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);

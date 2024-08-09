@@ -2,7 +2,9 @@ import mongoose from 'mongoose';
 
 const ArticleSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  content: { type: String, required: true },
+  content: { type: String },
+  medias: [{ public_id: { type: String }, url: { type: String }, type: { type: String } }],
+  thumbnail: { type: String },
   userId: { type: String, ref: 'Users', required: true },
   status: { type: String, enum: ['draft', 'published'], default: 'draft' },
   published: { type: Boolean, default: true },

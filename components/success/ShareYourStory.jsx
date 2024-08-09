@@ -37,6 +37,7 @@ const ShareYourStory = () => {
     const [anchorEl, setAnchorEl] = useState(null);
     const [currentOption, setCurrentOption] = useState(null);
     const [likes, setLikes] = useState({});
+    const [checkError, setCheckError] = useState(null);
 
     const { data, error, mutate } = useSWR('/api/posts', fetcher, {
         onSuccess: (data) => {
@@ -86,6 +87,14 @@ const ShareYourStory = () => {
         setLoading(true);
         try {
             const userId = session?.user?.id;
+    
+            // Check if there is either post content or media content
+            if (!data.post && (!data.media || data.media.length === 0)) {
+                setCheckError('กรุณากรอกข้อความหรือเพิ่มรูปภาพ');
+                setLoading(false);
+                return; // Exit the function if the condition is not met
+            }
+    
 
             const response = await axios.post('/api/posts', {
                 post: data.post,
@@ -114,6 +123,7 @@ const ShareYourStory = () => {
             }
 
             setLoading(false);
+            setCheckError(null);
             handleClose();
             mutate();
         } catch (error) {
@@ -126,6 +136,14 @@ const ShareYourStory = () => {
         setLoading(true);
         try {
             const userId = session?.user?.id;
+    
+            // Check if there is either post content or media content
+            if (!data.post && (!data.media || data.media.length === 0)) {
+                setCheckError('กรุณากรอกข้อความหรือเพิ่มรูปภาพ');
+                setLoading(false);
+                return; // Exit the function if the condition is not met
+            }
+    
             const response = await axios.post('/api/posts/comments', {
                 comment: data.post,
                 medias: data.media,
@@ -153,6 +171,7 @@ const ShareYourStory = () => {
             }
 
             setLoading(false);
+            setCheckError(null);
             mutate();
             handleClose();
             setShowComments({ ...showComments, [postId]: true });
@@ -166,6 +185,14 @@ const ShareYourStory = () => {
         setLoading(true);
         try {
             const userId = session?.user?.id;
+    
+            // Check if there is either post content or media content
+            if (!data.post && (!data.media || data.media.length === 0)) {
+                setCheckError('กรุณากรอกข้อความหรือเพิ่มรูปภาพ');
+                setLoading(false);
+                return; // Exit the function if the condition is not met
+            }
+    
             const response = await axios.post('/api/posts/replys', {
                 reply: data.post,
                 medias: data.media,
@@ -193,6 +220,7 @@ const ShareYourStory = () => {
             }
 
             setLoading(false);
+            setCheckError(null);
             mutate();
             handleClose();
             setShowReply({ ...showReply, [commentId]: true });
@@ -614,9 +642,9 @@ const ShareYourStory = () => {
                 TransitionComponent={Transition}
             >
                 <div className="flex flex-col mt-2 p-2">
-                    {currentDialog?.type === 'post' && <PostInput handleSubmit={handlePostSubmit} userId={session?.user?.id} handleClose={handleClose} />}
-                    {currentDialog?.type === 'comment' && <CommentInput handleSubmit={(data) => handleCommentSubmit(currentDialog.id, data)} userId={session?.user?.id} handleClose={handleClose} />}
-                    {currentDialog?.type === 'reply' && <ReplyInput handleSubmit={(data) => handleReplySubmit(currentDialog.id, data)} userId={session?.user?.id} handleClose={handleClose} />}
+                    {currentDialog?.type === 'post' && <PostInput handleSubmit={handlePostSubmit} userId={session?.user?.id} handleClose={handleClose} checkError={checkError} />}
+                    {currentDialog?.type === 'comment' && <CommentInput handleSubmit={(data) => handleCommentSubmit(currentDialog.id, data)} userId={session?.user?.id} handleClose={handleClose} checkError={checkError}/>}
+                    {currentDialog?.type === 'reply' && <ReplyInput handleSubmit={(data) => handleReplySubmit(currentDialog.id, data)} userId={session?.user?.id} handleClose={handleClose} checkError={checkError}/>}
                 </div>
             </Dialog>
             <Dialog open={loading} onClose={() => setIsLoading(false)}>
