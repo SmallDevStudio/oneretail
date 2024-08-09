@@ -84,6 +84,7 @@ const ContentTable = () => {
                             <th className="px-6  border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Category</th>
                             <th className="px-6  border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">SubCategory</th>
                             <th className="px-6  border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Groups</th>
+                            <th className="px-6  border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">SubGroups</th>
                             <th className="px-6  border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Publisher</th>
                             <th className="px-6  border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Author</th>
                             <th className="px-6  border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date Created</th>
@@ -100,6 +101,7 @@ const ContentTable = () => {
                                 <td className="px-6  whitespace-nowrap text-sm font-medium text-gray-900">{content.categories?.title || ''}</td>
                                 <td className="px-6  whitespace-nowrap text-sm font-medium text-gray-900">{content.subcategories?.title || ''}</td>
                                 <td className="px-6  whitespace-nowrap text-sm font-medium text-gray-900">{content.groups?.name || ''}</td>
+                                <td className="px-6  whitespace-nowrap text-sm font-medium text-gray-900">{content.subgroups?.name || ''}</td>
                                 <td className="px-6  whitespace-nowrap text-sm font-medium text-gray-900">
                                     <div className="flex justify-center items-center w-full">
                                         <button

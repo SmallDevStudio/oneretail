@@ -8,7 +8,7 @@ export default async function handler(req, res) {
         case 'GET':
             const { userId } = req.query;
             try {
-                const notifications = await Notification.find({ userId: userId, isReading: false }).sort({ createdAt: -1 });
+                const notifications = await Notification.find({ userId: userId}).sort({ createdAt: -1 });
                 res.status(200).json({ success: true, data: notifications });
             } catch (error) {
                 res.status(400).json({ success: false });

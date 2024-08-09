@@ -14,7 +14,7 @@ const SubGroupTable = () => {
 
   const fetchSubGroups = async () => {
     try {
-      const response = await axios.get('/api/subgroups');
+      const response = await axios.get('/api/subgroup');
       setData(response.data.data);
     } catch (error) {
       console.error('Failed to fetch groups:', error);
@@ -23,7 +23,7 @@ const SubGroupTable = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`/api/subgroups?id=${id}`);
+      await axios.delete(`/api/subgroup?id=${id}`);
       fetchSubGroups();
     } catch (error) {
       console.error('Failed to delete group:', error);
@@ -36,7 +36,7 @@ const SubGroupTable = () => {
 
   const handleSave = async (subgroup, index) => {
     try {
-      await axios.put('/api/subgroups', subgroup);
+      await axios.put('/api/subgroup', subgroup);
       setEditIndex(null);
       fetchSubGroups();
     } catch (error) {
@@ -46,7 +46,7 @@ const SubGroupTable = () => {
 
   const handleAdd = async () => {
     try {
-      await axios.post('/api/subgroups', newSubGroup);
+      await axios.post('/api/subgroup', newSubGroup);
       setNewSubGroup({ name: '', description: '' });
       fetchSubGroups();
     } catch (error) {
