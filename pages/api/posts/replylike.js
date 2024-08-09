@@ -31,7 +31,7 @@ export default async function handler(req, res) {
                         referId: reply._id,
                         path: 'Share Your Story',
                         subpath: 'Reply',
-                        url: `${process.env.NEXTAUTH_URL}/stores?tab=share-your-story#${reply.commentId}`,
+                        url: `${process.env.NEXTAUTH_URL}stores?tab=share-your-story#${reply.commentId}`,
                         type: "Like",
                     });
                 }

@@ -34,7 +34,7 @@ export default async function handler(req, res) {
                         referId: experience._id,
                         path: 'Experience',
                         subpath: 'Post',
-                        url: `${process.env.NEXTAUTH_URL}/club?tab=experience#${experience._id}`,
+                        url: `${process.env.NEXTAUTH_URL}club?tab=experience#${experience._id}`,
                         type: 'Like'
                     });
                 }

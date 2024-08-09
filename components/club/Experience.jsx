@@ -106,7 +106,7 @@ const Experience = () => {
                         referId: experience._id,
                         path: 'Experience',
                         subpath: 'Post',
-                        url: `${window.location.origin}/club?tab=experience#${experience._id}`,
+                        url: `${window.location.origin}club?tab=experience#${experience._id}`,
                         type: 'Tag'
                     });
                 }
@@ -144,7 +144,7 @@ const Experience = () => {
                         referId: experience._id,
                         path: 'Experience',
                         subpath: 'Comment',
-                        url: `${window.location.origin}/club?tab=experience#${experience._id}`,
+                        url: `${window.location.origin}club?tab=experience#${experience._id}`,
                         type: 'Tag'
                     });
                 }
@@ -183,7 +183,7 @@ const Experience = () => {
                         referId: experience._id,
                         path: 'Experience',
                         subpath: 'Reply',
-                        url: `${window.location.origin}/club?tab=experience#${experience.commentId}`,
+                        url: `${window.location.origin}club?tab=experience#${experience.commentId}`,
                         type: 'Tag'
                     });
                 }

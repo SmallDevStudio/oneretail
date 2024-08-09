@@ -106,7 +106,7 @@ const ShareYourStory = () => {
                         referId: post._id,
                         path: 'Share Your Story',
                         subpath: 'Post',
-                        url: `${window.location.origin}/stores?tab=share-your-story#${post._id}`,
+                        url: `${window.location.origin}stores?tab=share-your-story#${post._id}`,
                         type: 'Tag'
                     });
                 }
@@ -144,7 +144,7 @@ const ShareYourStory = () => {
                         referId: post._id,
                         path: 'Share Your Story',
                         subpath: 'Comment',
-                        url: `${window.location.origin}/stores?tab=share-your-story#${post._id}`,
+                        url: `${window.location.origin}stores?tab=share-your-story#${post._id}`,
                         type: 'Tag'
                     });
                 }
@@ -183,7 +183,7 @@ const ShareYourStory = () => {
                         referId: post._id,
                         path: 'Share Your Story',
                         subpath: 'Reply',
-                        url: `${window.location.origin}/stores?tab=share-your-story#${post.commentId}`,
+                        url: `${window.location.origin}stores?tab=share-your-story#${post.commentId}`,
                         type: 'Tag'
                     });
                 }
