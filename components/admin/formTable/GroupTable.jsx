@@ -7,6 +7,8 @@ const GroupTable = () => {
   const [data, setData] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
   const [newGroup, setNewGroup] = useState({ name: '', description: '' });
+  const [pageCount, setPageCount] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchGroups();
@@ -14,10 +16,14 @@ const GroupTable = () => {
 
   const fetchGroups = async () => {
     try {
+      setLoading(true);
       const response = await axios.get('/api/groups');
       setData(response.data.data);
+      setPageCount(Math.ceil(response.data.total / 10)); // Assuming 10 items per page
+      setLoading(false);
     } catch (error) {
       console.error('Failed to fetch groups:', error);
+      setLoading(false);
     }
   };
 
@@ -106,7 +112,6 @@ const GroupTable = () => {
         )
       }
     ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [data, editIndex]
   );
 
@@ -116,18 +121,31 @@ const GroupTable = () => {
     headerGroups,
     prepareRow,
     page,
-  } = useTable({ columns, data }, usePagination);
+    canPreviousPage,
+    canNextPage,
+    nextPage,
+    previousPage,
+    setPageSize,
+    state: { pageIndex, pageSize },
+  } = useTable(
+    {
+      columns,
+      data,
+      initialState: { pageIndex: 0 }, // Start from the first page
+      manualPagination: true,
+      pageCount,
+    },
+    usePagination
+  );
 
   return (
     <div className={styles.container}>
-    
+      {loading && <p>Loading...</p>}
       <table {...getTableProps()} className={styles.table}>
         <thead>
           {headerGroups.map(headerGroup => (
-            // eslint-disable-next-line react/jsx-key
             <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map(column => (
-                // eslint-disable-next-line react/jsx-key
                 <th {...column.getHeaderProps()}>{column.render('Header')}</th>
               ))}
             </tr>
@@ -137,10 +155,8 @@ const GroupTable = () => {
           {page.map(row => {
             prepareRow(row);
             return (
-              // eslint-disable-next-line react/jsx-key
               <tr {...row.getRowProps()}>
                 {row.cells.map(cell => (
-                  // eslint-disable-next-line react/jsx-key
                   <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
                 ))}
               </tr>
@@ -148,6 +164,33 @@ const GroupTable = () => {
           })}
         </tbody>
       </table>
+      
+      <div className={styles.pagination}>
+        <button onClick={() => previousPage()} disabled={!canPreviousPage}>
+          Previous
+        </button>
+        <button onClick={() => nextPage()} disabled={!canNextPage}>
+          Next
+        </button>
+        <span>
+          Page{' '}
+          <strong>
+            {pageIndex + 1} of {pageCount}
+          </strong>{' '}
+        </span>
+        <select
+          value={pageSize}
+          onChange={e => {
+            setPageSize(Number(e.target.value));
+          }}
+        >
+          {[10, 20, 30].map(pageSize => (
+            <option key={pageSize} value={pageSize}>
+              Show {pageSize}
+            </option>
+          ))}
+        </select>
+      </div>
       
       <h2>Add New Group</h2>
       <input 

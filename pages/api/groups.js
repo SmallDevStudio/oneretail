@@ -16,6 +16,7 @@ export default async function handler(req, res) {
       }
       break;
     case 'POST':
+      console.log(req.body);
       try {
         const group = await Group.create(req.body);
         res.status(201).json(group);
