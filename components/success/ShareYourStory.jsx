@@ -13,6 +13,7 @@ import PostInput from "../comments/PostInput";
 import ReplyInput from "../comments/ReplyInput";
 import { PiUserCircleDuotone } from "react-icons/pi";
 import ImageGallery from "../club/ImageGallery";
+import Swal from "sweetalert2";
 import moment from "moment";
 import "moment/locale/th";
 moment.locale('th');
@@ -256,38 +257,83 @@ const ShareYourStory = () => {
     };
 
     const handleDelete = async (postId) => {
-        setLoading(true);
-        try {
-            await axios.delete(`/api/posts?postId=${postId}`);
-            mutate();
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you really want to delete this post? This process cannot be undone.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+        });
+    
+        if (result.isConfirmed) {
+            setLoading(true);
+            try {
+                await axios.delete(`/api/posts?postId=${postId}`);
+                mutate();
+                Swal.fire('Deleted!', 'Your post has been deleted.', 'success');
+            } catch (error) {
+                console.error(error);
+                Swal.fire('Error!', 'There was an issue deleting the post.', 'error');
+            } finally {
+                setLoading(false);
+            }
         }
     };
-
+    
     const handleCommentDelete = async (commentId) => {
-        setLoading(true);
-        try {
-            await axios.delete(`/api/posts/comment?commentId=${commentId}`);
-            mutate();
-        } catch (error) {
-            console.error('Error deleting comment:', error);
-        } finally {
-            setLoading(false);
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you really want to delete this comment? This process cannot be undone.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+        });
+    
+        if (result.isConfirmed) {
+            setLoading(true);
+            try {
+                await axios.delete(`/api/posts/comment?commentId=${commentId}`);
+                mutate();
+                Swal.fire('Deleted!', 'Your comment has been deleted.', 'success');
+            } catch (error) {
+                console.error('Error deleting comment:', error);
+                Swal.fire('Error!', 'There was an issue deleting the comment.', 'error');
+            } finally {
+                setLoading(false);
+            }
         }
     };
-
+    
     const handleReplyDelete = async (replyId) => {
-        setLoading(true);
-        try {
-            await axios.delete(`/api/posts/reply?replyId=${replyId}`);
-            mutate();
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you really want to delete this reply? This process cannot be undone.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+        });
+    
+        if (result.isConfirmed) {
+            setLoading(true);
+            try {
+                await axios.delete(`/api/posts/reply?replyId=${replyId}`);
+                mutate();
+                Swal.fire('Deleted!', 'Your reply has been deleted.', 'success');
+            } catch (error) {
+                console.error(error);
+                Swal.fire('Error!', 'There was an issue deleting the reply.', 'error');
+            } finally {
+                setLoading(false);
+            }
         }
     };
 
@@ -302,8 +348,19 @@ const ShareYourStory = () => {
         <div className="flex flex-col text-white text-sm">
             {/* Input Post */}
             <div className="flex flex-col w-full">
-                <div className="flex flex-row items-center px-2 w-full gap-1">
-                    <div className="relative w-full p-2 text-xs bg-gray-200 outline-none rounded-full h-8">
+                <div className="flex flex-row items-center justify-center px-2 w-full gap-1">
+                    <div className="flex justify-center items-center">
+                        <Image
+                            src={user.user?.pictureUrl}
+                            alt="user"
+                            width={30}
+                            height={30}
+                            className="rounded-full border-2"
+                            loading="lazy"
+                            style={{ width: '40px', height: '40px' }}
+                        />
+                    </div>
+                    <div className="relative w-5/6 p-2 text-xs bg-gray-200 outline-none rounded-full h-8">
                         <input
                             type="text"
                             placeholder="คุณคิดอะไรอยู่..?"
@@ -424,7 +481,6 @@ const ShareYourStory = () => {
                                                             classes={{ paper: "text-xs" }}
                                                         >
                                                             <MenuItem onClick={() => { handleCommentDelete(currentOption.id); handleOptionClose(); }}>Delete</MenuItem>
-                                                            <MenuItem >Point</MenuItem>
                                                         </Menu>
                                                     </div>
                                                 )}
@@ -504,7 +560,6 @@ const ShareYourStory = () => {
                                                                     classes={{ paper: "text-xs" }}
                                                                 >
                                                                     <MenuItem onClick={() => { handleReplyDelete(currentOption.id); handleOptionClose(); }}>Delete</MenuItem>
-                                                                    <MenuItem >Point</MenuItem>
                                                                 </Menu>
                                                             </div>
                                                         )}

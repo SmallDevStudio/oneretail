@@ -257,32 +257,77 @@ const Experience = () => {
     };
 
     const handleDelete = async (experienceId) => {
-        try {
-            await axios.delete(`/api/club/experiencedelete?experienceId=${experienceId}`);
-            mutate();
-        } catch (error) {
-            console.error(error);
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you really want to delete this post? This process cannot be undone.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+        });
+
+        if (result.isConfirmed) {
+            setLoading(true);
+            try {
+                await axios.delete(`/api/club/experiencedelete?experienceId=${experienceId}`);
+                mutate();
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
         }
     };
 
     const handleCommentDelete = async (commentId) => {
-        setLoading(true);
-        try {
-            await axios.delete(`/api/club/commentdelete?commentId=${commentId}`);
-            mutate();
-        } catch (error) {
-            console.error('Error deleting comment:', error);
-        } finally {
-            setLoading(false);
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you really want to delete this comment? This process cannot be undone.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+        });
+    
+        if (result.isConfirmed) {
+            setLoading(true);
+            try {
+                await axios.delete(`/api/club/commentdelete?commentId=${commentId}`);
+                mutate();
+            } catch (error) {
+                console.error('Error deleting comment:', error);
+            } finally {
+                setLoading(false);
+            }
         }
     };
 
     const handleReplyDelete = async (replyId) => {
-        try {
-            await axios.delete(`/api/club/replydelete?replyId=${replyId}`);
-            mutate();
-        } catch (error) {
-            console.error(error);
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you really want to delete this reply? This process cannot be undone.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+        });
+    
+        if (result.isConfirmed) {
+            setLoading(true);
+            try {
+                await axios.delete(`/api/club/replydelete?replyId=${replyId}`);
+                mutate();
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
         }
     };
 
@@ -293,8 +338,19 @@ const Experience = () => {
         <div className="flex flex-col text-white text-sm">
             {/* Input Post */}
             <div className="flex flex-col w-full">
-                <div className="flex flex-row items-center px-2 w-full gap-1">
-                    <div className="relative w-full p-2 text-xs bg-gray-200 outline-none rounded-full h-8">
+            <div className="flex flex-row items-center justify-center px-2 w-full gap-2">
+                    <div className="flex justify-center items-center">
+                        <Image
+                            src={user.user?.pictureUrl}
+                            alt="user"
+                            width={30}
+                            height={30}
+                            className="rounded-full"
+                            loading="lazy"
+                            style={{ width: '40px', height: '40px' }}
+                        />
+                    </div>
+                    <div className="relative w-5/6 p-2 text-xs bg-gray-200 outline-none rounded-full h-8">
                         <input
                             type="text"
                             placeholder="คุณคิดอะไรอยู่..?"
