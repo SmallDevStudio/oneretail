@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 const NotificationSchema = new mongoose.Schema({
   userId: { type: String, ref: 'Users', required: true },
+  senderId: { type: String, ref: 'Users', required: true },
   description: { type: String, required: true },
   referId: { type: String },
   path: { type: String },

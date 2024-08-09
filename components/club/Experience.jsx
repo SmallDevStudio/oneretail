@@ -13,6 +13,7 @@ import PostInput from "../comments/PostInput";
 import ReplyInput from "../comments/ReplyInput";
 import { PiUserCircleDuotone } from "react-icons/pi";
 import ImageGallery from "./ImageGallery";
+import Swal from "sweetalert2";
 import moment from "moment";
 import "moment/locale/th";
 moment.locale('th');
@@ -96,17 +97,16 @@ const Experience = () => {
                 userId
             });
 
-            const experience = response.data;
-
             if (data.selectedUsers && data.selectedUsers.length > 0) {
                 for (const user of data.selectedUsers) {
                     await axios.post('/api/notifications', {
                         userId: user.userId,
-                        description: `${session?.user?.fullname} ได้แท็คโพสใน Experience`,
-                        referId: experience._id,
+                        senderId: userId,
+                        description: `ได้แท็คโพสใน Experience`,
+                        referId: response.data.data._id,
                         path: 'Experience',
                         subpath: 'Post',
-                        url: `${window.location.origin}club?tab=experience#${experience._id}`,
+                        url: `${window.location.origin}club?tab=experience#${response.data.data._id}`,
                         type: 'Tag'
                     });
                 }
@@ -134,13 +134,14 @@ const Experience = () => {
                 userId,
             });
 
-            const experience = response.data;
+            const experience = response.data.data;
 
             if (data.selectedUsers && data.selectedUsers.length > 0) {
                 for (const user of data.selectedUsers) {
                     await axios.post('/api/notifications', {
                         userId: user.userId,
-                        description: `${session?.user?.fullname} ได้แท็คโพสใน Experience`,
+                        senderId: userId,
+                        description: `ได้แท็คโพสใน Experience`,
                         referId: experience._id,
                         path: 'Experience',
                         subpath: 'Comment',
@@ -173,13 +174,14 @@ const Experience = () => {
                 userId
             });
 
-            const experience = response.data;
+            const experience = response.data.data;
 
             if (data.selectedUsers && data.selectedUsers.length > 0) {
                 for (const user of data.selectedUsers) {
                     await axios.post('/api/notifications', {
                         userId: user.userId,
-                        description: `${session?.user?.fullname} ได้แท็คโพสใน Experience`,
+                        senderId: userId,
+                        description: `ได้แท็คโพสใน Experience`,
                         referId: experience._id,
                         path: 'Experience',
                         subpath: 'Reply',
@@ -205,7 +207,7 @@ const Experience = () => {
         try {
             await axios.put('/api/club/like', {
                 experienceId,
-                userId
+                userId,
             });
     
             setLikes(prevLikes => ({
@@ -224,7 +226,7 @@ const Experience = () => {
         try {
             await axios.put('/api/club/commentlike', {
                 commentId,
-                userId
+                userId,
             });
     
             setLikes(prevLikes => ({
@@ -243,7 +245,8 @@ const Experience = () => {
         try {
             await axios.put('/api/club/replylike', {
                 replyId,
-                userId
+                userId,
+                experienceId,
             });
     
             setLikes(prevLikes => ({

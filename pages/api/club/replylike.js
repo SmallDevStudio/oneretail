@@ -28,15 +28,18 @@ export default async function handler(req, res) {
                 } else {
                     reply.likes.push({ userId });
 
-                    await Notifications.create({
-                        userId: reply.userId,
-                        description: `${user.fullname} ได้กด like การตอบกลับใน Experience`,
-                        referId: reply._id,
-                        path: 'Experience',
-                        subpath: 'Experience Reply',
-                        url: `${process.env.NEXTAUTH_URL}club?tab=experience#${exprienceId}`,
-                        type: 'Like'
-                    });
+                    if (userId !== reply.userId) {
+                        await Notifications.create({
+                            userId: reply.userId,
+                            senderId: userId,
+                            description: `ได้กด like การตอบกลับใน Experience`,
+                            referId: reply._id,
+                            path: 'Experience',
+                            subpath: 'Reply',
+                            url: `${process.env.NEXTAUTH_URL}club?tab=experience#${exprienceId}`,
+                            type: 'Like'
+                        });
+                    }
                 }
 
                 await reply.save();

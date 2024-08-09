@@ -27,15 +27,18 @@ export default async function handler(req, res) {
                 } else {
                     post.likes.push({ userId });
 
-                    await Notifications.create({
-                        userId: post.userId,
-                        description: `${user.fullname} ได้กด like โพสใน Post`,
-                        referId: post._id,
-                        path: 'Share Your Story',
-                        subpath: 'Post',
-                        url: `${process.env.NEXTAUTH_URL}stores?tab=share-your-story#${post._id}`,
-                        type: 'Like'
-                    });
+                    if (userId !== post.userId) {
+                        await Notifications.create({
+                            userId: post.userId,
+                            senderId: userId,
+                            description: `ได้กด like โพสใน Post`,
+                            referId: post._id,
+                            path: 'Share Your Story',
+                            subpath: 'Post',
+                            url: `${process.env.NEXTAUTH_URL}stores?tab=share-your-story#${post._id}`,
+                            type: 'Like'
+                        });
+                    }
                 }
 
                 await post.save();

@@ -96,13 +96,14 @@ const ShareYourStory = () => {
                 userId
             });
 
-            const post = response.data;
+            const post = response.data.data;
 
             if (data.selectedUsers && data.selectedUsers.length > 0) {
                 for (const user of data.selectedUsers) {
                     await axios.post('/api/notifications', {
                         userId: user.userId,
-                        description: `${user?.user?.fullname} ได้แท็คโพสใน Share Your Story`,
+                        senderId: userId,
+                        description: `ได้แท็คโพสใน Share Your Story`,
                         referId: post._id,
                         path: 'Share Your Story',
                         subpath: 'Post',
@@ -134,13 +135,14 @@ const ShareYourStory = () => {
                 userId,
             });
 
-            const post = response.data;
+            const post = response.data.data;
 
             if (data.selectedUsers && data.selectedUsers.length > 0) {
                 for (const user of data.selectedUsers) {
                     await axios.post('/api/notifications', {
                         userId: user.userId,
-                        description: `${user?.user?.fullname} ได้แท็คโพสใน Share Your Story`,
+                        senderId: userId,
+                        description: `ได้แท็คโพสใน Share Your Story`,
                         referId: post._id,
                         path: 'Share Your Story',
                         subpath: 'Comment',
@@ -173,13 +175,14 @@ const ShareYourStory = () => {
                 userId
             });
 
-            const post = response.data;
+            const post = response.data.data;
 
             if (data.selectedUsers && data.selectedUsers.length > 0) {
                 for (const user of data.selectedUsers) {
                     await axios.post('/api/notifications', {
                         userId: user.userId,
-                        description: `${user?.user?.fullname} ได้แท็คโพสใน Share Your Story`,
+                        senderId: userId,
+                        description: `ได้แท็คโพสใน Share Your Story`,
                         referId: post._id,
                         path: 'Share Your Story',
                         subpath: 'Reply',
@@ -205,7 +208,8 @@ const ShareYourStory = () => {
         try {
             await axios.put('/api/posts/like', {
                 postId,
-                userId
+                userId,
+
             });
 
             setLikes(prevLikes => ({
@@ -224,7 +228,7 @@ const ShareYourStory = () => {
         try {
             await axios.put('/api/posts/commentlike', {
                 commentId,
-                userId
+                userId,
             });
 
             setLikes(prevLikes => ({
@@ -237,13 +241,15 @@ const ShareYourStory = () => {
         }
     };
 
-    const handleReplyLike = async (replyId) => {
+    const handleReplyLike = async (replyId, postId) => {
         const userId = session?.user?.id;
 
         try {
             await axios.put('/api/posts/replylike', {
                 replyId,
-                userId
+                userId,
+                postId,
+               
             });
 
             setLikes(prevLikes => ({
@@ -582,9 +588,9 @@ const ShareYourStory = () => {
                                             <div className="flex flex-row items-center gap-2 justify-between pl-10 pr-1 mt-1 w-full">
                                                 <div className="flex flex-row items-center gap-2">
                                                     {likes[reply._id] ? (
-                                                        <AiFillHeart className="w-3 h-3 text-red-500" onClick={() => handleReplyLike(reply._id, comment.experienceId)} />
+                                                        <AiFillHeart className="w-3 h-3 text-red-500" onClick={() => handleReplyLike(reply._id, comment.postId)} />
                                                     ) : (
-                                                        <AiOutlineHeart className="w-3 h-3" onClick={() => handleReplyLike(reply._id, comment.experienceId)} />
+                                                        <AiOutlineHeart className="w-3 h-3" onClick={() => handleReplyLike(reply._id, comment.postId)} />
                                                     )}
                                                     <span className="text-sm">
                                                         {Array.isArray(reply?.likes)? reply?.likes?.length : 0}

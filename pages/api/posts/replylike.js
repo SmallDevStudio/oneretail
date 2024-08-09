@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     switch (method) {
         case "PUT":
             try {
-                const { replyId, userId } = req.body;
+                const { replyId, postId, userId } = req.body;
                 const reply = await Reply.findById(replyId);
 
                 if (!reply) {
@@ -25,15 +25,18 @@ export default async function handler(req, res) {
                 } else {
                     reply.likes.push({ userId });
 
-                    await Notifications.create({
-                        userId: reply.userId,
-                        description: `${user.fullname} ได้กด like คอมเมนต์ใน Share Your Story, Reply Comment`,
-                        referId: reply._id,
-                        path: 'Share Your Story',
-                        subpath: 'Reply',
-                        url: `${process.env.NEXTAUTH_URL}stores?tab=share-your-story#${reply.commentId}`,
-                        type: "Like",
-                    });
+                    if (userId !== reply.userId) {
+                        await Notifications.create({
+                            userId: reply.userId,
+                            senderId: userId,
+                            description: `ได้กด like คอมเมนต์ใน Share Your Story, Reply Comment`,
+                            referId: reply._id,
+                            path: 'Share Your Story',
+                            subpath: 'Reply',
+                            url: `${process.env.NEXTAUTH_URL}stores?tab=share-your-story#${postId}`,
+                            type: "Like",
+                        });
+                    }
                 }
 
                 await reply.save();
