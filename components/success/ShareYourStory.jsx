@@ -553,13 +553,9 @@ const ShareYourStory = () => {
                 TransitionComponent={Transition}
             >
                 <div className="flex flex-col mt-2 p-2">
-                    <div className="flex flex-row items-center mb-4 gap-4">
-                        <IoIosArrowBack className="text-xl inline text-gray-700" onClick={handleClose} />
-                        <span>แสดงความคิดเห็น</span>
-                    </div>
-                    {currentDialog?.type === 'post' && <PostInput handleSubmit={handlePostSubmit} userId={session?.user?.id} />}
-                    {currentDialog?.type === 'comment' && <CommentInput handleSubmit={(data) => handleCommentSubmit(currentDialog.id, data)} userId={session?.user?.id} />}
-                    {currentDialog?.type === 'reply' && <ReplyInput handleSubmit={(data) => handleReplySubmit(currentDialog.id, data)} userId={session?.user?.id} />}
+                    {currentDialog?.type === 'post' && <PostInput handleSubmit={handlePostSubmit} userId={session?.user?.id} handleClose={handleClose} />}
+                    {currentDialog?.type === 'comment' && <CommentInput handleSubmit={(data) => handleCommentSubmit(currentDialog.id, data)} userId={session?.user?.id} handleClose={handleClose} />}
+                    {currentDialog?.type === 'reply' && <ReplyInput handleSubmit={(data) => handleReplySubmit(currentDialog.id, data)} userId={session?.user?.id} handleClose={handleClose} />}
                 </div>
             </Dialog>
             <Dialog open={loading} onClose={() => setIsLoading(false)}>

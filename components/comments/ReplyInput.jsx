@@ -7,8 +7,9 @@ import Divider from '@mui/material/Divider';
 import TagUsers from "./TagUsers";
 import fetchLinkPreview from '@/utils/fetchLinkPreview';
 import Link from "next/link";
+import { IoIosArrowBack } from "react-icons/io";
 
-const ReplyInput = ({ handleSubmit, userId }) => {
+const ReplyInput = ({ handleSubmit, userId, handleClose }) => {
     const [post, setPost] = useState("");
     const [media, setMedia] = useState([]);
     const [files, setFiles] = useState(null); // สำหรับการอัพโหลดเอกสารครั้งละ 1 ไฟล์
@@ -114,6 +115,10 @@ const ReplyInput = ({ handleSubmit, userId }) => {
 
     return (
         <div>
+            <div className="flex flex-row items-center mb-4 gap-4">
+                <IoIosArrowBack className="text-xl inline text-gray-700" onClick={handleClose} />
+                <span>ตอบกลับความคิดเห็น</span>
+            </div>
             <div>
                 <div className="flex flex-row gap-2">
                     {selectedUsers.length > 0 ? (
@@ -130,7 +135,7 @@ const ReplyInput = ({ handleSubmit, userId }) => {
                     className="w-full min-h-32 border-gray-300 rounded-lg outline-none"
                     value={post}
                     name="post"
-                    placeholder="แสดงความคิดเห็น"
+                    placeholder="ตอบกลับแสดงความคิดเห็น"
                     onChange={handlePostChange}
                 />
                 <div className="flex flex-col gap-2 mt-2 mb-2">

@@ -8,7 +8,9 @@ import TagUsers from "./TagUsers";
 import fetchLinkPreview from '@/utils/fetchLinkPreview';
 import Link from "next/link";
 import axios from 'axios';
-const CommentInput = ({ handleSubmit, userId }) => {
+import { IoIosArrowBack } from "react-icons/io";
+
+const CommentInput = ({ handleSubmit, userId, handleClose }) => {
     const [post, setPost] = useState("");
     const [media, setMedia] = useState([]);
     const [files, setFiles] = useState(null); // สำหรับการอัพโหลดเอกสารครั้งละ 1 ไฟล์
@@ -114,6 +116,10 @@ const CommentInput = ({ handleSubmit, userId }) => {
 
     return (
         <div>
+            <div className="flex flex-row items-center mb-4 gap-4">
+                <IoIosArrowBack className="text-xl inline text-gray-700" onClick={handleClose} />
+                <span>แสดงความคิดเห็น</span>
+            </div>
             <div>
                 <div className="flex flex-row gap-2">
                     {selectedUsers.length > 0 ? (
