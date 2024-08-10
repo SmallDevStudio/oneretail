@@ -11,7 +11,7 @@ import { useRouter } from "next/router";
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 
-const ArticleTable = ({ articles, onDelete, onStatusChange, onPublishedChange, onSearch }) => {
+const ArticleTable = ({ articles, onDelete, onStatusChange, onPublishedChange, onSearch, setLoading }) => {
     const [selectedArticle, setSelectedArticle] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -62,6 +62,10 @@ const ArticleTable = ({ articles, onDelete, onStatusChange, onPublishedChange, o
         onSearch(value);
     };
     const tagsAndNames = articles.flatMap(article => [article.title, ...article.tags.map(tag => tag.name)]);
+
+    if (!articles) {
+        setLoading(true);
+    }
     return (
         <div className="flex flex-col w-full p-2">
             <div className="flex mb-4 justify-between">

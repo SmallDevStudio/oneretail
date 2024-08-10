@@ -3,6 +3,7 @@ import Article from "@/database/models/Article";
 import Users from "@/database/models/users";
 import ArticleComments from "@/database/models/ArticleComments";
 import ReplyArticleComment from "@/database/models/ReplyArticleComment";
+import ArticleQuiz from "@/database/models/ArticleQuiz";
 
 export default async function handler(req, res) {
     const { method } = req;
@@ -42,7 +43,20 @@ export default async function handler(req, res) {
                     }))
                 }));
 
-                res.status(200).json({ success: true, data: { article: { ...article, user: user || null }, comments: enrichedComments } });
+                // Fetch quizzes associated with the article
+                const quizzes = await ArticleQuiz.find({ articleId: id }).lean();
+
+                res.status(200).json({ 
+                    success: true, 
+                    data: { 
+                        article: { 
+                            ...article, 
+                            user: user || null 
+                        }, 
+                        comments: enrichedComments,
+                        quizzes: quizzes || [] // Include quizzes in the response
+                    } 
+                });
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });
             }
@@ -50,9 +64,12 @@ export default async function handler(req, res) {
 
         case 'PUT':
             try {
-                const { likes } = req.body;
-                const article = await Article.findByIdAndUpdate(id, { likes }, { new: true });
-                res.status(200).json({ success: true, data: article });
+                const { id } = req.query;
+                const ArticleUpdate = await Article.findByIdAndUpdate(id, req.body, {
+                    new: true,
+                });
+
+                res.status(200).json({ success: true, data: ArticleUpdate });
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });
             }

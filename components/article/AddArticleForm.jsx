@@ -4,24 +4,25 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import PreviewModal from "./PreviewModal";
 import useSWR from "swr";
-import dynamic from "next/dynamic";
-import { FaPlusCircle, FaMinusCircle } from "react-icons/fa";
+import { FaPlusCircle, FaMinusCircle, FaRegPlayCircle, FaRegEdit } from "react-icons/fa";
 import ArticleQuiz from "./ArticleQuiz";
-import { FaRegEdit } from "react-icons/fa";
-import { RiDeleteBin5Line } from "react-icons/ri";
+import { ImFilePicture } from "react-icons/im";
+import { IoIosCloseCircle } from "react-icons/io";
+import Image from "next/image";
+import sha1 from "crypto-js/sha1";
+import CircularProgress from '@mui/material/CircularProgress'; 
 
-const CKEditor = dynamic(() => import("@/components/Editor/CKEditor"), {
-  ssr: false,
-});
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 const AddArticleForm = () => {
   const { data: session } = useSession();
   const [content, setContent] = useState("");
-  const [medias, setMedias] = useState([]);
-  const [thumbnail, setThumbnail] = useState();
+  const [media, setMedia] = useState([]);
+  const [thumbnail, setThumbnail] = useState(null);
   const [article, setArticle] = useState({});
+  const [tags, setTags] = useState([]); // State to manage tags
+  const [inputTag, setInputTag] = useState(""); // State to manage input for tags
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState(null); // Change to null
@@ -38,6 +39,126 @@ const AddArticleForm = () => {
     fetcher
   );
 
+  const handleTagInputChange = (e) => {
+    const value = e.target.value;
+    if (value.includes(" ")) {
+      const newTag = value.trim();
+      if (newTag && !tags.includes(newTag)) {
+        setTags([...tags, newTag]);
+      }
+      setInputTag(""); // Reset the input field
+    } else {
+      setInputTag(value);
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
+  };
+
+
+  const handleUploadClick = () => {
+    setError(null);
+    window.cloudinary.openUploadWidget(
+        {
+            cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+            uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
+            sources: ['local', 'url', 'camera', 'image_search', 'facebook', 'google_drive'],
+            multiple: true,
+            resourceType: 'auto', // Automatically determines if it's image or video
+        },
+        (error, result) => {
+            if (result.event === 'success') {
+                setMedia(prevMedia => [
+                    ...prevMedia,
+                    { url: result.info.secure_url, public_id: result.info.public_id, type: result.info.resource_type }
+                ]);
+            }
+        }
+    );
+  };
+
+  const handleUploadThumbnail = () => {
+    setError(null);
+    window.cloudinary.openUploadWidget(
+        {
+            cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+            uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
+            sources: ['local', 'url', 'camera', 'image_search', 'facebook', 'google_drive'],
+            multiple: true,
+            resourceType: 'auto', // Automatically determines if it's image or video
+        },
+        (error, result) => {
+            if (result.event === 'success') {
+                setThumbnail(
+                    { url: result.info.secure_url, public_id: result.info.public_id, type: result.info.resource_type }
+                );
+            }
+        }
+    );
+  };
+
+  const generateSHA1 = (data) => {
+    const hash = sha1(data);
+    return hash.toString();
+  }
+
+  const generateSignature = (publicId, apiSecret) => {
+      const timestamp = new Date().getTime();
+      const signature = `public_id=${publicId}&timestamp=${timestamp}${apiSecret}`;
+      return generateSHA1(signature);
+  }
+
+  const handleRemoveMedia = async(public_id) => {
+    
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+        const publicId = public_id;
+        const timestemp = new Date().getTime();
+        const apiKey = process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
+        const apiSecret = process.env.NEXT_PUBLIC_CLOUDINARY_API_SECRET;
+        const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`;
+
+        try {
+            const resp = await axios.post(url, {
+                public_id: publicId,
+                signature: generateSignature(publicId, apiSecret),
+                api_key: apiKey,
+                timestamp: timestemp,
+            });
+
+            setMedia(media.filter((m) => m.public_id !== public_id));
+
+        } catch (error) {
+            console.log(error);
+        }
+    
+  };
+
+  const handleRemoveThumbnail = async(public_id) => {
+    
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+        const publicId = public_id;
+        const timestemp = new Date().getTime();
+        const apiKey = process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
+        const apiSecret = process.env.NEXT_PUBLIC_CLOUDINARY_API_SECRET;
+        const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`;
+
+        try {
+            const resp = await axios.post(url, {
+                public_id: publicId,
+                signature: generateSignature(publicId, apiSecret),
+                api_key: apiKey,
+                timestamp: timestemp,
+            });
+
+            setThumbnail(null);
+
+        } catch (error) {
+            console.log(error);
+        }
+    
+  };
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setArticle({ ...article, [name]: type === "checkbox" ? checked : value });
@@ -51,7 +172,12 @@ const AddArticleForm = () => {
       ...article,
       content: content,
       userId: session.user.id,
+      tags: tegs,
+      medias: media,
+      thumbnail: thumbnail,
     };
+
+    console.log("New Article: ", newArticle);
   
     try {
       // Save the article
@@ -66,6 +192,8 @@ const AddArticleForm = () => {
           correctAnswer: q.answer,
         })),
       };
+
+      console.log("Quiz Data: ", quizData);
   
       // Save the quiz
       const resQuiz = await axios.post("/api/articles/quiz", quizData);
@@ -95,9 +223,9 @@ const AddArticleForm = () => {
     setShowModal(false);
   };
 
-  const handleContentChange = (value) => {
-    console.log("Content:", value);
-    setContent(value);
+  const handleContentChange = (e) => {
+    const inputValue = e.target.value;
+    setContent(inputValue);
   };
 
   const handleQuizClose = () => {
@@ -131,12 +259,13 @@ const AddArticleForm = () => {
 
   if (swrError) return <div>Failed to load</div>;
   if (!data) return <div>Loading...</div>;
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <CircularProgress />;
 
   return (
-    <div className="flex flex-col w-full p-5 border-2 rounded-3xl">
-      <div>
-        <label className="text-black font-bold ml-4" htmlFor="title">
+    <div className="flex flex-col w-full p-5 border-2 rounded-3xl text-sm">
+
+      <div className="flex flex-row w-full gap-2 items-center mb-2">
+        <label className="text-black font-bold" htmlFor="title">
           Title
           <span className="text-red-500">*</span>
         </label>
@@ -144,54 +273,55 @@ const AddArticleForm = () => {
           type="text"
           placeholder="Title"
           name="title"
-          className="text-black mb-4 border-2 p-2 rounded-xl w-2/3 ml-4"
+          className="block text-black border-2 p-1 rounded-xl w-2/3 text-xs"
           onChange={handleChange}
           required
         />
         {error && <p className="text-red-500">{error}</p>}
       </div>
 
-      <div className="flex flex-row w-full items-center gap-4">
-        <div>
-          <label className="text-black font-bold ml-4" htmlFor="channel">
-            Channel
-          </label>
-          <input
-            type="text"
-            placeholder="Channel"
-            name="channel"
-            className="text-black mb-4 border-2 p-2 rounded-xl w-2/3 ml-4"
-            onChange={handleChange}
-          />
-        </div>
-        <div>
-          <label className="text-black font-bold ml-4" htmlFor="position">
-            Position
+
+      <div className="flex flex-row w-full justify-between items-center gap-4 mb-2">
+        <div className="flex flex-row w-full gap-2 items-center">
+          <label className="text-black font-bold" htmlFor="position">
+            Position:
           </label>
           <input
             type="text"
             placeholder="Position"
             name="position"
-            className="text-black mb-4 border-2 p-2 rounded-xl w-2/3 ml-4"
+            className="block text-black border-2 p-1 rounded-xl w-2/3 text-xs"
             onChange={handleChange}
           />
         </div>
-        <div>
-          <label className="text-black font-bold ml-4" htmlFor="group">
-            Group
+        <div className="flex flex-row w-full gap-2 items-center">
+          <label className="text-black font-bold" htmlFor="group">
+            Group:
           </label>
           <input
             type="text"
             placeholder="Group"
             name="group"
-            className="text-black mb-4 border-2 p-2 rounded-xl w-2/3 ml-4"
+            className="block text-black border-2 p-1 rounded-xl w-2/3 text-xs"
+            onChange={handleChange}
+          />
+        </div>
+        <div className="flex flex-row w-full gap-2 items-center">
+          <label className="text-black font-bold" htmlFor="subgroup">
+            SubGroup:
+          </label>
+          <input
+            type="text"
+            placeholder="subgroup"
+            name="subgroup"
+            className="block text-black border-2 p-1 rounded-xl w-2/3 text-xs"
             onChange={handleChange}
           />
         </div>
       </div>
 
-      <div className="flex flex-row w-2/3 gap-4 ml-4">
-        <div className="flex flex-row w-1/2 p-4 border-2 rounded-2xl gap-4 items-center mb-4 justify-between">
+      <div className="flex flex-row w-full items-center justify-between gap-4 mb-2">
+        <div className="flex flex-row w-1/3 border-2 rounded-2xl items-center justify-evenly px-4 py-1">
           <div className="flex items-center">
             <input
               id="pinned"
@@ -205,71 +335,57 @@ const AddArticleForm = () => {
               ปักหมุด
             </label>
           </div>
+         
           <div className="flex items-center">
             <input
-              id="new"
-              name="new"
+              id="recommend"
+              name="recommend"
               type="checkbox"
-              checked={article.new || false}
+              checked={article.recommend || false}
               onChange={handleChange}
               className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-xl focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2"
             />
-            <label htmlFor="new" className="ms-2 text-md font-bold text-gray-900">
-              ใหม่
-            </label>
-          </div>
-          <div className="flex items-center">
-            <input
-              id="popular"
-              name="popular"
-              type="checkbox"
-              checked={article.popular || false}
-              onChange={handleChange}
-              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-xl focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2"
-            />
-            <label htmlFor="popular" className="ms-2 text-md font-bold text-gray-900">
-              Popular
+            <label htmlFor="recommend" className="ms-2 text-md font-bold text-gray-900">
+              แนะนำ
             </label>
           </div>
         </div>
 
-        <div className="flex flex-row w-1/2 border-2 p-2 rounded-2xl gap-4 items-center mb-4 justify-between">
-          <div>
-            <label className="text-black font-bold ml-4" htmlFor="point">
-              Point
+        <div className="flex flex-row w-1/3 border-2 rounded-2xl gap-4 items-center justify-between px-4 py-1">
+          <div className="flex flex-row w-full gap-2 items-center">
+            <label className="text-black font-bold" htmlFor="point">
+              Point:
             </label>
             <input
               type="text"
-              placeholder="point"
+              placeholder="Point"
               name="point"
-              className="text-black border-2 p-2 rounded-xl w-2/3 ml-4"
+              className="block text-black border-2 p-1 rounded-xl w-2/3 text-xs"
               onChange={handleChange}
             />
           </div>
-          <div>
-            <label className="text-black font-bold ml-4" htmlFor="coins">
-              Coins
+          <div className="flex flex-row w-full gap-2 items-center">
+            <label className="text-black font-bold" htmlFor="coins">
+              Coins:
             </label>
             <input
               type="text"
               placeholder="Coins"
               name="coins"
-              className="text-black border-2 p-2 rounded-xl w-2/3 ml-4"
+              className="block text-black border-2 p-1 rounded-xl w-2/3 text-xs"
               onChange={handleChange}
             />
           </div>
         </div>
-      </div>
 
-      <div className="flex flex-row w-full items-center gap-4">
-        <div className="flex flex-row w-1/3 items-center gap-4">
-          <div className="flex-row">
-            <label className="text-black font-bold ml-4" htmlFor="status">
-              Status
+        <div className="flex flex-row w-1/3 items-center">
+          <div className="flex flex-row items-center gap-2">
+            <label className="text-black font-bold " htmlFor="status">
+              Status:
             </label>
             <select
               name="status"
-              className="text-black mb-4 border-2 p-2 rounded-xl w-30 ml-4"
+              className="block text-black border-2 p-1 rounded-xl w-2/3 text-xs"
               value={article.status || 'draft'}
               onChange={handleChange}
             >
@@ -277,36 +393,137 @@ const AddArticleForm = () => {
               <option value="published">Published</option>
             </select>
           </div>
-          <div>
-            <label className="text-black font-bold ml-4" htmlFor="published">
-              Published
-            </label>
-            <select
-              name="published"
-              className="text-black mb-4 border-2 p-2 rounded-xl w-30 ml-4"
-              value={article.published ? 'true' : 'false'}
-              onChange={handleChange}
-            >
-              <option value="true">Yes</option>
-              <option value="false">No</option>
-            </select>
+        </div>
+
+      </div>
+      
+      <div className="flex flex-row w-full items-center gap-2">
+        <div className="flex flex-col w-1/2 gap-2">
+            {/* Thumbnail Preview */}
+            {thumbnail ? (
+              <div className="relative flex flex-col p-2 border-2 rounded-xl">
+                <IoIosCloseCircle
+                  className="absolute top-0 right-0 text-xl cursor-pointer"
+                  onClick={() => handleRemoveThumbnail(thumbnail.public_id)}
+                  />
+                <Image
+                  src={thumbnail.url}
+                  alt="Thumbnail Preview"
+                  width={200}
+                  height={200}
+                  className=""
+                  style={{ maxWidth: 'auto', maxHeight: '150px' }}
+                />
+              </div>
+            ): null}
+          <div className="flex flex-row items-center gap-2">
+            <span className="text-black font-bold">Thumbnail:</span>
+            <div className="flex flex-row w-full mb-2 border-2 p-1 rounded-3xl px-2">
+              <button
+                onClick={handleUploadThumbnail}
+                className="flex flex-row items-center gap-2 cursor-pointer"
+              >
+              <ImFilePicture className="text-xl text-[#0056FF]" />
+                  <div className="flex flex-row text-left">
+                    <span className="text-sm font-bold">อัพโหลดรูปภาพ/วิดีโอ</span>
+                  
+                  </div>
+              </button>
+              <span className="text-[10px] text-red-500 ">* สามารถอัพโหลดได้ไม่เกิน 100MB</span>
+            </div>
           </div>
         </div>
-        <div className="flex-row w-full items-center">
-          <label className="text-black font-bold ml-4" htmlFor="tags">
-            Tags
-          </label>
-          <input
-            type="text"
-            placeholder="Tags"
-            name="tags"
-            className="text-black mb-4 border-2 p-2 rounded-xl ml-4 w-1/3"
-            onChange={handleChange}
-          />
+
+        <div className="flex flex-col w-1/2 gap-2">
+            {/* Media Preview */}
+            <div className="flex flex-row items-center w-full">
+                        {media.map((item, index) => (
+                            <div key={index} className="flex gap-2 ml-2">
+                                <div className="relative flex flex-col p-2 border-2 rounded-xl">
+                                    <IoIosCloseCircle
+                                        className="absolute top-0 right-0 text-xl cursor-pointer"
+                                        onClick={() => handleRemoveMedia(media[index].public_id)}
+                                    />
+                                    {item.type === 'image' ? (
+                                        <Image
+                                            src={item.url}
+                                            alt="Preview"
+                                            width={100}
+                                            height={100}
+                                            className="rounded-lg object-cover"
+                                            style={{ width: 'auto', height: '50px' }}
+                                        />
+                                    ) : (
+                                        <div className="relative">
+                                            <video width="50" height="50" controls>
+                                                <source src={item.url} type="video/mp4" />
+                                                Your browser does not support the video tag.
+                                            </video>
+                                            <FaRegPlayCircle className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-500 text-3xl" />
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+          <div className="flex flex-row items-center gap-2">
+            <span className="block text-black font-bold">images:</span>
+            <div className="flex flex-row w-full mb-2 border-2 p-1 rounded-3xl px-2">
+              <button
+                onClick={handleUploadClick}
+                className="flex flex-row items-center gap-2 cursor-pointer"
+              >
+              <ImFilePicture className="text-xl text-[#0056FF]" />
+                  <div className="flex flex-row text-left">
+                    <span className="text-sm font-bold">อัพโหลดรูปภาพ/วิดีโอ</span>
+                  
+                  </div>
+              </button>
+              <span className="text-[10px] text-red-500 ">* สามารถอัพโหลดได้ไม่เกิน 100MB</span>
+            </div>
+          </div>
         </div>
+
       </div>
-      <div className="flex w-full justify-start items-center ml-4">
-        <CKEditor data={article.content} onChange={handleContentChange}/>
+
+      <div className="flex w-full justify-start items-center">
+        <textarea
+          name="content"
+          value={content}
+          className="text-black mb-4 border-2 p-2 rounded-xl w-full"
+          onChange={handleChange}
+          placeholder="Content"
+          rows={4}
+        ></textarea>
+      </div>
+
+      <div className="flex flex-row w-full items-center gap-2 mb-2">
+        <label className="flex text-black font-bold" htmlFor="tags">
+          Tags:
+        </label>
+        <input
+          type="text"
+          placeholder="Enter tags and press space"
+          name="tags"
+          value={inputTag}
+          className="block text-black border-2 p-1 rounded-xl w-2/3 text-xs"
+          onChange={handleTagInputChange}
+        />
+      </div>
+
+      <div className="flex flex-wrap gap-2 mb-2">
+        {tags.map((tag, index) => (
+          <div
+            key={index}
+            className="flex items-center bg-[#F2F2F2] px-2 py-1 rounded-full"
+          >
+            {tag}
+            <IoIosCloseCircle
+              className="ml-1 text-red-500 cursor-pointer"
+              onClick={() => handleRemoveTag(tag)}
+            />
+          </div>
+        ))}
       </div>
 
       <div className="flex flex-col w-full gap-4 mt-4">
@@ -333,7 +550,7 @@ const AddArticleForm = () => {
                 className="text-gray-500"
                 onClick={() => handleQuizEdit(index)}
               />
-              <RiDeleteBin5Line
+              <IoIosCloseCircle
                 className="text-red-500"
                 onClick={() => handleQuizDelete(index)}
               />
@@ -345,6 +562,7 @@ const AddArticleForm = () => {
               saveQuiz={saveQuiz}
               handleQuizClose={handleQuizClose}
               data={quizEdit}
+              edit={edit}
             />
         )}
         

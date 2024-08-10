@@ -11,9 +11,8 @@ export default async function handler(req, res) {
         case 'GET':
             try {
                 const articles = await Article.find({ status: 'published' })
-                .sort({ createdAt: -1 })
-                .limit(10);
-                
+                    .limit(10)
+                    .sort({ createdAt: -1 });
                 if (articles.length === 0) {
                     return res.status(200).json({ success: true, data: [] });
                 };
@@ -23,7 +22,7 @@ export default async function handler(req, res) {
                 res.status(400).json({ success: false });
             }
             break;
-
+            
         default:
             res.status(400).json({ success: false });
             break;

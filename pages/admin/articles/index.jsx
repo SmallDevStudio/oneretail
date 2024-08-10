@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import Pagination from '@mui/material/Pagination';
 import axios from "axios";
+import CircularProgress from '@mui/material/CircularProgress';
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -13,24 +14,31 @@ const Articles = () => {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [searchTerm, setSearchTerm] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    const { data, error, mutate } = useSWR(`/api/articles/list?page=${page}&pageSize=${pageSize}&search=${searchTerm}`, fetcher);
+    const { data, isLoading, error, mutate } = useSWR(`/api/articles/list?page=${page}&pageSize=${pageSize}&search=${searchTerm}`, fetcher);
 
     const onDelete = async (id) => {
+        setLoading(true);
         await axios.delete(`/api/articles/${id}`);
         mutate();
+        setLoading(false);
     };
 
     const onStatusChange = async (article) => {
+        setLoading(true);
         const newStatus = article.status === "draft" ? "published" : "draft";
         await axios.put(`/api/articles?id=${article._id}`, { ...article, status: newStatus });
         mutate();
+        setLoading(false);
     };
 
     const onPublishedChange = async (article) => {
+        setLoading(true);
         const newPublished = !article.published;
         await axios.put(`/api/articles?id=${article._id}`, { ...article, published: newPublished });
         mutate();
+        setLoading(false);
     };
 
     const handlePageChange = (event, value) => {
@@ -43,12 +51,9 @@ const Articles = () => {
     };
 
     if (error) return <div>Error loading articles</div>;
-    if (!data) return <div>Loading...</div>;
+    if (!data || isLoading || loading) return <CircularProgress />;
 
     const { articles, totalRecords } = data;
-
-    if (!data) return <div>Loading...</div>;
-    if (error) return <div>Error loading articles</div>;
 
     return (
         <div className="flex flex-col">
@@ -64,6 +69,7 @@ const Articles = () => {
                 onStatusChange={onStatusChange} 
                 onPublishedChange={onPublishedChange} 
                 onSearch={handleSearch}
+                setLoading={setLoading}
             />
             <div className="flex items-center w-full">
                 <div className="flex mt-4 text-sm text-gray-500 justify-start w-1/2">Total Records: {totalRecords}</div>
