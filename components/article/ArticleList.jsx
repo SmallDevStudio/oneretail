@@ -8,12 +8,13 @@ import { RiDeleteBinLine, RiPushpinFill } from "react-icons/ri";
 import { MdFiberNew } from "react-icons/md";
 import { FaStar } from "react-icons/fa";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
+import { useRouter } from "next/router";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 const ArticleList = () => {
     const { data: session } = useSession();
+    const router = useRouter();
     const { data, error, mutate } = useSWR('/api/articles', fetcher);
     const { data: user } = useSWR(session?.user?.id ? `/api/users/${session?.user?.id}` : null, fetcher);
 
@@ -46,38 +47,73 @@ const ArticleList = () => {
                     }}
                 />
             </div>
-            <div className="flex flex-col w-full p-1 border-2 border-gray-200 rounded-xl mt-2">
-                {articles.map((article) => (
-                    <div key={article._id} className="flex flex-col p-2 w-full">
-                        <Link href={`/articles/${article._id}`}>
-                        <div className="flex flex-row items-center justify-between">
-                            <div className="flex flex-row items-center">
-                                {article.pinned && (
-                                    <RiPushpinFill className="text-lg text-red-500 mr-2" />
-                                )}
-                                {article.popular && (
-                                    <FaStar className="text-lg text-yellow-500 mr-2" />
-                                )}
-                                {article.new && (
-                                    <MdFiberNew className="text-lg text-green-500 mr-2" />
-                                )}
-                                <h2 className="text-md line-clamp-2">{article.title}</h2>
-                            </div>
-                            <div className="flex flex-row items-center">
-                                <p className="text-[12px] text-gray-500">{moment(article.createdAt).fromNow()}</p>
-                                {user?.user?.role === 'admin' && (
-                                    <button onClick={() => handleCommentDelete(article._id)}>
-                                        <RiDeleteBinLine className="text-lg text-gray-500 ml-2 w-3 h-3" />
-                                    </button>
-                                )}
-                            </div>
+            <div className="px-2">
+            <div className="flex flex-col w-full p-1 border-2 bg-gray-200 rounded-xl mt-2">
+                    {Array.isArray(data.data) && data.data.map((article, index) => (
+                        <div 
+                        key={index} 
+                        className="flex flex-row rounded-lg"
+                        onClick={() => router.push(`/articles/${article._id}`)}
+                    >
+                        <div className="flex max-w-[130px] min-w-[130px]">
+                        {article.thumbnail ? (
+                            <Image
+                            src={article.thumbnail}
+                            alt={article.title}
+                            width={150}
+                            height={100}
+                            loading="lazy"
+                            className="rounded-xl"
+                            style={{
+                                width: "auto",
+                                height: "90px",
+                                cursor: "pointer",
+                                objectFit: "cover",
+                                objectPosition: "center",
+                            }}
+                        />
+                        ): (
+                            article.medias.length > 0 && (
+                                article.medias[0].type === 'image' ? (
+                                    <Image
+                                        src={article.medias[0].url}
+                                        alt={article.title}
+                                        width={150}
+                                        height={100}
+                                        loading="lazy"
+                                        className="rounded-xl"
+                                        style={{
+                                            width: "auto",
+                                            height: "90px",
+                                            objectFit: "cover",
+                                            objectPosition: "center",
+                                        }}
+                                    />
+                                ) : (
+                                    <div className="relative">
+                                        <video width="150" height="90" controls style={{
+                                            width: "auto",
+                                            height: "90px",
+                                            objectFit: "cover",
+                                            objectPosition: "center",
+                                        }}>
+                                            <source src={article.medias[0].url} type="video/mp4" />
+                                                Your browser does not support the video tag.
+                                        </video>
+                                            <FaRegPlayCircle className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-500 text-3xl" />
+                                    </div>
+                                )
+                            )
+                        )}
                         </div>
-                        <div>
-                            {/* footer */}
+                        <div className="flex flex-col text-left px-2">
+                            <span className="font-bold text-sm">{article.title}</span>
+                            <span className="text-xs font-light text-black">{moment(article.createdAt).fromNow()}</span>
+                            <span className="text-xs font-light text-black line-clamp-2">{article.description}</span>
                         </div>
-                        </Link>
                     </div>
-                ))}
+                    ))}
+            </div>
             </div>
         </div>
     );

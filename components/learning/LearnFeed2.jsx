@@ -35,7 +35,7 @@ const LearnFeed2 = ({ contents }) => {
     return (
         <div className="flex flex-col w-full">
             <div className="relative">
-                <ul className="flex flex-row w-full rounded-xl p-1 gap-5 overflow-x-auto overflow-hidden text-sm mb-2 scrollbar-hide" 
+                <ul className="flex flex-row w-full rounded-xl p-1 gap-5 overflow-x-auto overflow-hidden text-sm mb-2 scrollbar-hide px-6" 
                     style={{
                         scrollbarWidth: "none",
                     }}

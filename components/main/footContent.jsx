@@ -17,8 +17,6 @@ export default function FooterContant() {
     const { data: articles, error: articleError } = useSWR("/api/articles/recommend", fetcher);
     const router = useRouter();
 
-    console.log(articles);
-
     const handleClick = (categories, id ) => {
         if (categories === "Learning") {
             router.push(`/learning/${id}`);
@@ -95,6 +93,7 @@ export default function FooterContant() {
                             width={150}
                             height={100}
                             loading="lazy"
+                            className="rounded-xl"
                             style={{
                                 width: "auto",
                                 height: "90px",
@@ -111,6 +110,7 @@ export default function FooterContant() {
                                         width={150}
                                         height={100}
                                         loading="lazy"
+                                        className="rounded-xl"
                                         style={{
                                             width: "auto",
                                             height: "90px",

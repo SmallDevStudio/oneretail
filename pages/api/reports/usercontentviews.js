@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     switch (method) {
         case 'GET':
             try {
-                const { limit = 10, offset = 0, teamGroup } = req.query;
+                const { limit = 10, offset = 0, teamGroup } = req.query
                 
                 // Get all content views
                 const contentViews = await ContentViews.find({}).lean();
@@ -95,15 +95,27 @@ export default async function handler(req, res) {
                 userContentViews.sort((a, b) => b.views - a.views);
 
                 // Apply offset and limit to paginate results
-                const limitedContentViews = userContentViews.slice(parseInt(offset), parseInt(offset) + parseInt(limit));
+                if (limit === 'All') {
+                    const limitedContentViews = userContentViews;
+
+                    limitedContentViews.forEach((item, index) => {
+                        item.rank = parseInt(offset) + index + 1;
+                    });
+                    res.status(200).json({ success: true, data: limitedContentViews });
+                    
+                }else{
+                    const limitedContentViews = userContentViews.slice(parseInt(offset), parseInt(offset) + parseInt(limit));
+                    limitedContentViews.forEach((item, index) => {
+                        item.rank = parseInt(offset) + index + 1;
+                    });
+                    res.status(200).json({ success: true, data: limitedContentViews });
+                }
 
                 // Assign ranks after filtering and slicing
-                limitedContentViews.forEach((item, index) => {
-                    item.rank = parseInt(offset) + index + 1;
-                });
+                
             
 
-                res.status(200).json({ success: true, data: limitedContentViews });
+                
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });
             }

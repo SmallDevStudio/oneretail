@@ -132,6 +132,7 @@ const UserRankReport = () => {
                         <option value={200}>Top 200</option>
                         <option value={500}>Top 500</option>
                         <option value={1000}>Top 1000</option>
+
                         {/* Add more options as needed */}
                     </select>
                 </div>
