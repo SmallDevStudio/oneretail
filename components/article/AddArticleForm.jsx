@@ -184,7 +184,7 @@ const AddArticleForm = () => {
         console.log('Article saved:', res.data);
 
         // Check if the article was saved successfully and the articleId is defined
-        const articleId = res.data.data._id;
+        const articleId = res.data._id;
         if (!articleId) {
             throw new Error('Article ID is undefined. Article might not have been saved correctly.');
         }

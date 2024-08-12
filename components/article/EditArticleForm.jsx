@@ -10,6 +10,7 @@ import Image from "next/image";
 import sha1 from "crypto-js/sha1";
 import CircularProgress from '@mui/material/CircularProgress'; 
 import useSWR from "swr";
+import QuizForm from "./QuizForm";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -18,7 +19,6 @@ const EditArticleForm = ({ articleId }) => {
     const [content, setContent] = useState("");
     const [media, setMedia] = useState([]);
     const [thumbnail, setThumbnail] = useState(null);
-    const [files, setFiles] = useState(null);
     const [article, setArticle] = useState({});
     const [tags, setTags] = useState([]); 
     const [inputTag, setInputTag] = useState(""); 
@@ -29,12 +29,14 @@ const EditArticleForm = ({ articleId }) => {
 
     const router = useRouter();
 
+    const { data: quizData, error: quizError, mutate } = useSWR(`/api/articles/quiz?articleId=${articleId}`, fetcher);
+    console.log(quizData);
     // Fetch existing article data
     useEffect(() => {
         const fetchArticleData = async () => {
             try {
                 const { data: articleData } = await axios.get(`/api/articles/${articleId}`);
-                const articleDetails = articleData.data.article;
+                const articleDetails = articleData.data;
                 setArticle(articleDetails);
                 setContent(articleDetails.content || "");
                 setMedia(articleDetails.medias || []);
@@ -207,6 +209,13 @@ const EditArticleForm = ({ articleId }) => {
     const onClose = () => {
         setShowModal(false);
     };
+
+    const handleUpldateQuiz = () => {
+        mutate();
+    }
+
+    if (loading ) return <CircularProgress />;
+    if (quizError) return <p>Error: {error}</p>;
 
     return (
         <div className="flex flex-col w-full p-5 border-2 rounded-3xl text-sm">
@@ -470,6 +479,16 @@ const EditArticleForm = ({ articleId }) => {
                         />
                     </div>
                 ))}
+            </div>
+
+            {/* Quiz Panel*/}
+            <div>
+                <QuizForm 
+                    data={quizData} 
+                    handleUpldateQuiz={handleUpldateQuiz} 
+                    articleId={articleId}
+                    userId={session.user.id}
+                />
             </div>
 
             <div className="flex flex-row w-full justify-center items-center gap-4 m-4">

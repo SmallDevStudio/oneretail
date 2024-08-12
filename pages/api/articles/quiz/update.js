@@ -7,9 +7,11 @@ export default async function handler(req, res) {
     await connectMongoDB();
 
     switch (method) {
-        case 'POST':
+        case 'PUT':
             try {
-                const articleQuiz = await ArticleQuiz.create(req.body);
+                const { quizId } = req.query;
+                const data = req.body;
+                const articleQuiz = await ArticleQuiz.findByIdAndUpdate(quizId, data, { new: true });
                 res.status(201).json(articleQuiz);
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });
