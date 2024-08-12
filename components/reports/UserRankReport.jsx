@@ -15,7 +15,6 @@ const UserRankReport = () => {
     const [loading, setLoading] = useState(false);
     const [progress, setProgress] = useState(0);
 
-    console.log('limit', limit);
 
     const handleExport = async () => {
         setLoading(true);
@@ -24,6 +23,7 @@ const UserRankReport = () => {
         try {
             // Ensure that teamGroup is not undefined or null before appending to the query
             const teamGroupQuery = teamGroup ? `&teamGroup=${teamGroup}` : '';
+            let fetchLimit = limit === '' ? Infinity : parseInt(limit); // If limit is 'All', set fetchLimit to Infinity
             const fetchData = async (limit, offset) => {
                 const response = await fetch(`/api/dashboard/rank?limit=${limit}&offset=${offset}${teamGroupQuery}`);
                 return response.json();
@@ -130,6 +130,8 @@ const UserRankReport = () => {
                         <option value={120}>Top 120</option>
                         <option value={150}>Top 150</option>
                         <option value={200}>Top 200</option>
+                        <option value={500}>Top 500</option>
+                        <option value={1000}>Top 1000</option>
                         {/* Add more options as needed */}
                     </select>
                 </div>

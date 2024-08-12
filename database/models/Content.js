@@ -14,7 +14,7 @@ const ContentSchema = new Schema({
     categories: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
     subcategories: { type: mongoose.Schema.Types.ObjectId, ref: 'Subcategory', },
     groups: { type: mongoose.Schema.Types.ObjectId, ref: 'Group', },
-    subgroups: { type: mongoose.Schema.Types.ObjectId, ref: 'Subgroup', },
+    subgroups: { type: mongoose.Schema.Types.ObjectId, ref: 'SubGroup', },
     author: { type: String, ref: 'Users' },
     publisher: { type: Boolean, default: true, },
     point: { type: Number, default: 0, },
