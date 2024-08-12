@@ -6,7 +6,7 @@ import "moment/locale/th";
 import Image from "next/image";
 import { RiDeleteBinLine, RiPushpinFill } from "react-icons/ri";
 import { MdFiberNew } from "react-icons/md";
-import { FaStar } from "react-icons/fa";
+import { FaStar, FaUserPlus, FaRegPlayCircle } from "react-icons/fa";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 
