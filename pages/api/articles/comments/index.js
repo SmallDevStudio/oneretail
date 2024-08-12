@@ -1,4 +1,5 @@
 import connectMongoDB from "@/lib/services/database/mongodb";
+import Article from "@/database/models/Article";
 import ArticleComments from "@/database/models/ArticleComments";
 import Users from "@/database/models/users";
 import ReplyArticleComment from "@/database/models/ReplyArticleComment";
@@ -48,32 +49,10 @@ export default async function handler(req, res) {
 
         case 'POST':
             try {
-                const { comment, userId, articleId } = req.body;
-                const newComment = await ArticleComments.create({
-                    articleId: articleId,
-                    userId: userId,
-                    comment: comment,
-                });
-
+                const newComment = await ArticleComments.create(req.body);
+                await Article.findByIdAndUpdate(req.body.articleId, 
+                    { $push: { comments: newComment._id } });
                 res.status(201).json({ success: true, data: newComment });
-            } catch (error) {
-                res.status(400).json({ success: false, error: error.message });
-            }
-            break;
-
-        case 'PUT':
-            try {
-                const { commentId } = req.query;
-                const { userId } = req.body;
-                const updatedComment = await ArticleComments.findByIdAndUpdate(commentId, { 
-                    likes: [
-                        {
-                            userId: userId,
-                            date: Date.now()
-                        }
-                    ]
-                }, { new: true });
-                res.status(200).json({ success: true, data: updatedComment });
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });
             }
@@ -82,8 +61,13 @@ export default async function handler(req, res) {
         case 'DELETE':
             try {
                 const { commentId } = req.query;
+                const comment = await ArticleComments.findById(commentId);
+                if (!comment) {
+                    return res.status(404).json({ success: false, error: "Comment not found" });
+                }
+                await ReplyArticleComment.deleteMany({ commentId });
                 await ArticleComments.findByIdAndDelete(commentId);
-                res.status(200).json({ success: true });
+                res.status(200).json({ success: true, data: comment });
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });
             }

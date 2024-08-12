@@ -1,21 +1,26 @@
 import React, {useState, useEffect} from "react";
 
 const ArticleQuizEdit = ({ handleQuizClose, saveQuiz, data, edit}) => {
-    const [quiz, setQuiz] = useState('');
+    const [question, setQuestion] = useState('');
     const [options, setOptions] = useState(['', '', '', '']);
-    const [answer, setAnswer] = useState(0);
+    const [correctAnswer, setCorrectAnswer] = useState(0);
+    const [quizId, setQuizId] = useState(null); // Add a state for quiz ID
+    const [index, setIndex] = useState(null);
 
     useEffect(() => {
-        if(edit) {
-            if(data) {
-                setQuiz(data.quiz);
+        if (edit) {
+            if (data) {
+                setQuestion(data.question);
                 setOptions(data.options);
-                setAnswer(data.answer);
+                setCorrectAnswer(data.correctAnswer);
+                setQuizId(data._id); // Set quiz ID when editing
+                setIndex(data.index);
             }
         } else {
-            setQuiz('');
+            setQuestion('');
             setOptions(['', '', '', '']);
-            setAnswer(0);
+            setCorrectAnswer(0);
+            setQuizId(null); // Clear quiz ID for new questions
         }
     }, [edit, data]);
 
@@ -26,35 +31,52 @@ const ArticleQuizEdit = ({ handleQuizClose, saveQuiz, data, edit}) => {
     };
 
     const handleSubmit = () => {
-        const quizData = {
-            quiz,
-            options,
-            answer
-        };
-        saveQuiz(quizData);
-    }
+        if (index !== undefined || index !== null) {
+            const quizData = {
+                question,
+                options,
+                correctAnswer,
+                _id: quizId, // Pass the quiz ID if it exists
+                index: index,
+                
+            };
+            saveQuiz(quizData);
+        }else {
+            const quizData = {
+                question,
+                options,
+                correctAnswer,
+                _id: quizId, // Pass the quiz ID if it exists
+            
+            };
+            saveQuiz(quizData);
+        }
+        handleClose();
+    };
+        
 
     const handleClose = () => {
-        setQuiz('');
+        setQuestion('');
         setOptions(['', '', '', '']);
-        setAnswer(0);
+        setCorrectAnswer(0);
+        setQuizId(null);
         handleQuizClose();
-    }
+    };
 
 
     return (
         <div className="flex flex-col w-full gap-4 border-2 px-4 py-2 rounded-3xl text-xs">
             <div className="flex flex-row w-full items-center gap-4">
-                <label className="flex text-black font-bold" htmlFor="quiz">
+                <label className="flex text-black font-bold" htmlFor="question">
                     คำถาม
                 </label>
                 <input
                     type="text"
                     placeholder="คำถาม"
-                    name="quiz"
-                    value={data.quiz}
+                    name="question"
+                    value={data.question}
                     className="flex text-black border-2 p-1 rounded-xl"
-                    onChange={(e) => setQuiz(e.target.value)}
+                    onChange={(e) => setQuestion(e.target.value)}
                     required
                 />
             </div>
@@ -78,14 +100,14 @@ const ArticleQuizEdit = ({ handleQuizClose, saveQuiz, data, edit}) => {
             </div>
 
             <div className="flex flex-row w-full items-center gap-4">
-                <label className="flex text-black font-bold" htmlFor="answer">
+                <label className="flex text-black font-bold" htmlFor="correctAnswer">
                     คำตอบ
                 </label>
                 <select
                     className="flex text-black border-2 p-1 rounded-xl"
-                    name="answer"
-                    value={data.answer}
-                    onChange={(e) => setAnswer(e.target.value)}
+                    name="correctAnswer"
+                    value={data.correctAnswer}
+                    onChange={(e) => setCorrectAnswer(e.target.value)}
                 >
                     {options.map((_, index) => (
                         <option key={index} value={index}>

@@ -3,10 +3,9 @@ import { useSession } from "next-auth/react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import PreviewModal from "./PreviewModal";
-import { FaPlusCircle, FaMinusCircle, FaRegPlayCircle, FaRegEdit } from "react-icons/fa";
-import ArticleQuiz from "./ArticleQuiz";
 import { ImFilePicture } from "react-icons/im";
 import { IoIosCloseCircle } from "react-icons/io";
+import { FaRegPlayCircle } from "react-icons/fa";
 import Image from "next/image";
 import sha1 from "crypto-js/sha1";
 import CircularProgress from '@mui/material/CircularProgress'; 
@@ -19,6 +18,7 @@ const EditArticleForm = ({ articleId }) => {
     const [content, setContent] = useState("");
     const [media, setMedia] = useState([]);
     const [thumbnail, setThumbnail] = useState(null);
+    const [files, setFiles] = useState(null);
     const [article, setArticle] = useState({});
     const [tags, setTags] = useState([]); 
     const [inputTag, setInputTag] = useState(""); 
@@ -26,35 +26,23 @@ const EditArticleForm = ({ articleId }) => {
     const [loading, setLoading] = useState(false);
     const [preview, setPreview] = useState(null); 
     const [showModal, setShowModal] = useState(false);
-    const [questions, setQuestions] = useState([]);
-    const [quizOpen, setQuizOpen] = useState(false);
-    const [quizEdit, setQuizEdit] = useState({});
-    const [edit, setEdit] = useState(false);
 
     const router = useRouter();
 
-    const { data, error: swrError } = useSWR(
-      session?.user?.id ? `/api/users/${session?.user?.id}` : null,
-      fetcher
-    );
-
-    // Fetch existing article and quiz data
+    // Fetch existing article data
     useEffect(() => {
         const fetchArticleData = async () => {
             try {
                 const { data: articleData } = await axios.get(`/api/articles/${articleId}`);
-                setArticle(articleData.data.article);
-                setContent(articleData.data.article.content || "");
-                setMedia(articleData.data.article.medias || []);
-                setThumbnail(articleData.data.article.thumbnail || null);
-                setTags(articleData.data.article.tags || []);
-                
-                const { data: quizData } = await axios.get(`/api/articles/quiz/${articleId}`);
-                if (quizData.data.length > 0) {
-                    setQuestions(quizData.data[0].question || []);
-                }
+                const articleDetails = articleData.data.article;
+                setArticle(articleDetails);
+                setContent(articleDetails.content || "");
+                setMedia(articleDetails.medias || []);
+                setThumbnail(articleDetails.thumbnail || null);
+                setTags(articleDetails.tags || []);
             } catch (error) {
                 console.error("Failed to fetch article data:", error);
+                setError("Failed to load article data");
             }
         };
 
@@ -139,7 +127,7 @@ const EditArticleForm = ({ articleId }) => {
         const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`;
 
         try {
-            const resp = await axios.post(url, {
+            await axios.post(url, {
                 public_id: publicId,
                 signature: generateSignature(publicId, apiSecret),
                 api_key: apiKey,
@@ -161,7 +149,7 @@ const EditArticleForm = ({ articleId }) => {
         const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`;
 
         try {
-            const resp = await axios.post(url, {
+            await axios.post(url, {
                 public_id: publicId,
                 signature: generateSignature(publicId, apiSecret),
                 api_key: apiKey,
@@ -186,79 +174,38 @@ const EditArticleForm = ({ articleId }) => {
         const updatedArticle = {
             ...article,
             content,
-            userId: session.user.id,
             tags,
             medias: media,
             thumbnail,
         };
-
+    
+        console.log('Attempting to update article with data:', updatedArticle);
+    
         try {
-            // Update the article
-            await axios.put(`/api/articles/${articleId}`, updatedArticle);
-        
-            // Update quiz data
-            const quizData = {
-                articleId: articleId,
-                question: questions.map(q => ({
-                    question: q.question,
-                    options: q.options,
-                    correctAnswer: q.correctAnswer,
-                })),
-            };
-
-            await axios.put(`/api/articles/quiz/${articleId}`, quizData);
-        
+            const response = await axios.put(`/api/articles/${articleId}`, updatedArticle);
+            console.log('Article updated successfully:', response.data);
             setLoading(false);
             router.push("/admin/articles");
         } catch (error) {
-            console.error(error);
+            console.error('Error updating article:', error.response?.data || error.message);
             setLoading(false);
+            alert('Failed to update the article. Please try again.');
         }
     };
 
     const handlePreview = (e) => {
-        setLoading(true);
         e.preventDefault();
         const newArticle = {
             ...article,
             content,
             user: data.user,
-
         };
-        console.log('article:', newArticle);
         setPreview(newArticle);
-        setLoading(false);
         setShowModal(true);
     };
 
     const onClose = () => {
         setShowModal(false);
-    };
-
-    const handleQuizClose = () => {
-        setQuizOpen(false);
-        setQuizEdit({});
-        setEdit(false);
-    };
-
-    const saveQuiz = (questionData) => {
-        const newQuestions = [...questions, questionData];
-        setQuestions(newQuestions);
-        setQuizOpen(false);
-    };
-
-    const handleQuizDelete = (index) => {
-        setQuestions((prevQuestions) => {
-            const updatedQuestions = [...prevQuestions];
-            updatedQuestions.splice(index, 1);
-            return updatedQuestions;
-        });
-    };
-
-    const handleQuizEdit = (index) => {
-        setQuizEdit({ ...questions[index] });
-        setEdit(true);
-        setQuizOpen(true);
     };
 
     return (
@@ -490,7 +437,7 @@ const EditArticleForm = ({ articleId }) => {
                     name="content"
                     value={content}
                     className="text-black mb-4 border-2 p-2 rounded-xl w-full"
-                    onChange={handleChange}
+                    onChange={e => setContent(e.target.value)}
                     placeholder="Content"
                     rows={4}
                 ></textarea>
@@ -523,47 +470,6 @@ const EditArticleForm = ({ articleId }) => {
                         />
                     </div>
                 ))}
-            </div>
-
-            <div className="flex flex-col w-full gap-4 mt-4">
-                <div className="flex flex-row w-full items-center gap-2">
-                    <span className="text-xl font-bold text-left">เพิ่มคำถาม</span>
-                    {quizOpen ? (
-                        <FaMinusCircle
-                            className="text-xl font-bold text-left text-[#F68B1F] cursor-pointer"
-                            onClick={handleQuizClose}
-                        />
-                    ) : (
-                        <FaPlusCircle 
-                        className="text-xl font-bold text-left text-[#0056FF] cursor-pointer"
-                        onClick={() => setQuizOpen(true)}
-                    />
-                    )}
-                </div>
-                {/* Quiz table */}
-                {questions.map((quiz, index) => (
-                    <div key={index} className="flex flex-row items-center gap-4">
-                        <span className="text-black font-bold">{index + 1}</span>
-                        <span className="text-black">{quiz.question}</span> {/* Correctly render the question text */}
-                        <FaRegEdit
-                            className="text-gray-500"
-                            onClick={() => handleQuizEdit(index)}
-                        />
-                        <IoIosCloseCircle
-                            className="text-red-500"
-                            onClick={() => handleQuizDelete(index)}
-                        />
-                    </div>
-                ))}
-                {/* Quiz form */}
-                {quizOpen && (
-                    <ArticleQuiz 
-                    saveQuiz={saveQuiz}
-                    handleQuizClose={handleQuizClose}
-                    data={quizEdit}
-                    edit={edit}
-                    />
-                )}
             </div>
 
             <div className="flex flex-row w-full justify-center items-center gap-4 m-4">

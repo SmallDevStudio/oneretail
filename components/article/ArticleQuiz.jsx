@@ -1,21 +1,21 @@
 import React, {useState, useEffect} from "react";
 
 const ArticleQuiz = ({ handleQuizClose, saveQuiz, data, edit}) => {
-    const [quiz, setQuiz] = useState('');
+    const [question, setQuestion] = useState('');
     const [options, setOptions] = useState(['', '', '', '']);
-    const [answer, setAnswer] = useState(0);
+    const [correctAnswer, setCorrectAnswer] = useState(0);
 
     useEffect(() => {
         if(edit) {
             if(data) {
-                setQuiz(data.quiz);
+                setQuestion(data.question);
                 setOptions(data.options);
-                setAnswer(data.answer);
+                setCorrectAnswer(data.correctAnswer);
             }
         } else {
-            setQuiz('');
+            setQuestion('');
             setOptions(['', '', '', '']);
-            setAnswer(0);
+            setCorrectAnswer(0);
         }
     }, [edit, data]);
 
@@ -27,17 +27,17 @@ const ArticleQuiz = ({ handleQuizClose, saveQuiz, data, edit}) => {
 
     const handleSubmit = () => {
         const quizData = {
-            quiz,
+            question,
             options,
-            answer
+            correctAnswer
         };
         saveQuiz(quizData);
     }
 
     const handleClose = () => {
-        setQuiz('');
+        setQuestion('');
         setOptions(['', '', '', '']);
-        setAnswer(0);
+        setCorrectAnswer(0);
         handleQuizClose();
     }
 
@@ -45,16 +45,16 @@ const ArticleQuiz = ({ handleQuizClose, saveQuiz, data, edit}) => {
     return (
         <div className="flex flex-col w-full gap-4 border-2 px-4 py-2 rounded-3xl text-xs">
             <div className="flex flex-row w-full items-center gap-4">
-                <label className="flex text-black font-bold" htmlFor="quiz">
+                <label className="flex text-black font-bold" htmlFor="question">
                     คำถาม
                 </label>
                 <input
                     type="text"
                     placeholder="คำถาม"
-                    name="quiz"
+                    name="question"
                     value={data.question}
                     className="flex text-black border-2 p-1 rounded-xl"
-                    onChange={(e) => setQuiz(e.target.value)}
+                    onChange={(e) => setQuestion(e.target.value)}
                     required
                 />
             </div>
@@ -78,14 +78,14 @@ const ArticleQuiz = ({ handleQuizClose, saveQuiz, data, edit}) => {
             </div>
 
             <div className="flex flex-row w-full items-center gap-4">
-                <label className="flex text-black font-bold" htmlFor="answer">
+                <label className="flex text-black font-bold" htmlFor="correctAnswer">
                     คำตอบ
                 </label>
                 <select
                     className="flex text-black border-2 p-1 rounded-xl"
-                    name="answer"
-                    value={data.answer}
-                    onChange={(e) => setAnswer(e.target.value)}
+                    name="correctAnswer"
+                    value={data.correctAnswer}
+                    onChange={(e) => setCorrectAnswer(e.target.value)}
                 >
                     {options.map((_, index) => (
                         <option key={index} value={index}>

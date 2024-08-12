@@ -14,58 +14,77 @@ export default async function handler(req, res) {
     switch (method) {
         case 'GET':
             try {
-                const article = await Article.findById(id).lean();
+                const article = await Article.findById(id).lean(); // This returns a single article object
+                if (!article) {
+                    return res.status(404).json({ success: false, error: "Article not found" });
+                }
+
                 const user = await Users.findOne({ userId: article.userId }).lean();
+                const userMap = { [article.userId]: user };
 
-                const comments = await ArticleComments.find({ articleId: id }).lean();
-                const commentIds = comments.map(comment => comment._id);
-                const replyComments = await ReplyArticleComment.find({ commentId: { $in: commentIds } }).lean();
+                const quizzes = await ArticleQuiz.find({ articleId: id }).lean();
+                let randomQuiz = null;
+                if (quizzes.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * quizzes.length);
+                    randomQuiz = quizzes[randomIndex];
+                }
 
-                const userIds = [
-                    article.userId,
-                    ...comments.map(comment => comment.userId),
-                    ...replyComments.map(reply => reply.userId),
-                ];
-
-                const users = await Users.find({ userId: { $in: userIds } }).lean();
-
-                const userMap = users.reduce((acc, user) => {
+                const comments = await ArticleComments.find({ articleId: article._id }).lean();
+                const commentUserIds = comments.map(comment => comment.userId);
+                const commentUsers = await Users.find({ userId: { $in: commentUserIds } }).lean();
+                const commentUserMap = commentUsers.reduce((acc, user) => {
                     acc[user.userId] = user;
                     return acc;
                 }, {});
 
-                const enrichedComments = comments.map(comment => ({
-                    ...comment,
-                    user: userMap[comment.userId] || null,
-                    replies: replyComments.filter(reply => reply.commentId.toString() === comment._id.toString()).map(reply => ({
+                const populatedComments = await Promise.all(comments.map(async (comment) => {
+                    const replies = await ReplyArticleComment.find({ commentId: comment._id }).lean();
+                    const replyUserIds = replies.map(reply => reply.userId);
+                    const replyUsers = await Users.find({ userId: { $in: replyUserIds } }).lean();
+                    const replyUserMap = replyUsers.reduce((acc, user) => {
+                        acc[user.userId] = user;
+                        return acc;
+                    }, {});
+
+                    const populatedReplies = replies.map(reply => ({
                         ...reply,
-                        user: userMap[reply.userId] || null,
-                    }))
+                        user: replyUserMap[reply.userId]
+                    }));
+
+                    return {
+                        ...comment,
+                        user: commentUserMap[comment.userId],
+                        replies: populatedReplies
+                    };
                 }));
 
-                // Fetch quizzes associated with the article
-                const quizzes = await ArticleQuiz.find({ articleId: id }).lean();
+                const populatedArticle = {
+                    ...article,
+                    user: userMap[article.userId],
+                    comments: populatedComments,
+                    quiz: randomQuiz
+                };
 
-                res.status(200).json({ 
-                    success: true, 
-                    data: { 
-                        article: { 
-                            ...article, 
-                            user: user || null 
-                        }, 
-                        comments: enrichedComments,
-                        quizzes: quizzes || [] // Include quizzes in the response
-                    } 
-                });
+                res.status(200).json({ success: true, data: populatedArticle });
             } catch (error) {
+                console.error(error);
                 res.status(400).json({ success: false, error: error.message });
             }
             break;
 
+
         case 'PUT':
             try {
-                const { id } = req.query;
-                const ArticleUpdate = await Article.findByIdAndUpdate(id, req.body, {
+                const { title, content, medias, thumbnail, tagusers, status, point,
+                    coins, pinned, recommend, tags, position, group, subgroup, rating, 
+                    likes, views
+                 } = req.body;
+                 console.log(point);
+                const ArticleUpdate = await Article.findByIdAndUpdate(id, {
+                    title, content, medias, thumbnail, tagusers, status, point,
+                    coins, pinned, recommend, tags, position, group, subgroup, rating,
+                    likes, views
+                }, {
                     new: true,
                 });
 

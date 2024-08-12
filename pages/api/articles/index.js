@@ -1,6 +1,7 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
 import Article from "@/database/models/Article";
 import Users from "@/database/models/users";
+import ArticleQuiz from "@/database/models/ArticleQuiz";
 
 export default async function handler(req, res) {
     const { method } = req;
@@ -14,7 +15,6 @@ export default async function handler(req, res) {
                 if (articles.length === 0) {
                     return res.status(200).json({ success: true, data: [] });
                 };
-
                 const userPromises = articles.map(async (article) => {
                     const user = await Users.findOne({userId: article.userId});
                     return { ...article._doc, 

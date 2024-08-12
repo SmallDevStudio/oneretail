@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const ReplyArticleCommentsSchema = new mongoose.Schema({
-  commentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Comment', required: true },
+  commentId: { type: mongoose.Schema.Types.ObjectId, ref: 'ArticleComments', required: true },
   reply: { type: String },
   medias: [{ public_id: { type: String }, url: { type: String }, type: { type: String } }],
   files: [{ public_id: { type: String }, url: { type: String } }],

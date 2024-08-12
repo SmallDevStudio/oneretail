@@ -167,44 +167,51 @@ const AddArticleForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-  
+
     const newArticle = {
-      ...article,
-      content: content,
-      userId: session.user.id,
-      tags: tegs,
-      medias: media,
-      thumbnail: thumbnail,
+        ...article,
+        content: content,
+        userId: session.user.id,
+        tags: tags,
+        medias: media,
+        thumbnail: thumbnail,
     };
 
-    console.log("New Article: ", newArticle);
-  
     try {
-      // Save the article
-      const res = await axios.post("/api/articles", newArticle);
-  
-      // Prepare quiz data
-      const quizData = {
-        articleId: res.data.data._id,
-        question: questions.map(q => ({
-          question: q.quiz,
-          options: q.options,
-          correctAnswer: q.answer,
-        })),
-      };
+        // Save the article
+        const res = await axios.post("/api/articles", newArticle);
 
-      console.log("Quiz Data: ", quizData);
-  
-      // Save the quiz
-      const resQuiz = await axios.post("/api/articles/quiz", quizData);
-  
-      setLoading(false);
-      router.push("/admin/articles");
+        console.log('Article saved:', res.data);
+
+        // Check if the article was saved successfully and the articleId is defined
+        const articleId = res.data.data._id;
+        if (!articleId) {
+            throw new Error('Article ID is undefined. Article might not have been saved correctly.');
+        }
+
+        console.log('Article saved with ID:', articleId);
+
+        // Save quiz data
+        for (const q of questions) {
+            const quizData = {
+                articleId: articleId, // Ensure articleId is used here
+                question: q.question,
+                options: q.options,
+                correctAnswer: q.correctAnswer,
+            };
+
+            console.log('Saving quiz:', quizData);
+
+            await axios.post("/api/articles/quiz", quizData);
+        }
+
+        setLoading(false);
+        router.push("/admin/articles");
     } catch (error) {
-      console.error(error);
+        console.error('Error saving article or quiz:', error.message);
+        setLoading(false);
     }
-    setLoading(false);
-  };
+};
 
   const handlePreview = (e) => {
     setLoading(true);
@@ -236,7 +243,6 @@ const AddArticleForm = () => {
 
   const saveQuiz = (questionData) => {
     const newQuestions = [...questions, questionData];
-    console.log("New Questions:", newQuestions);
     setQuestions(newQuestions);
     setQuizOpen(false);
   };
@@ -258,7 +264,7 @@ const AddArticleForm = () => {
 
 
   if (swrError) return <div>Failed to load</div>;
-  if (!data) return <div>Loading...</div>;
+  if (!data) return <CircularProgress />;
   if (loading) return <CircularProgress />;
 
   return (
@@ -491,7 +497,7 @@ const AddArticleForm = () => {
           name="content"
           value={content}
           className="text-black mb-4 border-2 p-2 rounded-xl w-full"
-          onChange={handleChange}
+          onChange={handleContentChange}
           placeholder="Content"
           rows={4}
         ></textarea>
@@ -545,7 +551,7 @@ const AddArticleForm = () => {
           {questions.map((question, index) => (
             <div key={index} className="flex flex-row items-center gap-4">
               <span className="text-black font-bold">{index + 1}</span>
-              <span className="text-black">{question.quiz}</span> {/* Correctly render the question text */}
+              <span className="text-black">{question.question}</span> {/* Correctly render the question text */}
               <FaRegEdit
                 className="text-gray-500"
                 onClick={() => handleQuizEdit(index)}

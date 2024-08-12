@@ -26,8 +26,6 @@ const ShareYourStory = () => {
     const { data: session } = useSession();
     const [posts, setPosts] = useState([]);
     const [showComments, setShowComments] = useState({});
-    const [showInputReply, setShowInputReply] = useState({});
-    const [reply, setReply] = useState('');
     const [showReply, setShowReply] = useState({});
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [currentDialog, setCurrentDialog] = useState(null);

@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     await connetMongoDB();
 
     try {
-        const { userId, description, type, points, contentId } = req.body;
+        const { userId, description, path, subpath, type, points, contentId } = req.body;
   
         if (!userId || !description || !type || points === undefined) {
           return res.status(400).json({ success: false, message: 'All fields are required' });
@@ -17,14 +17,16 @@ export default async function handler(req, res) {
         const pointEntry = new Point({
           userId,
           description,
-          contentId, 
+          contentId,
+          path,
+          subpath,
           type,
           point: points,
         });
         await pointEntry.save();
 
         // ส่งข้อความไปที่ LINE
-        const message = `คุณได้รับ ${points}`;
+        const message = `คุณได้รับ ${description} ${points}`;
         sendLineMessage(userId, message);
   
         res.status(201).json({ success: true, data: pointEntry });
