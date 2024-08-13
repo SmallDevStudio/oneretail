@@ -8,6 +8,7 @@ import SuccessFeed from "@/components/success/SuccessFeed";
 import ShareYourStory from "@/components/success/ShareYourStory";
 import SuccessSkeleton from "@/components/SkeletonLoader/SuccessSkeleton";
 import { useRouter } from "next/router";
+import SearchBar from "@/components/SearchBar";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -55,6 +56,8 @@ export default function Stores() {
                     </span>
                 </div>
             </div>
+
+            <SearchBar />
 
             {/* Tabs */}
             <div className="flex justify-center mb-4 text-sm">

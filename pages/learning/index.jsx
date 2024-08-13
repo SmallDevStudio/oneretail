@@ -9,6 +9,8 @@ import LearnSkeleton from "@/components/SkeletonLoader/LearnSkeleton";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import ArticleList from "@/components/article/ArticleList";
+import SearchBar from "@/components/SearchBar";
+
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -59,10 +61,13 @@ export default function Learning() {
     return (
         <div className="flex flex-col bg-gray-10 justify-between items-center text-center">
             <div>
-                <div className="flex items-center text-center justify-center mt-[20px] p-2 px-1 pz-1">
+                <div className="flex items-center text-center justify-center p-2">
                     <span className="text-[35px] font-black text-[#0056FF] dark:text-white">Learning</span>
                 </div>
             </div>
+            {/* Search */}
+            <SearchBar />
+        
 
             {/* Tabs */}
             <div className="flex justify-center mb-4 text-sm">
