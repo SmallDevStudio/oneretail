@@ -5,12 +5,13 @@ import MemoryCard from "@/components/memory-card-game/MemoryCard";
 const MemoryCardGame = () => {
 
     const images = [
-        '/images/memorycardgame/1.png',
-        '/images/memorycardgame/2.png',
-        '/images/memorycardgame/3.png',
-        '/images/memorycardgame/4.png',
-        '/images/memorycardgame/5.png',
-        '/images/memorycardgame/6.png',
+        '/images/memorycardgame/Game2/Asset28game2.png',
+        '/images/memorycardgame/Game2/Asset29game2.png',
+        '/images/memorycardgame/Game2/Asset30game2.png',
+        '/images/memorycardgame/Game2/Asset31game2.png',
+        '/images/memorycardgame/Game2/Asset32game2.png',
+        '/images/memorycardgame/Game2/Asset33game2.png',
+        
     ];
 
     return (

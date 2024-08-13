@@ -1,5 +1,7 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
 import MemoryGame from "@/database/models/MemoryGame";
+import Point from "@/database/models/Point";
+import sendLineMessage from "@/lib/sendLineMessage";
 
 export default async function handler(req, res) {
     const { method } = req;
@@ -19,6 +21,22 @@ export default async function handler(req, res) {
             try {
                 const memoryGame = new MemoryGame(req.body);
                 await memoryGame.save();
+                
+                const pointData = {
+                    userId: memoryGame.userId,
+                    description: `Point จากเกมส์จับคู่`,
+                    contentId: memoryGame._id,
+                    path: 'games',
+                    subpath: 'memorygame',
+                    type: 'earn',
+                    point: 1
+                };
+                console.log(pointData);
+                const point = await Point.create(pointData);
+                
+                const message = `คุณได้รับ ${point.description} ${point.point}`;
+                sendLineMessage(point.userId, message);
+
                 res.status(201).json({ success: true, data: memoryGame });
             } catch (error) {
                 res.status(400).json({ success: false });

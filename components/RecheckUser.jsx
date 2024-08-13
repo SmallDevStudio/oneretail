@@ -1,6 +1,6 @@
 // components/RecheckUser.js
 import React, { useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import useSWR from "swr";
 import Loading from "@/components/Loading";
@@ -19,6 +19,10 @@ const RecheckUser = ({ children }) => {
         if (!user && !userError) return; // Still loading
         if (userError || !user) {
             router.push('/register');
+        }
+        if(!user.user.active){
+            signOut();
+            router.push('/login');
         }
     }, [session, status, user, userError, router]);
 

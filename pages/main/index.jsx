@@ -15,6 +15,7 @@ import UserPanel from "@/components/main/UserPanel";
 import MenuPanel from "@/components/main/MenuPanel";
 import LinkModal from "@/components/LinkModal";
 import Image from "next/image";
+import BirthDayModal from "@/components/BirthDayModal";
 
 const Carousel = dynamic(() => import("@/components/Carousel"), {
     ssr: false,

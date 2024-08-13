@@ -224,6 +224,14 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                   />
 
                   <Item
+                  title="เกมส์จับคู่"
+                  to="/admin/games/matching"
+                  icon={<FaGift />}
+                  selected={selected}
+                  setSelected={setSelected}
+                  />
+
+                  <Item
                   title="เกมส์"
                   to="/admin/games/games"
                   icon={<FaGamepad />}

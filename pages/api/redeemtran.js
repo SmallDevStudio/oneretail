@@ -4,6 +4,7 @@ import Redeem from "@/database/models/Redeem";
 import Point from "@/database/models/Point";
 import Coins from "@/database/models/Coins";
 import Users from "@/database/models/users";
+import Notification from "@/database/models/Notification";
 
 export default async function handler(req, res) {
   const { method } = req;
@@ -71,6 +72,8 @@ export default async function handler(req, res) {
           const point = new Point({
             userId,
             type: 'pay',
+            path: 'redeem',
+            subpath: 'transaction',
             point: redeem.point,
             description: `Redeem ${redeem.name}`,
             contentId: redeem._id,
@@ -82,11 +85,29 @@ export default async function handler(req, res) {
           const coins = new Coins({
             userId,
             type: 'pay',
+            referId: redeem._id,
+            path: 'redeem',
+            subpath: 'transaction',
             coins: redeem.coins,
             description: `Redeem ${redeem.name}`,
           });
           await coins.save();
         }
+
+        const users = await Users.find({ active: 'admin' });
+        const notifyData = users.map(user => ({
+          userId: user.userId,
+          senderId: 'Uc83ed0637f0910565ad3b0ad44c5d49b',
+          description: 'แลกของรางวัล',
+          referId: redeemTrans._id,
+          path: 'redeem',
+          subpath: 'transactions',
+          url: `${process.env.NEXTAUTH_URL}admin/redeem`,
+          type: 'redeem',
+        }));
+        await Notification.insertMany(notifyData);
+
+        
 
         redeem.stock -= 1;
         await redeem.save();

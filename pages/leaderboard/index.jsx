@@ -1,17 +1,22 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppLayout } from "@/themes";
 import useSWR from 'swr';
 import Image from 'next/image';
 import Loading from '@/components/Loading';
 import { useSession } from 'next-auth/react';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function LeaderBoard() {
+    const [activeTab, setActiveTab] = useState("leaderboard");
     const { data: session } = useSession();
     const { data, error } = useSWR('/api/leaderboard', fetcher);
     const { data: usersData, error: usersError } = useSWR('/api/users/emp', fetcher);
+
+    const router = useRouter();
 
     const [selectedTeam, setSelectedTeam] = useState("All");
 
@@ -40,12 +45,45 @@ export default function LeaderBoard() {
         others.splice(loggedInUserRank - 3, 1);
     }
 
+    const handleTabClick = (tab) => {
+        setActiveTab(tab);
+        window.history.pushState(null, "", `?tab=${tab}`);
+    };
+
     return (
         <div className='w-full mb-20'>
             <div className="flex justify-center mt-5">
-                <h1 className="text-[35px] font-black text-[#0056FF]" style={{ fontFamily: "Ekachon" }}>Leaderboard</h1>
+                <h1 className="text-[35px] font-black text-[#0056FF]" style={{ fontFamily: "Ekachon" }}>
+                    Leaderboard
+                </h1>
+            </div>
+             {/* Tabs */}
+             <div className="flex justify-center mb-4 text-sm">
+                <ul className="flex flex-wrap gap-6">
+                
+                    <li className="me-2">
+                        <Link
+                            href="#"
+                            className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'leaderboard' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
+                            onClick={() => handleTabClick('leaderboard')}
+                        >
+                            Leaderboard
+                        </Link>
+                    </li>
+                    <li className="me-2">
+                        <Link
+                            href="#"
+                            className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'leaderboard2' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
+                            onClick={() => handleTabClick('leaderboard2')}
+                        >
+                            ภารกิจพิชิตหัวตาราง
+                        </Link>
+                    </li>
+                </ul>
             </div>
 
+            {activeTab === 'leaderboard' && (
+                <>
             <div className="relative bg-[#0056FF] min-h-[30vh] rounded-b-2xl p-2 shadow-lg">
                 <div className="flex justify-center bg-[#0056FF]">
                     {["All", "Retail", "AL", "TCON"].map(team => (
@@ -151,6 +189,7 @@ export default function LeaderBoard() {
                 </div>
             </div>
 
+
             <table className="flex w-full p-2">
                 <div className="flex flex-col w-full">
                     {loggedInUserRank > 2 && loggedInUser && (
@@ -218,6 +257,13 @@ export default function LeaderBoard() {
                     })}
                 </div>
             </table>
+            </>
+            )}
+            {activeTab === 'leaderboard2' && (
+                <div className="w-full flex justify-center items-center">
+                    <span className='font-bold'>Comming Soon</span>
+                </div>
+            )}
         </div>
     );
 }

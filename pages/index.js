@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import Loading from "@/components/Loading";
 import Head from "next/head";
@@ -27,6 +27,11 @@ const HomePage = () => {
         }
         if (!user || user?.user === null) {
             router.push('/register');
+            return;
+        }
+        if(!user.user.active){
+            signOut();
+            router.push('/login');
             return;
         }
         if (loginReward && !loginReward.receivedPointsToday) {
