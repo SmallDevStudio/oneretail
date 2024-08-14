@@ -150,7 +150,7 @@ export default function Register() {
                                 className="bg-gray-200 border border-gray-300 text-gray-900 text-lg rounded-3xl focus:ring-blue-500 focus:border-blue-500 block w-full ps-12 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 type="text"
                                 placeholder="ชื่อ-นามสกุล"
-                                {...register("fullname", { required: true, pattern: /^[ก-๏\s]+$/i })}
+                                {...register("fullname", { required: true})}
                             />
                         </div>
                         <div className="text-red-500 text-sm font-bold text-left ml-10 h-2">
