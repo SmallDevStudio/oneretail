@@ -36,65 +36,213 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
   const router = useRouter();
   const { data: session } = useSession();
 
-  const handleLike = async (articleId) => {
-      const userId = session?.user?.id;
+  console.log('Content:', content);
 
-      try {
-          await axios.put('/api/articles/like', {
-              articleId,
-              userId,
-
-          });
-
-          setLikes(prevLikes => ({
-              ...prevLikes,
-              [articleId]: !prevLikes[articleId]
-          }));
-          mutate();
-      } catch (error) {
-          console.error(error);
-      }
-  };
-
-  const handleCommentLike = async (commentId) => {
-    const userId = session?.user?.id;
-
+  const handleCommentSubmit = async (contentId, data) => {
+    setLoading(true);
     try {
-        await axios.put('/api/articles/comments/like', {
-            commentId,
+        const userId = session?.user?.id;
+
+        // Check if there is either post content or media content
+        if (!data.post && (!data.media || data.media.length === 0)) {
+            setCheckError('กรุณากรอกข้อความหรือเพิ่มรูปภาพ');
+            setLoading(false);
+            return; // Exit the function if the condition is not met
+        }
+
+        const response = await axios.post('/api/content/comments', {
+            comment: data.post,
+            medias: data.media,
+            files: data.files,
+            tagusers: data.selectedUsers,
+            contentId,
             userId,
         });
 
-        setLikes(prevLikes => ({
-            ...prevLikes,
-            [commentId]: !prevLikes[commentId]
-        }));
-        mutate();
+        if (data.selectedUsers && data.selectedUsers.length > 0) {
+            for (const user of data.selectedUsers) {
+                await axios.post('/api/notifications', {
+                    userId: user.userId,
+                    senderId: userId,
+                    description: `ได้แท็คโพสใน Success Story`,
+                    referId: contentId,
+                    path: 'success story',
+                    subpath: 'Comment',
+                    url: `${window.location.origin}stores/${contentId}`,
+                    type: 'Tag'
+                });
+            }
+        }
+
+        setLoading(false);
+        setCheckError(null);
+        commentMutate();
+        handleClose();
+
     } catch (error) {
         console.error(error);
+        setLoading(false);
     }
-  };
+};
 
-  const handleReplyLike = async (replyId, articleId) => {
-    const userId = session?.user?.id;
+const handleReplySubmit = async (commentId, data) => {
+    setLoading(true);
+    try {
+        const userId = session?.user?.id;
 
-      try {
-          await axios.put('/api/articles/reply/like', {
-              replyId,
-              userId,
-              articleId,
-            
-          });
+        // Check if there is either post content or media content
+        if (!data.post && (!data.media || data.media.length === 0)) {
+            setCheckError('กรุณากรอกข้อความหรือเพิ่มรูปภาพ');
+            setLoading(false);
+            return; // Exit the function if the condition is not met
+        }
+        
+        const res = await axios.post('/api/content/reply', {
+            reply: data.post,
+            medias: data.media,
+            files: data.files,
+            tagusers: data.selectedUsers,
+            commentId,
+            userId
+        });
 
-          setLikes(prevLikes => ({
-              ...prevLikes,
-              [replyId]: !prevLikes[replyId]
-          }));
-          mutate();
-      } catch (error) {
-          console.error(error);
-      }
-  };
+        if (data.selectedUsers && data.selectedUsers.length > 0) {
+            for (const user of data.selectedUsers) {
+                await axios.post('/api/notifications', {
+                    userId: user.userId,
+                    senderId: userId,
+                    description: `ได้แท็คโพสใน Content`,
+                    referId: content._id,
+                    path: 'Content',
+                    subpath: 'Reply',
+                    url: `${window.location.origin}stores/${content._id}`,
+                    type: 'Tag'
+                });
+            }
+        }
+
+        setLoading(false);
+        setCheckError(null);
+        commentMutate();
+        handleClose();
+    } catch (error) {
+        console.error(error);
+        setLoading(false);
+    }
+};
+const handleLike = async (contentId) => {
+  const userId = session?.user?.id;
+
+  try {
+      await axios.put('/api/content/like', {
+          contentId,
+          userId,
+
+      });
+
+      setLikes(prevLikes => ({
+          ...prevLikes,
+          [contentId]: !prevLikes[contentId]
+      }));
+      contentMutate();
+  } catch (error) {
+      console.error(error);
+  }
+};
+
+const handleCommentLike = async (commentId) => {
+const userId = session?.user?.id;
+
+try {
+    await axios.put('/api/content/comments/like', {
+        commentId,
+        userId,
+    });
+
+    setLikes(prevLikes => ({
+        ...prevLikes,
+        [commentId]: !prevLikes[commentId]
+    }));
+    mutate();
+} catch (error) {
+    console.error(error);
+}
+};
+
+const handleReplyLike = async (replyId, articleId) => {
+const userId = session?.user?.id;
+
+  try {
+      await axios.put('/api/content/reply/like', {
+          replyId,
+          userId,
+          articleId,
+        
+      });
+
+      setLikes(prevLikes => ({
+          ...prevLikes,
+          [replyId]: !prevLikes[replyId]
+      }));
+      mutate();
+  } catch (error) {
+      console.error(error);
+  }
+};
+
+const handleCommentDelete = async (commentId) => {
+    const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you really want to delete this comment? This process cannot be undone.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel',
+    });
+
+    if (result.isConfirmed) {
+        setLoading(true);
+        try {
+            await axios.delete(`/api/content/comments?commentId=${commentId}`);
+            mutate();
+        } catch (error) {
+            console.error('Error deleting comment:', error);
+            Swal.fire('Error!', 'There was an issue deleting the comment.', 'error');
+        } finally {
+            setLoading(false);
+        }
+    }
+};
+
+const handleReplyDelete = async (replyId) => {
+    const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you really want to delete this reply? This process cannot be undone.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel',
+    });
+
+    if (result.isConfirmed) {
+        setLoading(true);
+        try {
+            await axios.delete(`/api/content/reply?replyId=${replyId}`);
+            mutate();
+        } catch (error) {
+            console.error(error);
+            Swal.fire('Error!', 'There was an issue deleting the reply.', 'error');
+        } finally {
+            setLoading(false);
+        }
+    }
+};
+
+  
 
     const onRequestClose = () => {
     setShowModal(false);
@@ -178,12 +326,12 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
                   </div>
                   <p className="text-[8px] text-left">{moment(comment?.createdAt).fromNow()}</p>
                   {comment.tagusers && comment?.tagusers.length > 0 && comment?.tagusers.map((taguser, index) => (
+                    <>
+                    <PiUserCircleDuotone className="flex text-md"/>
                   <div className="flex flex-row w-full items-center gap-1 mb-2 mt-[-5px]" key={index}>
-                      <PiUserCircleDuotone className="flex text-md"/>
-                      <div key={index} className="flex w-full">
-                          <span className="text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
-                      </div>
+                  <span className="text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
                   </div>
+                  </>
                   ))}
               </div>
           </div>
@@ -260,19 +408,19 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
                                       </div>
                                   )}
                               </div>
-                              <p className="text-[8px]">{moment(reply?.createdAt).fromNow()}</p>
+                              <p className="text-[8px] text-left">{moment(reply?.createdAt).fromNow()}</p>
                               {reply?.tagusers && reply?.tagusers.length > 0 && reply?.tagusers.map((taguser, index) => (
-                              <div className="flex flex-row w-full items-center gap-1 mb-2 mt-[-5px]" key={index}>
-                                  <PiUserCircleDuotone className="flex text-md"/>
-                                  <div key={index} className="flex w-full">
-                                      <span className="text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
-                                  </div>
-                              </div>
+                                <>
+                                <PiUserCircleDuotone className="flex text-md"/>
+                                <div className="flex flex-row w-full items-center gap-1 mb-2 mt-[-5px]" key={index}>
+                                <span className="text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
+                                </div>
+                                </>
                               ))}
                               
                           </div>
                       </div>
-                      <div className="flex flex-col w-full px-3">
+                      <div className="flex flex-col w-full px-3 text-left">
                           <p className="text-xs">{reply?.reply}</p>
                               {reply?.medias.length > 0 && (
                               <ImageGallery medias={reply.medias} />
@@ -281,9 +429,9 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
                       <div className="flex flex-row items-center gap-1 pl-3 justify-between mt-1 w-full">
                           <div className="flex flex-row items-center gap-2">
                           {likes[reply._id] ? (
-                              <AiFillHeart className="w-3 h-3 text-red-500" onClick={() => handleReplyLike(reply._id, comment.articleId)} />
+                              <AiFillHeart className="w-3 h-3 text-red-500" onClick={() => handleReplyLike(reply._id, comment.contentId)} />
                               ) : (
-                              <AiOutlineHeart className="w-3 h-3" onClick={() => handleReplyLike(reply._id, comment.articleId)} />
+                              <AiOutlineHeart className="w-3 h-3" onClick={() => handleReplyLike(reply._id, comment.contentId)} />
                           )}
                           <span className="text-sm">
                               {Array.isArray(reply?.likes)? reply?.likes?.length : 0}

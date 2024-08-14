@@ -28,13 +28,13 @@ const SlugPage = () => {
         },
       });
     
-    const { data: contents, error: contentError, isLoading: contentsLoading } = useSWR('/api/content/'+id, fetcher, {
+    const { data: contents, error: contentError, isLoading: contentsLoading, mutate: contentMutate } = useSWR('/api/content/'+id, fetcher, {
         onSuccess: (data) => {
           setContent(data.data);
         },
       });
 
-    const { data: commentsData, error: commentsError, isLoading: commentsLoading } = useSWR(`/api/content/comments?contentId=${id}`, fetcher, {
+    const { data: commentsData, error: commentsError, isLoading: commentsLoading, mutate: commentMutate } = useSWR(`/api/content/comments?contentId=${id}`, fetcher, {
         onSuccess: (data) => {
           setComments(data.data);
         },
@@ -85,10 +85,23 @@ const SlugPage = () => {
 
             {/* Tabs Content */}
             <div className="flex flex-col items-center">
-                <SecretSauce content={content} user={user} setShowInput={setShowInput} showInput={showInput} onCommentAdded={handleCommentAdded} comments={commentsData.data}/>
+                <SecretSauce 
+                  content={content} 
+                  user={user} 
+                  setShowInput={setShowInput} 
+                  showInput={showInput} 
+                  onCommentAdded={handleCommentAdded} 
+                  comments={commentsData.data}
+                />
             </div>
             <div>
-                <CommentList comments={commentsData.data} user={user} handleDeleteComment={handleDeleteComment} />
+              <CommentList
+                  content={contents.data}
+                  comments={commentsData.data} 
+                  user={user} 
+                  contentMutate={contentMutate}
+                  commentMutate={commentMutate}
+                  />
             </div>
         </main>
     )

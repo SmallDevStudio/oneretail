@@ -16,17 +16,10 @@ const SecretSauce = ({ content, user, onCommentAdded, setShowInput, showInput, c
   const [countdown, setCountdown] = useState(0);
   const [seen60Percent, setSeen60Percent] = useState(false);
   const [completed, setCompleted] = useState(false);
-  const [likes, setLikes] = useState(content.likes || []);
-  const [userHasLiked, setUserHasLiked] = useState(Array.isArray(likes) && likes.includes(userId));
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isNoVideoModalOpen, setIsNoVideoModalOpen] = useState(false);
   const playerRef = useRef(null);
   const router = useRouter();
-
-  useEffect(() => {
-    const userId = user?.userId;
-    setUserHasLiked(Array.isArray(likes) && likes.includes(userId));
-  }, [likes, user?.userId, userId]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -97,16 +90,6 @@ const SecretSauce = ({ content, user, onCommentAdded, setShowInput, showInput, c
     return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  const handleLike = async () => {
-    try {
-      const res = await axios.put(`/api/content/${content._id}`, { userId: user.userId });
-      if (res.data.success) {
-        setLikes(res.data.data.likes || []);
-      }
-    } catch (error) {
-      console.error('Error liking content:', error);
-    }
-  };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -158,9 +141,6 @@ const SecretSauce = ({ content, user, onCommentAdded, setShowInput, showInput, c
             {content?.description}
           </div>
           
-        </div>
-        <div>
-          {showInput && <InputComment contentId={content._id} userId={userId} onCommentAdded={onCommentAdded} />}
         </div>
       </div>
       <VideoModal isOpen={isModalOpen} onRequestClose={handleCloseModal} point={content.point} />

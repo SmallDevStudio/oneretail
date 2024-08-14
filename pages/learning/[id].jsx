@@ -94,7 +94,7 @@ const SlugPage = () => {
             </div>
             <div>
                 <CommentList
-                  content={content}
+                  content={contents.data}
                   comments={commentsData.data} 
                   user={user} 
                   contentMutate={contentMutate}
