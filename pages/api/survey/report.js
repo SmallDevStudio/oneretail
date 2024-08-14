@@ -1,66 +1,92 @@
 import mongoose from 'mongoose';
 import connectMongoDB from "@/lib/services/database/mongodb";
 import Survey from "@/database/models/Survey";
-import Users from "@/database/models/users";
 import Emp from "@/database/models/emp";
+import Users from "@/database/models/users";
 
 export default async function handler(req, res) {
     await connectMongoDB();
 
     const { method, query } = req;
-    const { months = 1, limit = 10, page = 1, teamGrop = '' } = query;
+    const { month = new Date().getMonth() + 1, year = new Date().getFullYear(), department = '' } = query;
 
     switch (method) {
         case 'GET':
             try {
-                const endDate = new Date();
-                const startDate = new Date(new Date().setMonth(endDate.getMonth() - months));
-                const limitNumber = parseInt(limit);
-                const pageNumber = parseInt(page);
+                const startDate = new Date(year, month - 1, 1);
+                const endDate = new Date(year, month, 0, 23, 59, 59); // End of the month
 
-                // Fetch employees based on teamGrop filter
-                const empFilter = teamGrop ? { teamGrop } : {};
-                const emps = await Emp.find(empFilter).select('empId');
-                const empIds = emps.map(emp => emp.empId);
+                const empFilter = department ? { department } : {};
 
-                // Fetch users based on empIds
-                const users = await Users.find({ empId: { $in: empIds } }).select('userId empId fullname pictureUrl');
-                const userIds = users.map(user => user.userId);
+                // Aggregate surveys to count how many userId gave each score in each week
+                const surveys = await Survey.aggregate([
+                    {
+                        $match: {
+                            createdAt: { $gte: startDate, $lte: endDate }
+                        }
+                    },
+                    {
+                        $project: {
+                            week: { $week: "$createdAt" },
+                            value: 1,
+                            userId: 1
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: { week: "$week", value: "$value" },
+                            count: { $sum: 1 },
+                            userIds: { $push: "$userId" }
+                        }
+                    },
+                    {
+                        $sort: { "_id.week": 1, "_id.value": 1 }
+                    }
+                ]);
 
-                // Fetch surveys within the date range and filtered by userIds
-                const surveys = await Survey.find({
-                    userId: { $in: userIds },
-                    createdAt: { $gte: startDate, $lte: endDate }
-                }).sort({ createdAt: -1 })
-                  .skip((pageNumber - 1) * limitNumber)
-                  .limit(limitNumber);
+                // Fetch user details for all userIds in the surveys
+                const allUserIds = surveys.reduce((acc, s) => acc.concat(s.userIds), []);
+                const uniqueUserIds = [...new Set(allUserIds)];
 
-                if (surveys.length === 0) {
-                    return res.status(404).json({ error: 'No surveys found for the specified period.' });
-                }
-
-                const totalSurveys = await Survey.countDocuments({
-                    userId: { $in: userIds },
-                    createdAt: { $gte: startDate, $lte: endDate }
-                });
+                const users = await Users.find({ userId: { $in: uniqueUserIds } }).select('userId empId fullname pictureUrl');
+                const empIds = users.map(user => user.empId);
+                const emps = await Emp.find({ empId: { $in: empIds }, ...empFilter }).select('empId department teamGrop');
 
                 const empMap = emps.reduce((acc, emp) => {
                     acc[emp.empId] = emp;
                     return acc;
                 }, {});
 
-                const surveysWithUserDetails = surveys.map(survey => {
-                    const user = users.find(user => user.userId === survey.userId);
-                    return {
-                        ...survey._doc,
-                        fullname: user ? user.fullname : 'Unknown',
-                        empId: user ? user.empId : 'Unknown',
-                        pictureUrl: user ? user.pictureUrl : 'Unknown',
-                        emp: empMap[user.empId] || null
+                const userMap = users.reduce((acc, user) => {
+                    acc[user.userId] = {
+                        userId: user.userId,
+                        empId: user.empId,
+                        fullname: user.fullname,
+                        pictureUrl: user.pictureUrl,
+                        teamGrop: empMap[user.empId]?.teamGrop || 'Unknown',
+                        department: empMap[user.empId]?.department || 'Unknown'
                     };
-                });
+                    return acc;
+                }, {});
 
-                return res.status(200).json({ data: surveysWithUserDetails, total: totalSurveys });
+                // Convert to a structure more easily consumable by the frontend
+                const surveyData = surveys.reduce((acc, s) => {
+                    const week = s._id.week;
+                    const value = s._id.value;
+
+                    if (!acc[week]) {
+                        acc[week] = {};
+                    }
+
+                    acc[week][value] = {
+                        count: s.count,
+                        empDetails: s.userIds.map(userId => userMap[userId] || { userId: "Unknown", empId: "Unknown", fullname: "Unknown", pictureUrl: "" })
+                    };
+
+                    return acc;
+                }, {});
+
+                return res.status(200).json({ data: surveyData });
 
             } catch (error) {
                 return res.status(400).json({ error: error.message });

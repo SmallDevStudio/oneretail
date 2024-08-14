@@ -38,6 +38,16 @@ export default async function handler(req, res) {
             }
             break;
 
+            case 'POST':
+                try {
+                    const notification = await Notification.create(req.body);
+                    res.status(201).json({ success: true, data: notification });
+                } catch (error) {
+                    console.error('Error creating notification:', error);
+                    res.status(400).json({ success: false });
+                }
+                break;
+
             case 'DELETE':
                 const { id } = req.query;
                 try {
