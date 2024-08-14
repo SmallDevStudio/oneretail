@@ -15,10 +15,11 @@ const customStyles = {
       borderRadius: '20px',
       height: 'auto',
       width: '350px',
+      backgroundColor: '#f5f5f5',
     }
   };
 
-const BirthDayModal = ({ isOpen, onRequestClose, score }) => {
+const BirthDayModal = ({ isOpen, onRequestClose, name }) => {
   return (
     <Modal 
         isOpen={isOpen} 
@@ -35,16 +36,21 @@ const BirthDayModal = ({ isOpen, onRequestClose, score }) => {
             </button>
         </div>
       </div>
-      <div className="flex flex-col justify-center items-center mt-[-50px]">
-        <p className="text-[200px] font-bold text-[#0056FF]">
-            {score}
-        </p>
-        <div className="flex flex-row justify-center items-baseline mt-[-50px]">
-            <Image src="/images/profile/Point.svg" alt="Point" width={40} height={40} />
-            <p className="text-3xl font-bold ml-3 text-[#0056FF]">
-                Point
-            </p>
+      <div className="flex flex-col justify-center items-center">
+        <div>
+          <Image
+            src="/images/giftbox.png"
+            alt="Birthday"
+            width={250}
+            height={250}
+            style={{ width: '250px', height: 'auto' }}
+          />
         </div>
+        <div className="flex flex-col justify-center items-center">
+          <h2 className="text-2xl font-bold">Happy Birthday</h2>
+          <p className="text-3xl font-bold text-[#0056FF]">{name}</p>
+        </div>
+        
       </div>
       <div className="modal-footer">
       </div>

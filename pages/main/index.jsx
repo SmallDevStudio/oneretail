@@ -90,6 +90,7 @@ const manager = ['22392', '20569', '56428', '23782',
         const [showModal, setShowModal] = useState(false);
         const [pilotModal, setPilotModal] = useState(false);
         const [linkModal, setLinkModal] = useState(false);
+        const [openModal, setOpenModal] = useState(false);
         const router = useRouter();
         const userId = session?.user?.id;
     
@@ -148,6 +149,17 @@ const manager = ['22392', '20569', '56428', '23782',
                 })
                 .catch(err => console.error(err));
             }
+
+            // Check if today is the user's birthday and set modal to open
+            if (user?.user?.birthdate) {
+                const today = new Date();
+                const birthdate = new Date(user.user.birthdate);
+
+                if (today.getDate() === birthdate.getDate() && today.getMonth() === birthdate.getMonth()) {
+                    setOpenModal(true);
+                }
+            }
+
         }, [router, session, status, user, userError]);
     
         const onRequestClose = () => {
@@ -204,6 +216,7 @@ const manager = ['22392', '20569', '56428', '23782',
                         <ManagerModal isOpen={showModal} onRequestClose={onRequestClose} score={100} />
                         <PilotModal isOpen={pilotModal} onRequestClose={onRequestClose} score={50} />
                         <LinkModal isOpen={linkModal} onRequestClose={() => setLinkModal(false)} />
+                        <BirthDayModal isOpen={openModal} onRequestClose={() => setOpenModal(false)} name={user.user.fullname} />
                     </main>
                 </RecheckUser>
             </React.Fragment>
