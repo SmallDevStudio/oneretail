@@ -3,8 +3,16 @@ import "slick-carousel/slick/slick-theme.css";
 import React from "react";
 import Slider from "react-slick";
 import Image from "next/image";
+import useSWR from "swr";
+import axios from "axios";
+import { useRouter } from "next/router";
+
+const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 export default function Carousel() {
+  const { data: images } = useSWR("/api/main/carousel", fetcher);
+
+  const router = useRouter();
 
   const settings = {
     accessibility: true,
@@ -20,23 +28,26 @@ export default function Carousel() {
     lazyLoad: 'ondemand',
   };
 
-  const images = [
-    { src: "/images/LoginReward.jpg", alt: "One Retail Carousel Example 1", width: 750, height: 422 },
-    { src: "/images/Name.jpg", alt: "One Retail Carousel Example 2", width: 750, height: 422 }
-  ];
+  const handleClick = (url) => {
+    if (url) {
+      router.push(url);
+    }
+  }
 
   return (
     <div className="relative w-full">
       <Slider {...settings}>
-        {images.map((image, index) => (
+        {Array.isArray(images) && images.map((image, index) => (
           <div key={index}>
             <Image
-              src={image.src}
-              alt={image.alt}
-              width={image.width}
-              height={image.height}
+              src={image.image.url}
+              alt={'One Retail Carousel' + index}
+              width={750}
+              height={422}
               className="relative w-full object-cover"
               loading="lazy"
+              style={{ width: '100%', height: 'auto' }}
+              onClick={handleClick(image.url)}
             />
           </div>
         ))}

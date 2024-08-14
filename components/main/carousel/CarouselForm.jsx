@@ -9,10 +9,12 @@ import { IoIosCloseCircle } from "react-icons/io";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
-const CarouselForm = ({ data, mutate, setLoading}) => {
-    const [url, setUrl] = useState("");
-    const [images, setImages] = useState(null);
+const CarouselForm = ({ selected, mutate, setLoading , setSelected, setOpen}) => {
+    const [url, setUrl] = useState(selected?.url || '');
+    const [images, setImages] = useState({url: selected?.image?.url, public_id: selected?.image?.public_id} || null);
     const [error, setError] = useState(null);
+
+    console.log(images);
 
     const { data: session } = useSession();
     const userId = session?.user?.id;
@@ -41,13 +43,37 @@ const CarouselForm = ({ data, mutate, setLoading}) => {
         e.preventDefault();
         setLoading(true);
         const newData = {
-            url: images.url,
+            url: url,
             image: images,
             userId
         }
+    
+        try {
+            if (selected) {
+                await axios.put(`/api/main/carousel/${selected._id}`, newData);
+            } else {
+                await axios.post('/api/main/carousel', newData);
+            }
+    
+            mutate(); // Refresh the data after the update or creation
+    
+            // Reset form state
+            setUrl('');
+            setImages(null);
+            setSelected(null);
+            setOpen(false);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        console.log(newData);
-        setLoading(false);
+    const handleClear = () => {
+        setSelected(null);
+        setUrl('');
+        setImages(null);
+        setOpen(false);  // Make sure this actually closes the form
     }
 
 
@@ -56,19 +82,32 @@ const CarouselForm = ({ data, mutate, setLoading}) => {
             <div className="flex flex-col">
                 {/* Header */}
                 <div>
-                    <span className="text-xl font-bold">เพิ่มเนื้อหา</span>
+                    <span className="text-xl font-bold">
+                        {selected ? 'แก้ไขเนื้อหา' : 'เพิ่มเนื้อหา'}
+                    </span>
                 </div>
 
                 {/* Body */}
                 <div className="flex flex-col mt-4 border rounded-xl p-4">
                     {/* Previews */}
-                    <div>
-
+                    <div className="flex flex-col mb-4">
+                    {images && (
+                        <div className="flex">
+                            <Image
+                                src={images?.url}
+                                alt="Preview"
+                                width={200}
+                                height={200}
+                                loading="lazy"
+                                style={{ width: '200px', height: 'auto' }}
+                            />
+                        </div>
+                        )}
                     </div>
                     {/* Form */}
                     <div className="flex flex-col">
                         <div className="flex flex-col gap-2 w-full">
-                            <button className="w-1/6" 
+                            <button className="w-2/6" 
                                 onClick={handleUploadClick}
                             >
                                 <div className="flex flex-row border rounded-xl p-2 items-center shadow-xl">
@@ -97,8 +136,16 @@ const CarouselForm = ({ data, mutate, setLoading}) => {
                                     className="w-1/6 bg-[#0056FF] text-white font-bold py-2 px-4 rounded-full text-sm mt-4"
                                     onClick={handleSubmit}
                                 >
-                                    บันทึก
+                                    {selected ? 'อัพเดท' : 'เพิ่ม'}
                                 </button>
+                                {selected && (
+                                    <button
+                                        className="w-1/6 bg-[#F68B1F] text-white font-bold py-2 px-4 rounded-full text-sm mt-4"
+                                        onClick={() => handleClear()}
+                                    >
+                                        ยกเลิก
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

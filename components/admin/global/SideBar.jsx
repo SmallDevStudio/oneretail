@@ -12,6 +12,7 @@ import { FcSurvey } from "react-icons/fc";
 import { GrArticle } from "react-icons/gr";
 import { GoFileMedia } from "react-icons/go";
 import { TbReportAnalytics } from "react-icons/tb";
+import { TfiLayoutSlider } from "react-icons/tfi";
 import Image from "next/image";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
@@ -258,13 +259,19 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                   />
               
 
-                  <Item
+                <SubMenu
                   title="จัดการหน้าแรก"
-                  to="/admin/homeoptions"
                   icon={<FaHome />}
+                  >
+
+                  <Item
+                  title="จัดการ Slide"
+                  to="/admin/homeoptions"
+                  icon={<TfiLayoutSlider />}
                   selected={selected}
                   setSelected={setSelected}
                   />
+                </SubMenu>
 
                   <Item
                   title="Survey"

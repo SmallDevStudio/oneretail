@@ -80,7 +80,6 @@ const ShareYourStory = () => {
     };
 
     const handlePostSubmit = async (data) => {
-        console.log('data:', data);
         setLoading(true);
         try {
             const userId = session?.user?.id;
@@ -103,7 +102,6 @@ const ShareYourStory = () => {
             });
 
             const post = response.data.data;
-            console.log('post:', post);
 
             if (data.selectedUsers && data.selectedUsers.length > 0) {
                 for (const user of data.selectedUsers) {
@@ -117,8 +115,6 @@ const ShareYourStory = () => {
                         url: `${window.location.origin}stores?tab=share-your-story#${post._id}`,
                         type: 'Tag'
                     });
-
-                    console.log('response:', response);
                 }
             }
 
