@@ -24,7 +24,8 @@ export default async function handler(req, res) {
           .sort({ createdAt: -1 })
           .populate('categories')
           .populate('subcategories')
-          .populate('groups');
+          .populate('groups')
+          .populate('subgroups');
 
         // Manually populate author data
         const userIds = contents.map(content => content.author);

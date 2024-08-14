@@ -11,12 +11,12 @@ import useSWR, { mutate } from "swr";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 
+
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 const SlugPage = () => {
     const router = useRouter();
     const { id } = router.query;
     const [content, setContent] = useState({});
-    const [comments, setComments] = useState([]);
     const [showInput, setShowInput] = useState(false);
     const [user, setUser] = useState(null);
     const { data: session } = useSession();
@@ -28,13 +28,13 @@ const SlugPage = () => {
         },
       });
     
-    const { data: contents, error: contentError, isLoading: contentsLoading } = useSWR('/api/content/'+id, fetcher, {
+    const { data: contents, error: contentError, isLoading: contentsLoading, mutate: contentMutate } = useSWR('/api/content/'+id, fetcher, {
         onSuccess: (data) => {
           setContent(data.data);
         },
       });
 
-    const { data: commentsData, error: commentsError, isLoading: commentsLoading } = useSWR(`/api/content/comments?contentId=${id}`, fetcher, {
+    const { data: commentsData, error: commentsError, isLoading: commentsLoading, mutate: commentMutate } = useSWR(`/api/content/comments?contentId=${id}`, fetcher, {
         onSuccess: (data) => {
           setComments(data.data);
         },
@@ -58,10 +58,11 @@ const SlugPage = () => {
     
       if (!contents || !commentsData) return <Loading />;
       if (contentError) return <p>Error: {error}</p>;
+
     
       
     return (
-        <main className="flex-1 flex-col bg-gray-10 justify-between items-center text-center h-full mb-[100px]">
+        <main className="flex-1 flex-col bg-gray-10 justify-between items-center text-center h-full">
             <div>
                 <div className="flex items-center text-center justify-center mt-[20px] p-2 px-1 pz-1">
                     <span className="text-[35px] font-black text-[#0056FF] dark:text-white">Learning</span>
@@ -82,10 +83,23 @@ const SlugPage = () => {
             </div>
             {/* Tabs Content */}
             <div className="flex flex-col items-center">
-                <LearningContent content={content} user={user} setShowInput={setShowInput} showInput={showInput} onCommentAdded={handleCommentAdded} comments={commentsData.data}/>
+                <LearningContent 
+                  content={content} 
+                  user={user} 
+                  setShowInput={setShowInput} 
+                  showInput={showInput} 
+                  onCommentAdded={handleCommentAdded} 
+                  comments={commentsData.data}
+                  />
             </div>
             <div>
-                <CommentList comments={commentsData.data} user={user} handleDeleteComment={handleDeleteComment} />
+                <CommentList
+                  content={content}
+                  comments={commentsData.data} 
+                  user={user} 
+                  contentMutate={contentMutate}
+                  commentMutate={commentMutate}
+                  />
             </div>
         </main>
     )
