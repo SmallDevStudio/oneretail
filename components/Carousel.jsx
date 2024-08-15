@@ -38,7 +38,7 @@ export default function Carousel() {
     <div className="relative w-full">
       <Slider {...settings}>
         {Array.isArray(images) && images.map((image, index) => (
-          <div key={index}>
+          <div key={index} onClick={() => handleClick(image.url)}>
             <Image
               src={image.image.url}
               alt={'One Retail Carousel' + index}
@@ -47,7 +47,6 @@ export default function Carousel() {
               className="relative w-full object-cover"
               loading="lazy"
               style={{ width: '100%', height: 'auto' }}
-              onClick={handleClick(image.url)}
             />
           </div>
         ))}

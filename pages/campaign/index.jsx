@@ -1,10 +1,26 @@
+import { useState } from "react";
 import { AppLayout } from "@/themes";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import useSWR from "swr";
+import axios from "axios";
+
+const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 export default function Campaign() {
+    const [campaigns, setCampaigns] = useState([]);
     const router = useRouter();
+
+    const { data, error: swrError, mutate } = useSWR('/api/campaigns', fetcher, {
+        onSuccess: (data) => {
+          setCampaigns(data.data);
+        },
+      });
+
+      const handleOnLink = (id) => {
+        router.push(`/campaign/${id}`);
+      }
 
     return (
         <main className="flex flex-col dark:bg-gray-900 mb-20">
@@ -27,42 +43,22 @@ export default function Campaign() {
             <div className="flex flex-col justify-center items-center max-w-[100vw] p-2">
                 <div className="flex flex-col w-full">
                     <div className="relative flex-col w-full justify-center items-center">
-                        <Image
-                            src="/images/campaign/1.jpg"
-                            alt="Campaign"
-                            width={600}
-                            height={600}
-                            priority
-                            className="w-full rounded-2xl mb-2"
-                            onClick={() => router.push("/campaign/content/1")}
-                        />
-                        <Image
-                            src="/images/campaign/2.2.png"
-                            alt="Campaign"
-                            width={600}
-                            height={600}
-                            priority
-                            className="w-full rounded-2xl mb-2"
-                            onClick={() => router.push("/campaign/content/2")}
-                        />
-                        <Image
-                            src="/images/campaign/3.jpg"
-                            alt="Campaign"
-                            width={600}
-                            height={600}
-                            priority
-                            className="w-full rounded-2xl mb-2"
-                            onClick={() => router.push("/campaign/content/3")}
-                        />
-                        <Image
-                            src="/images/campaign/4.jpg"
-                            alt="Campaign"
-                            width={600}
-                            height={600}
-                            priority
-                            className="w-full rounded-2xl mb-2"
-                            onClick={() => router.push("/campaign/content/4")}
-                        />
+                        {campaigns && campaigns.map((campaign, index) => (
+                            <div key={index} className="w-full"
+                                onClick={() => handleOnLink(campaign._id)}
+                            >
+                                <Image
+                                    src={campaign.smallbanner.url}
+                                    alt="Campaign"
+                                    width={600}
+                                    height={600}
+                                    loading="lazy"
+                                    className="w-full rounded-2xl mb-2"
+                                    style={{ width: '600px', height: 'auto' }}
+                                    onClick={() => router.push("/campaign/content/2")}
+                                />
+                            </div>
+                        ))}
                     </div>
                         
                 </div>
