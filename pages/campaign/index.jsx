@@ -55,7 +55,6 @@ export default function Campaign() {
                                     loading="lazy"
                                     className="w-full rounded-2xl mb-2"
                                     style={{ width: '600px', height: 'auto' }}
-                                    onClick={() => router.push("/campaign/content/2")}
                                 />
                             </div>
                         ))}
