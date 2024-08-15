@@ -35,7 +35,7 @@ export default function CampaignId() {
             </div>
             
             {campaigns && (
-                <div className="flex flex-col w-full bg-gray-200 rounded-xl">
+                <div className="flex flex-col items-center w-full bg-gray-200 rounded-xl">
                     <Image
                         src={campaigns?.smallbanner?.url}
                         alt="Campaign"
@@ -52,7 +52,7 @@ export default function CampaignId() {
                         onClick = {() => router.push(campaigns.url)}
                     />
                     <div className="flex flex-col p-5 w-full">
-                        <span className="font-bold text-[#0056FF] text-xl mb-2">{campaigns.title}</span>
+                        <span className="font-bold text-[#0056FF] text-xl mb-2 text-left">{campaigns.title}</span>
                         {campaigns.image && (
                             <Image
                                 src={campaigns?.image?.url}
@@ -60,12 +60,12 @@ export default function CampaignId() {
                                 width={350}
                                 height={350}
                                 priority
-                                className="mb-2"
+                                className="flex mb-2"
                                 style={{ 
                                     objectFit: "contain", 
                                     height: "auto", 
                                     width: "100%",
-                                    maxWidth: "350px",
+                                    maxWidth: "100vw",
                                 }}
                                 onClick = {() => router.push(campaigns.url)}
                             />
