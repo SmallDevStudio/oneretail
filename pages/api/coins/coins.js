@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   switch (method) {
     case 'POST':
       try {
-        const { userId, description, type, coins } = req.body;
+        const { userId, description, type, coins, referId, path, subpath } = req.body;
   
         if (!userId || !description || !type || coins === undefined) {
           return res.status(400).json({ success: false, message: 'All fields are required' });
@@ -22,12 +22,17 @@ export default async function handler(req, res) {
           description,
           type,
           coins: coins,
+          referId,
+          path,
+          subpath
         });
         await coinsEntry.save();
 
-        // ส่งข้อความไปที่ LINE
-        const message = `คุณได้รับ ${coins} Coins จาก ${description}!`;
-        sendLineMessage(userId, message);
+        if (type === 'earn') {
+          // ส่งข้อความไปที่ LINE
+          const message = `คุณได้รับ ${coins} Coins จาก ${description}!`;
+          sendLineMessage(userId, message);
+        }
   
         res.status(201).json({ success: true, data: coinsEntry });
       } catch (error) {

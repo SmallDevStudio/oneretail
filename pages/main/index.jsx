@@ -91,6 +91,7 @@ const manager = ['22392', '20569', '56428', '23782',
         const [pilotModal, setPilotModal] = useState(false);
         const [linkModal, setLinkModal] = useState(false);
         const [openModal, setOpenModal] = useState(false);
+        const [loading, setLoading] = useState(false);
         const router = useRouter();
         const userId = session?.user?.id;
     
@@ -170,7 +171,7 @@ const manager = ['22392', '20569', '56428', '23782',
             mutate();
         }
     
-        if (status === "loading" || !user || !level) return <Loading />;
+        if (status === "loading" || !user || !level || loading ) return <Loading />;
         if (userError) return <div>Error loading data</div>;
     
         return (
@@ -181,7 +182,7 @@ const manager = ['22392', '20569', '56428', '23782',
                             <MenuPanel user={user} />
                         </div>
                         <div className="w-full p-5 mt-[-10px]">
-                            <UserPanel user={user} level={level} onExchangeAdd={onExchangeAdd} />
+                            <UserPanel user={user} level={level} onExchangeAdd={onExchangeAdd} setLoading={setLoading} loading={loading} />
                         </div>
                         <div className="flex-grow flex items-center justify-center">
                             <MainIconMenu />

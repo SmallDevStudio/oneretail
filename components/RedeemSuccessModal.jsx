@@ -17,7 +17,7 @@ const customStyles = {
     }
 };
 
-const RedeemModal = ({ isOpen, onRequestClose, redeemItem }) => {
+const RedeemSuccessModal = ({ isOpen, onRequestClose, redeemItem }) => {
     if (!redeemItem) return null;
 
     return (
@@ -35,31 +35,13 @@ const RedeemModal = ({ isOpen, onRequestClose, redeemItem }) => {
                     width={300} 
                     height={300} 
                     alt={redeemItem.name} 
-                    style={{width: '300px', height: 'auto', objectFit: 'contain'}}
-                />
-                <h2 className='text-3xl font-bold text-[#0056FF]'>{redeemItem.name}</h2>
-                <p className='text-md text-gray-600'>{redeemItem.description}</p>
-                <div className='flex justify-center items-center mt-4'>
-                    <span className='text-sm font-bold'>Coins:</span>
-                    <span className='ml-2 text-lg text-[#0056FF] font-bold'>{redeemItem.coins}</span>
-                    <Image
-                        src="/images/profile/Coin.svg"
-                        alt="coins"
-                        width={15}
-                        height={15}
-                        className="ml-2"
                     />
-                </div>
-                {redeemItem.point > 0 ? (
-                <div className='mt-2'>
-                    <span className='text-sm font-bold'>Points:</span>
-                    <span className='ml-2 text-lg text-[#0056FF] font-bold'>{redeemItem.point}</span>
-                </div>) : ''
-                }
+                <span className='text-xl font-bold text-[#0056FF]'>คุณได้แลกของรางวัล {redeemItem.name} เรียบร้อย</span>
+                <span className='text-lg font-bold text-gray-700'>รอดำเนินการจัดส่ง</span>
                 
             </div>
         </Modal>
     );
 };
 
-export default RedeemModal;
+export default RedeemSuccessModal;

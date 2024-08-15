@@ -25,9 +25,11 @@ export default async function handler(req, res) {
         });
         await pointEntry.save();
 
-        // ส่งข้อความไปที่ LINE
-        const message = `คุณได้รับ ${description} ${points}`;
-        sendLineMessage(userId, message);
+        if (type === 'earn') {
+            // ส่งข้อความไปที่ LINE
+          const message = `คุณได้รับ ${description} ${points}`;
+          sendLineMessage(userId, message);
+        }
   
         res.status(201).json({ success: true, data: pointEntry });
       } catch (error) {

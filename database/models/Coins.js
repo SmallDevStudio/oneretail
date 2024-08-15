@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const CoinsSchema = new mongoose.Schema({
     userId: { type: String, required: true, },
-    descriptions: { type: String,},
+    description: { type: String,},
     referId: { type: String },
     path: { type: String },
     subpath: { type: String },

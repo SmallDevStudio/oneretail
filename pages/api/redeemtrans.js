@@ -29,6 +29,7 @@ export default async function handler(req, res) {
         res.status(400).json({ success: false });
       }
       break;
+
     case 'POST':
       try {
         const { redeemId, userId } = req.body;
@@ -38,62 +39,45 @@ export default async function handler(req, res) {
           return res.status(404).json({ success: false, message: 'Redeem not found' });
         }
 
-        // Check user's points and coins
-        const pointTransactions = await Point.find({ userId });
-        const userPoints = pointTransactions
-            .reduce((acc, pt) => acc + (pt.type === 'earn' ? pt.point : -pt.point), 0);
-
-        const coinTransactions = await Coins.find({ userId });
-        const userCoins = coinTransactions
-            .reduce((acc, ct) => acc + (ct.type === 'earn' ? ct.coins : -ct.coins), 0);
-
-        if (userPoints.point < redeem.point || userCoins.coins < redeem.coins) {
-          return res.status(400).json({ success: false, message: 'Insufficient points or coins' });
-        }
-
-        // Create RedeemTrans
-        const redeemTrans = new RedeemTrans({
-          redeemId,
-          userId,
-          coins: redeem.coins,
-          point: redeem.point,
-          amount: 1,
-          status: 'padding',
-        });
-        await redeemTrans.save();
-
-        // Update user's points and coins
-        if (redeem.point > 0) {
-          const point = new Point({
+        if (redeem.coins !== 0 || redeem.coins !== null) {
+          const coinsPayData = await Coins.create({
             userId,
-            type: 'pay',
-            point: redeem.point,
-            description: `Redeem ${redeem.name}`,
-            contentId: redeem._id,
-            path: 'redeem',
-            subpath: 'transactions',
-          });
-          await point.save();
-        }
-
-        if (redeem.coins > 0) {
-          const coins = new Coins({
-            userId,
+            description: `Redeem - ${redeemId}`,
+            referId: redeemId,
             type: 'pay',
             coins: redeem.coins,
-            description: `Redeem ${redeem.name}`,
-            path: 'redeem',
-            subpath: 'transactions',
-            referId: redeem._id,
           });
-          await coins.save();
         }
 
-        const users = await Users.find({ active: 'admin' });
+        if (redeem.point !== 0 || redeem.point !== null) {
+          const pointPayData = await Point.create({
+            userId,
+            description: `Redeem - ${redeemId}`,
+            referId: redeemId,
+            type: 'pay',
+            point: redeem.point,
+          });
+        }
+
+        const newRedeemTrans = {
+          redeemId,
+          userId,
+          status: 'pending',
+        };
+
+        const redeemTrans = await RedeemTrans.create(newRedeemTrans);
+
+        const redeemUpdate = await Redeem.findOneAndUpdate(
+          { _id: redeemId },
+          { $inc: { stock: -1 } },
+          { new: true }
+        );
+
+        const users = await Users.find({ role: 'admin' });
         const notifyData = users.map(user => ({
           userId: user.userId,
-          senderId: 'Uc83ed0637f0910565ad3b0ad44c5d49b',
-          description: 'แลกของรางวัล',
+          senderId: userId,
+          description: 'แลกของรางวัล Redeem',
           referId: redeemTrans._id,
           path: 'redeem',
           subpath: 'transactions',
@@ -102,11 +86,8 @@ export default async function handler(req, res) {
         }));
         await Notification.insertMany(notifyData);
 
-        // Update Redeem stock
-        redeem.stock -= 1;
-        await redeem.save();
 
-        res.status(201).json({ success: true, data: redeemTrans });
+        res.status(201).json({ success: true, data: redeemTrans, redeem: redeemUpdate });
       } catch (error) {
         res.status(400).json({ success: false });
       }

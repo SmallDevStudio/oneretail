@@ -3,6 +3,7 @@ import Modal from 'react-modal';
 import Image from 'next/image';
 import WarningModal from './WarningModal'; // Import the new WarningModal component
 import Loading from './Loading';
+import axios from 'axios';
 
 const customStyles = {
     content: {
@@ -19,11 +20,10 @@ const customStyles = {
     }
 };
 
-const ExchangeModal = ({ isOpen, onRequestClose, points, conversionRate, userId, onExchangeAdd }) => {
+const ExchangeModal = ({ isOpen, onRequestClose, points, conversionRate, userId, onExchangeAdd, setLoading, loading }) => {
     const [exchangePoints, setExchangePoints] = useState(conversionRate);
     const [coins, setCoins] = useState(1);
     const [warningModalIsOpen, setWarningModalIsOpen] = useState(false);
-    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         setCoins(Math.floor(exchangePoints / conversionRate));
@@ -72,73 +72,47 @@ const ExchangeModal = ({ isOpen, onRequestClose, points, conversionRate, userId,
 
         setLoading(true);
 
-        const currentDate = new Date().toISOString();
-        const description = `exchange ${currentDate}`;
+        const description = `exchange`;
         try {
-            const exchangeResponse = await fetch('/api/exchange', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    userId: userId,
-                    points: exchangePoints,
-                    coins,
-                    description,
-                }),
+            const exchangeResponse = await axios.post('/api/exchange', {
+                userId: userId,
+                points: exchangePoints,
+                coins,
+                description,
             });
 
-            if (!exchangeResponse.ok) {
-                throw new Error('Failed to create exchange');
-            }
-            const pointsResponse = await fetch('/api/points/point', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
+            console.log('Exchange response:', exchangeResponse.data.data);
+
+            const pointsResponse = await axios.post('/api/points/point', {
                     userId: userId,
                     points: exchangePoints,
-                    contentId: exchangeResponse.data._id,
+                    contentId: exchangeResponse.data.data._id,
                     path: 'exchange',
                     type: 'pay',
                     description,
-                }),
             });
 
-            if (!pointsResponse.ok) {
-                throw new Error('Failed to update points');
-            }
 
-            const coinsResponse = await fetch('/api/coins/coins', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
+            console.log('Points response:', pointsResponse.data.data);
+
+            const coinsResponse = await axios.post('/api/coins/coins', {
                     userId: userId,
                     coins,
-                    referId: exchangeResponse.data._id,
+                    referId: exchangeResponse.data.data._id,
                     path: 'exchange',
                     type: 'earn',
                     description,
-                }),
             });
 
-            
-            setLoading(false);
+            console.log('Coins response:', coinsResponse.data.data);
 
-            if (!coinsResponse.ok) {
-                throw new Error('Failed to update coins');
-            }
+            setLoading(false);
             onExchangeAdd();
             onRequestClose();
         } catch (error) {
             console.error('Failed to complete the exchange', error);
         }
     };
-
-    if (loading) return <Loading />;
 
     return (
         <>

@@ -3,9 +3,6 @@ const mongoose = require('mongoose');
 const redeemTransSchema = new mongoose.Schema({
   redeemId: { type: mongoose.Schema.Types.ObjectId, ref: 'Redeem', required: true },
   userId: { type: String, required: true },
-  coins: { type: Number, required: true },
-  point: { type: Number },
-  amount: { type: Number, required: true },
   status: { type: String, required: true, default: 'pending' },
   createdAt: { type: Date, default: Date.now },
 });

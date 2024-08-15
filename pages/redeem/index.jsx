@@ -8,10 +8,11 @@ import { useSession } from "next-auth/react";
 import ExchangeModal from "@/components/ExchangeModal";
 import NotificationModal from "@/components/NotificationModal";
 import RedeemModal from "@/components/RedeemModal";
-import { toast } from "react-toastify";
+import RedeemSuccessModal from "@/components/RedeemSuccessModal";
 import LoadingFeed from "@/components/LoadingFeed";
 import Loading from "@/components/Loading";
 import moment from "moment";
+import axios from "axios";
 moment.locale("th");
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
@@ -19,17 +20,18 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 export default function Redeem() {
     const [activeTab, setActiveTab] = useState("redeem1");
     const { data: session } = useSession();
-    const { image, id } = session?.user;
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [notificationModalIsOpen, setNotificationModalIsOpen] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState("");
     const [redeemModalIsOpen, setRedeemModalIsOpen] = useState(false);
+    const [successModal, setSuccessModal] = useState(false);
     const [selectedRedeem, setSelectedRedeem] = useState(null);
     const [conversionRate, setConversionRate] = useState(25);
     const [userPoints, setUserPoints] = useState(0);
     const [userCoins, setUserCoins] = useState(0);
     const [redeems, setRedeems] = useState(null);
     const [redeemTransData, setRedeemTransData] = useState(null);
+    const [loading, setLoading] = useState(false);
   
     const openModal = () => setModalIsOpen(true);
     const closeModal = () => setModalIsOpen(false);
@@ -44,73 +46,54 @@ export default function Redeem() {
     };
     const closeRedeemModal = () => setRedeemModalIsOpen(false);
   
-    const { data: level } = useSWR('/api/level/user?userId=' + session?.user?.id, fetcher);
-    const { data: coins } = useSWR('/api/coins/user?userId=' + session?.user?.id, fetcher, {
-      onSuccess: (data) => {
-        setUserCoins(data.coins);
-      }
-    });
-    const { data: points } = useSWR('/api/points/user?userId=' + session?.user?.id, fetcher, {
+    const { data: level, mutate: mutateLevel } = useSWR('/api/level/user?userId=' + session?.user?.id, fetcher, {
       onSuccess: (data) => {
         setUserPoints(data.point);
       }
     });
-    const { data: redeem } = useSWR('/api/redeem', fetcher, {
+    const { data: coins, mutate: mutateCoins } = useSWR('/api/coins/user?userId=' + session?.user?.id, fetcher, {
+      onSuccess: (data) => {
+        setUserCoins(data.coins);
+      }
+    });
+
+    const { data: redeem, mutate: mutateRedeem } = useSWR('/api/redeem', fetcher, {
       onSuccess: (data) => {
         setRedeems(data.data);
       }
     });
   
-    const { data: redeemtrans } = useSWR('/api/redeemtrans?userId=' + session?.user?.id, fetcher, {
+    const { data: redeemtrans, mutate: mutateRedeemTrans } = useSWR('/api/redeemtrans?userId=' + session?.user?.id, fetcher, {
       onSuccess: (data) => {
         setRedeemTransData(data.data);
       }
     });
   
-    useEffect(() => {
-      if (coins?.coins) {
-        setUserCoins(coins.coins);
-      }
-      if (points?.point) {
-        setUserPoints(points.point);
-      }
-    }, [coins, points]);
   
-    const handleRedeemClick = (redeemItem) => {
+    const handleRedeemClick = async (redeemItem) => {
       setSelectedRedeem(redeemItem);
-      if (userPoints >= redeemItem.point && userCoins >= redeemItem.coins) {
-        redeemItem.stock -= 1;
-        createRedeemTransaction(redeemItem);
-      } else {
-        openNotificationModal("จำนวน point และ coins ไม่พอ");
-      }
-    };
-  
-    const createRedeemTransaction = async (redeemItem) => {
-      console.log("createRedeemTransaction", redeemItem);
-      try {
-        const response = await fetch('/api/redeemtrans', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
+      if (userCoins >= parseFloat(redeemItem.coins)) {
+        try {
+          const res = await axios.post('api/redeemtrans', {
             redeemId: redeemItem._id,
             userId: session?.user?.id,
-            coins: redeemItem.coins,
-            point: redeemItem.point,
-          }),
-        });
-  
-        if (response.ok) {
-          const updatedRedeem = await response.json();
-          setRedeems((prev) => prev.map((r) => (r._id === updatedRedeem._id ? updatedRedeem : r)));
-          toast.success('Redeemed successfully!');
-        } else {
-          toast.error('Failed to redeem.');
+          })
+
+          if (res.status === 200) {
+            redeemItem.stock -= 1;
+          }
+
+          mutateRedeem();
+          mutateRedeemTrans();
+          mutateLevel();
+          mutateCoins();
+          setSuccessModal(true);
+        } catch (error) {
+          console.log(error);
         }
-      } catch (error) {
-        toast.error('Failed to redeem.');
+
+      }else{
+        openNotificationModal("coins ไม่พอ");
       }
     };
   
@@ -119,11 +102,15 @@ export default function Redeem() {
     };
 
     const onExchangeAdd = async () => {
-      mutate('/api/coins/user?userId=' + session?.user?.id);
-      mutate('/api/points/user?userId=' + session?.user?.id);
+        mutateCoins();
+        mutateLevel();
     }
 
-    if (!level || !coins || !points || !redeem || !redeemtrans) return <Loading />;
+    const closeSuccessModal = () => {
+      setSuccessModal(false);
+    }
+
+    if (!level || !coins || !redeem || !redeemtrans) return <Loading />;
   
     return (
       <main className="flex flex-col bg-white min-w-[100vw]">
@@ -229,8 +216,10 @@ export default function Redeem() {
           onRequestClose={closeModal}
           points={level?.totalPoints}
           conversionRate={conversionRate}
-          userId={id}
+          userId={session?.user?.id}
           onExchangeAdd={onExchangeAdd}
+          setLoading={setLoading}
+          loading={loading}
         />
         <NotificationModal
           isOpen={notificationModalIsOpen}
@@ -242,12 +231,20 @@ export default function Redeem() {
           onRequestClose={closeRedeemModal}
           redeemItem={selectedRedeem}
         />
+
+        <RedeemSuccessModal
+          isOpen={successModal}
+          onRequestClose={closeSuccessModal}
+          redeemItem={selectedRedeem}
+        />
+
         {/* Content */}
         <div className="flex flex-col items-center justify-center p-4 gap-2 mb-20">
           {activeTab === 'redeem1' && (
             <Suspense fallback={<LoadingFeed />}>
               {redeems?.map((redeemItem) => (
-                <div key={redeemItem._id} className="flex flex-row w-full bg-gray-300 rounded-xl cursor-pointer" onClick={() => openRedeemModal(redeemItem)}>
+                <div key={redeemItem._id} className="flex flex-row w-full bg-gray-300 rounded-xl cursor-pointer" 
+                >
                   <div className="flex flex-col items-center justify-center">
                     <Image
                       src={redeemItem.image}
@@ -260,12 +257,13 @@ export default function Redeem() {
                         maxHeight: "120px",
                         objectFit: "contain",
                       }}
+                      onClick={() => openRedeemModal(redeemItem)}
                     />
                     
                   </div>
                   <div className="flex flex-col justify-between flex-grow p-2">
                     <div>
-                      <div className="text-lg font-bold text-[#0056FF]">
+                      <div className="text-lg font-bold text-[#0056FF]" onClick={() => openRedeemModal(redeemItem)}>
                         {redeemItem.name}
                       </div>
                       <div>
@@ -285,7 +283,7 @@ export default function Redeem() {
                       </div>
                       <button
                         className="bg-[#F68B1F] rounded-full text-white font-medium h-8 px-4"
-                        onClick={(e) => { e.stopPropagation(); handleRedeemClick(redeemItem); }}
+                        onClick={() => { handleRedeemClick(redeemItem); }}
                       >
                         redeem
                       </button>

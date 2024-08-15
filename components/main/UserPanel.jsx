@@ -8,7 +8,7 @@ import LevelModal from "@/components/LevelModal";
 
 const LineProgressBar = dynamic(() => import("@/components/ProfileLineProgressBar"), { ssr: false });
 
-const UserPanel = ({user, level, onExchangeAdd}) => {
+const UserPanel = ({user, level, onExchangeAdd, setLoading, loading}) => {
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [IsLevelModal, setIsLevelModal] = useState(false);
     const [conversionRate, setConversionRate] = useState(25);
@@ -129,6 +129,8 @@ const UserPanel = ({user, level, onExchangeAdd}) => {
                 conversionRate={conversionRate}
                 userId={user?.user?.userId}
                 onExchangeAdd={onExchangeAdd}
+                setLoading={setLoading}
+                loading={loading}
             />
 
             <LevelModal

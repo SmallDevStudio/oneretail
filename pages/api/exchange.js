@@ -19,8 +19,7 @@ export default async function handler(req, res) {
 
     case 'POST':
       try {
-        const exchange = new Exchange(req.body);
-        await exchange.save();
+        const exchange = await Exchange.create(req.body);
         res.status(201).json({ success: true, data: exchange });
       } catch (error) {
         res.status(400).json({ success: false });

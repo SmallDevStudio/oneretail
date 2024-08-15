@@ -58,6 +58,8 @@ export default async function handler(req, res) {
                 const newCoins = new Coins({
                     userId: survey.userId,
                     description: `ส่งแบบสอบถาม ${new Date().toISOString().split('T')[0]}`,
+                    referId: survey._id,
+                    path: 'survey',
                     type: 'earn',
                     coins: 1
                 });
