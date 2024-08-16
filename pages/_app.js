@@ -8,25 +8,12 @@ import "@/styles/globals.css";
 import AddToHomeScreenPrompt from "@/lib/hook/AddToHomeScreenPrompt";
 import { initGA, logPageView } from "@/utils/analytics";
 import Head from "next/head";
-import Script from "next/script";
 import '@/styles/editor.scss';
 
 
 function App({ Component, pageProps: { session, ...pageProps } }) {
   const getLayout = Component.getLayout || ((page) => page);
   const router = useRouter();
-
-  useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/service-worker.js')
-        .then((registration) => {
-          console.log('Service Worker registered with scope:', registration.scope);
-        })
-        .catch((error) => {
-          console.error('Service Worker registration failed:', error);
-        });
-    }
-  }, []);
 
   useEffect(() => {
     initGA(process.env.NEXT_PUBLIC_GOOGLE_ID); // แทนที่ด้วยรหัสติดตาม Google Analytics ของคุณ

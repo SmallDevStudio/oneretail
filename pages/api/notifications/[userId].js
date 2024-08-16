@@ -31,7 +31,10 @@ export default async function handler(req, res) {
                     sender: userMap[notification.senderId] || null // Add sender details if available
                 }));
 
-                res.status(200).json({ success: true, data: notificationsWithSenderDetails });
+                const isReading = await Notification.find({ userId: userId, isReading: false });
+                const count = isReading.length;
+
+                res.status(200).json({ success: true, data: notificationsWithSenderDetails, Reading: count });
             } catch (error) {
                 console.error('Error fetching notifications:', error);
                 res.status(400).json({ success: false });

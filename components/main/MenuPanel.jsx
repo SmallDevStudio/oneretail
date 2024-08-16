@@ -23,6 +23,8 @@ const MenuPanel = ({ user }) => {
     const [openDialog, setOpenDialog] = useState(false);
     const router = useRouter();
 
+    console.log(notifications);
+
     const handleDropdownOpen = (event) => {
         setAnchorEl(event.currentTarget);
 
@@ -83,11 +85,11 @@ const MenuPanel = ({ user }) => {
                 onClick={handleDropdownOpen}
             >
                 <IoNotifications size={25}/>
-                {notifications.data && (notifications.data.type === false).length > 0 && (
+                {notifications.Reading && (
                     <div 
                     className="absolute inline-flex items-center justify-center w-5 h-5 text-[8px] font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-2"
                     >
-                        {(notifications.data.type === false).length}
+                        {notifications.Reading}
                     </div>
                 )}
             </button>
@@ -109,9 +111,9 @@ const MenuPanel = ({ user }) => {
                 }}
             >
                 <div className="flex flex-col w-full">
-                {notifications.data.slice(0, 10).map((notification) => (
+                {notifications.data.slice(0, 10).map((notification, index) => (
                     <>
-                        <div key={notification._id} className='flex flex-row items-center p-1 gap-2'
+                        <div key={index} className='flex flex-row items-center p-1 gap-2'
                             onClick={() => handleClick(notification)}
                         >
                                 <div>
