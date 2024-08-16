@@ -23,8 +23,6 @@ const MenuPanel = ({ user }) => {
     const [openDialog, setOpenDialog] = useState(false);
     const router = useRouter();
 
-    console.log(notifications);
-
     const handleDropdownOpen = (event) => {
         setAnchorEl(event.currentTarget);
 
