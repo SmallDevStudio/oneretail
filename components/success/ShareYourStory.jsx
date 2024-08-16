@@ -364,6 +364,40 @@ const ShareYourStory = () => {
         }
     };
 
+    const handlePoints = async (post) => {
+        const result = await Swal.fire({
+            title: 'คุณแน่ใจ?',
+            text: `ที่จะให้ 500 Points กับ ${post.user.fullname} หรือไม่`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes!',
+            cancelButtonText: 'Cancel',
+        });
+    
+        if (result.isConfirmed) {
+            setLoading(true);
+            try {
+                await axios.post('/api/points/point', {
+                    userId: post.user._id,
+                    description: `ได้ Point จากโพส Share Your Story`,
+                    contentId: post._id,
+                    path: 'share your story',
+                    subpath: 'post',
+                    points: 500,
+                    type: 'earn',
+                });
+                mutate();
+            } catch (error) {
+                console.error(error);
+                Swal.fire('Error!', 'There was an issue deleting the post.', 'error');
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
+
     if (error) return <div>failed to load</div>;
     if (!data) return (
         <div className="flex justify-center items-center w-full h-full p-10">
@@ -426,7 +460,7 @@ const ShareYourStory = () => {
                                                 classes={{ paper: "text-xs" }}
                                             >
                                                 <MenuItem onClick={() => { handleDelete(currentOption.id); handleOptionClose(); }}>Delete</MenuItem>
-                                                <MenuItem >Point</MenuItem>
+                                                <MenuItem onClick={() => { handlePoints(post); handleOptionClose(); }}>Point</MenuItem>
                                             </Menu>
                                         </div>
                                     )}

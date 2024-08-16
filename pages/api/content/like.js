@@ -18,25 +18,16 @@ export default async function handler(req, res) {
                 if (!content) {
                     return res.status(404).json({ success: false, error: "Content not found" });
                 }
-                const alreadyLiked = content.likes.some(like => like.userId === userId);
-                const user = await Users.findOne({ userId: userId });
-                if (alreadyLiked) {
-                    content.likes = content.likes.filter(like => like.userId !== userId);
-                } else {
-                    content.likes.push({ userId });
 
-                    if (userId !== content.userId) {
-                        await Notifications.create({
-                            userId: content.userId,
-                            senderId: userId,
-                            description: `ได้กด like โพสใน Content`,
-                            referId: content._id,
-                            path: 'Content',
-                            subpath: 'Post',
-                            url: `${process.env.NEXTAUTH_URL}learning/${content._id}`,
-                            type: 'Like'
-                        });
-                    }
+                // Check if userId already exists in likes
+                const likeIndex = content.likes.findIndex(like => like === userId);
+
+                if (likeIndex !== -1) {
+                    // User already liked the content, so we remove the like
+                    content.likes.splice(likeIndex, 1);
+                } else {
+                    // User hasn't liked the content yet, so we add the like
+                    content.likes.push(userId);
                 }
 
                 await content.save();

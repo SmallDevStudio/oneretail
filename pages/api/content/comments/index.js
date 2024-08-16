@@ -39,7 +39,6 @@ export default async function handler(req, res) {
                         }, {});
 
                         const populatedReplies = replies.map(reply => ({
-                            ...reply,
                             user: replyUserMap[reply.userId] || null,
                         }));
 

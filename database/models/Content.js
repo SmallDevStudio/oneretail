@@ -20,7 +20,7 @@ const ContentSchema = new Schema({
     point: { type: Number, default: 0, },
     coins: { type: Number, default: 0, },
     views: { type: Number, default: 0,},
-    likes: [{ userId: { type: String, ref: 'Users' }, createAt: { type: Date, default: Date.now } }],
+    likes: [{type: String, ref: 'Users', }],
     tags: { type: [String], default: [] }, // Store tags as an array of strings
     pinned: { type: Boolean, default: false },
     recommend: { type: Boolean, default: false },

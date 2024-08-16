@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import axios from 'axios';
 import moment from 'moment';
@@ -32,11 +32,38 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
   const [checkError, setCheckError] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const [currentOption, setCurrentOption] = useState(null);
-  const [likes, setLikes] = useState({});
+  const [likes, setLikes] = useState([]);
+  const [commentLikes, setCommentLikes] = useState();
+  const [hasLike, setHasLike] = useState(false);
   const router = useRouter();
   const { data: session } = useSession();
 
-  console.log('Content:', content);
+  console.log(commentLikes);
+
+    useEffect(() => {
+        if (content) {
+            setLikes(content.likes);
+        }
+    }, [content]);
+
+    useEffect(() => {
+        if (likes && session) {
+            setHasLike(likes.includes(session?.user?.id));
+        }
+        if (comments.likes && session) {
+            const initialLikes = {
+                [comments._id]: comments.likes.same(like => like.userId === session?.user?.id),
+                ...comments.reduce((acc, comment) => {
+                    acc[comment._id] = comment.likes.some(like => like.userId === session?.user?.id);
+                    return acc;
+                })
+            };
+            setCommentLikes(initialLikes);
+        }
+    }, [comments, likes, session]);
+
+    
+
 
   const handleCommentSubmit = async (contentId, data) => {
     setLoading(true);
@@ -68,7 +95,7 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
                     referId: contentId,
                     path: 'success story',
                     subpath: 'Comment',
-                    url: `${window.location.origin}stores/${contentId}`,
+                    url: `/stores/${contentId}`,
                     type: 'Tag'
                 });
             }
@@ -115,7 +142,7 @@ const handleReplySubmit = async (commentId, data) => {
                     referId: content._id,
                     path: 'Content',
                     subpath: 'Reply',
-                    url: `${window.location.origin}stores/${content._id}`,
+                    url: `/stores/${content._id}`,
                     type: 'Tag'
                 });
             }
@@ -271,10 +298,17 @@ const handleReplyDelete = async (replyId) => {
     <div>
       <div className="flex flex-col w-full p-2">
       <div className="flex flex-row mt-2 justify-between items-baseline space-x-4 h-8" style={{ textSizeAdjust: '100%', fontSize: '12px'}}>
-            <div className="relative inline-flex items-center columns-2 justify-center p-3 bg-[#F2871F] text-white rounded-full h-6 w-15" onClick={handleLike}>
-              <svg className={`w-4 h-4 mr-1`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 275.26 275.28">
-                <path fill='currentColor' d="M215.39,275.28H10.87c-6.01,0-10.87-4.87-10.87-10.88V113.14c0-6.01,4.87-10.87,10.87-10.87h56.27L143.42,14.33c10.29-11.86,26.19-16.88,41.49-13.09l.73.18c13.15,3.25,23.89,12.69,28.73,25.24,4.79,12.43,3.19,26.46-4.27,37.53l-25.69,38.08h49.35c12.57,0,24.32,5.55,32.23,15.23,7.81,9.55,10.89,21.94,8.45,33.99l-18.37,90.75c-3.88,19.14-20.98,33.04-40.68,33.04ZM82.98,253.53h132.41c9.39,0,17.53-6.56,19.36-15.6l18.37-90.75c1.14-5.63-.31-11.43-3.97-15.9-3.77-4.61-9.38-7.25-15.4-7.25h-69.81c-4.02,0-7.71-2.22-9.6-5.77s-1.66-7.85.59-11.19l37.13-55.04c3.54-5.26,4.28-11.65,2.01-17.55-2.32-6.02-7.29-10.37-13.65-11.94l-.73-.18c-7.34-1.81-14.94.58-19.85,6.23l-76.87,88.62v136.32ZM21.75,253.53h39.48V124.02H21.75v129.51Z"/>
-              </svg>
+            <div className="relative inline-flex items-center columns-2 justify-center p-3 bg-[#F2871F] text-white rounded-full h-6 w-15" 
+                onClick={() => handleLike(content._id)}
+            >
+              {hasLike ? 
+                <AiFillHeart className="w-4 h-4 mr-1 text-red-500" /> 
+                : (
+                    <svg className={`w-4 h-4 mr-1`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 275.26 275.28">
+                    <path fill='currentColor' d="M215.39,275.28H10.87c-6.01,0-10.87-4.87-10.87-10.88V113.14c0-6.01,4.87-10.87,10.87-10.87h56.27L143.42,14.33c10.29-11.86,26.19-16.88,41.49-13.09l.73.18c13.15,3.25,23.89,12.69,28.73,25.24,4.79,12.43,3.19,26.46-4.27,37.53l-25.69,38.08h49.35c12.57,0,24.32,5.55,32.23,15.23,7.81,9.55,10.89,21.94,8.45,33.99l-18.37,90.75c-3.88,19.14-20.98,33.04-40.68,33.04ZM82.98,253.53h132.41c9.39,0,17.53-6.56,19.36-15.6l18.37-90.75c1.14-5.63-.31-11.43-3.97-15.9-3.77-4.61-9.38-7.25-15.4-7.25h-69.81c-4.02,0-7.71-2.22-9.6-5.77s-1.66-7.85.59-11.19l37.13-55.04c3.54-5.26,4.28-11.65,2.01-17.55-2.32-6.02-7.29-10.37-13.65-11.94l-.73-.18c-7.34-1.81-14.94.58-19.85,6.23l-76.87,88.62v136.32ZM21.75,253.53h39.48V124.02H21.75v129.51Z"/>
+                    </svg>
+                )}
+
               {Array.isArray(likes) ? likes.length : 0}
             </div>
             
@@ -345,7 +379,7 @@ const handleReplyDelete = async (replyId) => {
           <div>
               <div className="flex flex-row items-center justify-between w-full px-4 pb-1 mt-2">
                    <div className="flex flex-row items-center gap-1 py-1">
-                      {likes[comment._id] ? (
+                      {commentLikes ? (
                           <AiFillHeart className="w-3 h-3 text-red-500" onClick={() => handleCommentLike(comment._id)} />
                           ) : (
                           <AiOutlineHeart className="w-3 h-3" onClick={() => handleCommentLike(comment._id)} />
