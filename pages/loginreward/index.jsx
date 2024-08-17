@@ -28,6 +28,8 @@ const Loginreward = () => {
     fetcher
   );
 
+  console.log("loginData:", loginData);
+
   useEffect(() => {
     if (loginData && loginData.receivedPointsToday && !modalOpen) {
       router.push("/");
@@ -75,7 +77,7 @@ const Loginreward = () => {
   };
 
   if (loginDataError) return <div>Error: {loginDataError.message}</div>;
-  if (isLoginDataLoading || loginData) return <Loading />;
+  if (isLoginDataLoading) return <Loading />;
 
 
   return (
