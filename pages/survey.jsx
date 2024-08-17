@@ -6,6 +6,7 @@ import { Line } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend } from 'chart.js';
 import CircularProgress from '@mui/material/CircularProgress';
 import { AppLayout } from "@/themes";
+import Loading from "@/components/Loading";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
@@ -24,34 +25,34 @@ const valueMapping = [
 const Survey = () => {
     const [month, setMonth] = useState(new Date().getMonth() + 1); // Default to current month
     const [year, setYear] = useState(new Date().getFullYear()); // Default to current year
-    const [department, setDepartment] = useState(''); // Default to no department filter
+    const [group, setGroup] = useState(''); // Default to no department filter
 
-    const { data: survey, error: surveyError } = useSWR(() => `/api/survey/report?month=${month}&year=${year}&department=${department}`, fetcher);
+    const { data: survey, error: surveyError, isLoading } = useSWR(() => `/api/survey/report?month=${month}&year=${year}&group=${group}`, fetcher);
 
     const handleMonthChange = (event) => {
         setMonth(event.target.value);
     };
 
     const handleDepartmentChange = (event) => {
-        setDepartment(event.target.value);
+        setGroup(event.target.value);
     };
 
     if (surveyError) return <div>Error loading data</div>;
     if (!survey) return <CircularProgress />;
 
     // Extract unique departments from survey data
-    const departments = new Set();
+    const groups = new Set();
     Object.keys(survey.data).forEach(week => {
         Object.values(survey.data[week]).forEach(surveyWeekData => {
             surveyWeekData.empDetails.forEach(emp => {
-                if (emp.department) { // Ensure department is not undefined or null
-                    departments.add(emp.department);
+                if (emp.group) { // Ensure department is not undefined or null
+                    groups.add(emp.group);
                 }
             });
         });
     });
 
-    const departmentOptions = Array.from(departments).map(dept => (
+    const departmentOptions = Array.from(groups).map(dept => (
         <option key={dept} value={dept}>{dept}</option>
     ));
 
@@ -73,6 +74,9 @@ const Survey = () => {
         datasets
     };
 
+    if (isLoading) return <Loading />;
+    if (!survey) return <div>Error loading data</div>;
+
     return (
         <div className="flex-1 flex-col p-2 mb-20">
             <div className="flex flex-row items-center gap-2">
@@ -93,9 +97,9 @@ const Survey = () => {
                         </option>
                     ))}
                 </select>
-                <label className="text-xs font-bold">Department</label>
+                <label className="text-xs font-bold">Group</label>
                 <select
-                    value={department}
+                    value={group}
                     onChange={handleDepartmentChange}
                     className="w-1/4 border-2 border-gray-300 p-1 rounded-full text-xs outline-none"
                 >

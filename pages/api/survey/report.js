@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     await connectMongoDB();
 
     const { method, query } = req;
-    const { month = new Date().getMonth() + 1, year = new Date().getFullYear(), department = '' } = query;
+    const { month = new Date().getMonth() + 1, year = new Date().getFullYear(), group = '' } = query;
 
     switch (method) {
         case 'GET':
@@ -16,7 +16,7 @@ export default async function handler(req, res) {
                 const startDate = new Date(year, month - 1, 1);
                 const endDate = new Date(year, month, 0, 23, 59, 59); // End of the month
 
-                const empFilter = department ? { department } : {};
+                const empFilter = group ? { group } : {};
 
                 // Aggregate surveys to count how many userId gave each score in each week
                 const surveys = await Survey.aggregate([
@@ -50,7 +50,7 @@ export default async function handler(req, res) {
 
                 const users = await Users.find({ userId: { $in: uniqueUserIds } }).select('userId empId fullname pictureUrl');
                 const empIds = users.map(user => user.empId);
-                const emps = await Emp.find({ empId: { $in: empIds }, ...empFilter }).select('empId department teamGrop');
+                const emps = await Emp.find({ empId: { $in: empIds }, ...empFilter }).select('empId group teamGrop position department branch');
 
                 const empMap = emps.reduce((acc, emp) => {
                     acc[emp.empId] = emp;
@@ -64,7 +64,10 @@ export default async function handler(req, res) {
                         fullname: user.fullname,
                         pictureUrl: user.pictureUrl,
                         teamGrop: empMap[user.empId]?.teamGrop || 'Unknown',
-                        department: empMap[user.empId]?.department || 'Unknown'
+                        department: empMap[user.empId]?.department || 'Unknown',
+                        position: empMap[user.empId]?.position || 'Unknown',
+                        branch: empMap[user.empId]?.branch || 'Unknown',
+                        group: empMap[user.empId]?.group || 'Unknown',
                     };
                     return acc;
                 }, {});
