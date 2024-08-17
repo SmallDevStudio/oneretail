@@ -1,30 +1,23 @@
-"use client";
-import { useState, useEffect } from 'react';
-import { AppLayout } from "@/themes";
+import React, { useState } from "react";
 import useSWR from 'swr';
 import Image from 'next/image';
 import Loading from '@/components/Loading';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import LeaderBoard2 from '@/components/LeaderBoard2';
+import axios from 'axios';
+import { RiInformationFill } from "react-icons/ri";
+import InformationModal from "./InformationModal";
 
-const fetcher = (url) => fetch(url).then((res) => res.json());
+const fetcher = (url) => axios.get(url).then(res => res.data);
 
-export default function LeaderBoard() {
-    const [activeTab, setActiveTab] = useState("leaderboard");
-    const { data: session } = useSession();
-    const { data, error } = useSWR('/api/leaderboard', fetcher);
-    const { data: usersData, error: usersError } = useSWR('/api/users/emp', fetcher);
-
-    const router = useRouter();
-
+const LeaderBoard2 = ({ usersData, loggedInUserId }) => {
     const [selectedTeam, setSelectedTeam] = useState("All");
-
-    if (error || usersError) return <div>Failed to load</div>;
-    if (!data || !usersData) return <Loading />;
-
-    const loggedInUserId = session?.user?.id;
+    const [showModal, setShowModal] = useState(false);
+    const { data, error, isLoading } = useSWR('/api/leaderboard2', fetcher);
+    
+    if (isLoading) return <Loading />;
+    if (!data) return <div>Error {error}</div>;
 
     const filterByTeam = (users, team) => {
         if (team === "All") return users;
@@ -46,47 +39,24 @@ export default function LeaderBoard() {
         others.splice(loggedInUserRank - 3, 1);
     }
 
-    const handleTabClick = (tab) => {
-        setActiveTab(tab);
-        window.history.pushState(null, "", `?tab=${tab}`);
-    };
+    const handleClick = () => {
+        setShowModal(true);
+    }
+
+    const handleClose = () => {
+        setShowModal(false);
+    }
 
     return (
-        <div className='w-full mb-20'>
-            <div className="flex justify-center mt-5">
-                <h1 className="text-[35px] font-black text-[#0056FF]" style={{ fontFamily: "Ekachon" }}>
-                    Leaderboard
-                </h1>
+        <div className="flex flex-col">
+            <div className="flex flex-row w-full items-center justify-center gap-1">
+                <span className="text-2xl font-bold text-center text-[#F68B1F]">ภารกิจพิชิตหัวตาราง</span>
+                <RiInformationFill className="text-[#F68B1F]/70" size={18} 
+                    onClick={() => handleClick()}
+                />
             </div>
-             {/* Tabs */}
-             <div className="flex justify-center mb-4 text-sm">
-                <ul className="flex flex-wrap gap-6">
-                
-                    <li className="me-2">
-                        <Link
-                            href="#"
-                            className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'leaderboard' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
-                            onClick={() => handleTabClick('leaderboard')}
-                        >
-                            Leaderboard
-                        </Link>
-                    </li>
-                    <li className="me-2">
-                        <Link
-                            href="#"
-                            className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'leaderboard2' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
-                            onClick={() => handleTabClick('leaderboard2')}
-                        >
-                            ภารกิจพิชิตหัวตาราง
-                        </Link>
-                    </li>
-                </ul>
-            </div>
-
-            {activeTab === 'leaderboard' && (
-                <>
-            <div className="relative bg-[#0056FF] min-h-[30vh] rounded-b-2xl p-2 shadow-lg">
-                <div className="flex justify-center bg-[#0056FF]">
+            <div className="relative bg-yellow-600/70 min-h-[30vh] rounded-b-2xl p-2 shadow-lg">
+                <div className="flex justify-center">
                     {["All", "Retail", "AL", "TCON"].map(team => (
                         <button 
                             key={team} 
@@ -98,7 +68,7 @@ export default function LeaderBoard() {
                     ))}
                 </div>
 
-                <div className="flex bg-[#0056FF] mb-5 p-5 justify-center text-white min-w-[100px]">
+                <div className="flex mb-5 p-5 justify-center text-white min-w-[100px]">
                     {topThree.length > 1 && (
                         <div className="flex flex-col items-center mt-5">
                             <span className="font-bold truncate" style={{ fontSize: "12px" }}>{topThree[1].fullname}</span>
@@ -224,7 +194,7 @@ export default function LeaderBoard() {
                         const displayRank = index + 4 + (loggedInUserRank > 2 && index >= loggedInUserRank - 3 ? 1 : 0);
                         return (
                             <tr key={user.userId} className='flex w-full p-2 text-[#0056FF]'>
-                                <div className="flex w-full border-2 p-2 rounded-full border-[#F68B1F]/60 items-center bg-gray-200">
+                                <div className="flex w-full border-2 p-2 rounded-full border-[#F68B1F]/60 items-center bg-yellow-700/20">
                                 <td className="w-10 ml-2">
                                     <span className="font-bold">{displayRank}</span>
                                 </td>
@@ -255,20 +225,14 @@ export default function LeaderBoard() {
                     })}
                 </div>
             </table>
-            </>
-            )}
-            {activeTab === 'leaderboard2' && (
-                <LeaderBoard2 
-                    usersData={usersData}
-                    loggedInUserId={loggedInUserId}
-                />
-            )}
+            <InformationModal 
+                isOpen={showModal} 
+                onRequestClose={handleClose}
+                className="z-50"
+                style={{ zIndex: 50 }}
+            />
         </div>
     );
-}
+};
 
-LeaderBoard.getLayout = function getLayout(page) {
-    return <AppLayout>{page}</AppLayout>;
-}
-
-LeaderBoard.auth = true;
+export default LeaderBoard2;
