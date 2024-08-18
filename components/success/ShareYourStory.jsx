@@ -433,7 +433,7 @@ const ShareYourStory = () => {
             </div>
 
             {/* Post Container */}
-            <div className="flex flex-col w-full align-top mt-2 bg-gray-300 min-h-[100vh] text-gray-700">
+            <div className="flex flex-col w-full align-top mt-2 bg-gray-300 min-h-[100vh] text-gray-700 mb-20">
                 {Array.isArray(posts) && posts.map((post, index) => (
                     <div key={index} className="flex flex-col px-2 w-full gap-2 bg-gray-100 py-2 rounded mb-2" id={post?._id}>
                         <div className="flex flex-row align-top items-start">

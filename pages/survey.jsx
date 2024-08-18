@@ -75,7 +75,6 @@ const Survey = () => {
     };
 
     if (isLoading) return <Loading />;
-    if (!survey) return <div>Error loading data</div>;
 
     return (
         <div className="flex-1 flex-col p-2 mb-20">
@@ -109,8 +108,12 @@ const Survey = () => {
             </div>
 
             {/* Chart */}
-            <div>
-                <Line data={chartData} />
+            <div className="flex mt-4 h-[400px]">
+                <Line 
+                    data={chartData}
+                    options={{ responsive: true, maintainAspectRatio: false }}
+                    className="w-full h-1/2"
+                />
             </div>
         </div>
     );

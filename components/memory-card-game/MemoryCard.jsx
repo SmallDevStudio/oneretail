@@ -4,6 +4,12 @@ import styles from '@/styles/memorycardgame.module.css';
 import MemoryModal from '../MemoryModal';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
+import useSWR from 'swr';
+import moment from 'moment'; // เพิ่ม moment สำหรับการตรวจสอบวันที่
+import MemoryNotiModal from '../MemoryNotiModal';
+import { useRouter } from 'next/router';
+
+const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 const shuffleArray = (array) => {
     for (let i = array.length - 1; i > 0; i--) {
@@ -22,8 +28,19 @@ const GameBoard = ({ images }) => {
     const [bestScore, setBestScore] = useState(Infinity);
     const [timeLeft, setTimeLeft] = useState(60); // 60 seconds countdown timer
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [notiModalOpen, setNotiModalOpen] = useState(false);
     const [score, setScore] = useState(0);
+    const [alreadyPlayedToday, setAlreadyPlayedToday] = useState(false); // สถานะว่าผู้เล่นเคยเล่นวันนี้หรือยัง
+
+    const router = useRouter();
     const timerRef = useRef(null);
+
+    const { data, error, isLoading } = useSWR(`/api/games/memorygame/${session?.user.id}`, fetcher);
+
+    useEffect(() => {
+        checkIfPlayedToday();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     useEffect(() => {
         const shuffledImages = shuffleArray([...images, ...images]);
@@ -49,26 +66,59 @@ const GameBoard = ({ images }) => {
         return () => clearInterval(timerRef.current);
     }, []);
 
-    const saveGamePlay = async () => {
+    const checkIfPlayedToday = async () => {
         if (session) {
             const userId = session.user.id;
-            const gameData = {
-                userId,
-                moves,
-                score,
-                timeLeft
-            };
 
             try {
-                const response = await axios.post('/api/memorygame', gameData);
-                console.log(response.data);
+                const response = await axios.get(`/api/games/memorygame/${userId}`);
+                const gamesToday = response.data.data.filter(game => 
+                    moment(game.createdAt).isSame(moment(), 'day')
+                );
+
+                if (gamesToday.length > 0) {
+                    setAlreadyPlayedToday(true);
+                    setNotiModalOpen(true);
+                }
             } catch (error) {
-                console.error('Error saving game play:', error);
+                console.error('Error checking game play:', error);
+            }
+        }
+    };
+
+    
+
+    
+    const saveGamePlay = async () => {
+        if (session) {
+
+            checkIfPlayedToday();
+
+            const userId = session.user.id;
+            if (!alreadyPlayedToday) {
+                const gameData = {
+                    userId,
+                    moves,
+                    score,
+                    timeLeft
+                };
+    
+                try {
+                    const response = await axios.post('/api/games/memorygame', gameData);
+                    console.log(response.data);
+                } catch (error) {
+                    console.error('Error saving game play:', error);
+                }
+            } else {
+                setNotiModalOpen(true);
+                console.log('You have already played today.');
             }
         }
     };
 
     const handleCardClick = (index) => {
+        if (alreadyPlayedToday) return; // หากเล่นแล้ววันนี้จะไม่อนุญาตให้เล่นอีก
+
         if (flippedIndices.length === 1) {
             const firstIndex = flippedIndices[0];
             if (cards[firstIndex] === cards[index]) {
@@ -78,7 +128,6 @@ const GameBoard = ({ images }) => {
                     clearInterval(timerRef.current);
                     saveGamePlay();
                     setIsModalOpen(true);
-                    
                 }
             }
             setFlippedIndices([...flippedIndices, index]);
@@ -94,11 +143,15 @@ const GameBoard = ({ images }) => {
         }
     }, [flippedIndices]);
 
-
     const closeModal = () => {
         setIsModalOpen(false);
         // Redirect to /games after closing the modal
         window.location.href = '/games';
+    };
+
+    const closeNotiModal = () => {
+        setNotiModalOpen(false);
+        router.push('/games');
     };
 
     return (
@@ -125,7 +178,11 @@ const GameBoard = ({ images }) => {
                 </div>
             </div>
             
-            <MemoryModal isOpen={isModalOpen} onRequestClose={closeModal} score={score} />
+            <MemoryModal isOpen={isModalOpen} onRequestClose={closeModal} score={1} />
+            <MemoryNotiModal 
+                isOpen={notiModalOpen} 
+                onRequestClose={closeNotiModal} 
+                message="วันนี้คุณได้คะแนนแล้ว ลองพรุ่งนี้ใหม่นะจ๊ะ" />
         </div>
     );
 };
