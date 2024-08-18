@@ -8,7 +8,7 @@ import LevelModal from "@/components/LevelModal";
 
 const LineProgressBar = dynamic(() => import("@/components/ProfileLineProgressBar"), { ssr: false });
 
-const UserPanel = ({user, level, onExchangeAdd, setLoading, loading}) => {
+const UserPanel = ({user, level, onExchangeAdd, setLoading, loading, coins}) => {
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [IsLevelModal, setIsLevelModal] = useState(false);
     const [conversionRate, setConversionRate] = useState(25);
@@ -16,7 +16,6 @@ const UserPanel = ({user, level, onExchangeAdd, setLoading, loading}) => {
         ? parseFloat((level?.totalPoints / level?.nextLevelRequiredPoints ) * 100)
         : 0;
 
-    const coins = (level?.totalPoints / 25).toFixed(0);
     const openModal = () => setModalIsOpen(true);
     const closeModal = () => setModalIsOpen(false);
 
@@ -80,7 +79,7 @@ const UserPanel = ({user, level, onExchangeAdd, setLoading, loading}) => {
                             คะแนน
                         </span>
                     </div>
-                    <span className="flex font-bold text-[#F2871F]">~ {coins} คอยน์ </span>
+                    <span className="flex font-bold text-[#F2871F]">~ {coins.coins} คอยน์ </span>
 
                     <div className="flex flex-col items-center mt-3">
                         <span className="text-[10px]">

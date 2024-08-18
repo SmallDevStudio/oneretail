@@ -97,7 +97,7 @@ const manager = ['22392', '20569', '56428', '23782',
     
         const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
         const { data: level, error: levelError, mutate } = useSWR(session ? `/api/level/user?userId=${userId}` : null, fetcher);
-        const { data: users, error: usersError } = useSWR('/api/users/emp', fetcher);
+        const { data: coins, error: coinsError, mutate: mutateCoins } = useSWR('/api/coins/user?userId=' + session?.user?.id, fetcher);
     
         useEffect(() => {
             if (status === "loading" || !session || !user) return;
@@ -169,7 +169,8 @@ const manager = ['22392', '20569', '56428', '23782',
     
         const onExchangeAdd = async () => {
             mutate();
-        }
+            mutateCoins();
+        };
     
         if (status === "loading" || !user || !level || loading ) return <Loading />;
         if (userError) return <div>Error loading data</div>;
@@ -182,7 +183,7 @@ const manager = ['22392', '20569', '56428', '23782',
                             <MenuPanel user={user} />
                         </div>
                         <div className="w-full p-5 mt-[-10px]">
-                            <UserPanel user={user} level={level} onExchangeAdd={onExchangeAdd} setLoading={setLoading} loading={loading} />
+                            <UserPanel user={user} level={level} onExchangeAdd={onExchangeAdd} setLoading={setLoading} loading={loading} coins={coins}/>
                         </div>
                         <div className="flex-grow flex items-center justify-center">
                             <MainIconMenu />
