@@ -125,7 +125,7 @@ const UserPanel = ({user, level, onExchangeAdd, setLoading, loading}) => {
             <ExchangeModal
                 isOpen={modalIsOpen}
                 onRequestClose={closeModal}
-                points={level?.totalPoints}
+                points={level?.point}
                 conversionRate={conversionRate}
                 userId={user?.user?.userId}
                 onExchangeAdd={onExchangeAdd}
