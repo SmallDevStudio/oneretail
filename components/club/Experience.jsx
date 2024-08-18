@@ -426,12 +426,14 @@ const Experience = () => {
                                 </div>
                                 <p className="text-[8px]">{moment(experience?.createdAt).fromNow()}</p>
                                 {experience?.tagusers.length > 0 && experience?.tagusers.map((taguser, index) => (
-                                    <div className="flex flex-row w-full items-center gap-1 mb-2 mt-[-5px]" key={index}>
-                                    <PiUserCircleDuotone className="flex text-md"/>
-                                    <div key={index} className="flex w-full">
-                                        <span className="text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
+                                    <>
+                                    <div className="flex flex-row items-center mt-[-5px] gap-1">
+                                        <PiUserCircleDuotone className="text-md"/>
+                                        <div className="flex flex-row w-full items-center gap-1" key={index}>
+                                            <span className="text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
+                                        </div>
                                     </div>
-                                    </div>
+                                    </>
                                 ))}
                             </div>
                         </div>
@@ -509,7 +511,7 @@ const Experience = () => {
                                             {comment?.tagusers.length > 0 && comment?.tagusers.map((taguser, index) => (
                                                 <div className="flex flex-row w-full items-center gap-1 mb-2 mt-[-5px]" key={index}>
                                                 <PiUserCircleDuotone className="flex text-md"/>
-                                                <div key={index} className="flex w-full">
+                                                <div key={index} className="flex flex-row w-full">
                                                     <span className="text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
                                                 </div>
                                                 </div>
@@ -588,7 +590,7 @@ const Experience = () => {
                                                     {reply?.tagusers.length > 0 && reply?.tagusers.map((taguser, index) => (
                                                         <div className="flex flex-row w-full items-center gap-1 mb-2 mt-[-5px]" key={index}>
                                                         <PiUserCircleDuotone className="flex text-md"/>
-                                                        <div key={index} className="flex w-full">
+                                                        <div key={index} className="flex flex-row w-full">
                                                             <span className="text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
                                                         </div>
                                                         </div>
