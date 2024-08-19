@@ -26,6 +26,7 @@ export default async function handler(req, res) {
         content.categories = categories;
         content.subcategories = subcategories;
         content.groups = groups;
+        content.subgroups = subgroups;
         content.publisher = publisher === '' ? false : publisher,
         content.point = point;
         content.coins = coins;

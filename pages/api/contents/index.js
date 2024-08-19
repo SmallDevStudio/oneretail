@@ -17,7 +17,8 @@ export default async function handler(req, res) {
                 .limit(parseInt(limit))
                 .populate('categories')
                 .populate('subcategories')
-                .populate('groups');
+                .populate('groups')
+                .populate('subgroups');
 
             const totalItems = await Content.countDocuments(query);
 
