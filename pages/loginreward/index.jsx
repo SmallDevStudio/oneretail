@@ -28,8 +28,6 @@ const Loginreward = () => {
     fetcher
   );
 
-  console.log("loginData:", loginData);
-
   useEffect(() => {
     if (loginData && loginData.receivedPointsToday && !modalOpen) {
       router.push("/");

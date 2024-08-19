@@ -6,6 +6,7 @@ import ContentReport from "@/components/reports/ContentReport";
 import UsersReport from "@/components/reports/UsersReport";
 import RedeemReport from "@/components/reports/RedeemReport";
 import RegisterReport from "@/components/reports/RegisterReport";
+import LoginReport from "@/components/reports/LoginReport";
 
 
 const Reports = () => {
@@ -17,6 +18,7 @@ const Reports = () => {
             <UsersReport />
             <RedeemReport />
             <RegisterReport />
+            <LoginReport />
         </div>
     );
 };

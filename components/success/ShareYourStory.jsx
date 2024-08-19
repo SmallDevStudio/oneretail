@@ -466,14 +466,11 @@ const ShareYourStory = () => {
                                     )}
                                 </div>
                                 <p className=" text-left text-[8px]">{moment(post?.createdAt).fromNow()}</p>
-                                {post?.tagusers.length > 0 && post?.tagusers.map((taguser, index) => (
-                                    <div className="flex flex-row w-full items-center gap-1 mb-2 mt-[-5px]" key={index}>
-                                        <PiUserCircleDuotone className="flex text-md"/>
-                                        <div key={index} className="flex w-full">
-                                            <span className="text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
-                                        </div>
-                                    </div>
-                                ))}
+                                <div className="inline flex-wrap flex-row text-left gap-1 items-center w-full mt-[-5px]">
+                                    {post?.tagusers.length > 0 && post?.tagusers.map((taguser, index) => (
+                                    <span key={index} className="inline-block text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                         <div className="flex flex-col w-full text-left">

@@ -80,7 +80,6 @@ export default async function handler(req, res) {
         existingReward.day = day;
         existingReward.lastLogin = today;
         existingReward.daysLogged = daysLogged;
-        console.log('Updating existing reward:', existingReward);
         await existingReward.save();
       }
 

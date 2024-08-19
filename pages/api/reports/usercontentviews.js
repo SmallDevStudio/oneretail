@@ -7,6 +7,7 @@ import Category from "@/database/models/Category";
 import Subcategory from "@/database/models/Subcategory";
 import Group from "@/database/models/Group";
 import SupGroup from "@/database/models/SubGroup";
+import ContentComment from "@/database/models/ContentComment";
 
 export default async function handler(req, res) {
     const { method } = req;
@@ -57,6 +58,7 @@ export default async function handler(req, res) {
                     acc[content._id] = content;
                     return acc;
                 }, {});
+
 
                 // Group content views by user
                 let userContentViews = users.map(user => {
