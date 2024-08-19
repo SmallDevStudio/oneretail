@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import useSWR from "swr";
 import axios from "axios";
 import CircularProgress from '@mui/material/CircularProgress';
@@ -17,33 +17,38 @@ const UserContentViews = () => {
     const [loading, setLoading] = useState(false);
     const [progress, setProgress] = useState(0);
 
-    const { data, error, isLoading, mutate } = useSWR(`/api/reports/usercontentviews`, fetcher);
-
     const handleExport = async () => {
         setLoading(true);
         setProgress(0);
-    
+
         try {
             const teamGroupQuery = teamGroup !== 'All' ? `&teamGroup=${teamGroup}` : '';
-            const fetchLimit = limit === '' ? Infinity : parseInt(limit); // Set fetchLimit to Infinity if limit is 'All'
-            const chunkSize = fetchLimit; // Fetch 50 records per chunk
+            const fetchLimit = limit === 'All' ? Infinity : parseInt(limit);
+            const chunkSize = 50; // Fetch 50 records per chunk
             let offset = 0;
             let allData = [];
-    
-            const fetchData = async (limit, offset) => {
-                const response = await fetch(`/api/reports/usercontentviews?limit=${limit}&offset=${offset}${teamGroupQuery}`);
+
+            const fetchData = async (chunkSize, offset) => {
+                const response = await fetch(`/api/reports/usercontentviews?limit=${chunkSize}&offset=${offset}${teamGroupQuery}`);
                 return response.json();
             };
-    
-            while (true) {
-                const { data: chunkData } = await fetchData(chunkSize, offset);
-                if (chunkData.length === 0) break; // If no more data, break the loop
-                allData.push(...chunkData);
-                offset += chunkSize;
-                setProgress(Math.min((offset / fetchLimit) * 100, 100));
-                if (chunkData.length < chunkSize || allData.length >= fetchLimit) break;
+
+            if (limit === 'All') {
+                // Fetch all data at once if limit is 'All'
+                const { data } = await fetchData(fetchLimit, offset);
+                allData = data;
+                setProgress(100);
+            } else {
+                while (true) {
+                    const { data: chunkData } = await fetchData(chunkSize, offset);
+                    if (chunkData.length === 0) break; // If no more data, break the loop
+                    allData.push(...chunkData);
+                    offset += chunkSize;
+                    setProgress(Math.min((offset / fetchLimit) * 100, 100));
+                    if (chunkData.length < chunkSize || allData.length >= fetchLimit) break;
+                }
             }
-    
+
             // Format Data for Rank Report
             const formattedData = allData.map((user, index) => ({
                 rank: index + 1,
@@ -56,7 +61,7 @@ const UserContentViews = () => {
                 group: user.group,
                 position: user.position,
             }));
-    
+
             // Format Data for View Details
             const viewDetailsData = [];
             allData.forEach((user, index) => {
@@ -73,7 +78,7 @@ const UserContentViews = () => {
                     subgroups: '',
                     createdAt: '',
                 });
-    
+
                 // Add content view details for each user
                 user.contentviews.forEach(view => {
                     viewDetailsData.push({
@@ -90,18 +95,18 @@ const UserContentViews = () => {
                     });
                 });
             });
-    
+
             // Create workbook and add sheets
             const wb = XLSX.utils.book_new();
             const wsRankReport = XLSX.utils.json_to_sheet(formattedData);
             const wsViewDetails = XLSX.utils.json_to_sheet(viewDetailsData);
-    
+
             XLSX.utils.book_append_sheet(wb, wsRankReport, "Rank Report");
             XLSX.utils.book_append_sheet(wb, wsViewDetails, "View Details");
-    
+
             // Export to Excel
             XLSX.writeFile(wb, `UserViewsReport_Top${limit}-${teamGroup}.xlsx`);
-    
+
         } catch (err) {
             console.error("Error exporting data: ", err);
         } finally {
@@ -109,11 +114,6 @@ const UserContentViews = () => {
             setProgress(100);
         }
     };
-    
-
-    if (error) return <div>Failed to load</div>;
-    if (isLoading) return <CircularProgress />;
-    if (!data) return <div>No data</div>;
 
     return (
         <div className="p-4 bg-white rounded-2xl border-2 shadow-lg text-sm m-4">
@@ -146,6 +146,7 @@ const UserContentViews = () => {
                     <option value={200}>Top 200</option>
                     <option value={500}>Top 500</option>
                     <option value={1000}>Top 1000</option>
+                    <option value={'All'}>All</option>
                     {/* Add more options as needed */}
                 </select>
             </div>

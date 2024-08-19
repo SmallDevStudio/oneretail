@@ -15,15 +15,9 @@ export default async function handler(req, res) {
       }
       break;
     case "POST":
-      const { title, description, startDate, endDate, startTime, endTime, No, type, position, channel, place, mapLocation, link, note, status, creator } = req.body;
-      console.log('Received form data:', req.body);
-      if (!title || !description || !startDate || !endDate || !creator) {
-        return res.status(400).json({ success: false, message: 'Missing required fields' });
-      }
       try {
-        const newEvent = new Event({ title, description, startDate, endDate, startTime, endTime, No, type, position, channel, place, mapLocation, link, note, status: true, creator });
-        await newEvent.save();
-        res.status(201).json({ success: true, data: newEvent });
+        const event = await Event.create(req.body);
+        res.status(201).json({ success: true, data: event });
       } catch (error) {
         console.error('Error creating event:', error.message);
         res.status(400).json({ success: false });

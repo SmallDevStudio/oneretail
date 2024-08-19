@@ -52,6 +52,7 @@ const ManageEvents = () => {
         startDate: new Date(form.startDate).toISOString(),
         endDate: new Date(form.endDate).toISOString(),
         creator: session.user.id,
+        status: form.status === '' ? 'true' : 'false',
       }
       console.log('Submitting form data:', formdata);
       try {

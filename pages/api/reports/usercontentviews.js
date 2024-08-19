@@ -3,11 +3,6 @@ import Content from "@/database/models/Content";
 import Users from "@/database/models/users";
 import Emp from "@/database/models/emp";
 import ContentViews from "@/database/models/ContentViews";
-import Category from "@/database/models/Category";
-import Subcategory from "@/database/models/Subcategory";
-import Group from "@/database/models/Group";
-import SupGroup from "@/database/models/SubGroup";
-import ContentComment from "@/database/models/ContentComment";
 
 export default async function handler(req, res) {
     const { method } = req;
@@ -16,7 +11,7 @@ export default async function handler(req, res) {
     switch (method) {
         case 'GET':
             try {
-                const { limit = 10, offset = 0, teamGroup } = req.query
+                const { limit, offset, teamGroup } = req.query;
                 
                 // Get all content views
                 const contentViews = await ContentViews.find({}).lean();
@@ -24,16 +19,13 @@ export default async function handler(req, res) {
 
                 // Query users based on teamGroup and only include users who have content views
                 const userQuery = { userId: { $in: userIdsWithViews } };
-                if (teamGroup) {
+                if (teamGroup && teamGroup !== 'All') {
                     const empsWithTeamGroup = await Emp.find({ teamGrop: teamGroup }).lean();
                     const teamGroupEmpIds = empsWithTeamGroup.map(emp => emp.empId);
                     userQuery.empId = { $in: teamGroupEmpIds };
                 }
 
-                let users = await Users.find(userQuery)
-                    .skip(parseInt(offset))
-                    .limit(parseInt(limit))
-                    .lean();
+                let users = await Users.find(userQuery).lean();
 
                 const empIds = users.map(user => user.empId);
 
@@ -93,30 +85,25 @@ export default async function handler(req, res) {
                 // Filter out users with zero views
                 userContentViews = userContentViews.filter(user => user.views > 0);
 
-                // Sort by number of views (descending) and assign ranks
+                // Sort by number of views (descending)
                 userContentViews.sort((a, b) => b.views - a.views);
 
-                // Apply offset and limit to paginate results
-                if (limit === 'All') {
-                    const limitedContentViews = userContentViews;
-
-                    limitedContentViews.forEach((item, index) => {
-                        item.rank = parseInt(offset) + index + 1;
+                // Handle limit and offset
+                if (limit === 'Infinity') {
+                    userContentViews.forEach((item, index) => {
+                        item.rank = index + 1;
                     });
-                    res.status(200).json({ success: true, data: limitedContentViews });
-                    
-                }else{
-                    const limitedContentViews = userContentViews.slice(parseInt(offset), parseInt(offset) + parseInt(limit));
+                    res.status(200).json({ success: true, data: userContentViews });
+                } else {
+                    const numericLimit = parseInt(limit) || 10;
+                    const numericOffset = parseInt(offset) || 0;
+
+                    const limitedContentViews = userContentViews.slice(numericOffset, numericOffset + numericLimit);
                     limitedContentViews.forEach((item, index) => {
-                        item.rank = parseInt(offset) + index + 1;
+                        item.rank = numericOffset + index + 1;
                     });
                     res.status(200).json({ success: true, data: limitedContentViews });
                 }
-
-                // Assign ranks after filtering and slicing
-                
-            
-
                 
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });

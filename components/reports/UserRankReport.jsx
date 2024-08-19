@@ -23,21 +23,29 @@ const UserRankReport = () => {
         try {
             // Ensure that teamGroup is not undefined or null before appending to the query
             const teamGroupQuery = teamGroup ? `&teamGroup=${teamGroup}` : '';
-            let fetchLimit = limit === '' ? Infinity : parseInt(limit); // If limit is 'All', set fetchLimit to Infinity
+            const fetchLimit = limit === 'All' ? Infinity : parseInt(limit); // If limit is 'All', set fetchLimit to Infinity
+            const chunkSize = 50; // Fetch 50 records per chunk
+            let offset = 0;
+            let allData = [];
             const fetchData = async (limit, offset) => {
                 const response = await fetch(`/api/dashboard/rank?limit=${limit}&offset=${offset}${teamGroupQuery}`);
                 return response.json();
             };
-    
-            const allData = [];
-            const chunkSize = parseInt(limit); // ตั้งค่า chunkSize ตามต้องการ
-            let offset = 0;
 
-            while (offset < limit) {
-                const { data: chunkData } = await fetchData(limit, offset);
-                allData.push(...chunkData);
-                offset += chunkSize; // เพิ่ม offset ตาม chunkSize ไม่ใช่ limit
-                setProgress(Math.min((offset / limit) * 100, 100));
+            if (limit === 'All') {
+                // Fetch all data at once if limit is 'All'
+                const { data } = await fetchData(fetchLimit, offset);
+                allData = data;
+                setProgress(100);
+            } else {
+                while (true) {
+                    const { data: chunkData } = await fetchData(chunkSize, offset);
+                    if (chunkData.length === 0) break; // If no more data, break the loop
+                    allData.push(...chunkData);
+                    offset += chunkSize;
+                    setProgress(Math.min((offset / fetchLimit) * 100, 100));
+                    if (chunkData.length < chunkSize || allData.length >= fetchLimit) break;
+                }
             }
     
             // สร้างข้อมูลสำหรับ sheet "Rank Report"
@@ -132,6 +140,7 @@ const UserRankReport = () => {
                         <option value={200}>Top 200</option>
                         <option value={500}>Top 500</option>
                         <option value={1000}>Top 1000</option>
+                        <option value={'All'}>All</option>
 
                         {/* Add more options as needed */}
                     </select>

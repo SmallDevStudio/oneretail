@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     switch (method) {
         case 'GET':
             try {
-                const { limit = 10, offset = 0, teamGroup } = req.query;
+                const { limit, offset, teamGroup } = req.query;
 
                 const points = await Point.find({ type: 'earn' });
                 const userPoints = points.reduce((acc, point) => {
@@ -63,14 +63,24 @@ export default async function handler(req, res) {
                 leaderboard.sort((a, b) => b.totalPoints - a.totalPoints);
 
                 // Apply offset and limit to paginate results
-                const limitedLeaderboard = leaderboard.slice(parseInt(offset), parseInt(offset) + parseInt(limit));
+                 // Handle limit and offset
+                 if (limit === 'Infinity') {
+                    leaderboard.forEach((item, index) => {
+                        item.rank = index + 1;
+                    });
+                    res.status(200).json({ success: true, data: leaderboard });
+                } else {
+                    const numericLimit = parseInt(limit) || 10;
+                    const numericOffset = parseInt(offset) || 0;
 
-                // Assign ranks after filtering and slicing
-                limitedLeaderboard.forEach((item, index) => {
-                    item.rank = parseInt(offset) + index + 1;
-                });
+                    const limitedContentViews = leaderboard.slice(numericOffset, numericOffset + numericLimit);
+                    limitedContentViews.forEach((item, index) => {
+                        item.rank = numericOffset + index + 1;
+                    });
+                    res.status(200).json({ success: true, data: limitedContentViews });
+                }
 
-                res.status(200).json({ success: true, data: limitedLeaderboard });
+                
             } catch (error) {
                 console.error('Error fetching rank data:', error);
                 res.status(400).json({ success: false, error: error.message });
