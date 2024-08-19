@@ -27,7 +27,8 @@ export default async function handler(req, res) {
       .sort({ createdAt: -1 })
       .populate('categories')
       .populate('subcategories')
-      .populate('groups');
+      .populate('groups')
+      .populate('subgroups');
 
     if (contents.length === 0) {
       return res.status(200).json({ success: true, data: [] });

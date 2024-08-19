@@ -7,18 +7,28 @@ import ReactPlayer from "react-player";
 const LearnFeed2 = ({ contents }) => {
     const { data: session } = useSession();
     // Get unique group names and add "All"
-    const groups = ["All", ...new Set(contents.map(content => content.groups.name))];
+    const groups = ["All", ...new Set(contents.map(content => content.groups && content.groups.name ? content.groups.name : null).filter(Boolean))];
+
 
     const [selectedGroup, setSelectedGroup] = useState("All");
     const [selectedSubGroup, setSelectedSubGroup] = useState("All");
     const [subGroups, setSubGroups] = useState([]);
     const [videoUrl, setVideoUrl] = useState(null);
+    console.log(selectedGroup);
 
     useEffect(() => {
-        const filteredContents = selectedGroup === "All" ? contents : contents.filter(content => content.groups.name === selectedGroup);
-        const uniqueSubGroups = ["All", ...new Set(filteredContents.flatMap(content => content.subgroups ? content.subgroups.map(subgroup => subgroup.name) : []))];
+        const filteredContents = selectedGroup === "All"
+            ? contents
+            : contents.filter(content => content.groups && content.groups.name === selectedGroup);
+    
+        const uniqueSubGroups = ["All", ...new Set(filteredContents.map(content =>
+            content.subgroups && content.subgroups.name ? content.subgroups.name : null
+        ).filter(Boolean))];
+    
+        console.log("Unique SubGroups:", uniqueSubGroups); // ตรวจสอบผลลัพธ์ของ uniqueSubGroups
+    
         setSubGroups(uniqueSubGroups);
-
+    
         if (filteredContents.length > 0) {
             const randomIndex = Math.floor(Math.random() * filteredContents.length);
             setVideoUrl(filteredContents[randomIndex].slug);
@@ -28,8 +38,10 @@ const LearnFeed2 = ({ contents }) => {
     }, [selectedGroup, contents]);
 
     const filteredContents = contents.filter(content => 
-        (selectedGroup === "All" || content.groups.name === selectedGroup) &&
-        (selectedSubGroup === "All" || content.subgroups && content.subgroups.some(subgroup => subgroup.name === selectedSubGroup))
+        (selectedGroup === "All" || (content.groups && content.groups.name === selectedGroup)) &&
+        (selectedSubGroup === "All" || (Array.isArray(content.subgroups) 
+            ? content.subgroups.some(subgroup => subgroup.name === selectedSubGroup) 
+            : content.subgroups && content.subgroups.name === selectedSubGroup))
     );
 
     return (
@@ -43,7 +55,7 @@ const LearnFeed2 = ({ contents }) => {
                     {groups.map(group => (
                         <li
                             key={group}
-                            className={`cursor-pointer px-2 py-1 rounded-xl text-nowrap ${selectedGroup === group ? "bg-gray-500 text-white" : "bg-gray-300 text-black"}`}
+                            className={`cursor-pointer px-2 py-1 rounded-xl text-nowrap font-bold ${selectedGroup === group ? "bg-[#0056FF] text-white" : "bg-[#0056FF]/20 text-black"}`}
                             onClick={() => {
                                 setSelectedGroup(group);
                                 setSelectedSubGroup("All");
@@ -56,15 +68,15 @@ const LearnFeed2 = ({ contents }) => {
                 <div className="absolute top-0 right-0 w-10 h-full bg-gradient-to-l from-white"></div>
             </div>
             {subGroups.length > 1 && (
-                <div className="relative">
-                    <ul className="flex flex-row w-full rounded-xl p-1 gap-5 overflow-x-auto overflow-hidden text-sm mb-2 scrollbar-hide" style={{
+                <div className="relative px-5">
+                    <ul className="flex flex-row w-full rounded-xl p-1 gap-5 overflow-x-auto overflow-hidden text-xs mb-2 scrollbar-hide" style={{
                         scrollbarWidth: "none",
                     }}
                     >
                         {subGroups.map(subGroup => (
                             <li
                                 key={subGroup}
-                                className={`cursor-pointer px-2 py-1 rounded-xl text-nowrap ${selectedSubGroup === subGroup ? "bg-gray-500 text-white" : "bg-gray-300 text-black"}`}
+                                className={`cursor-pointer px-2 py-0.5 rounded-xl text-nowrap ${selectedSubGroup === subGroup ? "bg-[#F68B1F] text-white" : "bg-[#F68B1F]/20 text-black"}`}
                                 onClick={() => setSelectedSubGroup(subGroup)}
                             >
                                 {subGroup}
