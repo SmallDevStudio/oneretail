@@ -14,8 +14,7 @@ const LearnFeed2 = ({ contents }) => {
     const [selectedSubGroup, setSelectedSubGroup] = useState("All");
     const [subGroups, setSubGroups] = useState([]);
     const [videoUrl, setVideoUrl] = useState(null);
-    console.log(selectedGroup);
-
+    
     useEffect(() => {
         const filteredContents = selectedGroup === "All"
             ? contents
@@ -24,9 +23,6 @@ const LearnFeed2 = ({ contents }) => {
         const uniqueSubGroups = ["All", ...new Set(filteredContents.map(content =>
             content.subgroups && content.subgroups.name ? content.subgroups.name : null
         ).filter(Boolean))];
-    
-        console.log("Unique SubGroups:", uniqueSubGroups); // ตรวจสอบผลลัพธ์ของ uniqueSubGroups
-    
         setSubGroups(uniqueSubGroups);
     
         if (filteredContents.length > 0) {
