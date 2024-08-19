@@ -14,7 +14,7 @@ const LearnFeed2 = ({ contents }) => {
     const [selectedSubGroup, setSelectedSubGroup] = useState("All");
     const [subGroups, setSubGroups] = useState([]);
     const [videoUrl, setVideoUrl] = useState(null);
-    
+
     useEffect(() => {
         const filteredContents = selectedGroup === "All"
             ? contents
@@ -63,7 +63,7 @@ const LearnFeed2 = ({ contents }) => {
                 </ul>
                 <div className="absolute top-0 right-0 w-10 h-full bg-gradient-to-l from-white"></div>
             </div>
-            {subGroups.length > 1 && (
+            {selectedGroup !== "All" && subGroups.length > 1 && (
                 <div className="relative px-5">
                     <ul className="flex flex-row w-full rounded-xl p-1 gap-5 overflow-x-auto overflow-hidden text-xs mb-2 scrollbar-hide" style={{
                         scrollbarWidth: "none",
