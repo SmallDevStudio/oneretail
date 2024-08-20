@@ -64,21 +64,20 @@ const LearnFeed2 = ({ contents }) => {
                 <div className="absolute top-0 right-0 w-10 h-full bg-gradient-to-l from-white"></div>
             </div>
             {selectedGroup !== "All" && subGroups.length > 1 && (
-                <div className="relative px-5">
-                    <ul className="flex flex-row w-full rounded-xl p-1 gap-5 overflow-x-auto overflow-hidden text-xs mb-2 scrollbar-hide" style={{
-                        scrollbarWidth: "none",
-                    }}
+                <div className="flex px-5 justify-center w-full">
+                    <select 
+                        name="subgroup" 
+                        id="subgroup"
+                        className="w-1/2 rounded-xl p-0.5 text-black mb-2 border text-xs font-semibold bg-gray-200"
+                        onChange={(e) => {
+                            setSelectedSubGroup(e.target.value);
+                        }}
+                        value={selectedSubGroup}
                     >
-                        {subGroups.map(subGroup => (
-                            <li
-                                key={subGroup}
-                                className={`cursor-pointer px-2 py-0.5 rounded-xl text-nowrap ${selectedSubGroup === subGroup ? "bg-[#F68B1F] text-white" : "bg-[#F68B1F]/20 text-black"}`}
-                                onClick={() => setSelectedSubGroup(subGroup)}
-                            >
-                                {subGroup}
-                            </li>
+                        {subGroups.map(subgroup => (
+                            <option key={subgroup} value={subgroup}>{subgroup}</option>
                         ))}
-                    </ul>
+                        </select>
                     <div className="absolute top-0 right-0 w-10 h-full bg-gradient-to-l from-white"></div>
                 </div>
             )}
