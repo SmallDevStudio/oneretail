@@ -596,8 +596,8 @@ const ShareYourStory = () => {
                                     </div>
 
                                     {showReply === comment._id && Array.isArray(comment.reply) && comment.reply.map((reply, replyIndex) => (
-                                        <div key={replyIndex} className="flex flex-col w-5/7 justify-end bg-black/10 rounded-lg px-2 pb-2 ml-4 mb-1">
-                                            <div className="flex flex-row items-center px-2 w-full gap-2 justify-end bg-black/10 rounded-lg">
+                                        <div key={replyIndex} className="flex flex-col w-5/7 justify-end bg-gray-400 rounded-lg px-2 pb-2 ml-4 mb-1">
+                                            <div className="flex flex-row items-center px-2 w-full gap-2 justify-end bg-gray-400 rounded-lg">
                                                 <div className="flex items-center justify-center align-top w-[25px]">
                                                     <Image
                                                         src={reply?.user?.pictureUrl}
