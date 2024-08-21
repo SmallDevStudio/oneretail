@@ -8,7 +8,7 @@ const Article = () => {
     const { id } = router.query;
 
     return (
-        <div className="flex bg-black/40 min-h-[100vh]">
+        <div className="flex bg-black/40 min-h-[100vh] mb-20">
             <ArticleView articleId={id} />
         </div>
     );

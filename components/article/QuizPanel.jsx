@@ -10,7 +10,6 @@ const QuizPanel = ({ quiz, handleAnswer }) => {
     };
 
     const handleSubmit = () => {
-        console.log("Selected option:", selectedOption);
         // Check if an option is selected
         if (selectedOption !== null) {
             const isCorrect = selectedOption === parseInt(quiz.correctAnswer); // Ensure correctAnswer is an integer

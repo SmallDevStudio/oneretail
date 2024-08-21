@@ -20,6 +20,7 @@ import Swal from "sweetalert2";
 import CommentInput from "../comments/CommentInput";
 import ReplyInput from "../comments/ReplyInput";
 import ImageGallery from "../club/ImageGallery";
+import sendLineMessage from "@/lib/sendLineMessage";
 
 moment.locale('th');
 
@@ -54,11 +55,11 @@ const ArticleView = ({ articleId }) => {
             setComments(data.data.comments);
             setQuiz(data.data.quiz);
             const initialLikes = {
-                [data.data._id]: data.data.likes.some(like => like.userId === session?.user?.id),
+                [data.data._id]: data.data.likes.some(like => like.userId === userId),
                 ...data.data.comments.reduce((acc, comment) => {
-                    acc[comment._id] = comment.likes.some(like => like.userId === session?.user?.id);
+                    acc[comment._id] = comment.likes.some(like => like.userId === userId);
                     comment.replies.forEach(reply => {
-                        acc[reply._id] = reply.likes.some(like => like.userId === session?.user?.id);
+                        acc[reply._id] = reply.likes.some(like => like.userId === userId);
                     });
                     return acc;
                 }, {})
@@ -67,22 +68,23 @@ const ArticleView = ({ articleId }) => {
         },
     });
 
-    const { data: useAnswer, error: answerError, isLoading: answerLoading, mutate: answerMutate } = useSWR(`/api/articles/quiz/answers?articleId=${articleId}`, fetcher);
+    const { data: useAnswer, error: answerError, isLoading: answerLoading, mutate: answerMutate } = useSWR(`/api/articles/quiz/answers?articleId=${articleId}&userId=${userId}`, fetcher);
 
     useEffect(() => {
         if (useAnswer && Array.isArray(useAnswer.data)) {
-          // Check if any item in the answers array has `answer: true`
-          const hasTrueAnswer = useAnswer.data.some((item) => item.answer === true);
-          setHasAnswer(hasTrueAnswer);
+            const hasAnswer = useAnswer.data.some(answer => answer.userId === userId, answer => answer.isAnswer === true);
+            setHasAnswer(hasAnswer);
+        }else{
+            return
         }
-      }, [useAnswer]);
+      }, [userId, useAnswer]);
 
 
     const handleAnswer = async (answer) => {
         const isCorrect = {
             articleId,
             questionId: quiz._id,
-            userId: session?.user?.id,
+            userId: userId,
             isAnswer: answer.isAnswer,
             answer: answer.answer,
             point: article?.point
@@ -104,6 +106,8 @@ const ArticleView = ({ articleId }) => {
                 });
 
                 if (resPoint.data.success) {
+                    // บันทึกคำตอบของผู้ใช้
+                    answerMutate();
                     setShowModal(true);
                 }
 
@@ -356,7 +360,7 @@ const ArticleView = ({ articleId }) => {
         setCurrentDialog(null);
     };
 
-   if (!data || !useAnswer) return <Loading />;
+   if (answerLoading || answerLoading) return <Loading />;
    if (error || answerError) return <div>Failed to load</div>;
 
     return (
@@ -391,8 +395,8 @@ const ArticleView = ({ articleId }) => {
                                     className=""
                                     loading="lazy"
                                     style={{
-                                        width: '100%',
-                                        height: '100%',
+                                        width: 'auto',
+                                        height: 'auto',
                                     }}
                                 />
                                 ): (

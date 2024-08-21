@@ -557,7 +557,7 @@ const ShareYourStory = () => {
                                             ))}
                                         </div>
                                     </div>
-                                    <div className="flex flex-col w-full">
+                                    <div className="flex flex-col px-1 w-full">
                                         <p className="text-xs text-left px-1">{comment?.comment}</p>
                                         {comment?.medias.length > 0 && (
                                             <ImageGallery medias={comment.medias} />

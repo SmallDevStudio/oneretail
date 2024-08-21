@@ -30,8 +30,8 @@ export default async function handler(req, res) {
 
         case "GET":
             try {
-                const { articleId } = req.query;
-                const articleAnswers = await ArticleAnswer.find({ articleId }).sort({ createdAt: -1 });
+                const { articleId, userId } = req.query;
+                const articleAnswers = await ArticleAnswer.find({ articleId, userId }).sort({ createdAt: -1 });
 
                 res.status(200).json({ success: true, data: articleAnswers });
             } catch (error) {
