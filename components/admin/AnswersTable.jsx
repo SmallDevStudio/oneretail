@@ -65,9 +65,6 @@ const AnswersTable = () => {
             const start = startDate ? startDate.toISOString() : null;
             const end = endDate ? endDate.toISOString() : null;
 
-            console.log('Start Date:', start);
-            console.log('End Date:', end);
-    
             while (hasMore) {
                 const response = await axios.get('/api/answers', {
                     params: {
@@ -88,10 +85,7 @@ const AnswersTable = () => {
                     hasMore = false;
                 }
             }
-    
-            // หลังจากดึงข้อมูลเสร็จ ตรวจสอบจำนวนข้อมูลที่ได้
-            console.log('Total data fetched:', allData.length);
-    
+
             const dataToExport = allData.map((item) => ({
                 id: item._id,
                 fullname: item.user?.fullname || 'N/A',
@@ -102,8 +96,6 @@ const AnswersTable = () => {
                 isCorrectText: item.isCorrect ? 'ถูก' : 'ผิด',
                 CreatedAt: moment(item.timestamp).format('LLL'),
             }));
-    
-            console.log('Data to Export:', dataToExport); // ตรวจสอบข้อมูลก่อนการ export
     
             if (dataToExport.length === 0) {
                 console.error('No data available to export');
