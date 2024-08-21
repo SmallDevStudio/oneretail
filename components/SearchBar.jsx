@@ -9,8 +9,6 @@ const SearchBar = () => {
     const [results, setResults] = useState([]);
     const router = useRouter();
 
-    console.log(results);
-
     useEffect(() => {
         if (query.length > 0) {
             axios.get(`/api/contents/search?search=${query}`)
