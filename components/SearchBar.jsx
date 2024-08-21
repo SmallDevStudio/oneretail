@@ -9,6 +9,8 @@ const SearchBar = () => {
     const [results, setResults] = useState([]);
     const router = useRouter();
 
+    console.log(results);
+
     useEffect(() => {
         if (query.length > 0) {
             axios.get(`/api/contents/search?search=${query}`)
@@ -82,9 +84,11 @@ const SearchBar = () => {
                                                 <div className="bg-[#0056FF] rounded-full px-2 text-white">
                                                     <span className="text-xs">{result.subcategories.title}</span>
                                                 </div>
-                                                <div className="bg-yellow-600 rounded-full px-2 text-white">
-                                                    <span className="text-xs">{result.groups.name}</span>
-                                                </div>
+                                                {result.groups && (
+                                                    <div className="bg-yellow-600 rounded-full px-2 text-white">
+                                                        <span className="text-xs">{result.groups.name}</span>
+                                                    </div>
+                                                )}
                                                 {result.subgroups && (
                                                     <div className="bg-green-400 rounded-full px-2 text-white">
                                                         <span className="text-xs">{result.subgroups.name}</span>
