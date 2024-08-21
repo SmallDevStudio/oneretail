@@ -35,6 +35,9 @@ const ShareYourStory = () => {
     const [likes, setLikes] = useState({});
     const [checkError, setCheckError] = useState(null);
 
+    console.log(showComments);
+    console.log(posts);
+
     const { data, error, mutate } = useSWR('/api/posts', fetcher, {
         onSuccess: (data) => {
             setPosts(data.data);
@@ -513,8 +516,8 @@ const ShareYourStory = () => {
                                 </div>
                             </div>
 
-                            {showComments[post._id] && Array.isArray(post.comments) && post.comments.map((comment, commentIndex) => (
-                                <div key={commentIndex} className="flex flex-col w-full bg-gray-200 rounded-lg mt-2 ml-2 text-left">
+                            {showComments === post._id && Array.isArray(post.comments) && post.comments.map((comment, commentIndex) => (
+                                <div key={commentIndex} className="flex flex-col w-full bg-gray-300 rounded-lg mt-2 ml-2">
                                     <div className="flex flex-row items-center px-2 w-full gap-2 rounded-lg mt-1">
                                         <div className="flex items-center justify-center align-top w-[25px]">
                                             <Image
@@ -543,19 +546,19 @@ const ShareYourStory = () => {
                                                     </div>
                                                 )}
                                             </div>
-                                            <p className="text-[8px]">{moment(comment?.createdAt).fromNow()}</p>
+                                            <p className="text-[8px] text-left">{moment(comment?.createdAt).fromNow()}</p>
                                             {comment?.tagusers.length > 0 && comment?.tagusers.map((taguser, index) => (
                                                 <div className="flex flex-row w-full items-center gap-1 mb-2 mt-[-5px]" key={index}>
-                                                    <PiUserCircleDuotone className="flex text-md"/>
-                                                    <div key={index} className="flex w-full">
-                                                        <span className="text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
-                                                    </div>
+                                                <PiUserCircleDuotone className="flex text-md"/>
+                                                <div key={index} className="flex flex-row w-full">
+                                                    <span className="text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
+                                                </div>
                                                 </div>
                                             ))}
                                         </div>
                                     </div>
                                     <div className="flex flex-col w-full">
-                                        <p className="text-xs ml-2">{comment?.comment}</p>
+                                        <p className="text-xs text-left px-1">{comment?.comment}</p>
                                         {comment?.medias.length > 0 && (
                                             <ImageGallery medias={comment.medias} />
                                         )}
@@ -585,16 +588,16 @@ const ShareYourStory = () => {
                                             </div>
                                             <div className="flex flex-row items-center gap-2">
                                                 <span className="text-xs cursor-pointer" onClick={() => setShowReply(showReply !== comment._id ? comment._id : null)}>
-                                                    {showReply[comment._id] ? 'ซ่อนความคิดเห็น' : 'ดูความคิดเห็น'}
+                                                    {showReply === comment._id ? 'ซ่อนความคิดเห็น' : 'ดูความคิดเห็น'}
                                                 </span>
                                                 <span className="text-xs">{Array.isArray(comment.reply) ? comment.reply.length : 0}</span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    {showReply[comment._id] && Array.isArray(comment.reply) && comment.reply.map((reply, replyIndex) => (
-                                        <div key={replyIndex} className="flex flex-col w-5/7 justify-end bg-gray-300 rounded-lg px-2 pb-2 ml-4 mb-1">
-                                            <div className="flex flex-row items-center px-2 py-1 w-full gap-2 justify-end rounded-lg ">
+                                    {showReply === comment._id && Array.isArray(comment.reply) && comment.reply.map((reply, replyIndex) => (
+                                        <div key={replyIndex} className="flex flex-col w-5/7 justify-end bg-black/10 rounded-lg px-2 pb-2 ml-4 mb-1">
+                                            <div className="flex flex-row items-center px-2 w-full gap-2 justify-end bg-black/10 rounded-lg">
                                                 <div className="flex items-center justify-center align-top w-[25px]">
                                                     <Image
                                                         src={reply?.user?.pictureUrl}
@@ -626,7 +629,7 @@ const ShareYourStory = () => {
                                                     {reply?.tagusers.length > 0 && reply?.tagusers.map((taguser, index) => (
                                                         <div className="flex flex-row w-full items-center gap-1 mb-2 mt-[-5px]" key={index}>
                                                         <PiUserCircleDuotone className="flex text-md"/>
-                                                        <div key={index} className="flex w-full">
+                                                        <div key={index} className="flex flex-row w-full">
                                                             <span className="text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
                                                         </div>
                                                         </div>
@@ -640,9 +643,9 @@ const ShareYourStory = () => {
                                             <div className="flex flex-row items-center gap-2 justify-between pl-10 pr-1 mt-1 w-full">
                                                 <div className="flex flex-row items-center gap-2">
                                                     {likes[reply._id] ? (
-                                                        <AiFillHeart className="w-3 h-3 text-red-500" onClick={() => handleReplyLike(reply._id, comment.postId)} />
+                                                        <AiFillHeart className="w-3 h-3 text-red-500" onClick={() => handleReplyLike(reply._id, comment.experienceId)} />
                                                     ) : (
-                                                        <AiOutlineHeart className="w-3 h-3" onClick={() => handleReplyLike(reply._id, comment.postId)} />
+                                                        <AiOutlineHeart className="w-3 h-3" onClick={() => handleReplyLike(reply._id, comment.experienceId)} />
                                                     )}
                                                     <span className="text-sm">
                                                         {Array.isArray(reply?.likes)? reply?.likes?.length : 0}
