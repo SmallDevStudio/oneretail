@@ -63,7 +63,7 @@ const ImageGallery = ({ medias }) => {
                         <ReactPlayer
                             url={medias[0].url}
                             width="100%"
-                            height="230px"
+                            height="auto"
                             playing={playing}
                             controls={controlsVisible}
                         />
