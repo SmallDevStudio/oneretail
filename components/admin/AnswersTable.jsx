@@ -3,9 +3,11 @@ import axios from 'axios';
 import { Button, MenuItem, Select, FormControl, InputLabel, TextField, LinearProgress, Box } from '@mui/material';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
-import moment from 'moment-timezone';
+import moment from 'moment';
 import 'moment/locale/th';
 import Loading from '../Loading';
+
+moment.locale('th');
 
 const AnswersTable = () => {
     const [rows, setRows] = useState([]);
@@ -58,39 +60,56 @@ const AnswersTable = () => {
             let allData = [];
             let currentPage = 1;
             let hasMore = true;
+    
+            // ตรวจสอบค่า startDate และ endDate
+            const start = startDate ? startDate.toISOString() : null;
+            const end = endDate ? endDate.toISOString() : null;
 
+            console.log('Start Date:', start);
+            console.log('End Date:', end);
+    
             while (hasMore) {
                 const response = await axios.get('/api/answers', {
                     params: {
+                        startDate: start,
+                        endDate: end,
                         page: currentPage,
-                        pageSize: 100, // ดึงข้อมูลทีละ 100 เรคคอร์ด
-                        startDate: startDate ? startDate.toISOString() : null,
-                        endDate: endDate ? endDate.toISOString() : null,
+                        pageSize: 100, // เพิ่มขนาดการดึงข้อมูลในแต่ละรอบ
                     },
                 });
-
-                if (response.data.data.length > 0) {
-                    allData = allData.concat(response.data.data);
-                    currentPage++;
+    
+                const fetchedData = response.data.data;
+    
+                if (fetchedData.length > 0) {
+                    allData = allData.concat(fetchedData);
                     setProgress(Math.min(100, (allData.length / total) * 100));
+                    currentPage += 1;
                 } else {
                     hasMore = false;
                 }
             }
-
+    
+            // หลังจากดึงข้อมูลเสร็จ ตรวจสอบจำนวนข้อมูลที่ได้
+            console.log('Total data fetched:', allData.length);
+    
             const dataToExport = allData.map((item) => ({
-                ...item,
                 id: item._id,
+                fullname: item.user?.fullname || 'N/A',
+                empId: item.user?.empId || 'N/A',
                 questionText: item.questionId.question,
-                correctAnswer: item.questionId.correctAnswer,
                 answerText: item.questionId.options[item.answer],
                 correctAnswerText: item.questionId.options[item.questionId.correctAnswer],
                 isCorrectText: item.isCorrect ? 'ถูก' : 'ผิด',
-                timestamp: moment(item.createdAt).local('th').format('LLL'),
-                fullname: item.user?.fullname || 'N/A',
-                empId: item.user?.empId || 'N/A',
+                CreatedAt: moment(item.timestamp).format('LLL'),
             }));
-
+    
+            console.log('Data to Export:', dataToExport); // ตรวจสอบข้อมูลก่อนการ export
+    
+            if (dataToExport.length === 0) {
+                console.error('No data available to export');
+                return;
+            }
+    
             const worksheet = XLSX.utils.json_to_sheet(dataToExport);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Answers");

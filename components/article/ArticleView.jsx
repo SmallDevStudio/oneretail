@@ -20,7 +20,6 @@ import Swal from "sweetalert2";
 import CommentInput from "../comments/CommentInput";
 import ReplyInput from "../comments/ReplyInput";
 import ImageGallery from "../club/ImageGallery";
-import sendLineMessage from "@/lib/sendLineMessage";
 
 moment.locale('th');
 

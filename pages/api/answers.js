@@ -26,11 +26,13 @@ export default async function handler(req, res) {
         dateFilter['$lte'] = new Date(endDate);
       }
 
-      const filter = startDate || endDate ? { createdAt: dateFilter } : {};
+      const filter = startDate || endDate ? { timestamp: dateFilter } : {};
+
+      console.log('Filter being used:', filter);
 
       const answers = await Answer.find(filter)
         .populate('questionId')
-        .sort({ createdAt: -1 })  // Ensure sorting by createdAt in descending order
+        .sort({ timestamp: -1 })  // เปลี่ยนจาก createdAt เป็น timestamp
         .skip(skip)
         .limit(limit);
 
@@ -45,6 +47,8 @@ export default async function handler(req, res) {
       });
 
       const answersWithUserDetails = await Promise.all(userPromises);
+
+      console.log('Answers fetched:', answersWithUserDetails.length);
 
       res.status(200).json({ success: true, data: answersWithUserDetails, total: totalAnswers });
     } catch (error) {
