@@ -7,39 +7,37 @@ export default async function handler(req, res) {
 
     await connectMongoDB();
 
-    if (method !== 'PUT') {
-        return res.status(405).json({ success: false, error: 'Method not allowed' });
-    }
-    
-    try {
-      const { title, description, categories, subcategories, groups,subgroups, publisher, point, coins, tags, pinned, recommend } = req.body;
+    switch (method) {
+        case "GET":
+            try {
+                const content = await Content.findById(id)
+                    .populate("categories")
+                    .populate("subcategories")
+                    .populate("groups")
+                    .populate("subgroups");
 
-        const content = await Content.findById(id);
+                res.status(200).json(content);
+            } catch (error) {
+                res.status(400).json({ success: false, error: error.message });
+            }
+         case "PUT":
+            try {
+                const data = req.body;
 
-        if (!content) {
-          return res.status(404).json({ success: false, error: 'Content not found' });
-        }
+                // ตรวจสอบค่าที่จะอัปเดตให้ถูกต้อง
+                if (!data.categories) data.categories = null;
+                if (!data.subcategories) data.subcategories = null;
+                if (!data.groups) data.groups = null;
+                if (!data.subgroups) data.subgroups = null;
 
-        // Update content fields, excluding likes
-        content.title = title;
-        content.description = description;
-        content.categories = categories;
-        content.subcategories = subcategories;
-        content.groups = groups;
-        content.subgroups = subgroups;
-        content.publisher = publisher === '' ? false : publisher,
-        content.point = point;
-        content.coins = coins;
-        content.tags = typeof tags === 'string' ? tags.split(' ').filter(tag => tag) : tags; // Convert space-separated string to array
-        content.pinned = pinned === '' ? false : pinned,
-        content.recommend = recommend === '' ? false : recommend
-        
-        // Save the updated content
-        await content.save();
-
-        res.status(200).json({ success: true, data: content });
-    } catch (error) {
-        console.error('Error updating content:', error);
-        res.status(400).json({ success: false, error: error.message });
+                const content = await Content.findByIdAndUpdate(id, data, { new: true });
+                res.status(201).json(content);
+            } catch (error) {
+                res.status(400).json({ success: false, error: error.message });
+            }
+            break;
+        default:
+            res.status(400).json({ success: false, error: "Invalid request method" });
+            break;
     }
 }

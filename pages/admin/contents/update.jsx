@@ -12,9 +12,9 @@ const UpdateContents = () => {
     const { id } = router.query;
     const [contents, setContents] = useState(null);
 
-    const { data, error } = useSWR(() => id ? `/api/content/${id}` : null, fetcher, {
+    const { data, error } = useSWR(() => id ? `/api/content/edit/${id}` : null, fetcher, {
         onSuccess: (data) => {
-            setContents(data.data);
+            setContents(data);
         },
     });
 

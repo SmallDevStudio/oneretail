@@ -5,6 +5,7 @@ import Alert from "@/lib/notification/Alert";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { IoIosArrowBack } from "react-icons/io";
+import Swal from "sweetalert2";
 
 const FormEdit = ({ initialData }) => {
     const [formData, setFormData] = useState({
@@ -78,20 +79,24 @@ const FormEdit = ({ initialData }) => {
         try {
             const updatedFormData = {
                 ...formData,
-                tags: typeof formData.tags === 'string' ? formData.tags.split(' ').filter(tag => tag) : formData.tags
+                tags: typeof formData.tags === 'string' ? formData.tags.split(' ').filter(tag => tag) : formData.tags,
+                categories: formData.categories || null,
+                subcategories: formData.subcategories || null,
+                groups: formData.groups || null,
+                subgroups: formData.subgroups || null,
             };
 
-            console.log('update:', updatedFormData);
             const response = await axios.put(`/api/content/edit/${formData._id}`, updatedFormData);
-            if (response.data.success) {
-                new Alert("สำเร็จ", "อัปเดตข้อมูลเรียบร้อย", "success");
+            
+            if (response.data) {
+                Swal.fire("สำเร็จ", "อัปเดตข้อมูลเรียบร้อย", "success");
                 router.push('/admin/contents');
             } else {
-                new Alert("ผิดพลาด", "อัปเดตข้อมูลไม่สำเร็จ", "error");
+                Swal.fire("ผิดพลาด", "อัปเดตข้อมูลไม่สำเร็จ", "error");
             }
         } catch (error) {
             console.error("Error updating content:", error);
-            new Alert("ผิดพลาด", "อัปเดตข้อมูลไม่สำเร็จ", "error");
+            Swal.fire("ผิดพลาด", "อัปเดตข้อมูลไม่สำเร็จ", "error");
         }
     };
 
@@ -180,10 +185,10 @@ const FormEdit = ({ initialData }) => {
                             </div>
                         </div>
 
-                        <input type="text" className="border-2 border-gray-300 rounded-lg p-2" placeholder="Point" id="point"
+                        <input type="number" className="border-2 border-gray-300 rounded-lg p-2" placeholder="Point" id="point"
                             onChange={(e) => setFormData({...formData, point: e.target.value})} value={formData.point}
                         />
-                        <input type="text" className="border-2 border-gray-300 rounded-lg p-2" placeholder="Coin" id="coin"
+                        <input type="number" className="border-2 border-gray-300 rounded-lg p-2" placeholder="Coin" id="coin"
                             onChange={(e) => setFormData({...formData, coins: e.target.value})} value={formData.coins}
                         />
                     </div>
