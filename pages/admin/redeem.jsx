@@ -67,8 +67,8 @@ const RedeemPage = () => {
         await axios.post("/api/delivery", {
           redeemTransId: rowId,
           userId: redeemTran.userId,
+          creator: userId,
         });
-        await axios.put(`/api/redeemtran/${rowId}`, { status: 'delivered' });
       })
     );
     fetchRedeemTrans();
