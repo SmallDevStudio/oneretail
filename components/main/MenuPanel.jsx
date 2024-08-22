@@ -83,7 +83,7 @@ const MenuPanel = ({ user }) => {
                 onClick={handleDropdownOpen}
             >
                 <IoNotifications size={25}/>
-                {notifications.Reading && (
+                {notifications.Reading > 0 && (
                     <div 
                     className="absolute inline-flex items-center justify-center w-5 h-5 text-[8px] font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-2"
                     >
