@@ -92,7 +92,7 @@ const SlugPage = () => {
                   comments={commentsData.data}
                   />
             </div>
-            <div>
+            <div className="flex flex-col items-center mb-20">
                 <CommentList
                   content={contents.data}
                   comments={commentsData.data} 
