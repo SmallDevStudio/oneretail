@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     switch (method) {
         case "GET":
             try {
-                const carousels = await Carousel.find({status: true});
+                const carousels = await Carousel.find({status: true}).sort({ createdAt: -1 });
                 res.status(200).json(carousels);
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });
