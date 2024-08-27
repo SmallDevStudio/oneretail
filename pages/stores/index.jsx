@@ -9,6 +9,7 @@ import ShareYourStory from "@/components/success/ShareYourStory";
 import SuccessSkeleton from "@/components/SkeletonLoader/SuccessSkeleton";
 import { useRouter } from "next/router";
 import SearchBar from "@/components/SearchBar";
+import useUserActivity from "@/lib/hook/useUserActivity"; // Import hook
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -19,6 +20,9 @@ export default function Stores() {
     const [contents, setContents] = useState([]);
 
     const router = useRouter();
+
+    useUserActivity(activeTab); // ใช้ useUserActivity พร้อมกับ activeTab
+
 
     const { data: video, error: videoError } = useSWR(`/api/content/video?categoryId=${category}`, fetcher, {
         onSuccess: (data) => {
@@ -64,7 +68,7 @@ export default function Stores() {
                 <ul className="flex flex-wrap -mb-px">
                     <li className="me-2">
                         <a
-                            href="#"
+                            href="#secret-sauce"
                             className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'secret-sauce' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
                             onClick={() => handleTabClick('secret-sauce')}
                         >
@@ -73,7 +77,7 @@ export default function Stores() {
                     </li>
                     <li className="me-2">
                         <a
-                            href="#"
+                            href="#share-your-story"
                             className={`inline-block p-2 border-b-2 rounded-t-lg ml-5 font-bold ${activeTab === 'share-your-story' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
                             onClick={() => handleTabClick('share-your-story')}
                         >

@@ -79,7 +79,17 @@ const LeaderboardWidget = () => {
                             <tr key={user.userId} onClick={() => handleRowClick(user)}>
                                 <td className="border px-4 py-2">{index + 1}</td>
                                 <td className="border px-4 py-2">
-                                    <Image src={user.pictureUrl} alt="user" width="30" height="30" style={{ borderRadius: "50%", objectFit: "cover", width: "30px", height: "30px" }}/>
+                                    <Image 
+                                        src={user.pictureUrl} 
+                                        alt="user" 
+                                        width="30"
+                                        height="30" 
+                                        style={{ 
+                                            borderRadius: "50%", 
+                                            objectFit: "cover", 
+                                            width: "30px", 
+                                            height: "30px" }}
+                                        />
                                 </td>
                                 <td className="border px-4 py-2">{user.empId}</td>
                                 <td className="border px-4 py-2">{user.fullname}</td>

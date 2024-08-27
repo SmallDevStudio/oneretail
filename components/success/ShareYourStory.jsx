@@ -35,9 +35,6 @@ const ShareYourStory = () => {
     const [likes, setLikes] = useState({});
     const [checkError, setCheckError] = useState(null);
 
-    console.log(showComments);
-    console.log(posts);
-
     const { data, error, mutate } = useSWR('/api/posts', fetcher, {
         onSuccess: (data) => {
             setPosts(data.data);

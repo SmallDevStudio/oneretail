@@ -35,7 +35,7 @@ export default function CampaignId() {
             </div>
             
             {campaigns && (
-                <div className="flex flex-col items-center w-full bg-gray-200 rounded-xl">
+                <div className="flex flex-col items-center w-full">
                     <Image
                         src={campaigns?.smallbanner?.url}
                         alt="Campaign"
@@ -47,7 +47,7 @@ export default function CampaignId() {
                             objectFit: "cover", 
                             objectPosition: "center", 
                             height: "auto", 
-                            width: "auto" 
+                            width: "100%" 
                         }}
                         onClick = {() => router.push(campaigns.url)}
                     />

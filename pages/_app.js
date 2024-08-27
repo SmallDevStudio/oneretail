@@ -5,11 +5,10 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/react";
 import { useEffect } from "react";
 import "@/styles/globals.css";
-import AddToHomeScreenPrompt from "@/lib/hook/AddToHomeScreenPrompt";
 import { initGA, logPageView } from "@/utils/analytics";
 import Head from "next/head";
 import '@/styles/editor.scss';
-
+import useUserActivity from "@/lib/hook/useUserActivity";
 
 function App({ Component, pageProps: { session, ...pageProps } }) {
   const getLayout = Component.getLayout || ((page) => page);
@@ -28,9 +27,10 @@ function App({ Component, pageProps: { session, ...pageProps } }) {
     };
 }, [router.events]);
 
-  
+
   return getLayout(
     <SessionProvider session={session}>
+      <UserActivityWrapper>
         {Component.auth ? (
           <>
                 <RequireAuth>
@@ -41,7 +41,6 @@ function App({ Component, pageProps: { session, ...pageProps } }) {
                       <Component {...pageProps} />
                       <SpeedInsights />
                       <Analytics />
-                      <AddToHomeScreenPrompt />
  
                 </RequireAuth>
                 </>
@@ -54,11 +53,16 @@ function App({ Component, pageProps: { session, ...pageProps } }) {
                 <Component {...pageProps} />
                 <SpeedInsights />
                 <Analytics />
-                <AddToHomeScreenPrompt />
                 </>
             )}
+          </UserActivityWrapper>
     </SessionProvider>
   );
+}
+
+function UserActivityWrapper({ children }) {
+  useUserActivity(); // ใช้ custom hook เพื่อบันทึก user activity
+  return <>{children}</>;
 }
 
 

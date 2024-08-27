@@ -12,7 +12,7 @@ const Admin = () => {
                 </div>
                 <div className="flex flex-row justify-evenly gap-4">
                     <div className="flex">
-                        <LeaderboardWidget />
+                        
                     </div>
                     <div className="flex">
                         <ContentWidget />

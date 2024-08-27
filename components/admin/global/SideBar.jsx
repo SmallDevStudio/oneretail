@@ -13,6 +13,7 @@ import { GrArticle } from "react-icons/gr";
 import { GoFileMedia } from "react-icons/go";
 import { TbReportAnalytics } from "react-icons/tb";
 import { TfiLayoutSlider } from "react-icons/tfi";
+import { IoShareSocialOutline } from "react-icons/io5";
 import Image from "next/image";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
@@ -210,6 +211,14 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                   setSelected={setSelected}
                   />
 
+                <Item
+                  title="SocialMedia Club"
+                  to="/admin/socialclub"
+                  icon={<IoShareSocialOutline />}
+                  selected={selected}
+                  setSelected={setSelected}
+                  />
+
               </SubMenu>
 
               <SubMenu
@@ -280,6 +289,14 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                   selected={selected}
                   setSelected={setSelected}
                   />
+
+                  <Item
+                  title="Satisfaction"
+                  to="/admin/satisfactions"
+                  icon={<FcSurvey />}
+                  selected={selected}
+                  setSelected={setSelected}
+                  />    
 
                   <Item
                   title="Report"

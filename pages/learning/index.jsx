@@ -75,7 +75,7 @@ export default function Learning() {
                 
                     <li className="me-2">
                         <Link
-                            href="#"
+                            href="#learn"
                             className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'learn' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
                             onClick={() => handleTabClick('learn')}
                         >
@@ -84,7 +84,7 @@ export default function Learning() {
                     </li>
                     <li className="me-2">
                         <Link
-                            href="#"
+                            href="#learn2"
                             className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'learn2' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
                             onClick={() => handleTabClick('learn2')}
                         >
@@ -93,7 +93,7 @@ export default function Learning() {
                     </li>
                     <li className="me-2">
                         <Link
-                            href="#"
+                            href="#article"
                             className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'article' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
                             onClick={() => handleTabClick('article')}
                         >
