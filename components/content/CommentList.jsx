@@ -45,10 +45,10 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
             const replyLikesState = {};
 
             comments.forEach((comment) => {
-                commentLikesState[comment._id] = comment.likes.some(like => like.userId === session.user.id);
+                commentLikesState[comment._id] = comment?.likes?.some(like => like.userId === session.user.id);
 
-                comment.reply.forEach((reply) => {
-                    replyLikesState[reply._id] = reply.likes.some(like => like.userId === session.user.id);
+                comment?.reply?.forEach((reply) => {
+                    replyLikesState[reply._id] = reply?.likes?.some(like => like.userId === session.user.id);
                 });
             });
 
@@ -168,7 +168,7 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
     };
 
     return (
-        <div>
+        <div className="flex flex-col w-full">
             <div className="flex flex-col w-full">
                 <div className="flex flex-row justify-between items-baseline space-x-4 h-8 px-3 bg-white" style={{ textSizeAdjust: '100%', fontSize: '12px' }}>
                     <div className="relative inline-flex items-center columns-2 justify-center p-3 bg-[#F2871F] text-white rounded-full h-6 w-15"
@@ -217,7 +217,7 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
                                         )}
                                     </div>
                                 <p className="text-[8px] text-left">{moment(comment?.createdAt).fromNow()}</p>
-                                {comment?.tagusers.length > 0 && comment?.tagusers.map((taguser, index) => (
+                                {comment?.tagusers?.length > 0 && comment?.tagusers.map((taguser, index) => (
                                 <div className="flex flex-row w-full items-center gap-1 mb-2 mt-[-5px]" key={index}>
                                     <div key={index} className="flex w-full">
                                         <span className="text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
@@ -228,7 +228,7 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
                         </div>
                         <div className="flex flex-col w-full px-2 mt-1">
                             <p className="text-xs text-left px-7">{comment?.comment}</p>
-                                {comment?.medias.length > 0 && (
+                                {comment?.medias?.length > 0 && (
                                 <ImageGallery medias={comment.medias} />
                                 )}
                         </div>
