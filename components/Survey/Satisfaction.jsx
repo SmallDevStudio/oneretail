@@ -215,9 +215,12 @@ const Satisfaction = () => {
                         </>
                     )}
 
-                    <span className="font-bold">
-                        3. ฟีเจอร์ใดที่คุณชอบมากที่สุดใน One Retail Society?
-                    </span>
+                    <div className="flex flex-col">
+                        <span className="font-bold">
+                            3. ฟีเจอร์ใดที่คุณชอบมากที่สุดใน One Retail Society?
+                        </span>
+                        <span className="text-xs">(เลือกได้มากกว่า 1 ข้อ)</span>
+                    </div>
                     <div className="relative flex-row mb-2">
                         <div className="flex flex-row gap-1">
                             <input 
@@ -298,9 +301,12 @@ const Satisfaction = () => {
                     </div>
                     {featureLikeError && <span className="text-red-500 text-xs">***{featureLikeError}</span>}
 
-                    <span className="font-bold">
-                        4. ฟีเจอร์ใดที่คุณคิดว่าควรปรับปรุง?
-                    </span>
+                    <div className="flex flex-col">
+                        <span className="font-bold">
+                            4. ฟีเจอร์ใดที่คุณคิดว่าควรปรับปรุง?
+                        </span>
+                        <span className="text-xs">(เลือกได้มากกว่า 1 ข้อ)</span>
+                    </div>
                     <div className="relative flex-row gap-2 mb-2">
                         <div className="flex flex-row gap-1">
                             <input 

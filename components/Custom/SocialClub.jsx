@@ -120,8 +120,12 @@ const SocialClub = () => {
                         </div>
                     </div>
                 </div>
+                <div className="flex flex-col w-full px-4 mt-4">
+                    <h2 className="font-bold text-sm">รับสมัครตั้งแต่ วันนี้ถึง 15 กันยายน 67 เท่านั้น</h2>
+                    <p className="text-sm">ระบุ รหัสพนักงาน ชื่อ นามสกุล เลือกเงื่อนไขที่ตรงกับตัวเอง (เลือกได้มากกว่า 1 ข้อ) และกดสมัครได้เลย</p>
+                </div>
                 {/* Form */}
-                <div className="flex flex-col w-full p-4 mt-4">
+                <div className="flex flex-col w-full px-4 mt-2 ">
                     <div className="flex flex-col border rounded-xl p-2 shadow-xl text-sm">
                         <label htmlFor="empId" className="font-bold mt-2">
                             รหัสพนักงาน
