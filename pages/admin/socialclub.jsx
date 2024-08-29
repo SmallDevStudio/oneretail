@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import useSWR from "swr";
 import axios from "axios";
 import moment from "moment";
@@ -8,16 +8,45 @@ import Header from "@/components/admin/global/Header";
 import { AdminLayout } from "@/themes";
 import { RiFileExcel2Line, RiDeleteBinLine } from "react-icons/ri";
 import { IoIosSearch } from "react-icons/io";
+import * as XLSX from 'xlsx';
+import CircularProgress from '@mui/material/CircularProgress';
 
 moment.locale('th');
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 const SocialClubAdmin = () => {
+    const [loading, setLoading] = useState(false);
+
     const { data, isLoading, error } = useSWR("/api/socialclub", fetcher);
 
+    const handleExport = (data) => {
+        setLoading(true);
+        const formattedData = data.map(item => {
+            const options = {};
+            item.options.forEach((opt, index) => {
+                options[`option_${index + 1}`] = opt;
+            });
+    
+            return {
+                empId: item.empId,
+                name: item.empName,    
+                ...options,
+                createdAt: moment(item.createdAt).format('LLL'),
+            };
+        });
+    
+        const workbook = XLSX.utils.book_new();
+        const worksheet = XLSX.utils.json_to_sheet(formattedData);
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'ผู้สมัคร');
+        XLSX.writeFile(workbook, 'socialclub.xlsx');
+
+        setLoading(false);
+    };
+    
+
     if (error) return <div>Failed to load</div>;
-    if (isLoading) return <div>Loading...</div>;
+    if (isLoading) return <div><CircularProgress /></div>;
 
     return (
         <div className="w-full">
@@ -38,13 +67,17 @@ const SocialClubAdmin = () => {
                         <button
                             className="bg-green-700 text-white font-bold py-1 px-4 rounded"
                         >
-                            <div className="flex flex-row items-center gap-2">
+                            <div 
+                                className="flex flex-row items-center gap-2"
+                                onClick={() => handleExport(data.data)}
+                            >
                                 <RiFileExcel2Line size={20}/>
                                 <span>Export</span>
                             </div>
                         </button>
                     </div>
                 </div>
+                {loading && <div><CircularProgress /></div>}
             
                 <div className="w-full">
                     <SocialClubTable data={data.data} />

@@ -33,7 +33,7 @@ const SocialClubTable = ({data}) => {
                                 <td className='border px-4 py-2'>
                                     {item.emp && 
                                         <Image 
-                                            src={item.emp.pictureUtl} 
+                                            src={item.emp.pictureUrl} 
                                             width={50} 
                                             height={50} 
                                             alt='profile' 
@@ -67,7 +67,7 @@ const SocialClubTable = ({data}) => {
                                             />
                                     }
                                 </td>
-                                <td className='border px-4 py-2 text-xs'>{moment(item.createAt).format('LLLL')}</td>
+                                <td className='border px-4 py-2 text-xs'>{moment(item.createdAt).format('LLLL')}</td>
                                 <td className='border px-4 py-2'>
                                     <button
                                         className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
