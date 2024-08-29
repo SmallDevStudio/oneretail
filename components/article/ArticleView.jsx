@@ -50,15 +50,15 @@ const ArticleView = ({ articleId }) => {
 
     const { data, error, mutate } = useSWR(`/api/articles/${articleId}`, fetcher, {
         onSuccess: (data) => {
-            setArticle(data.data);
-            setComments(data.data.comments);
+            setArticle(data?.data);
+            setComments(data?.data?.comments);
             setQuiz(data.data.quiz);
             const initialLikes = {
-                [data.data._id]: data.data.likes.some(like => like.userId === userId),
-                ...data.data.comments.reduce((acc, comment) => {
-                    acc[comment._id] = comment.likes.some(like => like.userId === userId);
-                    comment.replies.forEach(reply => {
-                        acc[reply._id] = reply.likes.some(like => like.userId === userId);
+                [data?.data?._id]: data?.data?.likes?.some(like => like.userId === userId),
+                ...data?.data?.comments.reduce((acc, comment) => {
+                    acc[comment?._id] = comment?.likes?.some(like => like.userId === userId);
+                    comment?.replies?.forEach(reply => {
+                        acc[reply?._id] = reply?.likes?.some(like => like.userId === userId);
                     });
                     return acc;
                 }, {})
@@ -70,8 +70,8 @@ const ArticleView = ({ articleId }) => {
     const { data: useAnswer, error: answerError, isLoading: answerLoading, mutate: answerMutate } = useSWR(`/api/articles/quiz/answers?articleId=${articleId}&userId=${userId}`, fetcher);
 
     useEffect(() => {
-        if (useAnswer && Array.isArray(useAnswer.data)) {
-            const hasAnswer = useAnswer.data.some(answer => answer.userId === userId, answer => answer.isAnswer === true);
+        if (useAnswer && Array.isArray(useAnswer?.data)) {
+            const hasAnswer = useAnswer?.data?.some(answer => answer.userId === userId, answer => answer.isAnswer === true);
             setHasAnswer(hasAnswer);
         }else{
             return
@@ -385,10 +385,10 @@ const ArticleView = ({ articleId }) => {
                     <div>
                         {Array.isArray(article?.medias) && article?.medias.map((media, index) => (
                         <div key={index} className="flex flex-row items-center mb-2 w-full">
-                            {media.type === "image" ? (
+                            {media?.type === "image" ? (
                                 <Image 
-                                    src={media.url} 
-                                    alt={media.public_id} 
+                                    src={media?.url} 
+                                    alt={media?.public_id} 
                                     width={390} 
                                     height={390} 
                                     className=""
@@ -400,7 +400,7 @@ const ArticleView = ({ articleId }) => {
                                 />
                                 ): (
                                     <ReactPlayer
-                                        url={media.url}
+                                        url={media?.url}
                                         width="100%"
                                         height="100%"
                                         controls
@@ -473,7 +473,7 @@ const ArticleView = ({ articleId }) => {
                 {/* End Content Panel */}
                 
                 {/* comment container */}
-                {comments && comments.length > 0 ? comments.map((comment, index) => (
+                {comments && comments?.length > 0 ? comments.map((comment, index) => (
                     <div key={index} className="px-1">
                     <div className="flex flex-col w-full bg-white rounded-xl mt-1 px-2">
                     <div className="flex flex-row items-center px-2 w-full gap-2 rounded-lg mt-1">
@@ -623,7 +623,7 @@ const ArticleView = ({ articleId }) => {
                     </div>
                     )): (
                     <div>
-                        <p>ไม่มีความคิดเห็น</p>
+                        
                     </div>
                     )}
                     <Dialog 
