@@ -79,10 +79,6 @@ export default function Redeem() {
             userId: session?.user?.id,
           })
 
-          if (res.status === 200) {
-            redeemItem.stock -= 1;
-          }
-
           mutateRedeem();
           mutateRedeemTrans();
           mutateLevel();
