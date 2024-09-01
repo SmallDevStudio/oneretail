@@ -11,7 +11,7 @@ export default async function handler(req, res) {
 
             try {
                 // Fetch notifications
-                const notifications = await Notification.find().sort({ createdAt: -1 });
+                const notifications = await Notification.find().sort({ createAt: -1 });
 
                 // Extract unique senderIds from the notifications
                 const senderIds = notifications.map(notification => notification.senderId);
@@ -30,6 +30,7 @@ export default async function handler(req, res) {
                     ...notification._doc, // Spread the original notification data
                     sender: userMap[notification.senderId] || null // Add sender details if available
                 }));
+
 
                 res.status(200).json({ success: true, data: notificationsWithSenderDetails });
             } catch (error) {

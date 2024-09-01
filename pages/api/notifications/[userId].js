@@ -11,7 +11,7 @@ export default async function handler(req, res) {
             const { userId } = req.query;
             try {
                 // Fetch notifications
-                const notifications = await Notification.find({ userId: userId }).sort({ createdAt: -1 });
+                const notifications = await Notification.find({ userId: userId }).sort({ createAt: -1 });
 
                 // Extract unique senderIds from the notifications
                 const senderIds = notifications.map(notification => notification.senderId);
