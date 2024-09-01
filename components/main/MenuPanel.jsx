@@ -111,7 +111,7 @@ const MenuPanel = ({ user }) => {
                 <div className="flex flex-col w-full">
                 {notifications.data.slice(0, 10).map((notification, index) => (
                     <>
-                        <div key={index} className='flex flex-row items-center p-1 gap-2'
+                        <div key={index} className={`flex flex-row items-center p-1 gap-2 ${notification.isReading === false ? 'bg-blue-200/30' : ''}`}
                             onClick={() => handleClick(notification)}
                         >
                                 <div>
@@ -124,8 +124,8 @@ const MenuPanel = ({ user }) => {
                                     />
                                 </div>
                                 <div className="flex flex-col cursor-pointer text-sm">
-                                    <span className={`text-xs text-left text-[#F68B1F] ${notification.isReading ? 'font-normal' : 'font-bold'}`}>{notification?.sender?.fullname}</span>
-                                    <span className={`text-xs ${notification.isReading ? 'font-normal' : 'font-bold'}`}>{notification.description}</span>
+                                    <span className={`text-xs text-left text-[#F68B1F] ${notification.isReading === true ? 'font-normal' : 'font-bold'}`}>{notification?.sender?.fullname}</span>
+                                    <span className={`text-xs ${notification.isReading ===  true ? 'font-normal' : 'font-bold'}`}>{notification.description}</span>
                                     <span className="text-[10px] text-gray-500">{moment(notification.createAt).fromNow()}</span>
                                 </div>
                         </div>
