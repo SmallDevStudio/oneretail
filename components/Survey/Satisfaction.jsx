@@ -30,7 +30,7 @@ const Satisfaction = () => {
                 try {
                     const response = await axios.get(`/api/satisfactions/${session.user.id}`);
                     if (response.data.success && response.data.data.length > 0) {
-                        router.back(); // If satisfaction data exists, go back to the previous page
+                        router.push('/main');; // If satisfaction data exists, go back to the previous page
                     }
                 } catch (error) {
                     console.error('Error checking satisfaction:', error);
@@ -119,8 +119,8 @@ const Satisfaction = () => {
         <div className="flex flex-col justify-center items-center p-4">
             <div className="flex flex-row justify-between items-center w-full mt-5 mb-4">
                <div className="flex items-center cursor-pointer" 
-                    onClick={() => router.back()}>
-                    <IoIosArrowBack size={28} className="flex text-white" />
+                    >
+                    
                </div>
                 <span className="flex text-3xl font-bold text-white">แบบสอบถาม</span>
                 <div></div>

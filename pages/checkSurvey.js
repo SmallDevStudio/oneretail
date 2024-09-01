@@ -26,11 +26,11 @@ const CheckSurvey = () => {
             return;
         }
         if (surveySettings && !surveySettings.isSurveyEnabled) {
-            router.push('/main');
+            router.push('/satisfactions');
             return;
         }
         if (survey && survey.completed) {
-            router.push('/main');
+            router.push('/satisfactions');
         } else {
             router.push('/pulsesurvey');
         }

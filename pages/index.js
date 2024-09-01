@@ -16,6 +16,7 @@ const HomePage = () => {
     const { data: loginReward, error: loginRewardError } = useSWR(() => userId ? `/api/loginreward/${userId}` : null, fetcher);
     const { data: survey, error: surveyError } = useSWR(() => userId ? `/api/survey/checkSurvey?userId=${userId}` : null, fetcher);
     const { data: surveySettings, error: surveySettingsError } = useSWR('/api/survey/settings', fetcher);
+    const { data: satisfactions, error: satisfactionsError } = useSWR(() => userId ? `/api/satisfactions/${userId}` : null, fetcher);
 
     useEffect(() => {
         if (status === "loading" || !session || !user || !loginReward || !survey || !surveySettings) return;
@@ -39,18 +40,24 @@ const HomePage = () => {
             return;
         }
         if (surveySettings && !surveySettings.isSurveyEnabled) {
-            router.push('/main');
+            router.push('/satisfactions');
             return;
         }
         if (survey && survey.completed) {
-            router.push('/main');
+            router.push('/satisfactions');
         } else {
             router.push('/pulsesurvey');
         }
-    }, [router, session, status, user, loginReward, survey, surveySettings, userError, loginRewardError, surveyError, surveySettingsError]);
+        if (satisfactions && satisfactions.length > 0) {
+            router.push('/main');
+        }else{
+            router.push('/satisfactions');
+            return;
+        }
+    }, [router, session, status, user, loginReward, survey, surveySettings, userError, loginRewardError, surveyError, surveySettingsError, satisfactions]);
 
-    if (status === "loading" || !user || !loginReward || !survey || !surveySettings) return <Loading />;
-    if (userError || loginRewardError || surveyError || surveySettingsError) return <div>Error loading data</div>;
+    if (status === "loading" || !user || !loginReward || !survey || !surveySettings || !satisfactions) return <Loading />;
+    if (userError || loginRewardError || surveyError || surveySettingsError || satisfactionsError) return <div>Error loading data</div>;
 
     return (
         <React.Fragment>

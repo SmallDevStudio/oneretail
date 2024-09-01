@@ -9,6 +9,7 @@ import { IoIosSearch } from "react-icons/io";
 import { MdOutlinePageview } from "react-icons/md";
 import SatisfactionView from "./SatisfactionView";
 import Swal from "sweetalert2";
+import * as XLSX from 'xlsx';
 
 moment.locale('th');
 
@@ -61,6 +62,43 @@ const SatisfactionTable = () => {
         }
     };
 
+    const handleExport = (data) => {
+        setLoading(true);
+        const formattedData = data.map(item => {
+            const featureLike = {};
+            item.featureLike.forEach((opt, index) => {
+                featureLike[`featureLike_${index + 1}`] = opt;
+            });
+
+            const improved = {};
+            item.improved.forEach((opt, index) => {
+                improved[`improved_${index + 1}`] = opt;
+            });
+    
+            return {
+                empId: item.user.empId,
+                name: item.user.fullname,
+                satisfied: item.satisfied,
+                recommend: item.recommend? item.recommend : 'ไม่มี',
+                ...featureLike,
+                ...improved,
+                featuresAdd: item.featuresAdd? item.featuresAdd : 'ไม่มี',
+                problems: item.problems? item.problems : 'ไม่มี',
+                suggestions: item.suggestions? item.suggestions : 'ไม่มี',
+                createdAt: moment(item.createdAt).format('LLL'),
+            };
+        });
+    
+        const workbook = XLSX.utils.book_new();
+        const worksheet = XLSX.utils.json_to_sheet(formattedData);
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+        XLSX.writeFile(workbook, 'satisfactions.xlsx');
+
+        setLoading(false);
+        
+    };
+    
+
     if (error) return <div>Failed to load</div>;
     if (isLoading) return <div>Loading...</div>;
 
@@ -78,23 +116,12 @@ const SatisfactionTable = () => {
                 </div>
 
                 <div className="flex flex-row gap-2">
-                    <div className="flex flex-row items-center gap-2">
-                        <input 
-                            type="text" 
-                            placeholder="วันที่"
-                            className="w-40 border border-gray-300 p-1 rounded-full"
-                        />
-                        <span className="text-2xl">-</span>
-                        <input
-                            type="text"
-                            placeholder="วันที่"
-                            className="w-40 border border-gray-300 p-1 rounded-full"
-                        />
-                    </div>
                     <button
                         className="bg-green-700 text-white font-bold py-1 px-4 rounded"
                     >
-                        <div className="flex flex-row items-center gap-2">
+                        <div className="flex flex-row items-center gap-2"
+                            onClick={() => handleExport(data.data)}
+                        >
                             <RiFileExcel2Line size={20}/>
                             <span>Export</span>
                         </div>
