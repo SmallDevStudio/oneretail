@@ -14,7 +14,7 @@ export default async function handler(req, res) {
   switch (method) {
     case 'GET':
       try {
-        const redeemTrans = await RedeemTrans.find({}).populate('redeemId');
+        const redeemTrans = await RedeemTrans.find({}).populate('redeemId').sort({ createdAt: -1 });
         const redeemTransWithUser = await Promise.all(
           redeemTrans.map(async (trans, index) => {
             const user = await Users.findOne({ userId: trans.userId });
