@@ -48,12 +48,7 @@ const HomePage = () => {
         } else {
             router.push('/pulsesurvey');
         }
-        if (satisfactions && satisfactions.length > 0) {
-            router.push('/main');
-        }else{
-            router.push('/satisfactions');
-            return;
-        }
+       
     }, [router, session, status, user, loginReward, survey, surveySettings, userError, loginRewardError, surveyError, surveySettingsError, satisfactions]);
 
     if (status === "loading" || !user || !loginReward || !survey || !surveySettings || !satisfactions) return <Loading />;
