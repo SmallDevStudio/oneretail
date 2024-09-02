@@ -68,8 +68,8 @@ const HomePage = () => {
        
     }, [router, session, status, user, loginReward, survey, surveySettings, userError, loginRewardError, surveyError, surveySettingsError, satisfactions, checkSatisfactios, satisfactionsError, checkSatisfactiosError]);
 
-    if (status === "loading" || !user || !loginReward || !survey || !surveySettings || !satisfactions) return <Loading />;
-    if (userError || loginRewardError || surveyError || surveySettingsError || satisfactionsError) return <div>Error loading data</div>;
+    if (status === "loading" || !user || !loginReward || !survey || !surveySettings || !satisfactions || !checkSatisfactios) return <Loading />;
+    if (userError || loginRewardError || surveyError || surveySettingsError || satisfactionsError || checkSatisfactiosError) return <div>Error loading data</div>;
 
     return (
         <React.Fragment>
