@@ -29,7 +29,10 @@ const Satisfaction = () => {
             if (session?.user?.id) {
                 try {
                     const response = await axios.get(`/api/satisfactions/user?userId=${session.user.id}`);
-                    if (response.data.success && response.data.dat.tempGroup === 'TCON' || response.data.dat.tempGroup === 'PB') {
+                    console.log(response.data.data.teamGrop);
+                    if (response.data.success && response.data.data.teamGrop === 'TCON' || 
+                        response.data.data.teamGrop === 'PB' || 
+                        response.data.data.teamGrop === null) {
                         router.push('/main');
                         return;
                     } 

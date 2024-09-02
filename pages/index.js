@@ -17,10 +17,13 @@ const HomePage = () => {
     const { data: survey, error: surveyError } = useSWR(() => userId ? `/api/survey/checkSurvey?userId=${userId}` : null, fetcher);
     const { data: surveySettings, error: surveySettingsError } = useSWR('/api/survey/settings', fetcher);
     const { data: satisfactions, error: satisfactionsError } = useSWR(() => userId ? `/api/satisfactions/${userId}` : null, fetcher);
+    const { data: checkSatisfactios, error: checkSatisfactiosError } = useSWR(() => userId ? `/api/satisfactions/user?userId=${userId}` : null, fetcher);
 
     useEffect(() => {
-        if (status === "loading" || !session || !user || !loginReward || !survey || !surveySettings) return;
-        if (userError || loginRewardError || surveyError || surveySettingsError) return;
+        if (status === "loading" || !session || !user || !loginReward || 
+            !survey || !surveySettings || !satisfactions || !checkSatisfactios) return;
+        if (userError || loginRewardError || surveyError || 
+            surveySettingsError || satisfactionsError || checkSatisfactiosError) return;
 
         if (!session) {
             router.push('/login');
@@ -47,6 +50,13 @@ const HomePage = () => {
             router.push('/pulsesurvey');
             return;
         }
+        if (checkSatisfactios && 
+            checkSatisfactios.data.teamGrop === null ||
+            checkSatisfactios.data.teamGrop === 'TCON' ||
+            checkSatisfactios.data.teamGrop === 'PB'
+        ) {
+            router.push('/main');
+        }
         if (satisfactions && satisfactions.length > 0) {
             router.push('/main');
         }else{
@@ -54,7 +64,7 @@ const HomePage = () => {
             return;
         }
        
-    }, [router, session, status, user, loginReward, survey, surveySettings, userError, loginRewardError, surveyError, surveySettingsError, satisfactions]);
+    }, [router, session, status, user, loginReward, survey, surveySettings, userError, loginRewardError, surveyError, surveySettingsError, satisfactions, checkSatisfactios, satisfactionsError, checkSatisfactiosError]);
 
     if (status === "loading" || !user || !loginReward || !survey || !surveySettings || !satisfactions) return <Loading />;
     if (userError || loginRewardError || surveyError || surveySettingsError || satisfactionsError) return <div>Error loading data</div>;
