@@ -9,6 +9,7 @@ import { FaRegEdit } from "react-icons/fa";
 import useSWR from 'swr';
 import { useSession } from 'next-auth/react';
 import Swal from 'sweetalert2';
+import { IoMdCloseCircleOutline } from "react-icons/io";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -34,8 +35,6 @@ const AdminCampaignPage = () => {
       setCampaigns(data.data);
     },
   });
-
-  console.log(campaigns);
 
   const handleUploadImage = () => {
     setError(null);
@@ -201,9 +200,9 @@ const AdminCampaignPage = () => {
           {campaigns && campaigns.map((campaign, index) => (
             <tr key={index}>
               <td className='w-1/6'>
-                {campaign.banner && (
+                {campaign.smallbanner && (
                   <Image 
-                    src={campaign.banner.url} 
+                    src={campaign.smallbanner.url}
                     alt={campaign.title} 
                     width={200} 
                     height={200} 
@@ -240,7 +239,9 @@ const AdminCampaignPage = () => {
       </table>
       
       {showForm && (
-        <div className='flex border-2 rounded-3xl p-2 m-5 w-1/2 justify-center' style={{
+        <div 
+          className='flex border-2 rounded-3xl p-2 m-5 w-1/2 justify-center' 
+          style={{
             backgroundColor: 'white',
             boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)',
             borderRadius: '15px',
@@ -252,7 +253,18 @@ const AdminCampaignPage = () => {
             zIndex: 1,
             width: '500px',
         }}>
+          
             <div className="flex flex-col w-full gap-2 text-sm">
+            <div className="flex flex-row justify-between text-2xl font-bold text-center">
+              <div></div>
+              {editId ? 'Edit Campaign' : 'Add Campaign'}
+              <div>
+                <IoMdCloseCircleOutline 
+                  className='text-2xl cursor-pointer text-gray-500'
+                  onClick={() => setShowForm(false)}
+                />
+              </div>
+            </div>
             <input
                 type="text"
                 name="title"
@@ -275,7 +287,8 @@ const AdminCampaignPage = () => {
                   >
                       <ImFilePicture className="text-xl text-[#0056FF]" />
                       <div className="flex flex-col text-left">
-                          <span className="text-sm font-bold">อัพโหลดรูปภาพสำหรับ Banner</span>
+                          <span className="text-sm font-bold">อัพโหลดรูปภาพสำหรับ SlideShow</span>
+                          <span className="text-xs font-bold">SlideShow หน้าแรก</span>
                           <span className="text-[10px] text-red-500 ">* สามารถอัพโหลดได้ไม่เกิน 100MB</span>
                       </div>
               </button>
@@ -294,7 +307,8 @@ const AdminCampaignPage = () => {
                   >
                       <ImFilePicture className="text-xl text-[#0056FF]" />
                       <div className="flex flex-col text-left">
-                          <span className="text-sm font-bold">อัพโหลดรูปภาพสำหรับ SmallBanner</span>
+                          <span className="text-sm font-bold">อัพโหลดรูปภาพสำหรับ Campaign</span>
+                          <span className="text-xs font-bold">รูปสำหรับโชว์บน Campaign</span>
                           <span className="text-[10px] text-red-500 ">* สามารถอัพโหลดได้ไม่เกิน 100MB</span>
                       </div>
               </button>
@@ -315,6 +329,7 @@ const AdminCampaignPage = () => {
                       <ImFilePicture className="text-xl text-[#0056FF]" />
                       <div className="flex flex-col text-left">
                           <span className="text-sm font-bold">อัพโหลดรูปภาพสำหรับ Page</span>
+                          <span className="text-xs font-bold">แสดงในเนื้อหา Campaign</span>
                           <span className="text-[10px] text-red-500 ">* สามารถอัพโหลดได้ไม่เกิน 100MB</span>
                       </div>
               </button>
@@ -333,7 +348,7 @@ const AdminCampaignPage = () => {
             <input
                 type="text"
                 name="url"
-                placeholder="Url"
+                placeholder="ใส่ link ไปที่ content ที่ต้องการ"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 className='border-2 rounded-3xl p-2'

@@ -8,6 +8,7 @@ import TagUsers from "./TagUsers";
 import fetchLinkPreview from '@/utils/fetchLinkPreview';
 import Link from "next/link";
 import { IoIosArrowBack } from "react-icons/io";
+import { RiEmojiStickerLine } from "react-icons/ri";
 
 const ReplyInput = ({ handleSubmit, userId, handleClose, checkError }) => {
     const [post, setPost] = useState("");
@@ -212,6 +213,15 @@ const ReplyInput = ({ handleSubmit, userId, handleClose, checkError }) => {
                             </div>
                         </div>
                     )}
+                </div>
+                {/** sticker **/}
+                <div className="flex flex-row gap-2 justify-end mb-2">
+                    <div>
+                        <RiEmojiStickerLine
+                            className="text-gray-500" 
+                            size={20}
+                        />
+                    </div>
                 </div>
             </div>
             <div className="flex flex-col w-full mb-5">

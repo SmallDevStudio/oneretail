@@ -43,10 +43,15 @@ const HomePage = () => {
             router.push('/satisfactions');
             return;
         }
-        if (survey && survey.completed) {
-            router.push('/satisfactions');
-        } else {
+        if (survey && !survey.completed) {
             router.push('/pulsesurvey');
+            return;
+        }
+        if (satisfactions && satisfactions.length > 0) {
+            router.push('/main');
+        }else{
+            router.push('/satisfactions');
+            return;
         }
        
     }, [router, session, status, user, loginReward, survey, surveySettings, userError, loginRewardError, surveyError, surveySettingsError, satisfactions]);

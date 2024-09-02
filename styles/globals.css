@@ -462,3 +462,35 @@ body {
   caret-color: auto;
   white-space: pre-wrap;
 }
+
+.slick-slider .slick-dots {
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  transform: translate(-50%, 0);
+}
+
+.slick-slider .slick-dots li {
+  padding: 5px;
+}
+
+.slick-slider .slick-dots button {
+  display: block;
+  width: 15px;
+  height: 15px;
+  padding: 0;
+  font-size: 0;
+  line-height: 0;
+  cursor: pointer;
+  transition: all .3s ease;
+}
+
+.slick-slider .slick-dots .slick-active button {
+  background-color: #fff;
+}

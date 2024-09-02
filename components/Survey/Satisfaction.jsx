@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 import { IoIosArrowBack } from "react-icons/io";
 
 const Satisfaction = () => {
-    const [satisfied, setSatisfied] = useState(5);
+    const [satisfied, setSatisfied] = useState(0);
     const [recommend, setRecommend] = useState('');
     const [showRecommend, setShowRecommend] = useState(false);
     const [featureLike, setFeatureLike] = useState([]);
@@ -23,6 +23,24 @@ const Satisfaction = () => {
 
     const { data: session } = useSession();
     const router = useRouter();
+
+    useEffect(() => {
+        const checkUserTeamGrop = async () => {
+            if (session?.user?.id) {
+                try {
+                    const response = await axios.get(`/api/satisfactions/user?userId=${session.user.id}`);
+                    if (response.data.success && response.data.dat.tempGroup === 'TCON' || response.data.dat.tempGroup === 'PB') {
+                        router.push('/main');
+                        return;
+                    } 
+                } catch (error) {
+                    console.error('Error checking team group:', error);
+                }
+            }
+        };
+
+        checkUserTeamGrop();
+    }, [session, router]);
 
     useEffect(() => {
         const checkUserSatisfaction = async () => {
@@ -128,7 +146,8 @@ const Satisfaction = () => {
             <div className="flex flex-col w-full gap-2 bg-white rounded-lg p-4">
                 <div className="flex flex-col text-sm gap-2">
                     <span className="font-bold">
-                        1. คุณพึงพอใจกับการใช้งาน One Retail Society โดยรวมมากน้อยแค่ไหน?
+                        1. คุณพึงพอใจกับการใช้งาน One Retail Society โดยรวมมากน้อยแค่ไหน? 
+                        <span className="text-xs font-normal ml-1">(5 คือ พึงพอใจมากที่สุด)</span>
                     </span>
                     <div className="flex flex-col mb-2">
                         <ul className="flex flex-row justify-between items-center">

@@ -6,6 +6,7 @@ import Image from "next/image";
 import useSWR from "swr";
 import axios from "axios";
 import { useRouter } from "next/router";
+import styles from '@/styles/carousel.module.css';
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -17,9 +18,9 @@ export default function Carousel() {
   const settings = {
     accessibility: true,
     autoplay: true,
-    autoplaySpeed: 3500,
+    autoplaySpeed: 4000,
     arrows: false,
-    dots: false,
+    dots: true,
     infinite: true,
     speed: 500,
     slidesToShow: 1,
@@ -36,7 +37,7 @@ export default function Carousel() {
 
   return (
     <div className="relative w-full">
-      <Slider {...settings}>
+      <Slider {...settings} className={styles.slider}>
         {Array.isArray(images) && images.map((image, index) => (
           <div key={index} onClick={() => handleClick(image.url)}>
             <Image

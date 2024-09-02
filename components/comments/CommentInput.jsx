@@ -9,6 +9,7 @@ import fetchLinkPreview from '@/utils/fetchLinkPreview';
 import Link from "next/link";
 import axios from 'axios';
 import { IoIosArrowBack } from "react-icons/io";
+import { RiEmojiStickerLine } from "react-icons/ri";
 
 const CommentInput = ({ handleSubmit, userId, handleClose, checkError }) => {
     const [post, setPost] = useState("");
@@ -22,6 +23,7 @@ const CommentInput = ({ handleSubmit, userId, handleClose, checkError }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [error, setError] = useState(null);
+    const [selectSticker, setSelectSticker] = useState(null);
 
     const handleUploadClick = () => {
         setError(null);
@@ -123,6 +125,10 @@ const CommentInput = ({ handleSubmit, userId, handleClose, checkError }) => {
         return null;
     };
 
+    const handleStickerClick = (sticker) => {
+        setSelectSticker(sticker);
+    };
+
     return (
         <div>
             <div className="flex flex-row items-center mb-4 gap-4">
@@ -214,7 +220,17 @@ const CommentInput = ({ handleSubmit, userId, handleClose, checkError }) => {
                         </div>
                     )}
                 </div>
+                {/** sticker **/}
+                <div className="flex flex-row gap-2 justify-end mb-2">
+                    <div>
+                        <RiEmojiStickerLine 
+                            className="text-gray-500" 
+                            size={20}
+                        />
+                    </div>
+                </div>
             </div>
+    
             <div className="flex flex-col w-full mb-5">
                 <Divider />
                 <button

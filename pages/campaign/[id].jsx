@@ -54,21 +54,21 @@ export default function CampaignId() {
                     <div className="flex flex-col p-5 w-full">
                         <span className="font-bold text-[#0056FF] text-xl mb-2 text-left">{campaigns.title}</span>
                         {campaigns.image && (
-                            <Image
-                                src={campaigns?.image?.url}
-                                alt="Campaign"
-                                width={350}
-                                height={350}
-                                priority
-                                className="flex mb-2"
-                                style={{ 
-                                    objectFit: "contain", 
-                                    height: "auto", 
-                                    width: "100%",
-                                    maxWidth: "100vw",
-                                }}
-                                onClick = {() => router.push(campaigns.url)}
-                            />
+                                <Image
+                                    src={campaigns?.image?.url}
+                                    alt="Campaign"
+                                    width={350}
+                                    height={350}
+                                    priority
+                                    className="flex"
+                                    style={{ 
+                                        objectFit: "contain", 
+                                        height: "auto", 
+                                        width: "100%",
+                                        maxWidth: "100vw",
+                                    }}
+                                    onClick = {() => router.push(campaigns.url)}
+                                />
                         )}
                         <p className="text-md">{campaigns.description}</p>
                     </div>

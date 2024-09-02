@@ -28,7 +28,16 @@ const CampaignDetailPage = () => {
   return (
     <div>
       <h1>{campaign.title}</h1>
-      <Image src={campaign.image} alt={campaign.title} width={300} height={300} style={{objectFit: 'cover', objectPosition: 'center', height: 'auto', width: 'auto'}}/>
+      <Image 
+        src={campaign.image} 
+        alt={campaign.title} 
+        width={300} height={300} 
+        style={{
+          objectFit: 'cover', 
+          objectPosition: 'center', 
+          height: 'auto', 
+          width: 'auto'}}
+        />
       <div dangerouslySetInnerHTML={{ __html: campaign.description }}></div>
     </div>
   );
