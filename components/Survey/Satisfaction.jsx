@@ -25,8 +25,21 @@ const Satisfaction = () => {
     const router = useRouter();
 
     useEffect(() => {
-        router.push('/main');
-    }, [router]);
+        const checkUserSatisfaction = async () => {
+            if (session?.user?.id) {
+                try {
+                    const response = await axios.get(`/api/satisfactions/${session.user.id}`);
+                    if (response.data.success && response.data.data.length > 0) {
+                        router.push('/main');; // If satisfaction data exists, go back to the previous page
+                    }
+                } catch (error) {
+                    console.error('Error checking satisfaction:', error);
+                }
+            }
+        };
+
+        checkUserSatisfaction();
+    }, [router, session]);
 
     const handleChangeLike = (event) => {
         const { value } = event.target;
