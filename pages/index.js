@@ -56,9 +56,11 @@ const HomePage = () => {
             checkSatisfactios.data.teamGrop === 'PB'
         ) {
             router.push('/main');
+            return;
         }
         if (satisfactions && satisfactions.length > 0) {
             router.push('/main');
+            return;
         }else{
             router.push('/satisfactions');
             return;
