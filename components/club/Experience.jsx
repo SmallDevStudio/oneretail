@@ -16,6 +16,7 @@ import ImageGallery from "./ImageGallery";
 import Swal from "sweetalert2";
 import moment from "moment";
 import "moment/locale/th";
+import { BsPinAngleFill } from "react-icons/bs";
 moment.locale('th');
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
@@ -38,6 +39,7 @@ const Experience = () => {
     const [currentOption, setCurrentOption] = useState(null);
     const [likes, setLikes] = useState({});
     const [checkError, setCheckError] = useState(null);
+    const [pinned, setPinned] = useState({});
 
     const { data, error, mutate } = useSWR('/api/club/experience', fetcher, {
         onSuccess: (data) => {
@@ -362,6 +364,24 @@ const Experience = () => {
         }
     };
 
+    const handlePinned = async (experienceId, pinned) => {
+        if (!pinned || pinned === false || pinned === null) {
+            pinned = true;
+        } else {
+            pinned = false;
+        }
+
+        try {
+            await axios.put('/api/club/pinned', {
+                id: experienceId,
+                pinned
+            });
+            mutate();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     if (error) return <div>failed to load</div>;
     if (!data) return <div>loading...</div>;
 
@@ -410,19 +430,24 @@ const Experience = () => {
                             <div className="flex flex-col w-full ml-2">
                                 <div className="flex flex-row justify-between items-center">
                                     <p className="text-xs font-bold text-[#0056FF]">{experience?.user?.fullname}</p>
-                                    {(experience.userId === session?.user?.id || user?.user?.role === 'admin' || user?.user?.role === 'manager') && (
-                                        <div className="relative">
-                                            <BsThreeDotsVertical onClick={(e) => handleOptionClick(e, 'post', experience._id)} />
-                                            <Menu
-                                                anchorEl={anchorEl}
-                                                open={Boolean(anchorEl)}
-                                                onClose={handleOptionClose}
-                                                classes={{ paper: "text-xs" }}
-                                            >
-                                                <MenuItem onClick={() => { handleDelete(currentOption.id); handleOptionClose(); }}>Delete</MenuItem>
-                                            </Menu>
-                                        </div>
-                                    )}
+                                    <div className="flex flex-row gap-2">
+                                        {experience?._id && experience?.pinned ? <BsPinAngleFill className="text-[#0056FF]" /> : ''}
+                                        {(experience.userId === session?.user?.id || user?.user?.role === 'admin' || user?.user?.role === 'manager') && (
+                                            <div className="relative">
+                                                <BsThreeDotsVertical onClick={(e) => handleOptionClick(e, 'post', experience._id)} />
+                                                <Menu
+                                                    anchorEl={anchorEl}
+                                                    open={Boolean(anchorEl)}
+                                                    onClose={handleOptionClose}
+                                                    classes={{ paper: "text-xs" }}
+                                                >
+                                                    <MenuItem onClick={() => { handlePinned(experience?._id, experience?.pinned); handleOptionClose()}}>{experience?.pinned ? 'Unpin' : 'Pin'}</MenuItem>
+                                                    <MenuItem onClick={() => { handleDelete(currentOption.id); handleOptionClose(); }}>Delete</MenuItem>
+                                                    
+                                                </Menu>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                                 <p className="text-[8px]">{moment(experience?.createdAt).fromNow()}</p>
                                 {experience?.tagusers.length > 0 && experience?.tagusers.map((taguser, index) => (

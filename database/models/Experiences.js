@@ -10,6 +10,7 @@ const ExperienceSchema = new mongoose.Schema({
   likes: [{ userId: { type: String, ref: 'Users' }, createAt: { type: Date, default: Date.now } }],
   createdAt: { type: Date, default: Date.now },
   comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ExperienceComments' }],
+  pinned: { type: Boolean, default: false },
 });
 
 export default mongoose.models.Experiences || mongoose.model('Experiences', ExperienceSchema);

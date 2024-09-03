@@ -32,6 +32,7 @@ const Satisfaction = () => {
                     console.log(response.data.data.teamGrop);
                     if (response.data.success && response.data.data.teamGrop === 'TCON' || 
                         response.data.data.teamGrop === 'PB' || 
+                        response.data.data.teamGrop === 'CRSG' ||
                         response.data.data.teamGrop === null) {
                         router.push('/main');
                         return;
@@ -128,7 +129,7 @@ const Satisfaction = () => {
                     confirmButtonText: 'ตกลง',
                     confirmButtonColor: '#00D655',
                 }).then(() => {
-                    router.back();
+                    router.push('/main');
                 });
             }
         } catch (error) {

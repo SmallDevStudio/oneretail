@@ -136,6 +136,7 @@ const SatisfactionTable = () => {
                         <th className="w-52">Picture</th>
                         <th className="w-32">EmpId</th>
                         <th className="w-52">Name</th>
+                        <th className="w-52">Group</th>
                         <th className="w-52">Date</th>
                         <th className="w-52">Action</th>
                     </tr>
@@ -164,6 +165,7 @@ const SatisfactionTable = () => {
                                 </td>
                                 <td>{satisfaction.user.empId}</td>
                                 <td>{satisfaction.user.fullname}</td>
+                                <td>{satisfaction.emp?.teamGrop}</td>
                                 <td>{moment(satisfaction.createdAt).format("LLLL")}</td>
                                 <td>
                                     <div className="flex flex-row items-center justify-center gap-2">

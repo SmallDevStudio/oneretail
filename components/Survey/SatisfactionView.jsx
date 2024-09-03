@@ -19,7 +19,6 @@ const customStyles = {
 };
 
 const SatisfactionView = ({ isOpen, onRequestClose, data }) => {
-    console.log('data', data);
   return (
     <Modal 
         isOpen={isOpen} 
@@ -46,16 +45,20 @@ const SatisfactionView = ({ isOpen, onRequestClose, data }) => {
             <p className='font-bold'>
                 2. คุณจะแนะนำ One Retail Society ของเราให้ผู้อื่นหรือไม่?
             </p>
-            <span className='text-[#0056FF] font-bold'>{data.recommend}</span>
+            <span className='text-[#0056FF] font-bold'>{data.recommend? data.recommend : 'ไม่ระบุ'}</span>
         </div>
         <div className="flex flex-col">
             <p className='font-bold'>
                 3. ฟีเจอร์ใดที่คุณชอบมากที่สุดใน One Retail Society?
             </p>
             <div className="flex flex-wrap gap-2">
-                {data.featureLike.map((feature, index) => (
+                {data.featureLike.length > 0 ?
+                data.featureLike.map((feature, index) => (
                     <span key={index} className='text-[#0056FF] font-bold'>{feature}</span>
-                ))}
+                ))
+                :
+                <span className='text-[#0056FF] font-bold'>ไม่ระบุ</span>
+                }
             </div>
         </div>
         <div className="flex flex-col">
@@ -63,28 +66,32 @@ const SatisfactionView = ({ isOpen, onRequestClose, data }) => {
                 4. ฟีเจอร์ใดที่คุณคิดว่าควรปรับปรุง?
             </p>
             <div className="flex flex-wrap gap-2">
-                {data.improved.map((improved, index) => (
-                    <span key={index} className='text-[#0056FF] font-bold'>{improved}</span>
-                ))}
+                {data.improved.length > 0? 
+                    data.improved.map((improved, index) => (
+                        <span key={index} className='text-[#0056FF] font-bold'>{improved}</span>
+                    )) 
+                :
+                <span className='text-[#0056FF] font-bold'>ไม่ระบุ</span>
+                }    
             </div>
         </div>
         <div className="flex flex-col">
             <p className='font-bold'>
                 5. มีฟีเจอร์อื่นๆ ที่คุณอยากให้เราเพิ่มหรือไม่?
             </p>
-            <span className='text-[#0056FF] font-bold'>{data.featuresAdd}</span>
+            <span className='text-[#0056FF] font-bold'>{data.featuresAdd? data.featuresAdd : 'ไม่ระบุ'}</span>
         </div>
         <div className="flex flex-col">
             <p className='font-bold'>
                 6.คุณเคยเจอปัญหาในการใช้งาน One Retail Society บ้างไหม?
             </p>
-            <span className='text-[#0056FF] font-bold'>{data.problems}</span>
+            <span className='text-[#0056FF] font-bold'>{data.problems? data.problems : 'ไม่ระบุ'}</span>
         </div>
         <div className="flex flex-col">
             <p className='font-bold'>
                 7. คุณมีข้อเสนอแนะอะไรที่จะช่วยให้ One Retail Society ดีขึ้น?
             </p>
-            <span className='text-[#0056FF] font-bold'>{data.suggestions}</span>
+            <span className='text-[#0056FF] font-bold'>{data.suggestions? data.suggestions : 'ไม่ระบุ'}</span>
         </div>
       </div>
       <div className="modal-footer flex justify-center w-full">
