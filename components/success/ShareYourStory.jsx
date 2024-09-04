@@ -14,6 +14,7 @@ import ImageGallery from "../club/ImageGallery";
 import Swal from "sweetalert2";
 import moment from "moment";
 import "moment/locale/th";
+import { BsPinAngleFill } from "react-icons/bs";
 moment.locale('th');
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
@@ -398,6 +399,24 @@ const ShareYourStory = () => {
         }
     };
 
+    const handlePinned = async (postId, pinned) => {
+        if (!pinned || pinned === false || pinned === null) {
+            pinned = true;
+        } else {
+            pinned = false;
+        }
+
+        try {
+            await axios.put('/api/posts/pinned', {
+                id: postId,
+                pinned
+            });
+            mutate();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     if (error) return <div>failed to load</div>;
     if (!data) return (
         <div className="flex justify-center items-center w-full h-full p-10">
@@ -450,20 +469,30 @@ const ShareYourStory = () => {
                             <div className="flex flex-col w-full ml-2">
                                 <div className="flex flex-row justify-between items-center">
                                     <p className="text-xs font-bold text-[#0056FF]">{post?.user?.fullname}</p>
-                                    {(post.userId === session?.user?.id || user?.user?.role === 'admin' || user?.user?.role === 'manager') && (
-                                        <div className="relative">
-                                            <BsThreeDotsVertical onClick={(e) => handleOptionClick(e, 'post', post._id)} />
-                                            <Menu
-                                                anchorEl={anchorEl}
-                                                open={Boolean(anchorEl)}
-                                                onClose={handleOptionClose}
-                                                classes={{ paper: "text-xs" }}
-                                            >
-                                                <MenuItem onClick={() => { handleDelete(currentOption.id); handleOptionClose(); }}>Delete</MenuItem>
-                                                <MenuItem onClick={() => { handlePoints(post); handleOptionClose(); }}>Point</MenuItem>
-                                            </Menu>
-                                        </div>
-                                    )}
+                                    <div className="flex flex-row gap-2">
+                                        {post?._id && post?.pinned ? (
+                                            <BsPinAngleFill className="text-[#0056FF]" />
+                                        ) : (
+                                            ''
+                                        )}
+                                        {(post.userId === session?.user?.id || user?.user?.role === 'admin' || user?.user?.role === 'manager') && (
+                                            <div className="relative">
+                                                <BsThreeDotsVertical onClick={(e) => handleOptionClick(e, 'post', post._id)} />
+                                                <Menu
+                                                    anchorEl={anchorEl}
+                                                    open={Boolean(anchorEl) && currentOption?.id === post._id}
+                                                    onClose={handleOptionClose}
+                                                    classes={{ paper: "text-xs" }}
+                                                >
+                                                    <MenuItem onClick={() => { handlePinned(post?._id, post?.pinned); handleOptionClose(); }}>
+                                                        {post?.pinned ? 'Unpin' : 'Pin'}
+                                                    </MenuItem>
+                                                    <MenuItem onClick={() => { handlePoints(post); handleOptionClose(); }}>Point</MenuItem>
+                                                    <MenuItem onClick={() => { handleDelete(currentOption.id); handleOptionClose(); }}>Delete</MenuItem>
+                                                </Menu>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                                 <p className=" text-left text-[8px]">{moment(post?.createdAt).fromNow()}</p>
                                 <div className="inline flex-wrap flex-row text-left gap-1 items-center w-full mt-[-5px]">

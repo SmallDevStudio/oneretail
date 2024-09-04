@@ -9,6 +9,7 @@ const PostSchema = new mongoose.Schema({
   userId: { type: String, ref: 'Users', required: true },
   likes: [{ userId: { type: String, ref: 'Users' }, createAt: { type: Date, default: Date.now } }],
   comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
+  pinned: { type: Boolean, default: false },
 }, { timestamps: true });
 
 export default mongoose.models.Post || mongoose.model('Post', PostSchema);

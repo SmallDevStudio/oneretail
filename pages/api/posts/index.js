@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     switch (method) {
         case 'GET':
           try {
-            const posts = await Post.find().sort({ createdAt: -1 });
+            const posts = await Post.find().sort({ pinned: -1, createdAt: -1 });
             const userIds = posts.map(posts => posts.userId);
                 const users = await Users.find({ userId: { $in: userIds } });
                 const userMap = users.reduce((acc, user) => {
