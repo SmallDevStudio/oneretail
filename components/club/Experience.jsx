@@ -432,7 +432,7 @@ const Experience = () => {
                                     <p className="text-xs font-bold text-[#0056FF]">{experience?.user?.fullname}</p>
                                     <div className="flex flex-row gap-2">
                                         {experience?._id && experience?.pinned ? (
-                                            <BsPinAngleFill className="text-[#0056FF]" />
+                                            <BsPinAngleFill className="text-[#F68B1F]" />
                                         ) : (
                                             ''
                                         )}
