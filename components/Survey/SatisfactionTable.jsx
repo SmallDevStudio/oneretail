@@ -79,6 +79,7 @@ const SatisfactionTable = () => {
             return {
                 empId: item?.user?.empId,
                 name: item?.user?.fullname,
+                teamGrop: item?.emp?.teamGrop,
                 satisfied: item?.satisfied,
                 recommend: item?.recommend? item?.recommend : 'ไม่มี',
                 ...featureLike,
