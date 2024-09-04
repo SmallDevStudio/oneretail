@@ -431,19 +431,24 @@ const Experience = () => {
                                 <div className="flex flex-row justify-between items-center">
                                     <p className="text-xs font-bold text-[#0056FF]">{experience?.user?.fullname}</p>
                                     <div className="flex flex-row gap-2">
-                                        {experience?._id && experience?.pinned ? <BsPinAngleFill className="text-[#0056FF]" /> : ''}
+                                        {experience?._id && experience?.pinned ? (
+                                            <BsPinAngleFill className="text-[#0056FF]" />
+                                        ) : (
+                                            ''
+                                        )}
                                         {(experience.userId === session?.user?.id || user?.user?.role === 'admin' || user?.user?.role === 'manager') && (
                                             <div className="relative">
                                                 <BsThreeDotsVertical onClick={(e) => handleOptionClick(e, 'post', experience._id)} />
                                                 <Menu
                                                     anchorEl={anchorEl}
-                                                    open={Boolean(anchorEl)}
+                                                    open={Boolean(anchorEl) && currentOption?.id === experience._id}
                                                     onClose={handleOptionClose}
                                                     classes={{ paper: "text-xs" }}
                                                 >
-                                                    <MenuItem onClick={() => { handlePinned(experience?._id, experience?.pinned); handleOptionClose()}}>{experience?.pinned ? 'Unpin' : 'Pin'}</MenuItem>
-                                                    <MenuItem onClick={() => { handleDelete(currentOption.id); handleOptionClose(); }}>Delete</MenuItem>
-                                                    
+                                                    <MenuItem onClick={() => { handlePinned(experience._id, experience?.pinned); handleOptionClose(); }}>
+                                                        {experience?.pinned ? 'Unpin' : 'Pin'}
+                                                    </MenuItem>
+                                                    <MenuItem onClick={() => { handleDelete(experience._id); handleOptionClose(); }}>Delete</MenuItem>
                                                 </Menu>
                                             </div>
                                         )}
