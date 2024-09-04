@@ -63,6 +63,7 @@ const SatisfactionTable = () => {
     };
 
     const handleExport = (data) => {
+        console.log(data);
         setLoading(true);
         const formattedData = data.map(item => {
             const featureLike = {};
@@ -76,16 +77,16 @@ const SatisfactionTable = () => {
             });
     
             return {
-                empId: item.user.empId,
-                name: item.user.fullname,
-                satisfied: item.satisfied,
-                recommend: item.recommend? item.recommend : 'ไม่มี',
+                empId: item?.user?.empId,
+                name: item?.user?.fullname,
+                satisfied: item?.satisfied,
+                recommend: item?.recommend? item?.recommend : 'ไม่มี',
                 ...featureLike,
                 ...improved,
-                featuresAdd: item.featuresAdd? item.featuresAdd : 'ไม่มี',
-                problems: item.problems? item.problems : 'ไม่มี',
-                suggestions: item.suggestions? item.suggestions : 'ไม่มี',
-                createdAt: moment(item.createdAt).format('LLL'),
+                featuresAdd: item?.featuresAdd? item?.featuresAdd : 'ไม่มี',
+                problems: item?.problems? item?.problems : 'ไม่มี',
+                suggestions: item?.suggestions? item?.suggestions : 'ไม่มี',
+                createdAt: moment(item?.createdAt).format('LLL'),
             };
         });
     
