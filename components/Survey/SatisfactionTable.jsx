@@ -149,8 +149,8 @@ const SatisfactionTable = () => {
                                 <td>
                                     <div className="flex justify-center items-center">
                                         <Image
-                                            src={satisfaction.user.pictureUrl}
-                                            alt={satisfaction.user.fullname}
+                                            src={satisfaction?.user?.pictureUrl}
+                                            alt={satisfaction?.user?.fullname}
                                             width={50}
                                             height={50}
                                             className="rounded-full"
@@ -163,10 +163,10 @@ const SatisfactionTable = () => {
                                         />
                                     </div>
                                 </td>
-                                <td>{satisfaction.user.empId}</td>
-                                <td>{satisfaction.user.fullname}</td>
-                                <td>{satisfaction.emp?.teamGrop}</td>
-                                <td>{moment(satisfaction.createdAt).format("LLLL")}</td>
+                                <td>{satisfaction?.user?.empId}</td>
+                                <td>{satisfaction?.user?.fullname}</td>
+                                <td>{satisfaction?.emp?.teamGrop}</td>
+                                <td>{moment(satisfaction?.createdAt).format("LLLL")}</td>
                                 <td>
                                     <div className="flex flex-row items-center justify-center gap-2">
                                         <button>
@@ -181,7 +181,7 @@ const SatisfactionTable = () => {
                                         <button>
                                             <RiDeleteBinLine 
                                                 size={20}
-                                                onClick={() => handleDelete(satisfaction._id)}
+                                                onClick={() => handleDelete(satisfaction?._id)}
                                             />
                                         </button>
                                     </div>
