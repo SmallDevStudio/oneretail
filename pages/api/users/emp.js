@@ -39,7 +39,12 @@ export default async function handler(req, res) {
                     group: emp.group,
                     chief_th: emp.chief_th,
                     chief_eng: emp.chief_eng,
-                    position: emp.position
+                    position: emp.position,
+                    branch_en: emp.branch_en,
+                    department_en: emp.department_en,
+                    group_en: emp.group_en,
+                    position2: emp.position2,
+                    position3: emp.position3,
                 };
             });
             if (!teamGrop) {

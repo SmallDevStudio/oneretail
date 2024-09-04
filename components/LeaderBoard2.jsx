@@ -15,7 +15,7 @@ const LeaderBoard2 = ({ usersData, loggedInUserId }) => {
     const [selectedTeam, setSelectedTeam] = useState("All");
     const [showModal, setShowModal] = useState(false);
     const { data, error, isLoading } = useSWR('/api/leaderboard2', fetcher);
-    
+
     if (isLoading) return <Loading />;
     if (!data) return <div>Error {error}</div>;
 
@@ -57,7 +57,7 @@ const LeaderBoard2 = ({ usersData, loggedInUserId }) => {
             </div>
             <div className="relative bg-yellow-600/70 min-h-[30vh] rounded-b-2xl p-2 shadow-lg">
                 <div className="flex justify-center">
-                    {["All", "Retail", "AL", "TCON"].map(team => (
+                    {["All", "Retail", "AL", "TCON", "PB"].map(team => (
                         <button 
                             key={team} 
                             className={`p-2 mx-2 ${selectedTeam === team ? 'bg-[#F68B1F] text-white' : 'bg-gray-200'} w-20 text-center justify-center rounded-full mt-2 font-bold text-[#0056FF]`}
