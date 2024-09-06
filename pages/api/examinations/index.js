@@ -1,5 +1,5 @@
 import connectMongoDB from "@/lib/services/database/mongodb";
-import Examinations from "@/database/models/Examinations";
+import Examinations from "@/database/models/Examination";
 
 export default async function handler(req, res) {
     const { method } = req;
