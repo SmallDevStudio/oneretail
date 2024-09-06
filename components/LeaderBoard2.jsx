@@ -11,17 +11,19 @@ import InformationModal from "./InformationModal";
 
 const fetcher = (url) => axios.get(url).then(res => res.data);
 
-const LeaderBoard2 = ({ usersData, loggedInUserId }) => {
+const LeaderBoard2 = ({ loggedInUserId }) => {
+    const { data: session } = useSession();
     const [selectedTeam, setSelectedTeam] = useState("All");
     const [showModal, setShowModal] = useState(false);
     const { data, error, isLoading } = useSWR('/api/leaderboard2', fetcher);
+    const { data: usersData, error: usersError, isLoading: usersIsLoading } = useSWR('/api/users/position', fetcher);
 
-    if (isLoading) return <Loading />;
-    if (!data) return <div>Error {error}</div>;
+    console.log(usersData);
+
 
     const filterByTeam = (users, team) => {
         if (team === "All") return users;
-        return users.filter(user => user.teamGrop === team);
+        return users.filter(user => user.position === team);
     };
 
     const filteredUsers = filterByTeam(usersData.data, selectedTeam);
@@ -47,6 +49,10 @@ const LeaderBoard2 = ({ usersData, loggedInUserId }) => {
         setShowModal(false);
     }
 
+    
+    if (isLoading || usersIsLoading) return <Loading />;
+    if (!data) return <div>Error {error}</div>;
+
     return (
         <div className="flex flex-col">
             <div className="flex flex-row w-full items-center justify-center gap-1">
@@ -56,15 +62,17 @@ const LeaderBoard2 = ({ usersData, loggedInUserId }) => {
                 />
             </div>
             <div className="relative bg-yellow-600/70 min-h-[30vh] rounded-b-2xl p-2 shadow-lg">
-                <div className="flex justify-center">
-                    {["All", "Retail", "AL", "TCON", "PB"].map(team => (
-                        <button 
-                            key={team} 
-                            className={`p-2 mx-2 ${selectedTeam === team ? 'bg-[#F68B1F] text-white' : 'bg-gray-200'} w-20 text-center justify-center rounded-full mt-2 font-bold text-[#0056FF]`}
-                            onClick={() => setSelectedTeam(team)}
-                        >
-                            {team}
-                        </button>
+                <div className="flex flex-row overflow-x-auto w-full">
+                    {["All", "ABM", "BM", "CSO", "Gen", "GH", "IA", "IVS", "LS", "LSM", "PB", "RH", "SPB", "Tele", "TL", "TM", "ZH"].map(team => (
+                        <div key={team} className="flex w-1/5">
+                            <button 
+                                className={`p-2 px-4 mx-2 ${selectedTeam === team ? 'bg-[#F68B1F] text-white' : 'bg-gray-200'} 
+                                flex text-center justify-center rounded-2xl mt-2 font-bold text-[#0056FF] text-xs`}
+                                onClick={() => setSelectedTeam(team)}
+                            >
+                                {team}
+                            </button>
+                        </div>
                     ))}
                 </div>
 

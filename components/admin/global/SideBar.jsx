@@ -14,6 +14,7 @@ import { GoFileMedia } from "react-icons/go";
 import { TbReportAnalytics } from "react-icons/tb";
 import { TfiLayoutSlider } from "react-icons/tfi";
 import { IoShareSocialOutline } from "react-icons/io5";
+import { PiExam } from "react-icons/pi";
 import Image from "next/image";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
@@ -250,6 +251,14 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                   />
 
               </SubMenu>
+
+                  <Item
+                  title="จัดการข้อสอบ"
+                  to="/admin/exams"
+                  icon={<PiExam />}
+                  selected={selected}
+                  setSelected={setSelected}
+                  />
 
                   <Item
                   title="จัดการ Vote"
