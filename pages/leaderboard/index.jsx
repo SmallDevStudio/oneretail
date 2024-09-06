@@ -259,7 +259,6 @@ export default function LeaderBoard() {
             )}
             {activeTab === 'leaderboard2' && (
                 <LeaderBoard2 
-                    usersData={usersData}
                     loggedInUserId={loggedInUserId}
                 />
             )}

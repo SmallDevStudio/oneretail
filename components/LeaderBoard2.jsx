@@ -13,21 +13,23 @@ const fetcher = (url) => axios.get(url).then(res => res.data);
 
 const LeaderBoard2 = ({ loggedInUserId }) => {
     const { data: session } = useSession();
-    const [selectedTeam, setSelectedTeam] = useState("ABM");
+    const [selectedTeam, setSelectedTeam] = useState("All");
     const [showModal, setShowModal] = useState(false);
-    const { data, error, isLoading } = useSWR('/api/leaderboard2', fetcher);
     const { data: usersData, error: usersError, isLoading: usersIsLoading } = useSWR('/api/users/position', fetcher);
-
+    const { data, error, isLoading } = useSWR('/api/leaderboard2', fetcher);
+    
     console.log(usersData);
 
+    if (isLoading || usersIsLoading || !usersData) return <Loading />;
+    if (!data || error || usersError) return <div>Error {error}</div>;
 
     const filterByTeam = (users, team) => {
         if (team === "All") return users;
         return users.filter(user => user.position === team);
     };
 
-    const filteredUsers = filterByTeam(usersData.data, selectedTeam);
-    const filteredPoints = data.data.filter(point => filteredUsers.some(user => user.userId === point.userId));
+    const filteredUsers = filterByTeam(usersData?.data, selectedTeam);
+    const filteredPoints = data?.data.filter(point => filteredUsers.some(user => user.userId === point.userId));
     
     const topThree = filteredPoints.slice(0, 3);
     const others = filteredPoints.slice(3);
@@ -49,9 +51,6 @@ const LeaderBoard2 = ({ loggedInUserId }) => {
         setShowModal(false);
     }
 
-    
-    if (isLoading || usersIsLoading) return <Loading />;
-    if (!data) return <div>Error {error}</div>;
 
     return (
         <div className="flex flex-col">
@@ -63,7 +62,7 @@ const LeaderBoard2 = ({ loggedInUserId }) => {
             </div>
             <div className="relative bg-yellow-600/70 min-h-[30vh] rounded-b-2xl p-2 shadow-lg">
                 <div className="flex flex-row overflow-x-auto w-full">
-                    {["ABM", "BM", "CSO", "Gen", "GH", "IA", "IVS", "LS", "LSM", "PB", "RH", "SPB", "Tele", "TL", "TM", "ZH"].map(team => (
+                    {["All", "ABM", "BM", "CSO", "Gen", "GH", "IA", "IVS", "LS", "LSM", "PB", "RH", "SPB", "Tele", "TL", "TM", "ZH"].map(team => (
                         <div key={team} className="flex w-1/5">
                             <button 
                                 className={`p-2 px-4 mx-2 ${selectedTeam === team ? 'bg-[#F68B1F] text-white' : 'bg-gray-200'} 
