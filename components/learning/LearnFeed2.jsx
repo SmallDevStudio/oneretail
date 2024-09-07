@@ -6,21 +6,25 @@ import ReactPlayer from "react-player";
 
 const LearnFeed2 = ({ contents }) => {
     const { data: session } = useSession();
-    // Get unique group names and add "All"
-    const groups = ["All", ...new Set(contents.map(content => content.groups && content.groups.name ? content.groups.name : null).filter(Boolean))];
+    
+    // Get unique group names and add "NewFeed"
+    const groups = ["NewFeed", ...new Set(contents.map(content => content.groups && content.groups.name ? content.groups.name : null).filter(Boolean))];
 
-
-    const [selectedGroup, setSelectedGroup] = useState("All");
-    const [selectedSubGroup, setSelectedSubGroup] = useState("All");
+    // Set default selectedGroup to "NewFeed"
+    const [selectedGroup, setSelectedGroup] = useState("NewFeed");
+    const [selectedSubGroup, setSelectedSubGroup] = useState(null);
     const [subGroups, setSubGroups] = useState([]);
     const [videoUrl, setVideoUrl] = useState(null);
 
     useEffect(() => {
-        const filteredContents = selectedGroup === "All"
+        // Treat "NewFeed" like "All"
+        const isNewFeed = selectedGroup === "NewFeed";
+        
+        const filteredContents = isNewFeed
             ? contents
             : contents.filter(content => content.groups && content.groups.name === selectedGroup);
     
-        const uniqueSubGroups = ["All", ...new Set(filteredContents.map(content =>
+        const uniqueSubGroups = [...new Set(filteredContents.map(content =>
             content.subgroups && content.subgroups.name ? content.subgroups.name : null
         ).filter(Boolean))];
         setSubGroups(uniqueSubGroups);
@@ -34,8 +38,9 @@ const LearnFeed2 = ({ contents }) => {
     }, [selectedGroup, contents]);
 
     const filteredContents = contents.filter(content => 
-        (selectedGroup === "All" || (content.groups && content.groups.name === selectedGroup)) &&
-        (selectedSubGroup === "All" || (Array.isArray(content.subgroups) 
+        // Treat "NewFeed" like "All"
+        (selectedGroup === "NewFeed" || (content.groups && content.groups.name === selectedGroup)) &&
+        (!selectedSubGroup || (Array.isArray(content.subgroups) 
             ? content.subgroups.some(subgroup => subgroup.name === selectedSubGroup) 
             : content.subgroups && content.subgroups.name === selectedSubGroup))
     );
@@ -54,7 +59,7 @@ const LearnFeed2 = ({ contents }) => {
                             className={`cursor-pointer px-2 py-1 rounded-xl text-nowrap font-bold ${selectedGroup === group ? "bg-[#0056FF] text-white" : "bg-[#0056FF]/20 text-black"}`}
                             onClick={() => {
                                 setSelectedGroup(group);
-                                setSelectedSubGroup("All");
+                                setSelectedSubGroup(null);
                             }}
                         >
                             {group}
@@ -63,7 +68,7 @@ const LearnFeed2 = ({ contents }) => {
                 </ul>
                 <div className="absolute top-0 right-0 w-10 h-full bg-gradient-to-l from-white"></div>
             </div>
-            {selectedGroup !== "All" && subGroups.length > 1 && (
+            {selectedGroup !== "NewFeed" && subGroups.length > 0 && (
                 <div className="flex px-5 justify-center w-full">
                     <select 
                         name="subgroup" 
@@ -72,12 +77,13 @@ const LearnFeed2 = ({ contents }) => {
                         onChange={(e) => {
                             setSelectedSubGroup(e.target.value);
                         }}
-                        value={selectedSubGroup}
+                        value={selectedSubGroup || ""}
                     >
+                        <option value="">All Subgroups</option>
                         {subGroups.map(subgroup => (
                             <option key={subgroup} value={subgroup}>{subgroup}</option>
                         ))}
-                        </select>
+                    </select>
                     <div className="absolute top-0 right-0 w-10 h-full bg-gradient-to-l from-white"></div>
                 </div>
             )}
