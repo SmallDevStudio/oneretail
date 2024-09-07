@@ -8,19 +8,19 @@ const LearnFeed2 = ({ contents }) => {
     const { data: session } = useSession();
     
     // Get unique group names and add "NewFeed"
-    const groups = ["NewFeed", ...new Set(contents.map(content => content.groups && content.groups.name ? content.groups.name : null).filter(Boolean))];
+    const groups = ["NewsFeed", ...new Set(contents.map(content => content.groups && content.groups.name ? content.groups.name : null).filter(Boolean))];
 
     // Set default selectedGroup to "NewFeed"
-    const [selectedGroup, setSelectedGroup] = useState("NewFeed");
+    const [selectedGroup, setSelectedGroup] = useState("NewsFeed");
     const [selectedSubGroup, setSelectedSubGroup] = useState(null);
     const [subGroups, setSubGroups] = useState([]);
     const [videoUrl, setVideoUrl] = useState(null);
 
     useEffect(() => {
         // Treat "NewFeed" like "All"
-        const isNewFeed = selectedGroup === "NewFeed";
+        const isNewsFeed = selectedGroup === "NewsFeed";
         
-        const filteredContents = isNewFeed
+        const filteredContents = isNewsFeed
             ? contents
             : contents.filter(content => content.groups && content.groups.name === selectedGroup);
     
@@ -39,7 +39,7 @@ const LearnFeed2 = ({ contents }) => {
 
     const filteredContents = contents.filter(content => 
         // Treat "NewFeed" like "All"
-        (selectedGroup === "NewFeed" || (content.groups && content.groups.name === selectedGroup)) &&
+        (selectedGroup === "NewsFeed" || (content.groups && content.groups.name === selectedGroup)) &&
         (!selectedSubGroup || (Array.isArray(content.subgroups) 
             ? content.subgroups.some(subgroup => subgroup.name === selectedSubGroup) 
             : content.subgroups && content.subgroups.name === selectedSubGroup))
