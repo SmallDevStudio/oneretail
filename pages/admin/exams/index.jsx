@@ -24,5 +24,5 @@ const ExamsPage = () => {
 
 export default ExamsPage;
 
-ExamsPage.getlayout = (page) => <AdminLayout>{page}</AdminLayout>;
+ExamsPage.getLayout = (page) => <AdminLayout>{page}</AdminLayout>;
 ExamsPage.auth = true;

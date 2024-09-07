@@ -17,5 +17,5 @@ const Examinations = () => {
 
 export default Examinations;
 
-Examinations.getlayout = (page) => <AppLayout>{page}</AppLayout>;
+Examinations.getLayout = (page) => <AppLayout>{page}</AppLayout>;
 Examinations.auth = true;
