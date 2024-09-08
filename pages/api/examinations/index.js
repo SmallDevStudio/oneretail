@@ -16,6 +16,7 @@ export default async function handler(req, res) {
             break;
 
         case "POST":
+            // Create a new examination
             try {
                 const examination = await Examinations.create(req.body);
                 res.status(201).json({ success: true, data: examination });

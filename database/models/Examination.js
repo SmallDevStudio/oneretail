@@ -1,12 +1,12 @@
 import mongoose from 'mongoose';
 
 const ExaminationSchema = new mongoose.Schema({
-    question: { type: String, required: true },
+    questions: { type: String, required: true },
     options: [{ type: String }],
     correctAnswer: { type: String },
     group: { type: String },
     position: { type: String },
-    isAnswer: { type: Boolean, default: false },
+    active: { type: Boolean, default: true },
     creator: { type: String, ref: 'Users' },
 },{ timestamps: true });
 
