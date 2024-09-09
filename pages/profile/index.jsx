@@ -172,14 +172,24 @@ const ProfileContent = ({ session }) => {
                 </div>
             </div>
             <UserModal isOpen={isModalOpen} onRequestClose={onRequestClose} user={user} onSubmit={onSubmit} />
-            <div className="flex p-2 flex-col items-center justify-center text-center mt-3 mb-5">
+            <div className="flex p-2 flex-col items-center justify-center text-center mt-3 w-full">
                 <Link href="/redeem">
-                    <button className="w-40 h-10 bg-[#F2871F] text-white rounded-3xl font-semibold text-xl mb-8 mt-3">
+                    <button className="w-40 h-10 bg-[#F2871F] text-white rounded-3xl font-semibold text-xl mb-5 mt-3">
                         <span>
                             Redeem
                         </span>
                     </button>
                 </Link>
+                <div className="flex p-2 flex-col items-center justify-center text-center mb-3">
+                    <span className="text-2xl font-bold text-[#0056FF] mb-2" style={{
+                        fontFamily: "Ekachon",
+                    }}>
+                        Learning Badge
+                    </span>
+                    <div className="flex flex-row gap-2 bg-gray-200 rounded-xl p-1 w-[100vw] h-[80px]">
+
+                    </div>
+                </div>
                 <button className="bg-[#0056FF] text-white rounded-3xl font-semibold text-lg mb-3" style={{ width: 320, height: 50 }}>
                     <span>
                         ข้อมูลความสุขในการทำงานของคุณ

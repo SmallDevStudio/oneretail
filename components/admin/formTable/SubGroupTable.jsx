@@ -122,27 +122,25 @@ const SubGroupTable = () => {
   return (
     <div className={styles.container}>
     
-      <table {...getTableProps()} className={styles.table}>
+      <table className={styles.table}>
         <thead>
-          {headerGroups.map(headerGroup => (
-            <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
-              {headerGroup.headers.map(column => (
-                <th {...column.getHeaderProps()} key={column.id}>{column.render('Header')}</th>
-              ))}
+          <tr>
+            <td>Name</td>
+            <td>Description</td>
+            <td>Actions</td>
+          </tr>
+        </thead>
+        <tbody>
+          {data && data.map((subgroup, index) => (
+            <tr key={subgroup._id}>
+              <td>{subgroup.name}</td>
+              <td>{subgroup.description}</td>
+              <td>
+                <button onClick={() => handleEdit(index)} className={styles.button}>Edit</button>
+                <button onClick={() => handleDelete(subgroup._id)} className={styles.button}>Delete</button>
+              </td>
             </tr>
           ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {page.map(row => {
-            prepareRow(row);
-            return (
-              <tr {...row.getRowProps()} key={row.id}>
-                {row.cells.map(cell => (
-                  <td {...cell.getCellProps()} key={cell.column.id}>{cell.render('Cell')}</td>
-                ))}
-              </tr>
-            );
-          })}
         </tbody>
       </table>
       

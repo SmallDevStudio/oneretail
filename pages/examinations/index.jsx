@@ -28,7 +28,17 @@ const ExaminationsPage = () => {
     const router = useRouter();
     const userId = session?.user?.id;
 
-    
+    useEffect(() => {
+        if (session) {
+            const res = axios.get(`/api/examinations/answers?userId=${userId}`);
+            res.then((res) => {
+                if (res.data && res.data.data && res.data.data.length > 0) {
+                    router.push("/main");
+                    return;
+                }
+            });
+        }
+    }, [router, session, userId])
 
     useEffect(() => {
         if (data && data.data) {
@@ -195,7 +205,6 @@ const ExaminationsPage = () => {
             <div className="flex flex-col px-4 w-full">
                 {!showIncorrectAnswers ? (
                     <div className="flex flex-col bg-white rounded-lg p-4 text-left">
-                        <span>Question</span>
                     <h1 className="text-xl font-bold">คำถามที่ {currentQuestionIndex + 1}</h1>
                     <Divider className="w-full my-2" />
                     <p className="text-md font-semibold">{questions[currentQuestionIndex].questions}</p>
@@ -221,7 +230,9 @@ const ExaminationsPage = () => {
                             <span 
                                 className={`font-bold text-md ${userAnswers[currentQuestionIndex]?.isCorrect ? 'text-green-500' : 'text-red-500'}`}
                             >
-                                {userAnswers[currentQuestionIndex]?.isCorrect ? 'Correct!' : 'Incorrect!'}
+                                {userAnswers[currentQuestionIndex]?.isCorrect ? 
+                                    'ตอบถูก' : 'ตอบผิด'
+                                }
                             </span>
                             <p className="text-sm">
                                 <strong>คำเฉลย:</strong> {explanation}
@@ -251,7 +262,6 @@ const ExaminationsPage = () => {
                 ) : (
                     showIncorrectAnswers && incorrectAnswers.length > 0 && (
                         <div className="flex flex-col bg-white rounded-lg p-4 text-left">
-                        <span>Question2</span>
                         <h1 className="text-xl font-bold">คำถามที่ {incorrectAnswers[currentQuestionIndex].index +1}</h1>
                         <Divider className="w-full my-2" />
                         <p className="text-md font-semibold">{incorrectAnswers[currentQuestionIndex].questions}</p>
@@ -277,7 +287,9 @@ const ExaminationsPage = () => {
                             <span 
                                 className={`font-bold text-md ${incorrectAnswers[currentQuestionIndex]?.isCorrect ? 'text-green-500' : 'text-red-500'}`}
                             >
-                                {incorrectAnswers[currentQuestionIndex]?.isCorrect ? 'Correct!' : 'Incorrect!'}
+                                {incorrectAnswers[currentQuestionIndex]?.isCorrect ? 
+                                    'ตอบถูก' : 'ตอบผิด'
+                                }
                             </span>
                             <p className="text-sm">
                                 <strong>คำเฉลย:</strong> {explanation}

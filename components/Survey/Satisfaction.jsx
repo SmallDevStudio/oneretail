@@ -29,11 +29,10 @@ const Satisfaction = () => {
             if (session?.user?.id) {
                 try {
                     const response = await axios.get(`/api/satisfactions/user?userId=${session.user.id}`);
-                    console.log(response.data.data.teamGrop);
-                    if (response.data.success && response.data.data.teamGrop === 'TCON' || 
-                        response.data.data.teamGrop === 'PB' || 
-                        response.data.data.teamGrop === 'CRSG' ||
-                        response.data.data.teamGrop === null) {
+                    if (response?.data?.success && 
+                        response?.data?.data?.teamGrop === 'TCON' || 
+                        response?.data?.data?.teamGrop === 'PB' || 
+                        response?.data?.data?.teamGrop === null) {
                         router.push('/main');
                         return;
                     } 
@@ -51,7 +50,7 @@ const Satisfaction = () => {
             if (session?.user?.id) {
                 try {
                     const response = await axios.get(`/api/satisfactions/${session.user.id}`);
-                    if (response.data.success && response.data.data.length > 0) {
+                    if (response?.data?.success && response?.data?.data?.length > 0) {
                         router.push('/main');; // If satisfaction data exists, go back to the previous page
                     }
                 } catch (error) {
@@ -108,7 +107,7 @@ const Satisfaction = () => {
         if (hasError) return;
 
         const survey = {
-            userId: session.user.id,
+            userId: session?.user?.id,
             satisfied,
             recommend,
             featureLike,
