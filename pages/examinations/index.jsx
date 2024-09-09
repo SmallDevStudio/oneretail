@@ -28,17 +28,7 @@ const ExaminationsPage = () => {
     const router = useRouter();
     const userId = session?.user?.id;
 
-    useEffect(() => {
-        if (session) {
-            const res = axios.get(`/api/examinations/answers?userId=${userId}`);
-            res.then((res) => {
-                if (res.data && res.data.data && res.data.data.length > 0) {
-                    router.push("/main");
-                    return;
-                }
-            });
-        }
-    }, [router, session, userId])
+    
 
     useEffect(() => {
         if (data && data.data) {
