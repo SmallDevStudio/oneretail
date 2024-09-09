@@ -27,7 +27,7 @@ export default async function handler(req, res) {
 
         if (type === 'earn') {
             // ส่งข้อความไปที่ LINE
-          const message = `คุณได้รับ ${description} ${points}`;
+          const message = `คุณได้รับ ${points} คะแนน จาก ${description} `;
           sendLineMessage(userId, message);
         }
   

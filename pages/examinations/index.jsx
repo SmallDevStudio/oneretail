@@ -168,14 +168,12 @@ const ExaminationsPage = () => {
                 userId,
                 exams: userAnswers,
             }
-
-            console.log(data);
             const res = await axios.post('/api/examinations/answers', data);
 
-            if (res.status === 200) {
+            if (res.data.success) {
                 console.log(res.data);
                 await axios.post('api/points/point', {
-                    userId: session.user._id,
+                    userId: userId,
                     description: 'ทำข้อสอบ',
                     contentId: res.data.data._id,
                     path: 'examinations',
