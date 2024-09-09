@@ -13,6 +13,7 @@ import LoadingFeed from "@/components/LoadingFeed";
 import Loading from "@/components/Loading";
 import moment from "moment";
 import axios from "axios";
+import Swal from "sweetalert2";
 moment.locale("th");
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
@@ -73,20 +74,30 @@ export default function Redeem() {
     const handleRedeemClick = async (redeemItem) => {
       setSelectedRedeem(redeemItem);
       if (userCoins >= parseFloat(redeemItem.coins)) {
-        try {
-          const res = await axios.post('api/redeemtrans', {
-            redeemId: redeemItem._id,
-            userId: session?.user?.id,
-          })
+        const result = Swal.fire({
+          title: 'ยืนยันการแลก',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'แลก',
+          cancelButtonText: 'ยกเลิก',
+        })
 
-          mutateRedeem();
-          mutateRedeemTrans();
-          mutateLevel();
-          mutateCoins();
-          setSuccessModal(true);
-        } catch (error) {
-          console.log(error);
-        }
+        if (result.isConfirmed) {
+          try {
+            const res = await axios.post('api/redeemtrans', {
+              redeemId: redeemItem._id,
+              userId: session?.user?.id,
+            })
+  
+            mutateRedeem();
+            mutateRedeemTrans();
+            mutateLevel();
+            mutateCoins();
+            setSuccessModal(true);
+          } catch (error) {
+            console.log(error);
+          }
+        } 
 
       }else{
         openNotificationModal("coins ไม่พอ");
