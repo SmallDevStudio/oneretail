@@ -43,21 +43,6 @@ export default function Campaign() {
             <div className="flex flex-col justify-center items-center max-w-[100vw] p-2">
                 <div className="flex flex-col w-full">
                     <div className="relative flex-col w-full justify-center items-center">
-                        <div 
-                            className="w-full"
-                            onClick={() => router.push('/socialclub')}
-                        >
-                            <Image
-                                src="https://res.cloudinary.com/dxshvbc9c/image/upload/v1724769857/wil8xtrcw8c3mux5ebgh.jpg"
-                                alt="Campaign"
-                                width={600}
-                                height={600}
-                                loading="lazy"
-                                className="w-full rounded-2xl mb-2"
-                                style={{ width: '600px', height: 'auto' }}
-                            />
-
-                        </div>
                         {campaigns && campaigns.map((campaign, index) => (
                             <div key={index} className="w-full"
                                 onClick={() => handleOnLink(campaign._id)}
