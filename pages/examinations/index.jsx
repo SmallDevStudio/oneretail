@@ -16,16 +16,29 @@ const ExaminationsPage = () => {
     const [optionSelected, setOptionSelected] = useState(null);
     const [userAnswers, setUserAnswers] = useState([]);
     const [reviewMode, setReviewMode] = useState(false);
+    const [incorrectAnswers, setIncorrectAnswers] = useState([]); // เก็บคำถามที่ตอบไม่ถูก
+    const [showIncorrectAnswers, setShowIncorrectAnswers] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [finished, setFinished] = useState(false);
     const [submitted, setSubmitted] = useState(true);
     const [explanation, setExplanation] = useState('');
 
     const { data, error, isLoading } = useSWR("/api/examinations/", fetcher);
     const { data: session } = useSession();
     const router = useRouter();
+    const userId = session?.user?.id;
 
-    console.log('userAnswers', userAnswers);
-    console.log('explanation', explanation);
+    useEffect(() => {
+        if (session) {
+            const res = axios.get(`/api/examinations/answers?userId=${userId}`);
+            res.then((res) => {
+                if (res.data && res.data.data && res.data.data.length > 0) {
+                    router.push("/main");
+                    return;
+                }
+            });
+        }
+    }, [router, session, userId])
 
     useEffect(() => {
         if (data && data.data) {
@@ -50,41 +63,140 @@ const ExaminationsPage = () => {
         if (!isCorrect) {
             // Add to review mode if incorrect
             setReviewMode(true);
+            setIncorrectAnswers(prev => [...prev, 
+                {
+                    index: currentQuestionIndex, 
+                    questionId: question._id,
+                    questions: question.questions,
+                    options: question.options,
+                    correctAnswer: question.correctAnswer,
+                    isCorrect: false
+                }
+            ]);
         }
 
         setExplanation(question.options[parseInt(question.correctAnswer)]);
 
-        if (currentQuestionIndex === questions.length - 1) {
-            if (!isCorrect || userAnswers.some(ans => !ans.isCorrect)) {
-                // Move to review if any answers were incorrect
-                setCurrentQuestionIndex(userAnswers.findIndex(ans => !ans.isCorrect));
-            } else {
-                // Complete if all were correct on first pass
-                completeExam();
-            }
-        } 
+        if (incorrectAnswers && incorrectAnswers.length < 0 && incorrectAnswers.length === 0) {
+            setFinished(true);
+        }
+
+        
     };
 
     const handleNextQuestion = () => {
-        if (reviewMode) {
-            const nextIncorrectIndex = userAnswers.findIndex((ans, index) => index > currentQuestionIndex && !ans.isCorrect);
-            if (nextIncorrectIndex !== -1) {
-                setCurrentQuestionIndex(nextIncorrectIndex);
-            } else {
-                completeExam(); // No more incorrect answers to review
-            }
-        } else {
-            setCurrentQuestionIndex(curr => curr + 1);
-            setSubmitted(true);
+       if (currentQuestionIndex < questions.length - 1) {
+           setCurrentQuestionIndex(prev => prev + 1);
+           setExplanation('');
+           setOptionSelected(null);
+           setSubmitted(true);
+       } else if (incorrectAnswers.length > 0 ) {
+            setCurrentQuestionIndex(0);
+            setShowIncorrectAnswers(true);
+            setExplanation('');
             setOptionSelected(null);
+            setSubmitted(true);
+        } else {
+            setFinished(true);
+            completeExam();
+            setExplanation('');
+            setOptionSelected(null);
+            setSubmitted(true);
         }
     };
 
-    const completeExam = () => {
-        Swal.fire("Congratulations!", "You have completed the examination.", "success").then(() => {
+
+    const handleIncorrectAnswers = async () => {
+        setSubmitted(false);
+        const question = incorrectAnswers[currentQuestionIndex];
+        const isCorrect = parseInt(question.correctAnswer) === optionSelected;
+    
+        setUserAnswers(prev => [
+            ...prev, 
+            { questionId: question._id, answer: optionSelected, isCorrect }
+        ]);
+
+        setOptionSelected(null); // Reset selection
+        if (!isCorrect) {
+            // Add to review mode if incorrect
+            setReviewMode(true);
+            setIncorrectAnswers(prev => [...prev, 
+                {
+                    index: question.index, 
+                    questionId: question.questionId,
+                    questions: question.questions,
+                    options: question.options,
+                    correctAnswer: question.correctAnswer,
+                    isCorrect: false
+                }
+            ]);
+        }else{
+            const Correct = incorrectAnswers.map(item => {
+                if(item._id === question._id){
+                    return {...item, isCorrect: true};
+                }
+                return item;
+            });
+            setIncorrectAnswers(Correct);
+        }
+        setExplanation(question.options[parseInt(question.correctAnswer)]);
+
+        if (incorrectAnswers.length === 0) {
+            setFinished(true);
+        }
+    }
+
+    const handleNextIncorrect = () => {
+        if (currentQuestionIndex < incorrectAnswers.length - 1) {
+            setCurrentQuestionIndex(prev => prev + 1);
+            setExplanation('');
+            setOptionSelected(null);
+            setSubmitted(true);
+        }else {
+            setFinished(true);
+            setShowIncorrectAnswers(false);
+            setExplanation('');
+            setOptionSelected(null);
+            completeExam();
+        }
+    }
+
+    const completeExam = async () => {
+        setLoading(true);
+        try {
+            const data = {
+                userId,
+                exams: userAnswers,
+            }
+
+            console.log(data);
+            const res = await axios.post('/api/examinations/answers', data);
+
+            if (res.status === 200) {
+                console.log(res.data);
+                await axios.post('api/points/point', {
+                    userId: session.user._id,
+                    description: 'ทำข้อสอบ',
+                    contentId: res.data.data._id,
+                    path: 'examinations',
+                    subpath: '',
+                    type: 'earn',
+                    points: 20
+                });
+            }
+        } catch (error) {
+            console.log(error);
+        } 
+
+       setLoading(false);
+
+       Swal.fire("Congratulations!", "คุณได้ทำข้อสอบถูกทุกข้อแล้ว", "success")
+        .then(() => {
             router.push('/main');
         });
     };
+
+    if (loading) return <Loading />;
 
     return (
         <div className="flex flex-col w-full bg-[#0056FF] min-h-[100vh]">
@@ -93,7 +205,9 @@ const ExaminationsPage = () => {
             </div>
 
             <div className="flex flex-col px-4 w-full">
-                <div className="flex flex-col bg-white rounded-lg p-4 text-left">
+                {!showIncorrectAnswers ? (
+                    <div className="flex flex-col bg-white rounded-lg p-4 text-left">
+                        <span>Question</span>
                     <h1 className="text-xl font-bold">คำถามที่ {currentQuestionIndex + 1}</h1>
                     <Divider className="w-full my-2" />
                     <p className="text-md font-semibold">{questions[currentQuestionIndex].questions}</p>
@@ -122,7 +236,7 @@ const ExaminationsPage = () => {
                                 {userAnswers[currentQuestionIndex]?.isCorrect ? 'Correct!' : 'Incorrect!'}
                             </span>
                             <p className="text-sm">
-                                <strong>Explanation:</strong> {explanation}
+                                <strong>คำเฉลย:</strong> {explanation}
                             </p>
                         </div>
                     )}
@@ -134,18 +248,77 @@ const ExaminationsPage = () => {
                                 onClick={handleAnswer}
                                 disabled={optionSelected === null}
                             >
-                                Submit
+                                ส่งคำถาม
                             </button>
                         ) : (
                             <button
                                 className="bg-[#F2871F] text-white font-bold py-2 px-4 rounded-full text-sm shadow-xl"
                                 onClick={handleNextQuestion}
                             >
-                                Next Question
+                                {finished ? 'เสร็จ' : 'คำถามต่อไป'}
                             </button>
                         )}
                     </div>
                 </div>
+                ) : (
+                    showIncorrectAnswers && incorrectAnswers.length > 0 && (
+                        <div className="flex flex-col bg-white rounded-lg p-4 text-left">
+                        <span>Question2</span>
+                        <h1 className="text-xl font-bold">คำถามที่ {incorrectAnswers[currentQuestionIndex].index +1}</h1>
+                        <Divider className="w-full my-2" />
+                        <p className="text-md font-semibold">{incorrectAnswers[currentQuestionIndex].questions}</p>
+                        <div className="flex flex-col mt-2">
+                        {incorrectAnswers[currentQuestionIndex].options.map((option, index) => (
+                            <div key={index} className="flex gap-1 text-sm items-start">
+                                <input 
+                                    type="radio" 
+                                    name={`option-${currentQuestionIndex}`} 
+                                    value={index} 
+                                    checked={optionSelected === index}
+                                    onChange={() => setOptionSelected(index)}
+                                    disabled={!submitted}
+                                />
+                                <label className={`cursor-pointer ${optionSelected === index ? 'font-bold' : ''} ml-2`}>
+                                    {option}
+                                </label>
+                            </div>
+                        ))}
+                        </div>
+                        {!submitted && (
+                        <div className="mt-4">
+                            <span 
+                                className={`font-bold text-md ${incorrectAnswers[currentQuestionIndex]?.isCorrect ? 'text-green-500' : 'text-red-500'}`}
+                            >
+                                {incorrectAnswers[currentQuestionIndex]?.isCorrect ? 'Correct!' : 'Incorrect!'}
+                            </span>
+                            <p className="text-sm">
+                                <strong>คำเฉลย:</strong> {explanation}
+                            </p>
+                        </div>
+                        )}
+
+                        <div className="flex justify-center mt-4">
+                        {submitted ? (
+                            <button
+                                className="bg-[#F2871F] text-white font-bold py-2 px-4 rounded-full text-sm shadow-xl"
+                                onClick={handleIncorrectAnswers}
+                                disabled={optionSelected === null}
+                            >
+                                ส่งคำถาม
+                            </button>
+                        ) : (
+                            <button
+                                className="bg-[#F2871F] text-white font-bold py-2 px-4 rounded-full text-sm shadow-xl"
+                                onClick={handleNextIncorrect}
+                            >
+                                {finished ? 'เสร็จ' : 'คำถามต่อไป'}
+                            </button>
+                        )}
+                        </div>
+
+                    </div>
+                    )
+                )}
             </div>
         </div>
     );
