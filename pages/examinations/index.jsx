@@ -38,7 +38,22 @@ const ExaminationsPage = () => {
                 }
             });
         }
-    }, [router, session, userId])
+    }, [router, session, userId]);
+
+    useEffect(() => {
+        if (session) {
+            const res = axios.get(`/api/users/${userId}`);
+            res.then((res) => {
+                if (res.data && 
+                    res.data.user.teamGrop !== 'AL' &&
+                    res.data.user.teamGrop !== 'Retail' &&
+                    res.data.user.teamGrop !== 'CRSG') {
+                    router.push("/main");
+                    return;
+                    }
+            });
+        }
+    }, [router, session, userId]);
 
     useEffect(() => {
         if (data && data.data) {

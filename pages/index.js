@@ -16,14 +16,12 @@ const HomePage = () => {
     const { data: loginReward, error: loginRewardError } = useSWR(() => userId ? `/api/loginreward/${userId}` : null, fetcher);
     const { data: survey, error: surveyError } = useSWR(() => userId ? `/api/survey/checkSurvey?userId=${userId}` : null, fetcher);
     const { data: surveySettings, error: surveySettingsError } = useSWR('/api/survey/settings', fetcher);
-    const { data: satisfactions, error: satisfactionsError } = useSWR(() => userId ? `/api/satisfactions/${userId}` : null, fetcher);
-    const { data: checkSatisfactios, error: checkSatisfactiosError } = useSWR(() => userId ? `/api/satisfactions/user?userId=${userId}` : null, fetcher);
 
     useEffect(() => {
         if (status === "loading" || !session || !user || !loginReward || 
-            !survey || !surveySettings || !satisfactions || !checkSatisfactios) return;
+            !survey || !surveySettings ) return;
         if (userError || loginRewardError || surveyError || 
-            surveySettingsError || satisfactionsError || checkSatisfactiosError) return;
+            surveySettingsError ) return;
 
         if (!session) {
             router.push('/login');
@@ -50,26 +48,12 @@ const HomePage = () => {
             router.push('/pulsesurvey');
             return;
         }
-        if (checkSatisfactios && 
-            checkSatisfactios.data.teamGrop === null ||
-            checkSatisfactios.data.teamGrop === 'TCON' ||
-            checkSatisfactios.data.teamGrop === 'PB'
-        ) {
-            router.push('/main');
-            return;
-        }
-        if (satisfactions && satisfactions.length > 0) {
-            router.push('/main');
-            return;
-        }else{
-            router.push('/satisfactions');
-            return;
-        }
-       
-    }, [router, session, status, user, loginReward, survey, surveySettings, userError, loginRewardError, surveyError, surveySettingsError, satisfactions, checkSatisfactios, satisfactionsError, checkSatisfactiosError]);
 
-    if (status === "loading" || !user || !loginReward || !survey || !surveySettings || !satisfactions || !checkSatisfactios) return <Loading />;
-    if (userError || loginRewardError || surveyError || surveySettingsError || satisfactionsError || checkSatisfactiosError) return <div>Error loading data</div>;
+       
+    }, [router, session, status, user, loginReward, survey, surveySettings, userError, loginRewardError, surveyError, surveySettingsError, ]);
+
+    if (status === "loading" || !user || !loginReward || !survey || !surveySettings ) return <Loading />;
+    if (userError || loginRewardError || surveyError || surveySettingsError ) return <div>Error loading data</div>;
 
     return (
         <React.Fragment>
