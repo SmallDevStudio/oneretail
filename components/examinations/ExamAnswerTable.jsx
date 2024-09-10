@@ -8,6 +8,7 @@ import Loading from "../Loading";
 import * as XLSX from "xlsx";
 import Image from "next/image";
 import { RiDeleteBin5Line } from "react-icons/ri";
+import Swal from "sweetalert2";
 
 moment.locale('th');
 
@@ -21,6 +22,8 @@ const ExamAnswerTable = () => {
 
     if (error) return <div>Failed to load</div>;
     if (!data || loading) return <Loading />;
+
+    console.log(data);
 
     const handleExport = async () => {
         setLoading(true);
@@ -57,6 +60,29 @@ const ExamAnswerTable = () => {
         }
     }
 
+    const handleDelete = async (id) => {
+        console.log(id);
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you really want to delete this post? This process cannot be undone.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await axios.delete(`/api/examinations/delete?id=${id}`);
+                mutate();
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    }
+
     return (
         <div className="p-5">
             <div className="flex justify-end mb-5">
@@ -88,7 +114,7 @@ const ExamAnswerTable = () => {
                         {data && data?.data?.length > 0 ? (
                             data?.data?.map((item, index) => (
                                 <tr key={index}>
-                                    <td className="border px-4 py-2 text-center">{index + 1}</td>
+                                    <td className="border px-4 py-2 text-center">{index + 1} </td>
                                     <td className="border px-4 py-2 text-center">
                                         <div className="flex justify-center items-center">
                                             <Image
@@ -113,7 +139,10 @@ const ExamAnswerTable = () => {
                                     <td className="border px-4 py-2 text-center">{item?.examCount}</td>
                                     <td className="border px-4 py-2 text-center">{moment(item?.createdAt).format("LLL")}</td>
                                     <td className="border px-4 py-2 text-center">
-                                        <button className="bg-gray-100 text-gray-500 font-bold p-1 rounded-full">
+                                        <button 
+                                            className="bg-gray-100 text-gray-500 font-bold p-1 rounded-full"
+                                            onClick={() => handleDelete(item?._id)}
+                                        >
                                             <RiDeleteBin5Line />
                                         </button>
                                     </td>

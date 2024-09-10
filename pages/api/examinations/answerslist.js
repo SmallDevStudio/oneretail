@@ -31,6 +31,7 @@ export default async function handler(req, res) {
                     const user = userMap[exam.userId];
                     const emp = empMap[user.empId];
                     return {
+                        _id: exam._id,
                         examCount: exam.exams.length,
                         user,
                         emp
