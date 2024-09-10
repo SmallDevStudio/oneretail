@@ -41,7 +41,7 @@ const HomePage = () => {
             return;
         }
         if (surveySettings && !surveySettings.isSurveyEnabled) {
-            router.push('/satisfactions');
+            router.push('/main');
             return;
         }
         if (survey && !survey.completed) {
