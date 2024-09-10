@@ -427,8 +427,8 @@ const ShareYourStory = () => {
     return (
         <div className="flex flex-col text-white text-sm">
             <div className="flex flex-col w-full px-5 py-2  mb-2">
-                <div className=" text-gray-500 text-left text-xs bg-gray-100 rounded-lg px-2 py-1 shadow-lg">
-                <strong>Share Your Story</strong> คือ การแบ่งปันเรื่องราว ความรู้ ทักษะ เทคนิคหรือกระบวนการต่างๆ ที่ทำให้เข้าใจลูกค้ามากขึ้น แบบง่ายๆ ตรงประเด็น เพื่อให้เพื่อนๆ ได้ศึกษา และร่วมสร้าง Financial Well-Being ให้กับลูกค้าของเราไปด้วยกัน
+                <div className=" text-gray-500 text-left text-xs px-2 py-1">
+                <strong className="text-[#0056FF]">Share Your Story</strong> คือ การแบ่งปันเรื่องราว ความรู้ ทักษะ เทคนิคหรือกระบวนการต่างๆ ที่ทำให้เข้าใจลูกค้ามากขึ้น แบบง่ายๆ ตรงประเด็น เพื่อให้เพื่อนๆ ได้ศึกษา และร่วมสร้าง Financial Well-Being ให้กับลูกค้าของเราไปด้วยกัน
                 </div>
             </div>
             {/* Input Post */}
