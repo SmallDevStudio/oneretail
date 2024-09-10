@@ -30,6 +30,25 @@ const ExaminationsPage = () => {
 
     useEffect(() => {
         if (session) {
+            try {
+                const res = axios.get(`/api/users/${userId}`);
+                res.then((res) => {
+                    if (res.data && 
+                        res.data.user.teamGrop !== 'AL' &&
+                        res.data.user.teamGrop !== 'Retail' &&
+                        res.data.user.teamGrop !== 'CRSG') {
+                            router.push("/main");
+                            return;
+                        }
+                });
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    }, [router, session, userId]);
+
+    useEffect(() => {
+        if (session) {
             const res = axios.get(`/api/examinations/answers?userId=${userId}`);
             res.then((res) => {
                 if (res.data && res.data.data && res.data.data.length > 0) {
@@ -40,20 +59,7 @@ const ExaminationsPage = () => {
         }
     }, [router, session, userId]);
 
-    useEffect(() => {
-        if (session) {
-            const res = axios.get(`/api/users/${userId}`);
-            res.then((res) => {
-                if (res.data && 
-                    res.data.user.teamGrop !== 'AL' &&
-                    res.data.user.teamGrop !== 'Retail' &&
-                    res.data.user.teamGrop !== 'CRSG') {
-                    router.push("/main");
-                    return;
-                    }
-            });
-        }
-    }, [router, session, userId]);
+    
 
     useEffect(() => {
         if (data && data.data) {
