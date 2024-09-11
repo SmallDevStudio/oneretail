@@ -21,7 +21,7 @@ const ExamAnswerTable = () => {
     const { data, error, mutate } = useSWR('/api/examinations/answerslist', fetcher);
 
     if (error) return <div>Failed to load</div>;
-    if (!data || loading || progress === 100) return <Loading />;
+    if (!data || loading ) return <Loading />;
 
     console.log(data);
 
