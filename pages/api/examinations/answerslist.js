@@ -35,6 +35,7 @@ export default async function handler(req, res) {
                             examCount: exam.exams.length,
                             user: null,  // Handle case where user is not found
                             emp: null,   // Handle case where emp is not found
+                            createdAt: exam.createdAt
                         };
                     }
 
@@ -43,7 +44,8 @@ export default async function handler(req, res) {
                         _id: exam._id,
                         examCount: exam.exams.length,
                         user,
-                        emp
+                        emp,
+                        createdAt: exam.createdAt
                     };
                 });
 
