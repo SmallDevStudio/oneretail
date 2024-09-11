@@ -22,8 +22,6 @@ const ExaminationTable = () => {
     const [showForm, setShowForm] = useState(false);
     const [selectedExamination, setSelectedExamination] = useState([]);
 
-    console.log(selectedExamination);
-
     const { data, error, isLoading } = useSWR('/api/examinations', fetcher);
 
     const handleAddOption = (index, value) => {

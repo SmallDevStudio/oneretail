@@ -29,7 +29,16 @@ export default async function handler(req, res) {
 
                 const enrichedExams = exams.map(exam => {
                     const user = userMap[exam.userId];
-                    const emp = empMap[user.empId];
+                    if (!user) {
+                        return {
+                            _id: exam._id,
+                            examCount: exam.exams.length,
+                            user: null,  // Handle case where user is not found
+                            emp: null,   // Handle case where emp is not found
+                        };
+                    }
+
+                    const emp = empMap[user.empId] || null; // Handle case where emp is not found
                     return {
                         _id: exam._id,
                         examCount: exam.exams.length,
@@ -39,8 +48,6 @@ export default async function handler(req, res) {
                 });
 
                 const sortedExams = enrichedExams.sort((a, b) => b.createdAt - a.createdAt);
-
-                // res.status(200).json({ success: true, data: sortedExams });
 
                 res.status(200).json({ success: true, data: sortedExams });
             } catch (error) {

@@ -39,7 +39,7 @@ export default async function handler(req, res) {
                         fullname: user ? user.fullname : null,
                         date: moment(point.createdAt).format('D'),
                         month: moment(point.createdAt).format('MMMM'),
-                        createdAt: moment(point.createdAt).format('LLL'),
+                        createdAt: moment(point.createdAt).local('th').format('LLL'),
                     };
                 });
 
