@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import Loading from "@/components/Loading";
-import Head from "next/head";
 import useSWR from "swr";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
@@ -12,16 +11,21 @@ const HomePage = () => {
     const router = useRouter();
     const userId = session?.user?.id;
 
-    const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
+    const { data: user, error: userError, isLoading } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
     const { data: loginReward, error: loginRewardError } = useSWR(() => userId ? `/api/loginreward/${userId}` : null, fetcher);
     const { data: survey, error: surveyError } = useSWR(() => userId ? `/api/survey/checkSurvey?userId=${userId}` : null, fetcher);
     const { data: surveySettings, error: surveySettingsError } = useSWR('/api/survey/settings', fetcher);
 
+    console.log('user', user);
+    console.log('loginReward', loginReward);
+    console.log('survey', survey);
+    console.log('surveySettings', surveySettings);
+
     useEffect(() => {
-        if (status === "loading" || !session || !user || !loginReward || 
-            !survey || !surveySettings ) return;
-        if (userError || loginRewardError || surveyError || 
-            surveySettingsError ) return;
+        if (status === "loading" || !user) return;
+        if (status === "unauthenticated") {
+            router.push("/login");
+        }
 
         if (!session) {
             router.push('/login');
@@ -31,6 +35,7 @@ const HomePage = () => {
             router.push('/register');
             return;
         }
+
         if(!user.user.active){
             signOut();
             router.push('/login');
@@ -49,10 +54,10 @@ const HomePage = () => {
             return;
         }
 
-       
-    }, [router, session, status, user, loginReward, survey, surveySettings, userError, loginRewardError, surveyError, surveySettingsError, ]);
+        router.push("/main");
+    }, [status, router, session, user, loginReward, surveySettings, survey]);
 
-    if (status === "loading" || !user || !loginReward || !survey || !surveySettings ) return <Loading />;
+    if (status === "loading" || isLoading || !user || !loginReward || !survey || !surveySettings ) return <Loading />;
     if (userError || loginRewardError || surveyError || surveySettingsError ) return <div>Error loading data</div>;
 
     return (
