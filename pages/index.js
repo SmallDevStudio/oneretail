@@ -16,11 +16,6 @@ const HomePage = () => {
     const { data: survey, error: surveyError } = useSWR(() => userId ? `/api/survey/checkSurvey?userId=${userId}` : null, fetcher);
     const { data: surveySettings, error: surveySettingsError } = useSWR('/api/survey/settings', fetcher);
 
-    console.log('user', user);
-    console.log('loginReward', loginReward);
-    console.log('survey', survey);
-    console.log('surveySettings', surveySettings);
-
     useEffect(() => {
         if (status === "loading" || !user) return;
         if (status === "unauthenticated") {
@@ -55,7 +50,7 @@ const HomePage = () => {
         }
 
         router.push("/main");
-        
+
     }, [status, router, session, user, loginReward, surveySettings, survey]);
 
     if (status === "loading" || isLoading || !user || !loginReward || !survey || !surveySettings ) return <Loading />;
