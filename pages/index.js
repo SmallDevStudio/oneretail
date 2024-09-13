@@ -55,6 +55,7 @@ const HomePage = () => {
         }
 
         router.push("/main");
+        
     }, [status, router, session, user, loginReward, surveySettings, survey]);
 
     if (status === "loading" || isLoading || !user || !loginReward || !survey || !surveySettings ) return <Loading />;
