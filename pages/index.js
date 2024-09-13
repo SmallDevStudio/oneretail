@@ -17,7 +17,9 @@ const HomePage = () => {
     const { data: surveySettings, error: surveySettingsError } = useSWR('/api/survey/settings', fetcher);
 
     useEffect(() => {
-        if (status === "loading" || !user) return;
+        if (status === "loading" || !user || !loginReward || 
+            !survey || !surveySettings) return;
+            
         if (status === "unauthenticated") {
             router.push("/login");
         }
