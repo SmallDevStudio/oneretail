@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ImFilePicture } from "react-icons/im";
 import { FaUserPlus, FaRegPlayCircle } from "react-icons/fa";
 import { IoIosCloseCircle } from "react-icons/io";
@@ -8,45 +8,86 @@ import TagUsers from "./TagUsers";
 import fetchLinkPreview from '@/utils/fetchLinkPreview';
 import Link from "next/link";
 import { IoIosArrowBack } from "react-icons/io";
+import axios from "axios";
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 
 const PostInput = ({ handleSubmit, userId, handleClose, checkError }) => {
     const [post, setPost] = useState("");
     const [media, setMedia] = useState([]);
-    const [files, setFiles] = useState(null); // สำหรับการอัพโหลดเอกสารครั้งละ 1 ไฟล์
+    const [files, setFiles] = useState([]); // สำหรับการอัพโหลดเอกสารครั้งละ 1 ไฟล์
+    const [folder, setFolder] = useState('');
     const [link, setLink] = useState("");
     const [linkPreview, setLinkPreview] = useState(null);
     const [inputKey, setInputKey] = useState(Date.now());
     const [selectedUsers, setSelectedUser] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isUploading, setIsUploading] = useState(false); // จัดการสถานะการอัปโหลด
     const [uploadProgress, setUploadProgress] = useState(0);
     const [error, setError] = useState(null);
 
+    console.log(media);
+
+    const fileInputRef = useRef(null); // สร้าง ref สำหรับ input file
+
     const handleUploadClick = () => {
-        setError(null);
-        window.cloudinary.openUploadWidget(
-            {
-                cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-                uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
-                sources: ['local', 'url', 'camera', 'image_search'],
-                multiple: true,
-                resourceType: 'auto', // Automatically determines if it's image or video
-            },
-            (error, result) => {
-                if (result.event === 'success') {
-                    setMedia(prevMedia => [
-                        ...prevMedia,
-                        { url: result.info.secure_url, public_id: result.info.public_id, type: result.info.resource_type }
-                    ]);
-                }
-            }
-        );
+        fileInputRef.current.click(); // เมื่อกดปุ่ม ให้เปิด input file
     };
 
-    const handleRemoveMedia = (index) => {
-        const updatedMedia = media.filter((_, i) => i !== index);
-        setMedia(updatedMedia);
+    // ฟังก์ชัน handleFileChange ที่จะเริ่มอัปโหลดทันทีหลังจากเลือกไฟล์
+    const handleFileChange = async (e) => {
+        const selectedFiles = Array.from(e.target.files); // แปลง FileList เป็น array
+        setIsUploading(true); // เริ่มการอัปโหลด
+        const uploadedUrls = [];
+
+        for (let i = 0; i < selectedFiles.length; i++) {
+            const formData = new FormData();
+            formData.append('file', selectedFiles[i]);
+            formData.append('folder', 'posts');
+            formData.append('userId', userId);
+
+            try {
+                const res = await axios.post('/api/upload', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                    onUploadProgress: (progressEvent) => {
+                        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        setUploadProgress((prevProgress) => ({
+                            ...prevProgress,
+                            [i]: percentCompleted, // อัปเดต progress ของไฟล์ปัจจุบัน
+                        }));
+                    },
+                });
+
+                setMedia((prevMedia) => [...prevMedia, ...res.data]); // อัปเดต media ด้วยข้อมูลจาก API
+                uploadedUrls.push(...res.data); // เก็บ URL ที่อัปโหลดสำเร็จ
+
+            } catch (error) {
+                console.error(`Error uploading file ${i + 1}:`, error);
+            }
+        }
+
+        setIsUploading(false); // หยุดการอัปโหลดเมื่อครบทุกไฟล์
+        setFiles([]); // clear input files หลังการอัปโหลดเสร็จ
     };
+
+    const handleRemoveMedia = async (index) => {
+        const publicId = media[index].public_id;
+        const url = media[index].url;
+      
+        try {
+          // ส่งคำขอ DELETE ไปยัง API
+          await axios.delete(`/api/upload?publicId=${publicId}&url=${encodeURIComponent(url)}`);
+      
+          // ลบรายการใน state หลังจากที่ลบสำเร็จ
+          const updatedMedia = media.filter((_, i) => i !== index);
+          setMedia(updatedMedia);
+        } catch (error) {
+          console.error('Error removing media:', error);
+        }
+      };
 
     const handleRemoveFile = () => {
         setFiles(null);
@@ -70,8 +111,7 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError }) => {
     };
 
     const handleSubmitComment = async () => {
-        setIsLoading(true);
-        if (!post && (!media || media.length === 0)) {
+        if (!post || (!media || media.length === 0)) {
             setError('กรุณากรอกข้อความหรืออัพโหลดไฟล์');
             setIsLoading(false);
             return;
@@ -91,7 +131,6 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError }) => {
         setFiles(null);
         setSelectedUser([]);
         handleSubmit(newPost);
-        setIsLoading(false);
     };
 
     const handlePostChange = async (event) => {
@@ -152,44 +191,54 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError }) => {
                 )}
                 <div className="flex flex-col gap-2 mt-2 mb-2">
                     <div className="flex flex-row items-center w-full">
-                        {media.map((item, index) => (
+                        {Array.isArray(media) && media.length > 0 && media.map((item, index) => (
                             <div key={index} className="flex gap-2 ml-2">
                                 <div className="relative flex flex-col p-2 border-2 rounded-xl">
+                                {uploadProgress[index] === 100 && (
                                     <IoIosCloseCircle
                                         className="absolute top-0 right-0 text-xl cursor-pointer"
                                         onClick={() => handleRemoveMedia(index)}
                                     />
-                                    {item.type === 'image' ? (
-                                        <Image
-                                            src={item.url}
-                                            alt="Preview"
-                                            width={40}
-                                            height={40}
-                                            className="rounded-lg object-cover"
-                                            style={{ width: 'auto', height: '50px' }}
-                                        />
-                                    ) : (
-                                        <div className="relative">
-                                            <video width="50" height="50" controls>
-                                                <source src={item.url} type="video/mp4" />
-                                                Your browser does not support the video tag.
-                                            </video>
-                                            <FaRegPlayCircle className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-500 text-3xl" />
+                                )}
+                                    {uploadProgress[index] !== 100 ? (
+                                        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                                            <CircularProgressbar
+                                            value={uploadProgress[index] || 0}
+                                            text={`${uploadProgress[index] || 0}%`}
+                                            styles={buildStyles({
+                                                textSize: '24px',
+                                                pathColor: '#4caf50',
+                                                textColor: '#fff',
+                                                trailColor: '#d6d6d6',
+                                            })}
+                                            />
                                         </div>
-                                    )}
+                                        ) : (
+                                        // เมื่ออัปโหลดเสร็จแสดงรูปแทน
+                                        item.type === 'image' ? (
+                                            <Image
+                                                src={item.url}
+                                                alt="Preview"
+                                                width={40}
+                                                height={40}
+                                                className="rounded-lg object-cover"
+                                                style={{ width: 'auto', height: '50px' }}
+                                            />
+                                        ) : (
+                                            <div className="relative">
+                                                <video width="50" height="50" controls>
+                                                    <source src={item.url} type="video/mp4" />
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                                <FaRegPlayCircle className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-500 text-3xl" />
+                                            </div>
+                                        )
+                                        )}
                                 </div>
                             </div>
                         ))}
                     </div>
-                    {files && (
-                        <div key={files.name} className="relative flex-col p-2 border-2 rounded-xl">
-                            <IoIosCloseCircle
-                                className="absolute top-0 right-0 text-xl cursor-pointer"
-                                onClick={handleRemoveFile}
-                            />
-                            <span>{files.name}</span>
-                        </div>
-                    )}
+                    
                     {link && linkPreview && (
                         <div className="relative flex-col p-2 border-2 rounded-xl">
                             <div className="flex flex-row w-full">
@@ -226,6 +275,16 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError }) => {
                         <span className="text-[10px] text-red-500 ">* สามารถอัพโหลดได้ไม่เกิน 100MB</span>
                     </div>
                 </button>
+
+                {/* ซ่อน input file แต่ใช้ ref เพื่อให้มันทำงานเมื่อกดปุ่ม */}
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        multiple // สามารถเลือกหลายไฟล์ได้
+                        accept="image/*,video/*" // จำกัดชนิดของไฟล์
+                        onChange={handleFileChange} // ดักการเปลี่ยนแปลงของไฟล์ที่เลือก
+                        style={{ display: 'none' }} // ซ่อน input file
+                    />
                 <Divider />
                 <div className="flex flex-row items-center gap-2 p-2 cursor-pointer"
                     onClick={handleOpenModal}
