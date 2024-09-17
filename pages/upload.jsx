@@ -34,7 +34,7 @@ export default function Upload() {
           fileName: file.name,
           fileType: file.type,
           folder: 'posts',
-          userId: 'your-user-id', // Replace with actual user ID
+          userId: userId, // Replace with actual user ID
         });
 
         const { uploadUrl, public_id, url, type } = data;
