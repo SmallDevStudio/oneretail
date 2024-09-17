@@ -11,6 +11,7 @@ import { IoIosArrowBack } from "react-icons/io";
 import axios from "axios";
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const PostInput = ({ handleSubmit, userId, handleClose, checkError }) => {
     const [post, setPost] = useState("");
@@ -26,8 +27,7 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError }) => {
     const [isUploading, setIsUploading] = useState(false); // จัดการสถานะการอัปโหลด
     const [uploadProgress, setUploadProgress] = useState(0);
     const [error, setError] = useState(null);
-
-    console.log(media);
+    const [isConverting, setIsConverting] = useState(false); // สำหรับแสดง CircularProgress ระหว่างการแปลงไฟล์
 
     const fileInputRef = useRef(null); // สร้าง ref สำหรับ input file
 
@@ -35,15 +35,48 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError }) => {
         fileInputRef.current.click(); // เมื่อกดปุ่ม ให้เปิด input file
     };
 
-    // ฟังก์ชัน handleFileChange ที่จะเริ่มอัปโหลดทันทีหลังจากเลือกไฟล์
-    const handleFileChange = async (e) => {
-        const selectedFiles = Array.from(e.target.files); // แปลง FileList เป็น array
+   // ฟังก์ชัน handleFileChange ที่จะเริ่มอัปโหลดทันทีหลังจากเลือกไฟล์
+   const handleFileChange = async (e) => {
+    const selectedFiles = Array.from(e.target.files);
+    setIsConverting(true); // เริ่มการแสดง CircularProgress สำหรับการแปลง
+
+    const convertedFiles = await Promise.all(
+      selectedFiles.map(async (file) => {
+        const isVideo = file.type.startsWith('video/');
+        const fileType = file.type;
+
+        if (isVideo && fileType !== 'video/mp4' && fileType !== 'video/webm' && fileType !== 'video/ogg') {
+          // ถ้าเป็นไฟล์วิดีโอที่ไม่รองรับให้แปลงเป็น .mp4
+          const formData = new FormData();
+          formData.append('file', file);
+
+          try {
+            const res = await axios.post('/api/convert-video', formData, {
+              headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            return new File([res.data.file], res.data.filename, { type: 'video/mp4' });
+          } catch (err) {
+            console.error('Error converting file:', err);
+          }
+        }
+        return file;
+      })
+    );
+
+    setIsConverting(false); // เสร็จสิ้นการแปลงไฟล์
+    setFiles(convertedFiles); // เก็บไฟล์ที่แปลงแล้ว
+
+    await handleFileUpload(convertedFiles);
+  };
+
+    const handleFileUpload = async (files) => {
         setIsUploading(true); // เริ่มการอัปโหลด
+        setUploadProgress([]); // รีเซ็ต progress
+
         const uploadedUrls = [];
 
-        for (let i = 0; i < selectedFiles.length; i++) {
             const formData = new FormData();
-            formData.append('file', selectedFiles[i]);
+            files.forEach((file) => formData.append('file', file));
             formData.append('folder', 'posts');
             formData.append('userId', userId);
 
@@ -54,23 +87,19 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError }) => {
                     },
                     onUploadProgress: (progressEvent) => {
                         const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                        setUploadProgress((prevProgress) => ({
-                            ...prevProgress,
-                            [i]: percentCompleted, // อัปเดต progress ของไฟล์ปัจจุบัน
-                        }));
+                        setUploadProgress(percentCompleted); // อัปเดต progress การอัปโหลด
                     },
-                });
+                    });
 
                 setMedia((prevMedia) => [...prevMedia, ...res.data]); // อัปเดต media ด้วยข้อมูลจาก API
                 uploadedUrls.push(...res.data); // เก็บ URL ที่อัปโหลดสำเร็จ
 
             } catch (error) {
                 console.error(`Error uploading file ${i + 1}:`, error);
-            }
-        }
-
-        setIsUploading(false); // หยุดการอัปโหลดเมื่อครบทุกไฟล์
-        setFiles([]); // clear input files หลังการอัปโหลดเสร็จ
+            } finally {
+                setIsUploading(false); // หยุดการอัปโหลดเมื่อครบทุกไฟล์
+                setFiles([]); // clear input files หลังการอัปโหลดเสร็จ
+            }  
     };
 
     const handleRemoveMedia = async (index) => {
@@ -194,13 +223,13 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError }) => {
                         {Array.isArray(media) && media.length > 0 && media.map((item, index) => (
                             <div key={index} className="flex gap-2 ml-2">
                                 <div className="relative flex flex-col p-2 border-2 rounded-xl">
-                                {uploadProgress[index] === 100 && (
-                                    <IoIosCloseCircle
-                                        className="absolute top-0 right-0 text-xl cursor-pointer"
-                                        onClick={() => handleRemoveMedia(index)}
-                                    />
-                                )}
-                                    {uploadProgress[index] !== 100 ? (
+                                    {isConverting && (
+                                        <div>
+                                        <CircularProgress /> {/* แสดงการแปลงไฟล์ */}
+                                        <p>กำลังแปลงไฟล์วิดีโอ...</p>
+                                        </div>
+                                    )}
+                                    {uploadProgress[index] && uploadProgress[index] < 100 ? (
                                         <div style={{ position: 'relative', width: '100%', height: '100%' }}>
                                             <CircularProgressbar
                                             value={uploadProgress[index] || 0}
@@ -216,6 +245,11 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError }) => {
                                         ) : (
                                         // เมื่ออัปโหลดเสร็จแสดงรูปแทน
                                         item.type === 'image' ? (
+                                            <>
+                                            <IoIosCloseCircle
+                                                className="absolute top-0 right-0 text-xl cursor-pointer"
+                                                onClick={() => handleRemoveMedia(index)}
+                                            />
                                             <Image
                                                 src={item.url}
                                                 alt="Preview"
@@ -224,7 +258,13 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError }) => {
                                                 className="rounded-lg object-cover"
                                                 style={{ width: 'auto', height: '50px' }}
                                             />
+                                            </>
                                         ) : (
+                                            <>
+                                            <IoIosCloseCircle
+                                                className="absolute top-0 right-0 text-xl cursor-pointer"
+                                                onClick={() => handleRemoveMedia(index)}
+                                            />
                                             <div className="relative">
                                                 <video width="50" height="50" controls>
                                                     <source src={item.url} type="video/mp4" />
@@ -232,8 +272,13 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError }) => {
                                                 </video>
                                                 <FaRegPlayCircle className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-500 text-3xl" />
                                             </div>
+                                            </>
                                         )
                                         )}
+                                            <IoIosCloseCircle
+                                                className="absolute top-0 right-0 text-xl cursor-pointer"
+                                                onClick={() => handleRemoveMedia(index)}
+                                            />
                                 </div>
                             </div>
                         ))}
