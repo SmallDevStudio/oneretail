@@ -1,0 +1,9 @@
+[
+    {
+      "origin": ["https://oneretail-git-google-smalldevstudios-projects.vercel.app"],
+      "method": ["GET", "HEAD", "PUT", "POST", "DELETE"],
+      "responseHeader": ["Content-Type", "Authorization"],
+      "maxAgeSeconds": 3600
+    }
+  ]
+  
