@@ -22,40 +22,48 @@ export default function Upload() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsUploading(true); // เริ่มการอัปโหลด
+    setIsUploading(true);
+
     const uploadedUrls = [];
 
     for (let i = 0; i < files.length; i++) {
-      const formData = new FormData();
-      formData.append('file', files[i]);
-      formData.append('folder', folder);
-      formData.append('userId', userId);
-
+      const file = files[i];
       try {
-        const res = await axios.post('/api/upload', formData, {
+        // Step 1: Get Signed URL from server
+        const { data } = await axios.post('/api/upload', {
+          fileName: file.name,
+          fileType: file.type,
+          folder: 'posts',
+          userId: 'your-user-id', // Replace with actual user ID
+        });
+
+        const { uploadUrl, public_id, url, type } = data;
+
+        // Step 2: Upload file to Google Cloud using the Signed URL
+        await axios.put(uploadUrl, file, {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            'Content-Type': file.type,
           },
           onUploadProgress: (progressEvent) => {
             const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
             setUploadProgress((prevProgress) => ({
               ...prevProgress,
-              [i]: percentCompleted, // อัปเดต progress ของไฟล์ปัจจุบัน
+              [i]: percentCompleted,
             }));
           },
         });
 
-        uploadedUrls.push(...res.data); // เก็บข้อมูลไฟล์ที่อัปโหลดสำเร็จ
+        // Step 3: After upload, store the media details
+        uploadedUrls.push({ public_id, url, type });
 
-        // อัปเดต media ด้วยข้อมูลจาก API
-        setMedia((prevMedia) => [...prevMedia, ...res.data]);
-
+        // Update media with the response data
+        setMedia((prevMedia) => [...prevMedia, { public_id, url, type }]);
       } catch (error) {
         console.error(`Error uploading file ${i + 1}:`, error);
       }
     }
 
-    setIsUploading(false); // หยุดการอัปโหลดเมื่อครบทุกไฟล์
+    setIsUploading(false); // Stop upload state
   };
 
   const handleDelete = async (index) => {
