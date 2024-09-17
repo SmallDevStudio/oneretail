@@ -17,10 +17,33 @@ export default function Upload() {
   const { data: session } = useSession();
   const userId = session?.user?.id;
 
-  
+  console.log('media', media);
 
-  const handleFileChange = (e) => {
-    setFiles(Array.from(e.target.files)); // แปลง FileList เป็น array
+  const handleFileChange = async (e) => {
+    const selectedFiles = Array.from(e.target.files);
+
+    for (let file of selectedFiles) {
+      try {
+        // สร้าง Signed URL สำหรับแต่ละไฟล์
+        const res = await axios.post('/api/generate-signed-url', {
+          fileName: file.name,
+          fileType: file.type,
+        });
+
+        const { url, fileName } = res.data;
+
+        // อัปโหลดไฟล์ไปยัง Signed URL
+        await axios.put(url, file, {
+          headers: {
+            'Content-Type': file.type,
+          },
+        });
+
+        setMedia((prevMedia) => [...prevMedia, { url: `https://storage.googleapis.com/your-bucket-name/posts/${fileName}`, type: file.type }]);
+      } catch (error) {
+        console.error('Error uploading file:', error);
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
