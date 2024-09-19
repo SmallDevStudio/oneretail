@@ -43,71 +43,90 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'No files or incorrect format' });
         }
 
-        const uploadedUrls = [];
+        const uploadedFiles = [];
 
         try {
           for (const file of files.file) {
-            // สร้าง public_id ที่ไม่ซ้ำโดยใช้ nanoid
-            const public_id = nanoid(10); // กำหนดขนาดของรหัสเป็น 10 ตัวอักษร
+            const public_id = nanoid(10); // สร้าง public_id
+            const fileName = folder ? `${folder}/${public_id}-${file.originalFilename}` : `${public_id}-${file.originalFilename}`;
 
-            // ตรวจสอบว่าการสร้าง public_id ทำงานถูกต้อง
-            if (!public_id) {
-              return res.status(400).json({ error: 'Failed to generate public_id' });
-            }
-
-            const fileName = folder? `${folder}/${public_id}-${file.originalFilename}` : `${public_id}-${file.originalFilename}`;
-            
+            // สร้าง Signed URL สำหรับการอัปโหลด
             const [uploadUrl] = await bucket.file(fileName).getSignedUrl({
               version: 'v4',
               action: 'write',
-              expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+              expires: Date.now() + 15 * 60 * 1000, // 15 นาที
               contentType: file.mimetype,
-              // metadata: { fieldName: file.originalFilename },
             });
 
-            // กำหนด file type ตาม mime type
-            let fileType = 'file'; // default เป็นไฟล์ธรรมดา
-            if (file.mimetype.startsWith('image')) {
-              fileType = 'image';
-            } else if (file.mimetype.startsWith('video')) {
-              fileType = 'video';
-            }
+            const url = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
 
-            // Save metadata and public URL to MongoDB
-            const newLibraryEntry = new Library({
-              public_id, // ใช้ public_id ที่ถูกสร้างด้วย nanoid
-              file_name: file.originalFilename,
-              file_size: file.size,
-              file_type: fileType, // กำหนด type ตามไฟล์ (image, video, file)
-              mime_type: file.mimetype,
-              folder, // กำหนด folder จากค่า string
-              userId, // กำหนด userId จากค่า string
-              type: fileType, // กำหนด type สำหรับ MongoDB
-              url: uploadUrl, // บันทึก public URL ที่ได้จาก Google Cloud Storage
-            });
-
-            await newLibraryEntry.save();
-
-            // Add the uploaded file information to response array
-            uploadedUrls.push({
+            // ส่ง Signed URL กลับไปยัง client เพื่อให้ client ทำการอัปโหลดไฟล์โดยตรง
+            uploadedFiles.push({
               public_id,
-              url: uploadUrl,
-              type: fileType,
+              uploadUrl, // ใช้ URL สำหรับการอัปโหลดจาก client
+              file_name: fileName,
+              type: file.mimetype.startsWith('image') ? 'image' : 'video',
+              url,
             });
           }
 
-          // ส่งข้อมูลกลับในรูปแบบ array [{ public_id, url, type }]
-          return res.status(200).json(uploadedUrls);
+          return res.status(200).json(uploadedFiles);
         } catch (error) {
           console.error('Error during upload process:', error);
           return res.status(500).json({ error: error.message });
         }
       });
-
       break;
     }
 
+    case 'PUT': {
+      const { file_name } = req.body;
+    
+      try {
+        const fileReference = bucket.file(file_name);
+    
+        // ตรวจสอบว่าไฟล์ถูกอัปโหลดสำเร็จหรือไม่
+        const [fileExists] = await fileReference.exists();
+    
+        if (fileExists) {
+          // ทำให้ไฟล์เป็น public
+          await fileReference.makePublic();
+          
+          // สร้าง public URL ใหม่หลังจากทำให้ไฟล์เป็น public
+          const publicUrl = `https://storage.googleapis.com/${bucket.name}/${file_name}`;
+    
+          // บันทึกข้อมูลไฟล์ลงในฐานข้อมูล
+          const newLibraryEntry = new Library({
+            public_id: req.body.public_id,
+            file_name: req.body.file_name,
+            file_size: req.body.file_size,
+            file_type: req.body.file_type,
+            mime_type: req.body.mime_type,
+            folder: req.body.folder,
+            userId: req.body.userId,
+            url: publicUrl,
+          });
+    
+          await newLibraryEntry.save();
+    
+          return res.status(200).json({
+            message: 'File uploaded successfully',
+            publicUrl,
+            public_id: req.body.public_id,
+            file_name: req.body.file_name,
+            type: req.body.file_type,
+          });
+        } else {
+          return res.status(404).json({ error: 'File not found' });
+        }
+      } catch (error) {
+        console.error('Error finalizing upload:', error);
+        return res.status(500).json({ error: error.message });
+      }
+    }
 
+    
+    // การลบไฟล์
     case 'DELETE': {
       const { publicId, url } = req.query;
 
@@ -116,19 +135,15 @@ export default async function handler(req, res) {
       }
 
       try {
-        // ใช้ URL constructor เพื่อแยก path ของไฟล์จาก URL และตัด query parameters หรือข้อมูลส่วนเกินออก
         const filePath = decodeURIComponent(new URL(url).pathname).replace('/oneretail-35482.appspot.com/', '');
-    
+
         if (!filePath) {
           return res.status(400).json({ error: 'Invalid file URL' });
         }
-    
-        // ลบไฟล์จาก Google Cloud Storage
+
         await bucket.file(filePath).delete();
-    
-        // ลบไฟล์จากฐานข้อมูล
         await Library.findOneAndDelete({ public_id: publicId });
-    
+
         return res.status(200).json({ message: 'File deleted successfully' });
       } catch (error) {
         console.error('Error deleting file:', error);
@@ -136,8 +151,14 @@ export default async function handler(req, res) {
       }
     }
 
+    case 'GET': {
+      const libraries = await Library.find({});
+      return res.status(200).json(libraries);
+    }
+
     default:
-      res.setHeader('Allow', ['POST', 'DELETE']);
+      res.setHeader('Allow', ['POST', 'PUT', 'DELETE']);
       return res.status(405).end(`Method ${method} Not Allowed`);
   }
 }
+
