@@ -17,7 +17,8 @@ const bucket = storage.bucket('oneretail-35482.appspot.com');
 
 export const config = {
   api: {
-    bodyParser: false, // ปิด bodyParser เพื่อให้ formidable จัดการเอง
+    bodyParser: false, // ปิด bodyParser เพื่อใช้ `formidable`
+    sizeLimit: '100mb', // กำหนดขนาดของ request body (เปลี่ยนให้เหมาะสม)
   },
 };
 
