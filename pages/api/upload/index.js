@@ -6,6 +6,12 @@ import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
 import { nanoid } from 'nanoid'; // ใช้ nanoid เพื่อสร้าง public_id
 
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 const googleCloudKey = JSON.parse(Buffer.from(process.env.GOOGLE_CLOUD_KEY, 'base64').toString('utf8'));
 
 const storage = new Storage({
@@ -14,13 +20,6 @@ const storage = new Storage({
 });
 
 const bucket = storage.bucket('oneretail-35482.appspot.com');
-
-export const config = {
-  api: {
-    bodyParser: false, // ปิด bodyParser เพื่อใช้ `formidable`
-    sizeLimit: '100mb', // กำหนดขนาดของ request body (เปลี่ยนให้เหมาะสม)
-  },
-};
 
 export default async function handler(req, res) {
   const { method } = req;

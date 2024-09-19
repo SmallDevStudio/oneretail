@@ -480,7 +480,7 @@ const ShareYourStory = () => {
                                         ) : (
                                             ''
                                         )}
-                                        {(post.userId === session?.user?.id || user?.user?.role === 'admin' || user?.user?.role === 'manager') && (
+                                        {(user?.user?.role === 'admin' || user?.user?.role === 'manager') && (
                                             <div className="relative">
                                                 <BsThreeDotsVertical onClick={(e) => handleOptionClick(e, 'post', post._id)} />
                                                 <Menu
