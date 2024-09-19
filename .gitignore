@@ -38,3 +38,4 @@ next-env.d.ts
 .vercel
 
 certificates
+.env*.local

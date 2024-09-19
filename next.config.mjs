@@ -44,6 +44,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'storage.googleapis.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'e8p8e6g1rockgoc5.public.blob.vercel-storage.com',
+      },
     ],
   },
   env: {

@@ -5,7 +5,6 @@ const LibrarySchema = new mongoose.Schema({
     file_name: { type: String },
     description: { type: String },
     file_size: { type: Number },
-    file_type: { type: String },
     mime_type: { type: String },
     image_width: { type: Number },
     image_height: { type: Number },
