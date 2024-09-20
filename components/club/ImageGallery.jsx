@@ -1,100 +1,88 @@
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import ReactPlayer from "react-player";
 import { Modal, Box } from "@mui/material";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import { FaRegPlayCircle } from "react-icons/fa";
+import axios from 'axios';
 
-const ImageGallery = ({ medias }) => {
+const ImageGallery = ({ medias, userId }) => {
     const [open, setOpen] = useState(false);
-    const [currentImage, setCurrentImage] = useState(null);
-    const [playing, setPlaying] = useState(false);
-    const [controlsVisible, setControlsVisible] = useState(false);
-    const [showPlayIcon, setShowPlayIcon] = useState(true);
-    const timeoutRef = useRef(null);
+    const [currentMedia, setCurrentMedia] = useState(null);
+    const [hasSentView, setHasSentView] = useState({}); // state เพื่อเก็บสถานะการส่งข้อมูล views
+    const videoRefs = useRef([]); // ใช้ ref เก็บ video element หลายตัว
 
-    const handleOpen = (media) => {
-        if (media.type === 'image') {
-            setCurrentImage(media);
-            setOpen(true);
-        }
+    // รีเซ็ต hasSentView เมื่อ medias เปลี่ยน (เช่นเมื่อเปลี่ยนโพสต์)
+    useEffect(() => {
+        setHasSentView({}); // รีเซ็ตค่า hasSentView ทุกครั้งเมื่อโพสต์หรือ medias เปลี่ยน
+    }, [medias]);
+
+    const handleOpen = (media, index) => {
+        setCurrentMedia(media);
+        setOpen(true);
     };
 
     const handleClose = () => {
         setOpen(false);
-        setCurrentImage(null);
+        setCurrentMedia(null);
     };
 
-    const handleVideoClick = () => {
-        setPlaying(!playing);
-        setShowPlayIcon(false);
-        setControlsVisible(true);
-        clearTimeout(timeoutRef.current);
-        if (!playing) {
-            timeoutRef.current = setTimeout(() => {
-                setControlsVisible(false);
-            }, 3000);
+    // ฟังก์ชันสำหรับ handleTimeUpdate
+    const handleTimeUpdate = async (index) => {
+        const videoElement = videoRefs.current[index];
+        if (!videoElement) return;
+
+        const percentPlayed = (videoElement.currentTime / videoElement.duration) * 100;
+
+        // ถ้าการเล่นถึง 80% และยังไม่ได้ส่งข้อมูล views ให้ส่งข้อมูล
+        if (percentPlayed >= 80 && !hasSentView[index]) {
+            try {
+                await axios.post('/api/libraries/views', {
+                    publicId: medias[index].public_id,
+                    userId,
+                });
+
+                // อัปเดตสถานะว่าได้ส่งข้อมูลไปแล้วสำหรับวิดีโอนี้
+                setHasSentView((prevState) => ({
+                    ...prevState,
+                    [index]: true,
+                }));
+
+            } catch (error) {
+                console.error("Error posting video view:", error);
+            }
         }
     };
 
-    useEffect(() => {
-        return () => clearTimeout(timeoutRef.current);
-    }, []);
-
     return (
         <div className="flex flex-wrap gap-2">
-            {medias.length === 1 ? (
-                medias[0].type === "image" ? (
-                    <div className="flex w-full" onClick={() => handleOpen(medias[0])}>
-                        <Image
-                            src={medias[0].url}
-                            alt="image"
-                            width={600}
-                            height={400}
-                            className="rounded-xl mt-2 object-cover cursor-pointer"
-                            style={{ width: '100%', height: 'auto' }}
-                        />
-                    </div>
-                ) : (
-                    <div className="flex w-full relative" onClick={handleVideoClick}>
-                        <video
-                            src={medias[0].url}
-                            controls
-                            className="rounded-xl mt-2 object-cover cursor-pointer"
-                            style={{ width: '100%', height: 'auto' }}
-                        />
-                    </div>
-                )
-            ) : (
-                medias.map((media, index) => (
-                    <div key={index} className="flex w-1/2 relative">
-                        {media.type === "image" ? (
-                            <div className="flex w-full" onClick={() => handleOpen(media)}>
-                                <Image
-                                    src={media.url}
-                                    alt="image"
-                                    width={600}
-                                    height={400}
-                                    className="rounded-xl object-cover cursor-pointer"
-                                    style={{ width: '100%', height: 'auto' }}
-                                />
-                            </div>
-                        ) : (
-                            <div className="flex w-full relative" onClick={() => handleOpen(media)}>
-                                <Image
-                                    src={media.url}
-                                    alt="video thumbnail"
-                                    width={600}
-                                    height={400}
-                                    className="rounded-xl object-cover cursor-pointer"
-                                    style={{ width: '100%', height: 'auto' }}
-                                />
-                                <FaRegPlayCircle className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-3xl" />
-                            </div>
-                        )}
-                    </div>
-                ))
-            )}
+            {medias.map((media, index) => (
+                <div key={index} className="flex relative">
+                    {media.type === "image" ? (
+                        <div className="flex w-full" onClick={() => handleOpen(media, index)}>
+                            <Image
+                                src={media.url}
+                                alt="image"
+                                width={600}
+                                height={400}
+                                className="rounded-xl object-cover cursor-pointer"
+                                style={{ width: '100%', height: 'auto' }}
+                            />
+                        </div>
+                    ) : (
+                        <div className="flex w-full relative">
+                            <video
+                                ref={(el) => (videoRefs.current[index] = el)} // เก็บ video element แต่ละตัวใน ref
+                                src={media.url}
+                                controls
+                                className="rounded-xl mt-2 object-cover cursor-pointer"
+                                style={{ width: '100%', height: 'auto' }}
+                                onTimeUpdate={() => handleTimeUpdate(index)} // ตรวจสอบเวลาเล่นของวิดีโอแต่ละตัว
+                            />
+                        </div>
+                    )}
+                </div>
+            ))}
+
             <Modal
                 open={open}
                 onClose={handleClose}
@@ -111,7 +99,7 @@ const ImageGallery = ({ medias }) => {
                     border: '2px solid #000',
                     boxShadow: 24,
                 }}>
-                    {currentImage && (
+                    {currentMedia && (
                         <div>
                             <div>
                                 <IoIosCloseCircleOutline
@@ -120,9 +108,9 @@ const ImageGallery = ({ medias }) => {
                                     onClick={handleClose}
                                 />
                             </div>
-                            {currentImage.type === "image" ? (
+                            {currentMedia.type === "image" ? (
                                 <Image
-                                    src={currentImage.url}
+                                    src={currentMedia.url}
                                     alt="image"
                                     width={600}
                                     height={400}
@@ -130,15 +118,14 @@ const ImageGallery = ({ medias }) => {
                                     style={{ width: '100%', height: 'auto' }}
                                 />
                             ) : (
-                                <div className="relative w-full" onClick={handleVideoClick}>
-                                    {showPlayIcon && (
-                                        <FaRegPlayCircle className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-5xl" />
-                                    )}
+                                <div className="relative w-full">
                                     <video
-                                        src={currentImage.url}
+                                        ref={(el) => (videoRefs.current[medias.indexOf(currentMedia)] = el)} // เก็บ video element ที่แสดงใน modal
+                                        src={currentMedia.url}
                                         controls
                                         className="rounded-xl mt-2 object-cover cursor-pointer"
                                         style={{ width: '100%', height: 'auto' }}
+                                        onTimeUpdate={() => handleTimeUpdate(medias.indexOf(currentMedia))} // ตรวจสอบเวลาเล่นใน modal
                                     />
                                 </div>
                             )}

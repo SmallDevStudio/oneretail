@@ -84,12 +84,13 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError }) => {
     };
 
     const handleRemoveMedia = async (index) => {
-        const publicId = media[index].public_id;
         const url = media[index].url;
+
+        console.log('url', url);
       
         try {
           // ส่งคำขอ DELETE ไปยัง API
-          await axios.delete(`/api/upload?publicId=${publicId}&url=${encodeURIComponent(url)}`);
+          await axios.delete(`/api/blob/delete?url=${url}`);
       
           // ลบรายการใน state หลังจากที่ลบสำเร็จ
           const updatedMedia = media.filter((_, i) => i !== index);
@@ -199,6 +200,11 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError }) => {
                 {error && (
                     <span className="text-red-500 text-sm">{error}</span>
                 )}
+                {isUploading && (
+                    <div className="flex justify-center">
+                        <CircularProgress />
+                    </div>
+                )}
                 <div className="flex flex-col gap-2 mt-2 mb-2">
                     <div className="flex flex-row items-center w-full">
                         {Array.isArray(media) && media.length > 0 && media.map((item, index) => (
@@ -225,7 +231,6 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError }) => {
                                                 />
                                             ) : (
                                                 <video
-                                                    controls
                                                     src={item.url}
                                                     className="rounded-lg object-cover"
                                                     style={{ width: '150px', height: '50px' }}

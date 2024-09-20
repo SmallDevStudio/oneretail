@@ -513,7 +513,7 @@ const ShareYourStory = () => {
                                 <p className="text-xs ml-2">{post?.post}</p>
                             )}
                             {post?.medias.length > 0 && (
-                                <ImageGallery medias={post.medias} />
+                                <ImageGallery medias={post.medias} userId={session?.user?.id} />
                             )}
                         </div>
                         <div className="flex flex-col w-full mt-2">
