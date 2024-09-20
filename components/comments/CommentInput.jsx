@@ -14,7 +14,7 @@ import { IoIosArrowBack } from "react-icons/io";
 import { RiEmojiStickerLine } from "react-icons/ri";
 import CircularProgress from '@mui/material/CircularProgress';
 
-const CommentInput = ({ handleSubmit, userId, handleClose, checkError }) => {
+const CommentInput = ({ handleSubmit, userId, handleClose, checkError, folder }) => {
     const [post, setPost] = useState("");
     const [media, setMedia] = useState([]);
     const [files, setFiles] = useState(null); // สำหรับการอัพโหลดเอกสารครั้งละ 1 ไฟล์
@@ -55,7 +55,7 @@ const CommentInput = ({ handleSubmit, userId, handleClose, checkError }) => {
               file_size: file.size,
               type: file.type.startsWith('image') ? 'image' : 'video',
               userId, // เชื่อมโยงกับ userId ของผู้ใช้
-              folder: '', // สามารถแก้ไขเพิ่มเติมถ้าต้องการจัดเก็บใน folder
+              folder: folder, // สามารถแก้ไขเพิ่มเติมถ้าต้องการจัดเก็บใน folder
             };
       
             // ส่งข้อมูลไฟล์ไปยัง API /api/upload/save เพื่อบันทึกลงในฐานข้อมูล
