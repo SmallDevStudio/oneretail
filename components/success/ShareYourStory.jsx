@@ -43,6 +43,7 @@ const ShareYourStory = () => {
     });
 
     const folder = 'share-your-story';
+    
 
     const { data: user, mutate: mutateUser } = useSWR(`/api/users/${session?.user?.id}`, fetcher);
 
