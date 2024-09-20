@@ -16,6 +16,8 @@ const ContentReport = () => {
 
     const { data, error, isLoading, mutate } = useSWR(`/api/reports/content`, fetcher);
 
+    console.log(data);
+
     const handleExport = async () => {
         setLoading(true);
         setProgress(0);
@@ -26,7 +28,6 @@ const ContentReport = () => {
             // Format dates using moment before exporting
             const formattedData = rawData.map(item => ({
                 ...item,
-                author:  item.author.empId + '-' + item.author.fullname,
                 createdAt: moment(item.createdAt).format('LLL'),
                 updatedAt: moment(item.updatedAt).format('LLL')
             }));
