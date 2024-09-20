@@ -303,8 +303,9 @@ const Experience = () => {
 
         if (result.isConfirmed) {
             setLoading(true);
+            const userId = session?.user?.id;
             try {
-                await axios.delete(`/api/club/experiencedelete?experienceId=${experienceId}`);
+                await axios.delete(`/api/club/experiencedelete?experienceId=${experienceId}&userId=${userId}`);
                 mutate();
             } catch (error) {
                 console.error(error);

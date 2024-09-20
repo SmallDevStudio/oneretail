@@ -302,8 +302,9 @@ const ShareYourStory = () => {
     
         if (result.isConfirmed) {
             setLoading(true);
+            const userId = session?.user?.id;
             try {
-                await axios.delete(`/api/posts?postId=${postId}`);
+                await axios.delete(`/api/posts?postId=${postId}&userId=${userId}`);
                 mutate();
             } catch (error) {
                 console.error(error);
@@ -329,7 +330,7 @@ const ShareYourStory = () => {
         if (result.isConfirmed) {
             setLoading(true);
             try {
-                await axios.delete(`/api/posts/comment?commentId=${commentId}`);
+                await axios.delete(`/api/posts/comments?commentId=${commentId}`);
                 mutate();
             } catch (error) {
                 console.error('Error deleting comment:', error);
@@ -355,7 +356,7 @@ const ShareYourStory = () => {
         if (result.isConfirmed) {
             setLoading(true);
             try {
-                await axios.delete(`/api/posts/reply?replyId=${replyId}`);
+                await axios.delete(`/api/posts/replys?replyId=${replyId}`);
                 mutate();
             } catch (error) {
                 console.error(error);

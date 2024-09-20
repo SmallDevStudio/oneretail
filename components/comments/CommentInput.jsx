@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { upload } from '@vercel/blob/client';
+import { nanoid } from 'nanoid';
 import { ImFilePicture } from "react-icons/im";
 import { FaUserPlus, FaRegPlayCircle } from "react-icons/fa";
 import { IoIosCloseCircle } from "react-icons/io";
@@ -10,6 +12,7 @@ import Link from "next/link";
 import axios from 'axios';
 import { IoIosArrowBack } from "react-icons/io";
 import { RiEmojiStickerLine } from "react-icons/ri";
+import CircularProgress from '@mui/material/CircularProgress';
 
 const CommentInput = ({ handleSubmit, userId, handleClose, checkError }) => {
     const [post, setPost] = useState("");
@@ -21,35 +24,78 @@ const CommentInput = ({ handleSubmit, userId, handleClose, checkError }) => {
     const [selectedUsers, setSelectedUser] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isUploading, setIsUploading] = useState(false); // จัดการสถานะการอัปโหลด
     const [uploadProgress, setUploadProgress] = useState(0);
+    
     const [error, setError] = useState(null);
     const [selectSticker, setSelectSticker] = useState(null);
 
+    const fileInputRef = useRef(null); // สร้าง ref สำหรับ input file
+
     const handleUploadClick = () => {
-        setError(null);
-        window.cloudinary.openUploadWidget(
-            {
-                cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-                uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
-                sources: ['local', 'url', 'camera', 'image_search'],
-                multiple: true,
-                resourceType: 'auto', // Automatically determines if it's image or video
-            },
-            (error, result) => {
-                if (result.event === 'success') {
-                    setMedia(prevMedia => [
-                        ...prevMedia,
-                        { url: result.info.secure_url, public_id: result.info.public_id, type: result.info.resource_type }
-                    ]);
-                }
-            }
-        );
+        fileInputRef.current.click(); // เมื่อกดปุ่ม ให้เปิด input file
     };
 
-    const handleRemoveMedia = (index) => {
-        const updatedMedia = media.filter((_, i) => i !== index);
-        setMedia(updatedMedia);
+   // ฟังก์ชัน handleFileChange ที่จะเริ่มอัปโหลดทันทีหลังจากเลือกไฟล์
+    const handleFileChange = async (e) => {
+        setIsUploading(true); // เริ่มการอัปโหลด
+        const fileArray = Array.from(e.target.files); // แปลง FileList เป็น array
+
+        const uploadPromises = fileArray.map(async (file) => {
+            const newBlob = await upload(file.name, file, {
+              access: 'public',
+              handleUploadUrl: '/api/blob/upload',
+            });
+      
+            const mediaEntry = {
+              url: newBlob.url,
+              public_id: nanoid(10),
+              file_name: file.name,
+              mime_type: file.type,
+              file_size: file.size,
+              type: file.type.startsWith('image') ? 'image' : 'video',
+              userId, // เชื่อมโยงกับ userId ของผู้ใช้
+              folder: '', // สามารถแก้ไขเพิ่มเติมถ้าต้องการจัดเก็บใน folder
+            };
+      
+            // ส่งข้อมูลไฟล์ไปยัง API /api/upload/save เพื่อบันทึกลงในฐานข้อมูล
+            await axios.post('/api/upload/save', mediaEntry);
+      
+            return mediaEntry;
+          });
+      
+          // รอการอัปโหลดทั้งหมดเสร็จสิ้น
+          const uploadedMedia = await Promise.all(uploadPromises);
+      
+          // เพิ่มไฟล์ที่อัปโหลดทั้งหมดใน state media
+          setMedia((prevMedia) => [...prevMedia, ...uploadedMedia]);
+      
+          setFiles(null);
+          setIsUploading(false);
+          setUploadProgress({});
+      
+          // รีเซ็ตค่า input เพื่อให้สามารถเลือกไฟล์ใหม่ได้หลังการอัปโหลดเสร็จ
+          fileInputRef.current.value = '';
+        
+        
     };
+
+    const handleRemoveMedia = async (index) => {
+        const url = media[index].url;
+
+        console.log('url', url);
+      
+        try {
+          // ส่งคำขอ DELETE ไปยัง API
+          await axios.delete(`/api/blob/delete?url=${url}`);
+      
+          // ลบรายการใน state หลังจากที่ลบสำเร็จ
+          const updatedMedia = media.filter((_, i) => i !== index);
+          setMedia(updatedMedia);
+        } catch (error) {
+          console.error('Error removing media:', error);
+        }
+      };
 
     const handleRemoveFile = () => {
         setFiles(null);
@@ -157,33 +203,44 @@ const CommentInput = ({ handleSubmit, userId, handleClose, checkError }) => {
                 {error && (
                     <span className="text-red-500 text-sm">{error}</span>
                 )}
+                {isUploading && (
+                    <div className="flex justify-center">
+                        <CircularProgress />
+                    </div>
+                )}
                 <div className="flex flex-col gap-2 mt-2 mb-2">
                     <div className="flex flex-row items-center w-full">
-                        {media.map((item, index) => (
+                    {Array.isArray(media) && media.length > 0 && media.map((item, index) => (
                             <div key={index} className="flex gap-2 ml-2">
                                 <div className="relative flex flex-col p-2 border-2 rounded-xl">
-                                    <IoIosCloseCircle
-                                        className="absolute top-0 right-0 text-xl cursor-pointer"
-                                        onClick={() => handleRemoveMedia(index)}
-                                    />
-                                    {item.type === 'image' ? (
-                                        <Image
-                                            src={item.url}
-                                            alt="Preview"
-                                            width={40}
-                                            height={40}
-                                            className="rounded-lg object-cover"
-                                            style={{ width: 'auto', height: '50px' }}
-                                        />
-                                    ) : (
-                                        <div className="relative">
-                                            <video width="50" height="50" controls>
-                                                <source src={item.url} type="video/mp4" />
-                                                Your browser does not support the video tag.
-                                            </video>
-                                            <FaRegPlayCircle className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-500 text-3xl" />
+                                    {isUploading ? (
+                                        <div className="flex justify-center">
+                                            <CircularProgress />
                                         </div>
-                                    )}
+                                        ) : (
+                                            <>
+                                            <IoIosCloseCircle
+                                                className="absolute top-0 right-0 text-xl cursor-pointer"
+                                                onClick={() => handleRemoveMedia(index)}
+                                            />
+                                            {item.type === 'image' ? (
+                                                <Image
+                                                    src={item.url}
+                                                    alt="Thumbnail"
+                                                    width={50}
+                                                    height={50}
+                                                    className="rounded-lg object-cover"
+                                                    style={{ width: '150px', height: '50px' }}
+                                                />
+                                            ) : (
+                                                <video
+                                                    src={item.url}
+                                                    className="rounded-lg object-cover"
+                                                    style={{ width: '150px', height: '50px' }}
+                                                />
+                                            )}
+                                            </>
+                                        )}
                                 </div>
                             </div>
                         ))}
@@ -243,6 +300,16 @@ const CommentInput = ({ handleSubmit, userId, handleClose, checkError }) => {
                         <span className="text-[10px] text-red-500 ">* สามารถอัพโหลดได้ไม่เกิน 100MB</span>
                     </div>
                 </button>
+
+                {/* ซ่อน input file แต่ใช้ ref เพื่อให้มันทำงานเมื่อกดปุ่ม */}
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        multiple // สามารถเลือกหลายไฟล์ได้
+                        accept="image/*,video/*" // จำกัดชนิดของไฟล์
+                        onChange={handleFileChange} // ดักการเปลี่ยนแปลงของไฟล์ที่เลือก
+                        style={{ display: 'none' }} // ซ่อน input file
+                    />
                 <Divider />
                 <div className="flex flex-row items-center gap-2 p-2 cursor-pointer"
                     onClick={handleOpenModal}

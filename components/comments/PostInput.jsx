@@ -29,9 +29,6 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError }) => {
     const [isUploading, setIsUploading] = useState(false); // จัดการสถานะการอัปโหลด
     const [uploadProgress, setUploadProgress] = useState(0);
     const [error, setError] = useState(null);
-    
-    console.log('media', media);
-    console.log('files', files);
 
     const fileInputRef = useRef(null); // สร้าง ref สำหรับ input file
 
