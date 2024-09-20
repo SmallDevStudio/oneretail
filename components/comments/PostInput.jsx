@@ -199,55 +199,39 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError }) => {
                 {error && (
                     <span className="text-red-500 text-sm">{error}</span>
                 )}
-                {isUploading && (
-                    <div className="flex justify-center">
-                        <CircularProgress />
-                    </div>
-                )}
                 <div className="flex flex-col gap-2 mt-2 mb-2">
                     <div className="flex flex-row items-center w-full">
                         {Array.isArray(media) && media.length > 0 && media.map((item, index) => (
                             <div key={index} className="flex gap-2 ml-2">
                                 <div className="relative flex flex-col p-2 border-2 rounded-xl">
-                                {uploadProgress[index] === 100 && (
-                                    <IoIosCloseCircle
-                                        className="absolute top-0 right-0 text-xl cursor-pointer"
-                                        onClick={() => handleRemoveMedia(index)}
-                                    />
-                                )}
-                                    {uploadProgress[index] && uploadProgress[index] < 100 ? (
-                                        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                                            <CircularProgressbar
-                                            value={uploadProgress[index] || 0}
-                                            text={`${uploadProgress[index] || 0}%`}
-                                            styles={buildStyles({
-                                                textSize: '24px',
-                                                pathColor: '#4caf50',
-                                                textColor: '#fff',
-                                                trailColor: '#d6d6d6',
-                                            })}
-                                            />
+                                    {isUploading ? (
+                                        <div className="flex justify-center">
+                                            <CircularProgress />
                                         </div>
                                         ) : (
-                                        // เมื่ออัปโหลดเสร็จแสดงรูปแทน
-                                        item.type === 'image' ? (
-                                            <Image
-                                                src={item.url}
-                                                alt="Preview"
-                                                width={40}
-                                                height={40}
-                                                className="rounded-lg object-cover"
-                                                style={{ width: 'auto', height: '50px' }}
+                                            <>
+                                            <IoIosCloseCircle
+                                                className="absolute top-0 right-0 text-xl cursor-pointer"
+                                                onClick={() => handleRemoveMedia(index)}
                                             />
-                                        ) : (
-                                            <div className="relative">
-                                                <video width="50" height="50" controls>
-                                                    <source src={item.url} type="video/mp4" />
-                                                    Your browser does not support the video tag.
-                                                </video>
-                                                <FaRegPlayCircle className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-500 text-3xl" />
-                                            </div>
-                                        )
+                                            {item.type === 'image' ? (
+                                                <Image
+                                                    src={item.url}
+                                                    alt="Thumbnail"
+                                                    width={50}
+                                                    height={50}
+                                                    className="rounded-lg object-cover"
+                                                    style={{ width: '150px', height: '50px' }}
+                                                />
+                                            ) : (
+                                                <video
+                                                    controls
+                                                    src={item.url}
+                                                    className="rounded-lg object-cover"
+                                                    style={{ width: '150px', height: '50px' }}
+                                                />
+                                            )}
+                                            </>
                                         )}
                                 </div>
                             </div>

@@ -99,6 +99,7 @@ const ShareYourStory = () => {
                 medias: data.media,
                 files: data.files,
                 tagusers: data.selectedUsers,
+                pinned: false,
                 userId
             });
 

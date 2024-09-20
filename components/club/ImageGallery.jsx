@@ -57,16 +57,11 @@ const ImageGallery = ({ medias }) => {
                     </div>
                 ) : (
                     <div className="flex w-full relative" onClick={handleVideoClick}>
-                        {showPlayIcon && (
-                            <FaRegPlayCircle className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-5xl" />
-                            
-                        )}
-                        <ReactPlayer
-                            url={medias[0].url}
-                            width="100%"
-                            height="auto"
-                            playing={playing}
-                            controls={controlsVisible}
+                        <video
+                            src={medias[0].url}
+                            controls
+                            className="rounded-xl mt-2 object-cover cursor-pointer"
+                            style={{ width: '100%', height: 'auto' }}
                         />
                     </div>
                 )
@@ -139,12 +134,11 @@ const ImageGallery = ({ medias }) => {
                                     {showPlayIcon && (
                                         <FaRegPlayCircle className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-5xl" />
                                     )}
-                                    <ReactPlayer
-                                        url={currentImage.url}
-                                        width="100%"
-                                        height="500px"
-                                        playing={playing}
-                                        controls={controlsVisible}
+                                    <video
+                                        src={currentImage.url}
+                                        controls
+                                        className="rounded-xl mt-2 object-cover cursor-pointer"
+                                        style={{ width: '100%', height: 'auto' }}
                                     />
                                 </div>
                             )}
