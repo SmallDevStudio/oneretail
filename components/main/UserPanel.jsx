@@ -79,7 +79,7 @@ const UserPanel = ({user, level, onExchangeAdd, setLoading, loading, coins}) => 
                             คะแนน
                         </span>
                     </div>
-                    <span className="flex font-bold text-[#F2871F]">~ {coins.coins} คอยน์ </span>
+                    <span className="flex font-bold text-[#F2871F]">{coins.coins} คอยน์ </span>
 
                     <div className="flex flex-col items-center mt-3">
                         <span className="text-[10px]">
