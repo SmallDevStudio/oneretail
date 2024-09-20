@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import { upload } from '@vercel/blob/client';
+import { nanoid } from 'nanoid';
 import { ImFilePicture } from "react-icons/im";
 import { FaUserPlus, FaRegPlayCircle } from "react-icons/fa";
 import { IoIosCloseCircle } from "react-icons/io";
@@ -10,6 +12,7 @@ import Link from "next/link";
 import { IoIosArrowBack } from "react-icons/io";
 import axios from "axios";
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
+import CircularProgress from '@mui/material/CircularProgress';
 import 'react-circular-progressbar/dist/styles.css';
 
 const PostInput = ({ handleSubmit, userId, handleClose, checkError }) => {
@@ -27,6 +30,8 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError }) => {
     const [uploadProgress, setUploadProgress] = useState(0);
     const [error, setError] = useState(null);
     
+    console.log('media', media);
+    console.log('files', files);
 
     const fileInputRef = useRef(null); // สร้าง ref สำหรับ input file
 
@@ -36,44 +41,46 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError }) => {
 
    // ฟังก์ชัน handleFileChange ที่จะเริ่มอัปโหลดทันทีหลังจากเลือกไฟล์
     const handleFileChange = async (e) => {
-        const selectedFiles = Array.from(e.target.files); // แปลง FileList เป็น array
         setIsUploading(true); // เริ่มการอัปโหลด
-        setUploadProgress([]); // รีเซ็ต progress
+        const fileArray = Array.from(e.target.files); // แปลง FileList เป็น array
 
-        const uploadedUrls = [];
-
-        for (let i = 0; i < selectedFiles.length; i++) {
-            const formData = new FormData();
-            formData.append('file', selectedFiles[i]);
-            formData.append('folder', 'posts');
-            formData.append('userId', userId);
-
-            try {
-                const res = await axios.post('/api/upload', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                    onUploadProgress: (progressEvent) => {
-                        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                        
-                        // อัปเดต progress ของไฟล์แต่ละตัว
-                        setUploadProgress((prevProgress) => ({
-                            ...prevProgress,
-                            [i]: percentCompleted, // อัปเดต progress ของไฟล์ปัจจุบัน
-                        }));
-                    },
-                });
-
-                setMedia((prevMedia) => [...prevMedia, ...res.data]); // อัปเดต media ด้วยข้อมูลจาก API
-                uploadedUrls.push(...res.data); // เก็บ URL ที่อัปโหลดสำเร็จ
-
-            } catch (error) {
-                console.error(`Error uploading file ${i + 1}:`, error);
-            }
-        }
-
-        setIsUploading(false); // หยุดการอัปโหลดเมื่อครบทุกไฟล์
-        setFiles([]); // clear input files หลังการอัปโหลดเสร็จ
+        const uploadPromises = fileArray.map(async (file) => {
+            const newBlob = await upload(file.name, file, {
+              access: 'public',
+              handleUploadUrl: '/api/blob/upload',
+            });
+      
+            const mediaEntry = {
+              url: newBlob.url,
+              public_id: nanoid(10),
+              file_name: file.name,
+              mime_type: file.type,
+              file_size: file.size,
+              type: file.type.startsWith('image') ? 'image' : 'video',
+              userId, // เชื่อมโยงกับ userId ของผู้ใช้
+              folder: '', // สามารถแก้ไขเพิ่มเติมถ้าต้องการจัดเก็บใน folder
+            };
+      
+            // ส่งข้อมูลไฟล์ไปยัง API /api/upload/save เพื่อบันทึกลงในฐานข้อมูล
+            await axios.post('/api/upload/save', mediaEntry);
+      
+            return mediaEntry;
+          });
+      
+          // รอการอัปโหลดทั้งหมดเสร็จสิ้น
+          const uploadedMedia = await Promise.all(uploadPromises);
+      
+          // เพิ่มไฟล์ที่อัปโหลดทั้งหมดใน state media
+          setMedia((prevMedia) => [...prevMedia, ...uploadedMedia]);
+      
+          setFiles(null);
+          setIsUploading(false);
+          setUploadProgress({});
+      
+          // รีเซ็ตค่า input เพื่อให้สามารถเลือกไฟล์ใหม่ได้หลังการอัปโหลดเสร็จ
+          fileInputRef.current.value = '';
+        
+        
     };
 
     const handleRemoveMedia = async (index) => {
@@ -191,6 +198,11 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError }) => {
                 />
                 {error && (
                     <span className="text-red-500 text-sm">{error}</span>
+                )}
+                {isUploading && (
+                    <div className="flex justify-center">
+                        <CircularProgress />
+                    </div>
                 )}
                 <div className="flex flex-col gap-2 mt-2 mb-2">
                     <div className="flex flex-row items-center w-full">

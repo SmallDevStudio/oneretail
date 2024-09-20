@@ -100,7 +100,7 @@ export default function AvatarUploadPage() {
                 {item.type === 'image' ? (
                   <Image src={item.url} alt={item.public_id} width={100} height={100} />
                 ) : (
-                  <video src={item.url} width={100} controls />
+                  <video src={item.url} width={400} controls />
                 )}
                 <p>{item.public_id}</p>
               </li>
