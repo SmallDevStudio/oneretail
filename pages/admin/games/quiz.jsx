@@ -7,6 +7,7 @@ import QuestionTable from '@/components/QuestionTable';
 import AnswersTable from '@/components/admin/AnswersTable';
 import QuizAdmin from '@/components/admin/QuizAdmin';
 import UserQuizTable from '@/components/admin/UserQuizTable';
+import Quiz2 from '@/components/games/quiz/Quiz2';
 import { AdminLayout } from '@/themes';
 
 function TabPanel(props) {
@@ -42,22 +43,27 @@ export default function QuizGame() {
         <Tabs value={tabIndex} onChange={handleTabChange} aria-label="quiz game tabs" sx={{
           fontFamily: 'ttb',
         }}>
+          <Tab label="จัดการคำถามใหม่" />
           <Tab label="จัดการคำถาม" />
           <Tab label="รายงานคำตอบ" />
           <Tab label="เลือกGroup" />
           <Tab label="User Scores" />
+          
         </Tabs>
-        <TabPanel value={tabIndex} index={0}>
+        <TabPanel value={tabIndex} index={1}>
           <QuestionTable />
         </TabPanel>
-        <TabPanel value={tabIndex} index={1}>
+        <TabPanel value={tabIndex} index={2}>
           <AnswersTable />
         </TabPanel>
-        <TabPanel value={tabIndex} index={2}>
+        <TabPanel value={tabIndex} index={3}>
           <QuizAdmin />
         </TabPanel>
-        <TabPanel value={tabIndex} index={3}>
+        <TabPanel value={tabIndex} index={4}>
           <UserQuizTable />
+        </TabPanel>
+        <TabPanel value={tabIndex} index={0}>
+          <Quiz2 />
         </TabPanel>
       </div>
     </Provider>

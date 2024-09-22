@@ -14,6 +14,7 @@ const Salestrip = () => {
     const [topic, setTopic] = useState(null);
     const [selectedOption, setSelectedOption] = useState(null);
     const [loaded, setLoaded] = useState(false);
+    const [user, setUser] = useState(null);
 
     const userId = session?.user?.id;
 
@@ -32,6 +33,25 @@ const Salestrip = () => {
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [topicId]);
+
+    useEffect(() => {
+        if (session) {
+            const fetchUser = async () => {
+                try {
+                    const response = await axios.get(`/api/users/${userId}`);
+                    setUser(response.data.user);
+                } catch (error) {
+                    console.error("Error fetching user:", error);
+                }
+            };
+
+            fetchUser();
+
+            if (user?.teamGrop !== 'AL') {
+                router.push('/main');
+            }
+        }
+    }, [router, session, user?.teamGrop, userId]);
 
     const optionDetails = {
         0: "(หุบเขาเทวดา) - เที่ยวชมความงามหมู่บ้านริมผาสุด Unseen หุบเขาเทวดาวั้งเซียนกู่ หมู่บ้านชนบทที่สวยที่สุดในประเทศจีน",
