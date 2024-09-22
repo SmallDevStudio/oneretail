@@ -208,7 +208,7 @@ const SurveyMemo = () => {
                                 </div>
                                 <div className="flex flex-col gap-1 w-[calc(75%-40px)]">
                                     <p className="text-xs">{moment(memo.createdAt).locale("th").format("DD MMMM YYYY")}</p>
-                                    <p className="text-sm line-clamp-2">{memo.memo}</p>
+                                    <p className="text-sm">{memo.memo}</p>
                                 </div>
                                 <div 
                                     className="flex flex-col justify-center items-center mt-1 w-[50px]"

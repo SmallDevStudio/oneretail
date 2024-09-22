@@ -40,7 +40,6 @@ export default async function handler(req, res) {
                     return acc;
                 }, {});
                 
-                
                 const userMap = users.reduce((acc, user) => {
                     const empData = empMap[user.empId];
                     acc[user.userId] = {
@@ -58,26 +57,38 @@ export default async function handler(req, res) {
                     return acc;
                 }, {});
 
+                // Filter data by teamGrop
                 const filteredData = surveys.filter(survey => {
                     const user = userMap[survey.userId];
                     return user?.teamGrop?.toLowerCase() === teamGrop.toLowerCase();
                 });
-                           
-                // Aggregate by group and count values
+                            
+                // Aggregate by group, count values, and calculate the average
                 const groupData = filteredData.reduce((acc, survey) => {
                     const userGroup = userMap[survey.userId]?.group;
                     if (!userGroup) return acc;
 
                     if (!acc[userGroup]) {
-                        acc[userGroup] = { group: userGroup, counts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }, total: 0 };
+                        acc[userGroup] = { group: userGroup, counts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }, total: 0, sum: 0, average: 0 };
                     }
 
                     acc[userGroup].counts[survey.value]++;
                     acc[userGroup].total++;
+                    acc[userGroup].sum += survey.value; // Sum up the values for average calculation
                     return acc;
                 }, {});
 
-                res.status(200).json({ success: true, data: Object.values(groupData) });
+                // Calculate the average for each group and convert the object into an array
+                const groupDataArray = Object.values(groupData).map(group => {
+                    // Use Math.round to round the average to the nearest whole number
+                    group.average = group.total > 0 ? Math.round(group.sum / group.total) : 0;
+                    return group;
+                });
+
+                // Sort by group name (alphabetically)
+                groupDataArray.sort((a, b) => a.group.localeCompare(b.group));
+
+                res.status(200).json({ success: true, data: groupDataArray });
             } catch (error) {
                 console.error("Error fetching surveys:", error);
                 res.status(400).json({ success: false, error: error.message });
@@ -88,4 +99,3 @@ export default async function handler(req, res) {
             break;
     }
 }
-

@@ -80,7 +80,6 @@ export default async function handler(req, res) {
             }
             break;
 
-            case 'DELETE':
                 case 'DELETE':
                     const { postId, userId } = req.query;
         
@@ -91,47 +90,6 @@ export default async function handler(req, res) {
                         if (!post) {
                             return res.status(404).json({ success: false, error: "Post not found" });
                         }
-        
-                        // ดึง public_id และ url จาก media ของโพสต์
-                        const mediaToDelete = post.media.map(item => ({
-                            public_id: item.public_id,
-                            url: item.url,
-                            file_name: item.file_name,
-                            type: item.type
-                        }));
-        
-                        // ลบไฟล์จาก Vercel Blob
-                        const deletePromises = mediaToDelete.map(async (media) => {
-                            try {
-                                await del(media.url, {
-                                    onBeforeGenerateToken: async (pathname /*, clientPayload */) => {
-                                        const token = process.env.OneRetail_READ_WRITE_TOKEN; // ใช้ Environment Variable
-                                        if (!token) throw new Error('Missing Vercel Blob token');
-        
-                                        return {
-                                            tokenPayload: JSON.stringify({ token }),
-                                        };
-                                    },
-                                });
-                            } catch (error) {
-                                console.error(`Error deleting blob for URL ${media.url}:`, error);
-                            }
-                        });
-                        await Promise.all(deletePromises); // รอให้ลบไฟล์ทั้งหมดเสร็จสิ้น
-        
-                        // ลบข้อมูลใน Library ที่มี public_id ตรงกับโพสต์
-                        await Library.deleteMany({ public_id: { $in: mediaToDelete.map(media => media.public_id) } });
-        
-                        // บันทึกข้อมูลการลบลงใน LibraryDelete
-                        const libraryDelete = new LibraryDelete({
-                            delete: [{
-                                contentId: postId,
-                                media: mediaToDelete
-                            }],
-                            userId: userId // ใช้ userId ของผู้ลบโพสต์
-                        });
-        
-                        await libraryDelete.save(); // บันทึกข้อมูลการลบ
         
                         // ลบโพสต์เอง
                         await Post.findByIdAndDelete(postId);

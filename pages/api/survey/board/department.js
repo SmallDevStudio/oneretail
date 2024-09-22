@@ -62,26 +62,42 @@ export default async function handler(req, res) {
                     const user = userMap[survey.userId];
                     return (
                         user?.teamGrop?.toLowerCase() === teamGrop.toLowerCase() &&
-                        user?.group?.toLowerCase() === group?.toLowerCase()
-                        && user?.department?.toLowerCase() === department?.toLowerCase()
+                        user?.group?.toLowerCase() === group?.toLowerCase() &&
+                        user?.department?.toLowerCase() === department?.toLowerCase()
                     );
                 });
 
-                // Aggregate by department and count values
+                // Aggregate by branch and count values, including memoCount
                 const branchData = filteredData.reduce((acc, survey) => {
                     const userBranch = userMap[survey.userId]?.branch;
                     if (!userBranch) return acc;
 
                     if (!acc[userBranch]) {
-                        acc[userBranch] = { branch: userBranch, counts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }, total: 0 };
+                        acc[userBranch] = { branch: userBranch, counts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }, total: 0, sum: 0, memoCount: 0 };
                     }
 
                     acc[userBranch].counts[survey.value]++;
                     acc[userBranch].total++;
+                    acc[userBranch].sum += survey.value;
+
+                    // Count memos (non-null and non-empty)
+                    if (survey.memo && survey.memo.trim() !== "") {
+                        acc[userBranch].memoCount++;
+                    }
                     return acc;
                 }, {});
 
-                res.status(200).json({ success: true, data: Object.values(branchData) });
+                // Calculate the average for each branch and convert the object into an array
+                const branchDataArray = Object.values(branchData).map(branch => {
+                    // Calculate the average, round to the nearest integer
+                    branch.average = branch.total > 0 ? Math.round(branch.sum / branch.total) : 0;
+                    return branch;
+                });
+
+                // Sort by average (ascending order)
+                branchDataArray.sort((a, b) => a.average - b.average);
+
+                res.status(200).json({ success: true, data: branchDataArray });
             } catch (error) {
                 console.error("Error fetching surveys:", error);
                 res.status(400).json({ success: false, error: error.message });

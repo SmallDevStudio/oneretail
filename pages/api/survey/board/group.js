@@ -72,15 +72,26 @@ export default async function handler(req, res) {
                     if (!userDepartment) return acc;
 
                     if (!acc[userDepartment]) {
-                        acc[userDepartment] = { department: userDepartment, counts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }, total: 0 };
+                        acc[userDepartment] = { department: userDepartment, counts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }, total: 0, sum: 0 };
                     }
 
                     acc[userDepartment].counts[survey.value]++;
                     acc[userDepartment].total++;
+                    acc[userDepartment].sum += survey.value;
                     return acc;
                 }, {});
 
-                res.status(200).json({ success: true, data: Object.values(departmentData) });
+                // Calculate the average for each department and convert the object into an array
+                const departmentDataArray = Object.values(departmentData).map(department => {
+                    // Use Math.round to round the average to the nearest whole number
+                    department.average = department.total > 0 ? Math.round(department.sum / department.total) : 0;
+                    return department;
+                });
+
+                // Sort by average (descending order)
+                departmentDataArray.sort((a, b) => b.average - a.average);
+
+                res.status(200).json({ success: true, data: departmentDataArray });
             } catch (error) {
                 console.error("Error fetching surveys:", error);
                 res.status(400).json({ success: false, error: error.message });

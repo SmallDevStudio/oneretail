@@ -6,15 +6,13 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { IoIosArrowBack } from "react-icons/io";
 import { AppLayout } from "@/themes";
 
+
 const colors = {
-    RH1: "#FF5733",  // Red
-    RH2: "#33FF57",  // Green
-    RH3: "#3357FF",  // Blue
-    RH4: "#F1C40F",  // Yellow
-    RH5: "#8E44AD",  // Purple
-    IA: "#3498DB",
-    PB: "#E67E22",
-    TCON: "#2ECC71",
+    1: "#FF0000",  // Red
+    2: "#FF8A00",  // Green
+    3: "#FFC700",  // Blue
+    4: "#B9D21E",  // Yellow
+    5: "#00D655",  // Purple
     // You can map more groups or color them dynamically if more groups are added
 };
 
@@ -122,19 +120,19 @@ const SurveyTeam = () => {
                     >
                         <XAxis dataKey="group" />
                         <YAxis />
-                        <Tooltip />
+                        <Tooltip/>
                         <Legend
                             {...{
-                                payload: groupData.map(group => ({
-                                    value: group.group,
+                                payload: surveyDetails.map(detail => ({
+                                    value: detail.label,
                                     type: "square",
-                                    color: colors[group.group] || '#333' // Default color if not mapped
+                                    color: detail.color || '#333' // Default color if not mapped
                                 }))
                             }}
                         />
                         <Bar dataKey="total" fill="#8884d8">
                             {groupData.map((group, index) => (
-                                <Cell key={`cell-${index}`} fill={colors[group.group]} />
+                                <Cell key={`cell-${index}`} fill={colors[group.average]} />
                             ))}
                         </Bar>
                     </BarChart>

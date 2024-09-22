@@ -9,26 +9,11 @@ import { MdOutlineHome } from "react-icons/md";
 import { IoIosArrowForward } from "react-icons/io";
 
 const colors = {
-    1: "#FF5733",  // Red
-    2: "#33FF57",  // Green
-    3: "#3357FF",  // Blue
-    4: "#F1C40F",  // Yellow
-    5: "#8E44AD",  // Purple
-    6: "#3498DB",
-    7: "#E67E22",
-    8: "#2ECC71",
-    9: "#E74C3C",
-    10: "#9B59B6",
-    11: "#34495E",
-    12: "#16A085",
-    13: "#27AE60",
-    14: "#2980B9",
-    15: "#8E44AD",
-    16: "#2C3E50",
-    17: "#F1C40F",
-    18: "#E67E22",
-    19: "#E74C3C",
-    20: "#95A5A6",
+    1: "#FF0000",  // Red
+    2: "#FF8A00",  // Green
+    3: "#FFC700",  // Blue
+    4: "#B9D21E",  // Yellow
+    5: "#00D655",  // Purple
     // You can map more groups or color them dynamically if more groups are added
 };
 
@@ -107,7 +92,9 @@ const SurveyBranch = () => {
         {/* Chart */}
         <div className="mt-4 bg-white shadow-md text-xs w-full">
             {branchData.length === 0 ? (
-                <CircularProgress />
+                <div className="flex justify-center items-center h-96">
+                    <CircularProgress />
+                </div>
             ) : (
                 <ResponsiveContainer width="100%" height={400}>
                     <BarChart 
@@ -123,15 +110,41 @@ const SurveyBranch = () => {
                         <YAxis 
                             dataKey="branch"
                             type="category"
-                            tickFormatter={(label) => label.length > 10 ? `${label.substring(0, 0)} ` : label}
+                            tickFormatter={(label) => label.length > 0 ? `${label.substring(0, 0)} ` : label}
                         />
                         
-                        <Tooltip />
-                       
+                        {/* Custom Tooltip */}
+                        <Tooltip 
+                            cursor={{ fill: 'transparent' }}
+                            contentStyle={{ 
+                                display: 'flex',
+                                flexDirection: 'column',
+                            }}
+                            formatter={(value, name, props) => {
+                                const { payload } = props;  // payload contains the data of the hovered branch
+                                return [
+                                    `Total: ${value}`,  // Total number of people (or whatever 'total' represents)
+                                    `Verbatim: ${payload.memoCount}`  // Show memo count
+                                ];
+                            }}
+                            
+                        />
+
+                        {/* ปรับ Legend ให้เป็นสองแถว */}
+                        <Legend
+                            {...{
+                                payload: surveyDetails.map(detail => ({
+                                    value: detail.label,
+                                    type: "square",
+                                    color: detail.color || '#333' // Default color if not mapped
+                                }))
+                            }}
+                        />
+                    
                         {/* Bar ที่ถูกเปลี่ยนให้เป็นแนวแกน Y */}
                         <Bar dataKey="total" fill="#8884d8">
                             {branchData.map((branch, index) => (
-                                <Cell key={`cell-${index}`} fill={colors[index+1]} />
+                                <Cell key={`cell-${index}`} fill={colors[branch.average]} />
                             ))}
                         </Bar>
                     </BarChart>
