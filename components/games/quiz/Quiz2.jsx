@@ -11,6 +11,8 @@ const Quiz2 = () => {
     const [subGroup, setSubGroup] = useState('');
     const [showForm, setShowForm] = useState(false);
     const [editMode, setEditMode] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [selectedQuestion, setSelectedQuestion] = useState(null);
 
     const fetchQuestions = async () => {
         try {
@@ -34,6 +36,7 @@ const Quiz2 = () => {
     const handleAddQuestion = async () => {
         setShowForm(true);
         setEditMode(false);
+        setLoading(true);
 
         const newQuestion = {
             question,
@@ -71,8 +74,9 @@ const Quiz2 = () => {
                 title: 'เพิ่มคําถามไม่สําเร็จ',
                 text: 'กรุณาลองใหม่อีกครั้ง',
             });
-        }
+        } 
 
+        setLoading(false);
         setShowForm(false);
     };
 
@@ -123,6 +127,7 @@ const Quiz2 = () => {
 
     const handleEditQuestion = (index) => {
         const question = questions[index];
+        setSelectedQuestion(index);
         setQuestion(question.question);
         setOptions(question.options);
         setCorrectAnswer(question.correctAnswer);
@@ -130,6 +135,47 @@ const Quiz2 = () => {
         setSubGroup(question.subGroup);
         setEditMode(true);
         setShowForm(true);
+    };
+
+    const handleUpdateQuestion = async (id) => {
+        setLoading(true);
+        try {
+            const updatedQuestion = {
+                question,
+                options,
+                correctAnswer,
+                group,
+                subGroup,
+            };
+
+            const response = await axios.put(`/api/quiz/${id}`, updatedQuestion);
+            if (response.data) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'แก้ไขคำถามสําเร็จ',
+                    text: 'คุณได้แก้ไขคำถามเรียบร้อยแล้ว',
+                });
+                fetchQuestions();
+                handleClearForm();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'แก้ไขคำถามไม่สําเร็จ',
+                    text: 'กรุณาลองใหม่อีกครั้ง',
+                });
+            }
+        } catch (error) {
+            console.error(error);
+            Swal.fire({
+                icon: 'error',
+                title: 'แก้ไขคำถามไม่สําเร็จ',
+                text: 'กรุณาลองใหม่อีกครั้ง',
+            });
+        } 
+
+        setEditMode(false);
+        setLoading(false);
+        handleClearForm();
     };
 
 
@@ -284,9 +330,9 @@ const Quiz2 = () => {
                 <div className="flex flex-row gap-2 items-center mt-5">
                     <button
                         className='bg-[#0056FF] hover:bg-[#0056FF]/90 text-white font-bold py-2 px-4 rounded-lg'
-                        onClick={handleAddQuestion}
+                        onClick={!editMode ? handleAddQuestion :() => handleUpdateQuestion(questions[selectedQuestion]._id)}
                     >
-                        บันทึก
+                        {loading ? "กําลังบันทึก..." : editMode ? "แก้ไข" : "เพิ่มคําถาม"}
                     </button>
                     <button
                         className='bg-red-500 hover:bg-red-500/90 text-white font-bold py-2 px-4 rounded-lg'
