@@ -55,6 +55,7 @@ const Quiz2 = () => {
                 setCorrectAnswer(0);
                 setGroup('');
                 setSubGroup('');
+                fetchQuestions();
                 Swal.fire({
                     icon: 'success',
                     title: 'เพิ่มคําถามสําเร็จ',
@@ -98,30 +99,43 @@ const Quiz2 = () => {
     };
 
     const handleDeleteQuestion = async (id) => {
-        try {
-            const response = await axios.delete(`/api/quiz/${id}`);
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you really want to delete this question? This process cannot be undone.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+        });
 
-            if (response.data) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'ลบคําถามสําเร็จ',
-                    text: 'คุณได้ลบคําถามเรียบร้อยแล้ว',
-                });
-                fetchQuestions();
-            } else {
+        if (result.isConfirmed) {
+            try {
+                const response = await axios.delete(`/api/quiz/${id}`);
+
+                if (response.data) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Your question has been deleted.',
+                    });
+                    fetchQuestions();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Something went wrong!',
+                    });
+                }
+            } catch (error) {
+                console.error(error);
                 Swal.fire({
                     icon: 'error',
-                    title: 'ลบคําถามไม่สําเร็จ',
-                    text: 'กรุณาลองใหม่อีกครั้ง',
+                    title: 'Oops...',
+                    text: 'Something went wrong!',
                 });
             }
-        } catch (error) {
-            console.error(error);
-            Swal.fire({
-                icon: 'error',
-                title: 'ลบคําถามไม่สําเร็จ',
-                text: 'กรุณาลองใหม่อีกครั้ง',
-            });
         }
     };
 
