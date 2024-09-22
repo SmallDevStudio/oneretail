@@ -8,6 +8,7 @@ const BadgeSchema = new mongoose.Schema({
         url: { type: String }, 
         type: { type: String } 
     }],
+    active: { type: Boolean, default: true },
     createdAt: { type: Date, default: Date.now },
 });
 

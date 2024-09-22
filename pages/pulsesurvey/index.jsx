@@ -21,7 +21,7 @@ const PulseSurvey = () => {
 
     useEffect(() => {
         if (surveyData?.completed) {
-            router.push('/satisfactions');
+            router.push('/main');
         }
     }, [surveyData, router]);
 

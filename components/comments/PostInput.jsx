@@ -81,12 +81,13 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError, folder }) =>
 
     const handleRemoveMedia = async (index) => {
         const url = media[index].url;
+        const publicId = media[index].public_id;
 
-        console.log('url', url);
-      
         try {
           // ส่งคำขอ DELETE ไปยัง API
           await axios.delete(`/api/blob/delete?url=${url}`);
+
+          await axios.post(`/api/libraries?publicId=${publicId}`);
       
           // ลบรายการใน state หลังจากที่ลบสำเร็จ
           const updatedMedia = media.filter((_, i) => i !== index);

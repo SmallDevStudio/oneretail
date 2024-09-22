@@ -109,6 +109,7 @@
     "react-toastify": "^10.0.5",
     "react-tooltip": "^5.27.1",
     "react-youtube": "^10.1.0",
+    "recharts": "^2.12.7",
     "sceditor": "^3.2.0",
     "slick-carousel": "^1.8.1",
     "streamifier": "^0.1.1",
