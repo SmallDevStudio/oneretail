@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const VoteSchema = new mongoose.Schema({
     topicId: { type: mongoose.Schema.Types.ObjectId, ref: 'Topic', required: true },

@@ -52,7 +52,7 @@ export default async function handler(req, res) {
         case 'POST':
             try {
                 const { userId, topicId, optionId } = req.body;
-                console.log({ userId, topicId, optionId });
+
                 if (!userId || !topicId || !optionId) {
                     return res.status(400).json({ success: false, message: 'User ID, Topic ID, and Option ID are required' });
                 }

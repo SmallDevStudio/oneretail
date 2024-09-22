@@ -95,7 +95,7 @@ const Votes = () => {
     const paginate = pageNumber => setCurrentPage(pageNumber);
 
     const handleView = (id) => {
-        router.push(`/vote/${id}`);
+        router.push(`/admin/votes/${id}`);
     };
 
     return (
