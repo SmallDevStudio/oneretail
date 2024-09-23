@@ -183,6 +183,22 @@ const RedeemPage = () => {
     fetchRedeems();
   };
 
+  const handleCancel = () => {
+    setForm({
+      rewardCode: "",
+      name: "",
+      description: "",
+      image: "",
+      stock: 0,
+      coins: 0,
+      point: 0,
+      status: "true",
+      type: "",
+    });
+    setIsEdit(false);
+    setEditId(null);
+  };
+
   const redeemColumns = [
     { field: "rewardCode", headerName: "Reward Code", width: 100 },
     {
@@ -409,12 +425,18 @@ const RedeemPage = () => {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                   />
                 </div>
-                <div className="flex justify-center w-full">
+                <div className="flex flex-row justify-center items-center gap-2 w-full">
                   <button
                     type="submit"
                     className="w-[50%] px-4 py-2 bg-green-500 text-white rounded-full"
                   >
                     {isEdit ? "อัปเดต" : "เพิ่ม"}
+                  </button>
+                  <button
+                    className="w-[50%] px-4 py-2 bg-red-500 text-white rounded-full ml-2"
+                    onClick={handleCancel}
+                  >
+                    ยกเลิก
                   </button>
                 </div>
               </form>
