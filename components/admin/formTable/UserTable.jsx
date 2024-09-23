@@ -42,9 +42,9 @@ const UsersTable = () => {
     if (!data) return <div>Loading...</div>;
 
     const handleRoleChange = async (userId, newRole) => {
-        await axios.put(`/api/users/${userId}`, { role: newRole });
+        await axios.put(`/api/users/update?userId=${userId}`, { role: newRole });
         setUsers(prev =>
-            prev.map(user => (user._id === userId ? { ...user, role: newRole } : user))
+            prev.map(user => (userId === userId ? { ...user, role: newRole } : user))
         );
     };
 

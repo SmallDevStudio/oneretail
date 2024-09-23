@@ -14,10 +14,17 @@ const Quiz2 = () => {
     const [loading, setLoading] = useState(false);
     const [selectedQuestion, setSelectedQuestion] = useState(null);
 
+    // เพิ่ม page และ limit
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
+    const [totalPages, setTotalPages] = useState(0);
+    const [filter, setFilter] = useState('');
+
     const fetchQuestions = async () => {
         try {
-            const response = await axios.get('/api/quiz');
-            setQuestions(response.data);
+            const response = await axios.get(`/api/quiz?page=${page}&limit=${limit}`);
+            setQuestions(response.data.data);
+            setTotalPages(Math.ceil(response.data.total / limit));
         } catch (error) {
             console.error(error);
         }
@@ -25,7 +32,29 @@ const Quiz2 = () => {
 
     useEffect(() => {
         fetchQuestions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    const handleNextPage = () => {
+        if (page < totalPages) {
+            setPage(page + 1);
+        }
+    };
+
+    const handlePreviousPage = () => {
+        if (page > 1) {
+            setPage(page - 1);
+        }
+    };
+
+    // ฟังก์ชันการกรองข้อมูล
+    const filterQuestions = () => {
+        return questions.filter((q) =>
+            q.question.toLowerCase().includes(filter.toLowerCase()) ||
+            q.group.toLowerCase().includes(filter.toLowerCase()) ||
+            q.subGroup.toLowerCase().includes(filter.toLowerCase())
+        );
+    };
 
     const handleChangeOption = (index, value) => {
         const newOptions = [...options];
@@ -196,18 +225,30 @@ const Quiz2 = () => {
     return (
         <div className="flex flex-col w-full">
             {/* Tools */}
-            <div className="flex flex-row gap-2 mb-2">
+            <div className="flex flex-row justify-between items-center gap-2 mb-2">
                 <button
                     className="bg-[#0056FF] text-white font-bold py-2 px-4 rounded-full text-lg"
                     onClick={!showForm? handleShowForm : handleCloseForm }
                 >
-                    {editMode ? 'แก้ไขคำถาม' : 'เพิ่มคําถาม'}
+                    เพิ่มคําถาม
                 </button>
+
+                <div className="flex flex-row items-center gap-2">
+                    <label htmlFor="filter" className="font-bold">ค้นหา</label>
+                    <input
+                        type="text"
+                        id="filter"
+                        className="border border-gray-300 rounded-md px-2 py-1"
+                        value={filter}
+                        onChange={(e) => setFilter(e.target.value)}
+                        placeholder='ค้นหาคำถาม'
+                    />
+                </div>
             </div>
 
             {/* Table */}
             <div>
-                <table className='table-auto w-full text-xs'>
+                <table className="table-auto w-full text-xs">
                     <thead className="bg-[#FF9800]/50">
                         <tr>
                             <th className="border px-4 py-2">ลำดับ</th>
@@ -221,7 +262,7 @@ const Quiz2 = () => {
                     </thead>
                     <tbody>
                         {questions.map((question, index) => (
-                            <tr key={index} className='text-center'>
+                            <tr key={index} className="text-center">
                                 <td className="border px-4 py-2">{index + 1}</td>
                                 <td className="border px-4 py-2">{question.question}</td>
                                 <td className="border px-4 py-2">{question.options.join(',')}</td>
@@ -245,8 +286,52 @@ const Quiz2 = () => {
                             </tr>
                         ))}
                     </tbody>
-
                 </table>
+                
+                <div className="flex flex-row justify-between items-center gap-2 mt-5 w-full">
+                    <span>จำนวนทั้งหมด {questions.length} คำถาม</span>
+                </div>
+                {/* Pagination Controls */}
+                <div className="flex items-center justify-between ">
+                    <div className="flex flex-row items-center gap-2">
+                        <button
+                            className={`px-2 py-1 rounded ${page === 1 ? 'bg-gray-400' : 'bg-[#0056FF] text-white'}`}
+                            onClick={handlePreviousPage}
+                            disabled={page === 1}
+                        >
+                            ก่อนหน้า
+                        </button>
+
+                        <button
+                            className={`px-2 py-1 rounded ${page === totalPages ? 'bg-gray-400' : 'bg-[#0056FF] text-white'}`}
+                            onClick={handleNextPage}
+                            disabled={page === totalPages}
+                        >
+                            ถัดไป
+                        </button>
+                    </div>
+
+                    <div className="flex flex-row items-center gap-2">
+                        <span>หน้า {page} จาก {totalPages}</span>
+                    </div>
+                    
+                    
+                    <div className="flex flex-row items-center gap-2">
+                        <label htmlFor="limit">แสดงผล</label>
+                        <select 
+                            name="limit" 
+                            id="limit" 
+                            value={limit} 
+                            onChange={(e) => setLimit(e.target.value)} 
+                            className="border px-2 py-1 rounded-lg">
+
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                    </div>
+                </div>
             </div>
 
             {/* Form */}
