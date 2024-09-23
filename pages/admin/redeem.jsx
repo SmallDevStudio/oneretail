@@ -49,13 +49,13 @@ const RedeemPage = () => {
         ...trans,
         id: trans._id,
         seq: index + 1,
-        rewardCode: trans.redeemId.rewardCode,
-        image: trans.redeemId.image,
-        name: trans.redeemId.name,
-        empId: trans.user.empId,
-        fullname: trans.user.fullname,
-        pictureUrl: trans.user.pictureUrl,
-        address: trans.user.address,
+        rewardCode: trans?.redeemId?.rewardCode,
+        image: trans?.redeemId?.image,
+        name: trans?.redeemId?.name,
+        empId: trans?.user?.empId,
+        fullname: trans?.user?.fullname,
+        pictureUrl: trans?.user?.pictureUrl,
+        address: trans?.user?.address,
       }))
     );
   };

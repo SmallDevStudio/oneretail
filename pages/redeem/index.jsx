@@ -19,7 +19,7 @@ moment.locale("th");
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function Redeem() {
-    const [activeTab, setActiveTab] = useState("redeem1");
+    const [activeTab, setActiveTab] = useState("redeem");
     const { data: session } = useSession();
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [notificationModalIsOpen, setNotificationModalIsOpen] = useState(false);
@@ -72,36 +72,53 @@ export default function Redeem() {
   
   
     const handleRedeemClick = async (redeemItem) => {
-      setSelectedRedeem(redeemItem);
-      if (userCoins >= parseFloat(redeemItem.coins)) {
-        const result = Swal.fire({
-          title: 'ยืนยันการแลก',
+        setSelectedRedeem(redeemItem);
+       if (userCoins < redeemItem.coins) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'ยอด coins ของคุณไม่เพียงพอ.',
+        })
+       } else if (redeemItem.stock === 0) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'สิทธิ์ของคุณหมดแล้ว.',
+        })
+       } else {
+        const result = await Swal.fire({
+          title: 'ยืนยันการแลกสินค้า',
+          text: `คุณต้องการแลก ${redeemItem.name} ใช่หรือไม่`,
           icon: 'warning',
           showCancelButton: true,
-          confirmButtonText: 'แลก',
-          cancelButtonText: 'ยกเลิก',
-        })
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'ใช่',
+          cancelButtonText: 'ไม่ใช่',
+        });
 
         if (result.isConfirmed) {
           try {
-            const res = await axios.post('api/redeemtrans', {
+            const response = await axios.post('/api/redeemtrans', {
               redeemId: redeemItem._id,
               userId: session?.user?.id,
-            })
-  
-            mutateRedeem();
-            mutateRedeemTrans();
-            mutateLevel();
-            mutateCoins();
-            setSuccessModal(true);
+            });
+            
+            if (response.data.success) {
+              setSelectedRedeem(null);
+              Swal.fire('สําเร็จ', 'แลกสินค้าสําเร็จ', 'success');
+              mutateRedeem();
+              mutateRedeemTrans();
+              setActiveTab('redeemtrans');
+            } else {
+              Swal.fire('เกิดข้อผิดพลาด', 'แลกสินค้าไม่สําเร็จ', 'error');
+            }
           } catch (error) {
-            console.log(error);
+            console.error(error);
+            Swal.fire('เกิดข้อผิดพลาด', 'แลกสินค้าไม่สําเร็จ', 'error');
           }
-        } 
-
-      }else{
-        openNotificationModal("coins ไม่พอ");
-      }
+        }
+       }
     };
   
     const handleTabClick = (tab) => {
@@ -203,15 +220,15 @@ export default function Redeem() {
         <div className="flex items-center justify-center">
           <ul className="flex flex-row w-[340px] font-bold">
             <li>
-              <div className={`flex  w-[170px] h-[40px] items-center justify-center text-center rounded-l-3xl ${activeTab === 'redeem1' ? 'bg-[#0056FF] text-white' : 'bg-gray-300 text-black'}`}
-                onClick={() => handleTabClick('redeem1')}
+              <div className={`flex  w-[170px] h-[40px] items-center justify-center text-center rounded-l-3xl ${activeTab === 'redeem' ? 'bg-[#0056FF] text-white' : 'bg-gray-300 text-black'}`}
+                onClick={() => handleTabClick('redeem')}
               >
                 <span>แลกของรางวัล</span>
               </div>
             </li>
             <li>
-              <div className={`flex  w-[170px] h-[40px] items-center justify-center text-center rounded-r-3xl ${activeTab === 'redeem2' ? 'bg-[#F68B1F] text-white' : 'bg-gray-300 text-black'}`}
-                onClick={() => handleTabClick('redeem2')}
+              <div className={`flex  w-[170px] h-[40px] items-center justify-center text-center rounded-r-3xl ${activeTab === 'redeemtrans' ? 'bg-[#F68B1F] text-white' : 'bg-gray-300 text-black'}`}
+                onClick={() => handleTabClick('redeemtrans')}
               >
                 <span>ของที่แลกแล้ว</span>
               </div>
@@ -247,7 +264,7 @@ export default function Redeem() {
 
         {/* Content */}
         <div className="flex flex-col items-center justify-center p-4 gap-2 mb-20">
-          {activeTab === 'redeem1' && (
+          {activeTab === 'redeem' && (
             <Suspense fallback={<LoadingFeed />}>
               {redeems?.map((redeemItem) => (
                 <div key={redeemItem._id} className="flex flex-row w-full bg-gray-300 rounded-xl cursor-pointer" 
@@ -301,7 +318,7 @@ export default function Redeem() {
             </Suspense>
           )}
   
-          {activeTab === 'redeem2' && (
+          {activeTab === 'redeemtrans' && (
             <Suspense fallback={<LoadingFeed />}>
               {redeemTransData?.map((transItem) => (
                 <div key={transItem._id} className="flex flex-row w-full bg-gray-300 rounded-xl p-1">
