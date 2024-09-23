@@ -74,7 +74,7 @@ const PulseSurvey = () => {
 
     const onRequestClose = () => {
         setShowModal(false);
-        router.push('/satisfactions');
+        router.push('/main');
     };
 
     return (

@@ -1,38 +1,52 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
+import useSWR from "swr";
 import axios from "axios";
 import Image from "next/image";
 import Swal from "sweetalert2";
 import { AppLayout } from "@/themes";
 import CircularProgress from '@mui/material/CircularProgress';
 
+const fetcher = (url) => axios.get(url).then((res) => res.data);
+
 const Salestrip = () => {
     const router = useRouter();
     const { topicId } = router.query;
     const { data: session, status } = useSession();
     const [topic, setTopic] = useState(null);
+    const [vote, setVote] = useState(null);
     const [selectedOption, setSelectedOption] = useState(null);
     const [loaded, setLoaded] = useState(false);
-    const [user, setUser] = useState(null);
 
     const userId = session?.user?.id;
 
-    const fetchTopic = async () => {
-        try {
-            const response = await axios.get(`/api/topics/${topicId}`);
-            setTopic(response.data.data);
-        } catch (error) {
-            console.error("Error fetching topic:", error);
-        }
-    };
+    console.log('vote:', vote);
 
+    const { data: user, error: userError, isLoading } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
+    const { data: topicData, error: topicError } = useSWR(() => topicId ? `/api/topics/${topicId}` : null, fetcher, {
+        onSuccess: (data) => {
+            setTopic(data.data);
+        },
+    });
+
+    const { data: voteData, error: voteError } = useSWR(() => userId ? `/api/votes/user?userId=${userId}&topicId=${topicId}` : null, fetcher, {
+        onSuccess: (data) => {
+            setVote(data.data);
+        },
+    });
+
+    // เพิ่ม useEffect สำหรับการตรวจสอบ
     useEffect(() => {
-        if (topicId) {
-            fetchTopic();
+        // ตรวจสอบว่ามีข้อมูล user แล้วและตรวจสอบ teamGroup
+        if (user && user.teamGroup !== "AL") {
+            router.push('/main');
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [topicId]);
+        // ตรวจสอบว่า vote มีข้อมูลแล้วหรือไม่
+        if (vote) {
+            router.push('/main');
+        }
+    }, [user, vote, router]); // dependencies คือ user, vote, router
 
 
     const optionDetails = {
@@ -41,6 +55,9 @@ const Salestrip = () => {
         2: "- ชมวิวแสนล้าน สัมผัสมนต์สเน่ห์แห่งเทือกเขาคอเคซัส สุดขอบทวีปเอเซีย",
         3: "- ปล่อยใจชิล ๆ ไปสัมผัสเกาะในฝัน และความงดงามของธรรมชาติ เริงร่ากับหาดทรายขาว สนุกกับกิจกรรมทางทะเล",
     }
+
+    if (isLoading || !topic || !user || !topicData ||!topic) return <div><CircularProgress /></div>;
+    if (userError) return <div>Failed to load</div>;
 
     const handleVote = async () => {
         if (!selectedOption) {
@@ -83,10 +100,8 @@ const Salestrip = () => {
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
-                        text: 'โหวตไม่สําเร็จ',
+                        text: 'คุณได้ โหวต ไปแล้ว',
                     });
-                } finally {
-                    setLoaded(false);
                 }
             };
         }
