@@ -18,12 +18,16 @@ const Salestrip = () => {
     const [vote, setVote] = useState(null);
     const [selectedOption, setSelectedOption] = useState(null);
     const [loaded, setLoaded] = useState(false);
+    const [user, setUser] = useState(null);
 
     const userId = session?.user?.id;
 
-    console.log('vote:', vote);
-
-    const { data: user, error: userError, isLoading } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
+    
+    const { data: userData, error: userError, isLoading } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher, {
+        onSuccess: (data) => {
+            setUser(data.user);
+        },
+    });
     const { data: topicData, error: topicError } = useSWR(() => topicId ? `/api/topics/${topicId}` : null, fetcher, {
         onSuccess: (data) => {
             setTopic(data.data);
@@ -36,17 +40,21 @@ const Salestrip = () => {
         },
     });
 
-    // เพิ่ม useEffect สำหรับการตรวจสอบ
     useEffect(() => {
-        // ตรวจสอบว่ามีข้อมูล user แล้วและตรวจสอบ teamGroup
-        if (user && user.teamGroup !== "AL") {
-            router.push('/main');
+        if (user) {
+            if (user?.role === "user") {
+                if (user?.teamGroup !== "AL") {
+                    router.push("/main");
+                }
+            } 
         }
-        // ตรวจสอบว่า vote มีข้อมูลแล้วหรือไม่
-        if (vote) {
-            router.push('/main');
+
+        if (vote?.length > 0) {
+            router.push("/main");
         }
-    }, [user, vote, router]); // dependencies คือ user, vote, router
+
+    }, [router, user, vote]);
+
 
 
     const optionDetails = {
