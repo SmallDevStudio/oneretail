@@ -72,7 +72,6 @@ const SurveyBranch = () => {
 
             <div className="flex flex-col justify-center items-center gap-1 mt-2 w-full">
                 <span className="font-black text-lg text-[#0056FF]">{Department}</span>
-                <span className="font-bold text-md text-[#0056FF]">({branchData.length} สาขา)</span>
             </div>
 
             <div className="flex flex-row items-center gap-1 mt-2 px-2 w-full text-gray-400 text-xs">

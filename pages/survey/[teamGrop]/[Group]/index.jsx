@@ -73,7 +73,6 @@ const SurveyGroup = () => {
 
             <div className="flex flex-col justify-center items-center gap-1 mt-2 w-full">
                 <span className="font-black text-2xl text-[#0056FF]">{Group}</span>
-                <span className="font-bold text-md text-[#0056FF]">(สำนักงานเขตธุรกิจ {departmentData.length} เขต)</span>
             </div>
 
             <div className="flex flex-row items-center gap-1 mt-2 px-2 w-full text-gray-400 text-xs">

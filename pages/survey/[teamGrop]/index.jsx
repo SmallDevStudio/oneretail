@@ -72,10 +72,6 @@ const SurveyTeam = () => {
             </div>
 
             <div className="flex flex-row justify-center items-center gap-2 px-2 w-full">
-                <span className="text-[#0056FF] font-bold text-lg">(สำนักงานภาคธุรกิจสาขา)</span>
-            </div>
-
-            <div className="flex flex-row justify-center items-center gap-2 px-2 w-full">
                 <span className="font-bold text-[#0056FF]">TeamGroup:</span>
                 <span className="font-bold text-[#F2871F]">{teamGrop === 'Retail' ? 'BBD' : teamGrop}</span>
             </div>

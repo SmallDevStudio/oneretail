@@ -172,7 +172,7 @@ const SurveyMemo = () => {
             </div>
 
             <div className="flex flex-col justify-center items-center gap-1 mt-2 w-full">
-                <span className="font-bold text-lg text-[#F2871F]">({branch})</span>
+                <span className="font-bold text-lg text-[#F2871F]">{branch}</span>
             </div>
 
             <div className="flex flex-row items-center gap-1 mt-2 px-2 w-full text-gray-400 text-xs">
