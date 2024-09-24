@@ -69,7 +69,7 @@ const MenuPanel = ({ user }) => {
     return (
         <div className="flex flex-row gap-4 text-gray-400">
             {/* survey report */}
-            {(user.user.role === 'admin' || user.user.role === 'manager') && (
+            {(user.user.role === 'manager' || user.user.role === 'admin') && (
                 <button onClick={() => router.push('/survey')}>
                     <MdInsertChart size={25}/>
                 </button>
