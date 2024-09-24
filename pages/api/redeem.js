@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   switch (method) {
     case 'GET':
       try {
-        const redeems = await Redeem.find({});
+        const redeems = await Redeem.find({}).sort({ createdAt: -1 });
         const redeemsWithUser = await Promise.all(
           redeems.map(async (redeem) => {
             const user = await Users.findOne({ userId: redeem.creator });
