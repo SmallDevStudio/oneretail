@@ -48,17 +48,17 @@ const ArticleList = () => {
                 />
             </div>
             <div className="px-2">
-            <div className="flex flex-col w-full p-1 border-2 bg-gray-200 rounded-xl mt-2">
+            <div className="flex flex-col w-full p-1 mt-2">
                     {Array.isArray(data.data) && data.data.map((article, index) => (
                         <div 
                         key={index} 
-                        className="flex flex-row rounded-lg"
+                        className="flex flex-row rounded-lg mt-2 border-2 bg-gray-200 px-2 py-1"
                         onClick={() => router.push(`/articles/${article._id}`)}
                     >
                         <div className="flex max-w-[130px] min-w-[130px]">
                         {article.thumbnail ? (
                             <Image
-                            src={article.thumbnail}
+                            src={article.thumbnail.url}
                             alt={article.title}
                             width={150}
                             height={100}

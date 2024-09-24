@@ -88,7 +88,7 @@ export default function FooterContant() {
                     >
                         {article.thumbnail ? (
                             <Image
-                            src={article.thumbnail}
+                            src={article.thumbnail.url}
                             alt={article.title}
                             width={150}
                             height={100}

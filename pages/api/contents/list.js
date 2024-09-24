@@ -9,7 +9,7 @@ export default async function handler(req, res) {
         case "GET":
             try {
                 const contents = await Content.find({ publisher: true })
-                    .sort({ createdAt: -1 })
+                    .sort({ createdAt: -1, pinned: -1 })
                     .limit(10)
                     .populate("categories")
                     .populate("subcategories")
