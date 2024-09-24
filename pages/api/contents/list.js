@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     switch (method) {
         case "GET":
             try {
-                const contents = await Content.find({ publisher: true })
+                const contents = await Content.find({ publisher: true, pinned: true })
                     .sort({ pinned: -1, createdAt: -1  })
                     .limit(10)
                     .populate("categories")
