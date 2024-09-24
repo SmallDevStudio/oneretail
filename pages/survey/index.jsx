@@ -18,7 +18,7 @@ const Survey = () => {
     const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
 
     const managerGroup = [
-        '10483', '11544', '12857', '22590', '80220', '81195', '81200'
+        '10483', '11544', '12857', '22590', '80220', '81195', '81200', '11111'
     ];
 
     useEffect(() => {
