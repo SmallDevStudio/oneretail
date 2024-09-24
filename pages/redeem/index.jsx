@@ -323,8 +323,8 @@ export default function Redeem() {
               {redeemTransData?.map((transItem) => (
                 <div key={transItem._id} className="flex flex-row w-full bg-gray-300 rounded-xl p-1">
                   <Image
-                    src={transItem.redeemId.image}
-                    alt={transItem.redeemId.name}
+                    src={transItem?.redeemId?.image}
+                    alt={transItem?.redeemId?.name}
                     width={150}
                     height={150}
                     className="flex p-2"
@@ -338,42 +338,42 @@ export default function Redeem() {
                     <div className="flex flex-col">
                       <div className="flex justify-end mb-[-10px]">
                         <span className="flex text-[10px] font-bold">
-                            {moment(transItem.createdAt).fromNow()}
+                            {moment(transItem?.createdAt).fromNow()}
                         </span>
                       </div>
                         <div className="flex text-lg font-bold text-[#0056FF]">
-                          {transItem.redeemId.name}
+                          {transItem?.redeemId?.name}
                         </div>
                       <div>
                         <span className="text-[12px] line-clamp-2">
-                          {transItem.redeemId.description}
+                          {transItem?.redeemId?.description}
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between pt-2">
                       <div className="flex text-left">
                         <span className="text-[0.7em] font-bold">
-                        {transItem.status}
+                        {transItem?.status}
                         </span>
                       </div>
 
-                      {transItem.redeemId.coins > 0 && (
+                      {transItem?.redeemId?.coins > 0 && (
                         <div className="text-left">
                         <span className="text-[0.7em] font-bold">
                           Coins
                         </span>
                         <span className="font-bold ml-1 text-[#0056FF]">
-                          {transItem.coins}
+                          {transItem?.coins}
                         </span>
                       </div>
                       )}
-                      {transItem.redeemId.points > 0 && (
+                      {transItem?.redeemId?.points > 0 && (
                         <div className="text-left ml-2">
                           <span className="text-[0.7em]">
                             Points
                           </span>
                           <span className="font-bold ml-1">
-                            {transItem.redeemId.points}
+                            {transItem?.redeemId?.points}
                           </span>
                         </div>
                       )}
