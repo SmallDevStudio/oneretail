@@ -6,6 +6,7 @@ import "moment/locale/th";
 import { useRouter } from "next/router";
 import { FaUserPlus, FaRegPlayCircle } from "react-icons/fa";
 import Divider from "@mui/material/Divider";
+import { LuDot } from "react-icons/lu";
 
 moment.locale('th');
 
@@ -60,13 +61,21 @@ export default function FooterContant() {
                                     {content.title}
                                 </p>
                             </div>
-                            <div className="flex flex-row mt-2">
+                            <div className="flex flex-row justify-between mt-2">
                                 <span 
                                     className={`text-[9px] px-2 rounded-2xl text-white font-bold
                                     ${content.categories.title === "Learning"? "bg-[#0056FF]" : "bg-[#F2871F]"}`
                                     }>
                                     {content.categories.title}
                                 </span>
+
+                                {content.pinned && (
+                                    
+                                    <LuDot 
+                                        className="text-[#F2871F] font-bold"
+                                    />
+                                    
+                                )}
                             </div>
                         </div>
                     ))}

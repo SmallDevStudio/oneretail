@@ -24,7 +24,7 @@ export default async function handler(req, res) {
                 const articles = await Article.find(searchQuery)
                     .skip(skip)
                     .limit(parseInt(pageSize))
-                    .sort({ createdAt: -1 });
+                    .sort({ pinned: -1, createdAt: -1  });
 
                 const totalRecords = await Article.countDocuments(searchQuery);
 
