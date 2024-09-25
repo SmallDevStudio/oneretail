@@ -44,7 +44,7 @@ const UsersTable = () => {
     const handleRoleChange = async (userId, newRole) => {
         await axios.put(`/api/users/update?userId=${userId}`, { role: newRole });
         setUsers(prev =>
-            prev.map(user => (userId === userId ? { ...user, role: newRole } : user))
+            prev.map(user => (user._id === userId ? { ...user, role: newRole } : user)) // ใช้ user._id ในการเปรียบเทียบ
         );
     };
 

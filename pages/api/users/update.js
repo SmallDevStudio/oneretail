@@ -9,9 +9,7 @@ export default async function handler(req, res) {
         case "PUT":
             try {
                 const { userId } = req.query;
-                const user = await Users.findOneAndUpdate({ userId: userId }, req.body, {
-                    new: true,
-                });
+                const user = await Users.findByIdAndUpdate(userId, req.body, { new: true }); // ใช้ findByIdAndUpdate แทน findOneAndUpdate
                 if (!user) {
                     return res.status(400).json({ success: false, error: "User not found" });
                 }
