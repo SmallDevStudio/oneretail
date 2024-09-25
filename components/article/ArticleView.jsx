@@ -67,6 +67,8 @@ const ArticleView = ({ articleId }) => {
         },
     });
 
+    const { data: user, mutate: mutateUser } = useSWR(`/api/users/${session?.user?.id}`, fetcher);
+
     const { data: useAnswer, error: answerError, isLoading: answerLoading, mutate: answerMutate } = useSWR(`/api/articles/quiz/answers?articleId=${articleId}&userId=${userId}`, fetcher);
 
     useEffect(() => {

@@ -7,7 +7,7 @@ import UsersReport from "@/components/reports/UsersReport";
 import RedeemReport from "@/components/reports/RedeemReport";
 import RegisterReport from "@/components/reports/RegisterReport";
 import LoginReport from "@/components/reports/LoginReport";
-
+import ShareYourStory from "@/components/reports/ShareYourStory";
 
 const Reports = () => {
     return (
@@ -19,6 +19,7 @@ const Reports = () => {
             <RedeemReport />
             <RegisterReport />
             <LoginReport />
+            <ShareYourStory />
         </div>
     );
 };
