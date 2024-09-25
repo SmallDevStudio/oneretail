@@ -18,15 +18,15 @@ const Survey = () => {
     const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
 
     const managerGroup = [
-        '10483', '11544', '12857', '22590', '80220', '81195', '81200', '11111'
+        '10483', '11544', '12857', '22590', '80220'
     ];
+
+    const managerAL = [
+        '81195', '81200',
+    ]
 
     useEffect(() => {
         if (status === "loading" || !user) return;
-
-        if (user.user.role !== "manager" || user.user.role !== "admin") {
-            router.push("/main");
-        }
 
         if (managerGroup.includes(user.user.empId)) {
             const teamGrop = user.user.teamGrop;
