@@ -13,6 +13,7 @@ const Quiz2 = () => {
     const [editMode, setEditMode] = useState(false);
     const [loading, setLoading] = useState(false);
     const [selectedQuestion, setSelectedQuestion] = useState(null);
+    const [amount, setAmount] = useState(0);
 
     // เพิ่ม page และ limit
     const [page, setPage] = useState(1);
@@ -25,15 +26,17 @@ const Quiz2 = () => {
             const response = await axios.get(`/api/quiz?page=${page}&limit=${limit}`);
             setQuestions(response.data.data);
             setTotalPages(Math.ceil(response.data.total / limit));
+            setAmount(response.data.amount);
         } catch (error) {
             console.error(error);
         }
     };
 
+    // เรียก fetchQuestions ใหม่เมื่อ page หรือ limit เปลี่ยนแปลง
     useEffect(() => {
         fetchQuestions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [page, limit]);
+
 
     const handleNextPage = () => {
         if (page < totalPages) {
@@ -45,6 +48,11 @@ const Quiz2 = () => {
         if (page > 1) {
             setPage(page - 1);
         }
+    };
+
+    const handleLimitChange = (e) => {
+        setLimit(Number(e.target.value));
+        setPage(1); // รีเซ็ตหน้าเป็น 1 เมื่อเปลี่ยน limit
     };
 
     // ฟังก์ชันการกรองข้อมูล
@@ -228,7 +236,7 @@ const Quiz2 = () => {
             <div className="flex flex-row justify-between items-center gap-2 mb-2">
                 <button
                     className="bg-[#0056FF] text-white font-bold py-2 px-4 rounded-full text-lg"
-                    onClick={!showForm? handleShowForm : handleCloseForm }
+                    onClick={handleShowForm}
                 >
                     เพิ่มคําถาม
                 </button>
@@ -261,9 +269,11 @@ const Quiz2 = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {questions.map((question, index) => (
+                        {filterQuestions().map((question, index) => (
                             <tr key={index} className="text-center">
-                                <td className="border px-4 py-2">{index + 1}</td>
+                                <td className="border px-4 py-2">
+                                    {(page - 1) * limit + index + 1}
+                                </td>
                                 <td className="border px-4 py-2">{question.question}</td>
                                 <td className="border px-4 py-2">{question.options.join(',')}</td>
                                 <td className="border px-4 py-2">{question.correctAnswer}</td>
@@ -287,15 +297,12 @@ const Quiz2 = () => {
                         ))}
                     </tbody>
                 </table>
-                
-                <div className="flex flex-row justify-between items-center gap-2 mt-5 w-full">
-                    <span>จำนวนทั้งหมด {questions.length} คำถาม</span>
-                </div>
+
                 {/* Pagination Controls */}
-                <div className="flex items-center justify-between ">
+                <div className="flex items-center justify-between mt-4">
                     <div className="flex flex-row items-center gap-2">
                         <button
-                            className={`px-2 py-1 rounded ${page === 1 ? 'bg-gray-400' : 'bg-[#0056FF] text-white'}`}
+                            className={`px-4 py-2 rounded ${page === 1 ? 'bg-gray-400' : 'bg-[#0056FF] text-white'}`}
                             onClick={handlePreviousPage}
                             disabled={page === 1}
                         >
@@ -303,7 +310,7 @@ const Quiz2 = () => {
                         </button>
 
                         <button
-                            className={`px-2 py-1 rounded ${page === totalPages ? 'bg-gray-400' : 'bg-[#0056FF] text-white'}`}
+                            className={`px-4 py-2 rounded ${page === totalPages ? 'bg-gray-400' : 'bg-[#0056FF] text-white'}`}
                             onClick={handleNextPage}
                             disabled={page === totalPages}
                         >
@@ -311,136 +318,111 @@ const Quiz2 = () => {
                         </button>
                     </div>
 
-                    <div className="flex flex-row items-center gap-2">
+                    <div className="flex flex-col items-center">
                         <span>หน้า {page} จาก {totalPages}</span>
+                        <span>ข้อมูลทั้งหมด {amount}</span>
                     </div>
-                    
-                    
+
                     <div className="flex flex-row items-center gap-2">
                         <label htmlFor="limit">แสดงผล</label>
-                        <select 
-                            name="limit" 
-                            id="limit" 
-                            value={limit} 
-                            onChange={(e) => setLimit(e.target.value)} 
-                            className="border px-2 py-1 rounded-lg">
-
-                                <option value="10">10</option>
-                                <option value="20">20</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                            </select>
+                        <select
+                            name="limit"
+                            id="limit"
+                            value={limit}
+                            onChange={handleLimitChange}
+                            className="border px-2 py-1 rounded-lg"
+                        >
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
                     </div>
                 </div>
             </div>
 
-            {/* Form */}
+            {/* Modal for Form */}
             {showForm && (
-                <div className="flex flex-col gap-2 mt-5">
-                <div>
-                    <h1 className="text-xl font-bold text-[#0056FF]">เพิ่มคําถาม</h1>
-                </div>
-                <div className="flex flex-row items-center gap-2 w-1/2">
-                    <label className="font-bold">
-                        คําถาม <span className="text-red-500">*</span>
-                    </label>
-                    <input 
-                        type="text" 
-                        placeholder="คําถาม"
-                        name='question'
-                        id='question'
-                        value={question}
-                        onChange={(e) => setQuestion(e.target.value)}
-                        required
-                        className='border-2 border-gray-300 rounded-lg p-1 w-1/2'
-                    />
-                </div>
-                <div>
-                    {/* Options */}
-                    {options.map((option, index) => (
-                        <div key={index} className="flex flex-row gap-2 items-center mt-2">
-                            <label className="font-bold">
-                                ตัวเลือกที่ {index + 1}
-                            </label>
-                            <input 
-                                type="text" 
-                                placeholder={`กรอกตัวเลือกที่ ${index + 1}`}
-                                name='option'
-                                value={option}
-                                onChange={(e) => handleChangeOption(index, e.target.value)}
-                                className='border-2 border-gray-300 rounded-lg p-1'
-                            />
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                    <div className="bg-white p-5 rounded-lg shadow-lg w-1/2">
+                        <h1 className="text-xl font-bold text-[#0056FF] mb-4">
+                            {editMode ? "แก้ไขคำถาม" : "เพิ่มคําถาม"}
+                        </h1>
+                        <div className="flex flex-col gap-4">
+                            <div className="flex flex-row gap-2 w-full">
+                                <label htmlFor="question" className='text-lg font-bold'>คำถาม</label>
+                                <input 
+                                    type="text" 
+                                    placeholder="คําถาม"
+                                    value={question}
+                                    onChange={(e) => setQuestion(e.target.value)}
+                                    className='border-2 border-gray-300 rounded-lg p-2 w-full'
+                                />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label htmlFor="options" className='text-lg font-bold'>ตัวเลือก</label>
+                                    {options.map((option, index) => (
+                                        <input 
+                                            key={index} 
+                                            type="text" 
+                                            placeholder={`ตัวเลือกที่ ${index + 1}`}
+                                            value={option}
+                                            onChange={(e) => handleChangeOption(index, e.target.value)}
+                                            className='border-2 border-gray-300 rounded-lg p-2 w-1/2'
+                                        />
+                                    ))}
+                            </div>
+                            <div className="flex flex-row items-center gap-2">
+                                <label htmlFor="correctAnswer" className='text-lg font-bold'>คำถามที่ถูกต้อง</label>
+                                <select 
+                                    value={correctAnswer}
+                                    onChange={(e) => setCorrectAnswer(Number(e.target.value))}
+                                    className='border-2 border-gray-300 rounded-lg p-2'
+                                >
+                                    {options.map((option, index) => (
+                                        <option key={index} value={index}>
+                                            {option}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="flex flex-row items-center gap-2">
+                                <label htmlFor="group" className='text-lg font-bold'>กลุ่ม</label>
+                                <input 
+                                    type="text" 
+                                    placeholder="กลุ่ม"
+                                    value={group}
+                                    onChange={(e) => setGroup(e.target.value)}
+                                    className='border-2 border-gray-300 rounded-lg p-2'
+                                />
+                            </div>
+                            <div className="flex flex-row items-center gap-2">
+                                <label htmlFor="subGroup" className='text-lg font-bold'>กลุ่มย่อย</label>
+                                    <input 
+                                        type="text" 
+                                        placeholder="กลุ่มย่อย"
+                                        value={subGroup}
+                                        onChange={(e) => setSubGroup(e.target.value)}
+                                        className='border-2 border-gray-300 rounded-lg p-2'
+                                    />
+                            </div>
+                            <div className="flex justify-center gap-2">
+                                <button
+                                    className='bg-[#0056FF] text-white font-bold py-2 px-4 rounded-lg'
+                                    onClick={!editMode ? handleAddQuestion : () => handleUpdateQuestion(questions[selectedQuestion]._id)}
+                                >
+                                    {loading ? "กําลังบันทึก..." : editMode ? "แก้ไข" : "เพิ่มคําถาม"}
+                                </button>
+                                <button
+                                    className='bg-red-500 text-white font-bold py-2 px-4 rounded-lg'
+                                    onClick={handleCloseForm}
+                                >
+                                    ยกเลิก
+                                </button>
+                            </div>
                         </div>
-                    ))}
+                    </div>
                 </div>
-                {/* Correct Answer */}
-                <div className="flex flex-row gap-2 items-center">
-                    <label className="font-bold">
-                        ตัวเลือกที่ถูก
-                    </label>
-                    <select 
-                        name="correctAnswer" 
-                        id="correctAnswer"
-                        value={correctAnswer}
-                        onChange={(e) => setCorrectAnswer(e.target.value)}
-                        className='border-2 border-gray-300 rounded-lg p-1 w-20'
-                    >
-                        {options.map((option, index) => (
-                            <option 
-                                key={index} 
-                                value={index}
-                            >
-                                {option}
-                            </option>
-                        ))}
-                        </select>
-                </div>
-                {/* Group */}
-                <div className="flex flex-row gap-2 items-center">
-                    <label className='font-bold'>
-                        กลุ่ม
-                    </label>
-                    <input 
-                        type="text" 
-                        placeholder="กลุ่ม"
-                        name='group'
-                        id='group'
-                        value={group}
-                        onChange={(e) => setGroup(e.target.value)}
-                        className='border-2 border-gray-300 rounded-lg p-1'
-                    />
-                </div>
-                {/* SubGroup */}
-                <div className="flex flex-row gap-2 items-center">
-                    <label className='font-bold'>
-                        กลุ่มย่อย
-                    </label>
-                    <input 
-                        type="text" 
-                        placeholder="กลุ่มย่อย"
-                        name='subGroup'
-                        id='subGroup'
-                        value={subGroup}
-                        onChange={(e) => setSubGroup(e.target.value)}
-                        className='border-2 border-gray-300 rounded-lg p-1'
-                    />
-                </div>
-                {/* Submit Button */}
-                <div className="flex flex-row gap-2 items-center mt-5">
-                    <button
-                        className='bg-[#0056FF] hover:bg-[#0056FF]/90 text-white font-bold py-2 px-4 rounded-lg'
-                        onClick={!editMode ? handleAddQuestion :() => handleUpdateQuestion(questions[selectedQuestion]._id)}
-                    >
-                        {loading ? "กําลังบันทึก..." : editMode ? "แก้ไข" : "เพิ่มคําถาม"}
-                    </button>
-                    <button
-                        className='bg-red-500 hover:bg-red-500/90 text-white font-bold py-2 px-4 rounded-lg'
-                        onClick={handleClearForm}
-                    >
-                        ยกเลิก
-                    </button>
-                </div>
-            </div>
             )}
         </div>
     );

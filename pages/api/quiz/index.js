@@ -8,6 +8,7 @@ export default async function handler(req, res) {
     switch (method) {
         case "GET":
             try {
+                const amount = await Quiz.countDocuments();
                 // รับค่า page และ limit จาก query parameters
                 const { page = 1, limit = 10 } = req.query;
                 const pageNumber = parseInt(page);
@@ -23,6 +24,7 @@ export default async function handler(req, res) {
                 res.status(200).json({
                     data: quiz,
                     total,
+                    amount,
                     page: pageNumber,
                     limit: limitNumber,
                 });

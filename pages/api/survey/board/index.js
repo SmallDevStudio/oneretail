@@ -19,6 +19,7 @@ export default async function handler(req, res) {
             }
 
             try {
+                // Find surveys within the date range
                 const surveys = await Survey.find({
                     createdAt: {
                         $gte: new Date(startDate),
@@ -26,12 +27,14 @@ export default async function handler(req, res) {
                     }
                 });
 
+                // Find users and their corresponding employee data
                 const userIds = surveys.map(survey => survey.userId);
                 const users = await Users.find({ userId: { $in: userIds } }).select('userId empId');
-            
+
                 const empIds = users.map(user => user.empId);
                 const emps = await Emp.find({ empId: { $in: empIds } }).lean();
 
+                // Map employee data
                 const empMap = emps.reduce((acc, emp) => {
                     if (!emp.teamGrop) {
                         console.log("Missing teamGrop for emp:", emp.empId);  // Log missing teamGrop for empId
@@ -39,7 +42,8 @@ export default async function handler(req, res) {
                     acc[emp.empId] = emp;
                     return acc;
                 }, {});
-                
+
+                // Map user data including the group
                 const userMap = users.reduce((acc, user) => {
                     const empData = empMap[user.empId];
                     acc[user.userId] = {
@@ -51,22 +55,22 @@ export default async function handler(req, res) {
                         department: empData?.department || 'Unknown',
                         position: empData?.position || 'Unknown',
                         branch: empData?.branch || 'Unknown',
-                        group: empData?.group || 'Unknown',
+                        group: empData?.group || null,  // Set group as null if missing
                     };
                     
                     return acc;
                 }, {});
 
-                // Filter data by teamGrop
+                // Filter data by teamGrop and skip records without a group
                 const filteredData = surveys.filter(survey => {
                     const user = userMap[survey.userId];
-                    return user?.teamGrop?.toLowerCase() === teamGrop.toLowerCase();
+                    return user?.teamGrop?.toLowerCase() === teamGrop.toLowerCase() && user?.group;
                 });
                             
-                // Aggregate by group, count values, and calculate the average
+                // Aggregate by group and calculate counts, total, sum, and average
                 const groupData = filteredData.reduce((acc, survey) => {
                     const userGroup = userMap[survey.userId]?.group;
-                    if (!userGroup) return acc;
+                    if (!userGroup) return acc;  // Skip if no group
 
                     if (!acc[userGroup]) {
                         acc[userGroup] = { group: userGroup, counts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }, total: 0, sum: 0, average: 0 };
@@ -80,7 +84,6 @@ export default async function handler(req, res) {
 
                 // Calculate the average for each group and convert the object into an array
                 const groupDataArray = Object.values(groupData).map(group => {
-                    // Use Math.round to round the average to the nearest whole number
                     group.average = group.total > 0 ? Math.round(group.sum / group.total) : 0;
                     return group;
                 });

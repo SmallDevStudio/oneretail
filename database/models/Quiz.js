@@ -5,7 +5,7 @@ const QuizSchema = new mongoose.Schema({
     options: [{type: String }],
     correctAnswer: { type: String, required: true },
     group: { type: String },
-    sugroup: { type: String },
+    subGroup: { type: String },
 },{
     timestamps: true
 });
