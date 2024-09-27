@@ -22,7 +22,7 @@ const Survey = () => {
     ];
 
     const managerAL = [
-        '81195', '81200',
+        '81195', '81200'
     ]
 
     useEffect(() => {

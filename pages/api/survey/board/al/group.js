@@ -67,8 +67,7 @@ export default async function handler(req, res) {
                     const user = userMap[survey.userId];
                     return (
                         user?.teamGrop?.toLowerCase() === teamGrop.toLowerCase() &&
-                        user?.chief_th?.toLowerCase() === chief_th.toLowerCase() &&
-                        user?.group // Ensure there is a group
+                        user?.chief_th?.toLowerCase() === chief_th.toLowerCase()
                     );
                 });
                             
