@@ -29,7 +29,8 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const SurveyMemo = () => {
     const router = useRouter();
-    const { teamGrop, Group, Department, branch, startDate, endDate } = router.query;
+    const { chief_th, group, department, startDate, endDate } = router.query;
+    const teamGrop = 'AL';
 
     const [memoData, setMemoData] = useState([]);
     const [open, setOpen] = useState(false);
@@ -47,8 +48,8 @@ const SurveyMemo = () => {
     const fetchSurveyData = async () => {
         try {
             // Fetch memo data
-            const memoResponse = await axios.get(`/api/survey/board/memo`, {
-                params: { startDate, endDate, teamGrop, group: Group, department: Department, branch },
+            const memoResponse = await axios.get(`/api/survey/board/al/memo`, {
+                params: { startDate, endDate, teamGrop, chief_th, group, department},
             });
             const memoData = memoResponse.data.data;
     
@@ -74,11 +75,11 @@ const SurveyMemo = () => {
     };
 
     useEffect(() => {
-        if (teamGrop && Group && Department && branch) {
+        if (teamGrop && chief_th && group && department ) {
             fetchSurveyData();
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [startDate, endDate, teamGrop, Group, Department, branch]);
+    }, [startDate, endDate, teamGrop, chief_th, group, department]);
 
     const handleClickOpen = (id) => {
         setSelectedSurvey(id);
@@ -172,7 +173,7 @@ const SurveyMemo = () => {
             </div>
 
             <div className="flex flex-col justify-center items-center gap-1 mt-2 w-full">
-                <span className="font-bold text-lg text-[#F2871F]">{branch}</span>
+                <span className="font-bold text-lg text-[#F2871F]">{department}</span>
             </div>
 
             <div className="flex flex-row items-center gap-1 mt-2 px-2 w-full text-gray-400 text-xs">

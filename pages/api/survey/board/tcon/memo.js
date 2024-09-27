@@ -9,17 +9,16 @@ export default async function handler(req, res) {
 
     switch (method) {
         case "GET":
-            const { startDate, endDate, teamGrop } = req.query;
+            const { startDate, endDate, teamGrop, department } = req.query;
 
-            if (!startDate || !endDate || !teamGrop) {
+            if (!startDate || !endDate || !teamGrop || !department) {
                 return res.status(400).json({
                     success: false,
-                    message: "Missing required query parameters: startDate, endDate, teamGrop"
+                    message: "Missing required query parameters: startDate, endDate, teamGrop, department"
                 });
             }
 
             try {
-                // Fetch all surveys in the given date range
                 const surveys = await Survey.find({
                     createdAt: {
                         $gte: new Date(startDate),
@@ -29,11 +28,10 @@ export default async function handler(req, res) {
 
                 const userIds = surveys.map(survey => survey.userId);
                 const users = await Users.find({ userId: { $in: userIds } }).select('userId empId');
-
+            
                 const empIds = users.map(user => user.empId);
                 const emps = await Emp.find({ empId: { $in: empIds } }).lean();
 
-                // Create a mapping of empId to employee data
                 const empMap = emps.reduce((acc, emp) => {
                     if (!emp.teamGrop) {
                         console.log("Missing teamGrop for emp:", emp.empId);  // Log missing teamGrop for empId
@@ -41,56 +39,53 @@ export default async function handler(req, res) {
                     acc[emp.empId] = emp;
                     return acc;
                 }, {});
-
-                // Create a mapping of userId to combined user and employee data
+                
                 const userMap = users.reduce((acc, user) => {
                     const empData = empMap[user.empId];
                     acc[user.userId] = {
                         userId: user.userId,
                         empId: user.empId,
-                        fullname: empData?.fullname || user.fullname,
+                        fullname: user.fullname,
                         pictureUrl: user.pictureUrl,
                         teamGrop: empData?.teamGrop || 'Unknown',
                         department: empData?.department || 'Unknown',
                         position: empData?.position || 'Unknown',
                         branch: empData?.branch || 'Unknown',
                         group: empData?.group || 'Unknown',
-                        chief_th: empData?.chief_th || 'Unknown'  // Add chief_th
                     };
+                    
                     return acc;
                 }, {});
 
-                // Filter data by teamGrop
+                // Filter data by teamGrop, group, department, and branch
                 const filteredData = surveys.filter(survey => {
                     const user = userMap[survey.userId];
-                    return user?.teamGrop?.toLowerCase() === teamGrop.toLowerCase();
+                    return (
+                        user?.teamGrop?.toLowerCase() === teamGrop.toLowerCase() &&
+                        user?.department?.toLowerCase() === department?.toLowerCase()
+                    );
                 });
 
-                // Aggregate by chief_th and calculate counts, total, sum, and average
-                const chiefData = filteredData.reduce((acc, survey) => {
-                    const userChief = userMap[survey.userId]?.chief_th;
-                    if (!userChief) return acc;
+                // Filter only the records with memo not null or empty
+                const memoFilteredData = filteredData
+                    .filter(survey => survey.memo && survey.memo.trim() !== "")
+                    .map(survey => ({
+                        id: survey._id,
+                        userId: survey.userId,
+                        empId: userMap[survey.userId].empId,
+                        fullname: userMap[survey.userId].fullname,
+                        teamGrop: userMap[survey.userId].teamGrop,
+                        department: userMap[survey.userId].department,
+                        position: userMap[survey.userId].position,
+                        branch: userMap[survey.userId].branch,
+                        group: userMap[survey.userId].group,
+                        value: survey.value,
+                        memo: survey.memo,
+                        createdAt: survey.createdAt
+                    }))
+                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sort by createdAt
 
-                    if (!acc[userChief]) {
-                        acc[userChief] = { chief_th: userChief, counts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }, total: 0, sum: 0, average: 0 };
-                    }
-
-                    acc[userChief].counts[survey.value]++;
-                    acc[userChief].total++;
-                    acc[userChief].sum += survey.value; // Sum up the values for average calculation
-                    return acc;
-                }, {});
-
-                // Calculate the average for each chief and convert the object into an array
-                const chiefDataArray = Object.values(chiefData).map(chief => {
-                    chief.average = chief.total > 0 ? Math.round(chief.sum / chief.total) : 0;
-                    return chief;
-                });
-
-                // Sort by chief name (alphabetically)
-                chiefDataArray.sort((a, b) => a.chief_th.localeCompare(b.chief_th));
-
-                res.status(200).json({ success: true, data: chiefDataArray });
+                res.status(200).json({ success: true, data: memoFilteredData });
             } catch (error) {
                 console.error("Error fetching surveys:", error);
                 res.status(400).json({ success: false, error: error.message });

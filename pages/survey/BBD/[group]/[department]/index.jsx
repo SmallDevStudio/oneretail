@@ -17,36 +17,35 @@ const colors = {
     // You can map more groups or color them dynamically if more groups are added
 };
 
-const SurveyChief = () => {
-    const [startDate, setStartDate] = useState(new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split("T")[0]);
-    const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
+const SurveyBranch = () => {
     const router = useRouter();
-    const teamGrop = router.query.teamGrop;
+    const { group, department, startDate, endDate } = router.query;
+    const teamGrop = "Retail";
 
-    const [chiefData, setChiefData] = useState([]);
-    const [selectedChief, setSelectedChief] = useState(null);
+    const [branchData, setBranchData] = useState([]);
+    const [selectedBranch, setSelectedBranch] = useState(null);
 
     const fetchSurveyData = async () => {
         try {
-            const response = await axios.get(`/api/survey/board/chief`, {
-                params: { startDate, endDate, teamGrop },
+            const response = await axios.get(`/api/survey/board/bbd/department`, {
+                params: { startDate, endDate, teamGrop, group, department },
             });
-            setChiefData(response.data.data);
+            setBranchData(response.data.data);
         } catch (error) {
             console.error("Error fetching survey data:", error);
         }
     };
 
     useEffect(() => {
-        if (teamGrop) {
+        if (teamGrop && group && department) {
             fetchSurveyData();
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [startDate, endDate, teamGrop]);
+    }, [startDate, endDate, teamGrop, group, department]);
 
      // Handle bar click to display details of the selected group
-     const handleBarClick = (chief) => {
-        setSelectedChief(chief);
+     const handleBarClick = (branch) => {
+        setSelectedBranch(branch);
     };
 
     // Survey details
@@ -57,7 +56,6 @@ const SurveyChief = () => {
         { value: 2, label: 'พอใช้', color: '#FF8A00' },
         { value: 1, label: 'แย่', color: '#FF0000' }
     ];
-    
 
     return (
         <div className="flex-1 flex-col p-2 mb-20">
@@ -74,7 +72,7 @@ const SurveyChief = () => {
             </div>
 
             <div className="flex flex-col justify-center items-center gap-1 mt-2 w-full">
-                <span className="font-black text-2xl text-[#0056FF]">{teamGrop}</span>
+                <span className="font-black text-lg text-[#0056FF]">{department}</span>
             </div>
 
             <div className="flex flex-row items-center gap-1 mt-2 px-2 w-full text-gray-400 text-xs">
@@ -91,43 +89,16 @@ const SurveyChief = () => {
                 
             </div>
 
-            {/* Date picker */}
-            <div className="flex flex-row justify-evenly items-center gap-2 p-2 w-full text-sm">
-                <div className="flex flex-row items-center gap-1">
-                    <label htmlFor="startDate" className="font-bold">วันที่เริ่ม</label>
-                    <input 
-                        type="date" 
-                        id="startDate"
-                        defaultValue={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                        max={endDate}
-                        className="border-2 border-gray-300 rounded-lg p-1"
-                    />
+        {/* Chart */}
+        <div className="mt-4 bg-white shadow-md text-xs w-full">
+            {branchData.length === 0 ? (
+                <div className="flex justify-center items-center h-96">
+                    <CircularProgress />
                 </div>
-
-                <div className="flex flex-row items-center gap-1">
-                    <label htmlFor="endDate" className="font-bold">วันที่สิ้นสุด</label>
-                    <input 
-                        type="date" 
-                        id="endDate" 
-                        defaultValue={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                        min={startDate}
-                        max={new Date().toISOString().split("T")[0]}
-                        className="border-2 border-gray-300 rounded-lg p-1"
-                    />
-                </div>
-
-            </div>
-
-            {/* Chart */}
-            <div className="mt-4 bg-white shadow-md text-xs w-full">
-            {chiefData.length === 0 ? (
-                <CircularProgress />
             ) : (
                 <ResponsiveContainer width="100%" height={400}>
                     <BarChart 
-                        data={chiefData}
+                        data={branchData}
                         layout="vertical"  // เปลี่ยน layout เป็นแนวตั้ง
                         onClick={({ activeLabel }) => handleBarClick(activeLabel)}
                         margin={{ top: 10, right: 20, left: -35, bottom: 5 }}
@@ -135,15 +106,30 @@ const SurveyChief = () => {
                         {/* แกน X จะแสดงผลเป็นค่าตัวเลข เช่นจำนวนคน */}
                         <XAxis type="number" />
                         
-                        {/* แกน Y จะเป็น label ของ department */}
+                        {/* แกน Y จะเป็น label ของ branch */}
                         <YAxis 
-                            dataKey="chief_th"
+                            dataKey="branch"
                             type="category"
-                            tickFormatter={(label) => label.length > 10 ? `${label.substring(0, 0)} ` : label}
+                            tickFormatter={(label) => label.length > 0 ? `${label.substring(0, 0)} ` : label}
                         />
                         
-                        <Tooltip />
-                        
+                        {/* Custom Tooltip */}
+                        <Tooltip 
+                            cursor={{ fill: 'transparent' }}
+                            contentStyle={{ 
+                                display: 'flex',
+                                flexDirection: 'column',
+                            }}
+                            formatter={(value, name, props) => {
+                                const { payload } = props;  // payload contains the data of the hovered branch
+                                return [
+                                    `Total: ${value}`,  // Total number of people (or whatever 'total' represents)
+                                    `Verbatim: ${payload.memoCount}`  // Show memo count
+                                ];
+                            }}
+                            
+                        />
+
                         {/* ปรับ Legend ให้เป็นสองแถว */}
                         <Legend
                             {...{
@@ -154,11 +140,11 @@ const SurveyChief = () => {
                                 }))
                             }}
                         />
-                       
+                    
                         {/* Bar ที่ถูกเปลี่ยนให้เป็นแนวแกน Y */}
                         <Bar dataKey="total" fill="#8884d8">
-                            {chiefData.map((chief, index) => (
-                                <Cell key={`cell-${index}`} fill={colors[chief.average]} />
+                            {branchData.map((branch, index) => (
+                                <Cell key={`cell-${index}`} fill={colors[branch.average]} />
                             ))}
                         </Bar>
                     </BarChart>
@@ -167,33 +153,34 @@ const SurveyChief = () => {
             </div>
 
             {/* Data breakdown for selected group */}
-            {selectedChief && (
+            {selectedBranch && (
                 <div 
                     className="mt-4 px-4 py-2 bg-white shadow-md"
-                    onClick={() => router.push(`/survey/${teamGrop}/${selectedChief}?startDate=${startDate}&endDate=${endDate}`)}
+                    onClick={() => router.push(`/survey/BBD/${group}/${department}/memo?branch=${selectedBranch}&startDate=${startDate}&endDate=${endDate}`)}
                 >
-                    <h3 className="text-lg font-bold">รายละเอียดสำหรับเขต: {selectedChief}</h3>
+                    <h3 className="text-lg font-bold">รายละเอียดสำหรับสาขา: {selectedBranch}</h3>
                     <span className="text-sm text-[#0056FF]">(คลิกเพื่อดูรายละเอียด)</span>
                     <ul className="text-sm mt-1">
                         {surveyDetails
                             .sort((a, b) => b.value - a.value) // Sort from 5 to 1
                             .map(detail => (
                                 <li key={detail.value} style={{ color: detail.color }}>
-                                    <span className="font-bold">{detail.label} ({detail.value}): {chiefData.find(chief => chief.chief === selectedChief)?.counts[detail.value] || 0} คน</span>
+                                    <span className="font-bold">{detail.label} ({detail.value}): {branchData.find(branch => branch.branch === selectedBranch)?.counts[detail.value] || 0} คน</span>
                                 </li>
                             ))}
                     </ul>
                     <span 
                         className="flex font-bold mt-2">
-                            รวม: {chiefData.find(chief => chief.chief === selectedChief)?.total || 0} คน
+                            รวม: {branchData.find(branch => branch.branch === selectedBranch)?.total || 0} คน
                     </span>
                 </div>
             )}
         </div>
     );
-};
 
-export default SurveyChief;
+}
 
-SurveyChief.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-SurveyChief.auth = true
+export default SurveyBranch;
+
+SurveyBranch.getLayout = (page) => <AppLayout>{page}</AppLayout>;
+SurveyBranch.auth = true;

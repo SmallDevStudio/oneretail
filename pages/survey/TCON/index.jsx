@@ -17,20 +17,18 @@ const colors = {
     // You can map more groups or color them dynamically if more groups are added
 };
 
-const SurveyGroup1 = () => {
+const SurveyGroup = () => {
+    const router = useRouter();
+    const teamGrop = 'TCON';
     const [startDate, setStartDate] = useState(new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split("T")[0]);
     const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
-    const router = useRouter();
-    const { group } = router.query;
-    const teamGrop = 'Retail';
-
     const [departmentData, setDepartmentData] = useState([]);
     const [selectedDepartment, setSelectedDepartment] = useState(null);
 
     const fetchSurveyData = async () => {
         try {
-            const response = await axios.get(`/api/survey/board/bbd/group`, {
-                params: { startDate, endDate, teamGrop, group },
+            const response = await axios.get(`/api/survey/board/tcon/department`, {
+                params: { startDate, endDate, teamGrop },
             });
             setDepartmentData(response.data.data);
         } catch (error) {
@@ -39,11 +37,11 @@ const SurveyGroup1 = () => {
     };
 
     useEffect(() => {
-        if (teamGrop && group) {
+        if (teamGrop) {
             fetchSurveyData();
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [startDate, endDate, teamGrop, group]);
+    }, [startDate, endDate, teamGrop]);
 
      // Handle bar click to display details of the selected group
      const handleBarClick = (department) => {
@@ -65,7 +63,7 @@ const SurveyGroup1 = () => {
             <div className="flex flex-row justify-between items-center gap-2 mt-5 w-full">
                 <IoIosArrowBack
                     className="text-xl inline text-gray-700"
-                    onClick={() => router.push("/main")}
+                    onClick={() => router.back()}
                     size={25}
                 />
                 <h2 className="text-3xl font-bold text-[#0056FF]">
@@ -75,8 +73,9 @@ const SurveyGroup1 = () => {
             </div>
 
             <div className="flex flex-col justify-center items-center gap-1 mt-2 w-full">
-                <span className="font-black text-2xl text-[#0056FF]">{group}</span>
+                <span className="font-black text-2xl text-[#0056FF]">{teamGrop}</span>
             </div>
+
 
             {/* Date picker */}
             <div className="flex flex-row justify-evenly items-center gap-2 p-2 w-full text-sm">
@@ -129,7 +128,20 @@ const SurveyGroup1 = () => {
                             tickFormatter={(label) => label.length > 10 ? `${label.substring(0, 0)} ` : label}
                         />
                         
-                        <Tooltip />
+                        <Tooltip 
+                            cursor={{ fill: 'transparent' }}
+                            contentStyle={{ 
+                                display: 'flex',
+                                flexDirection: 'column',
+                            }}
+                            formatter={(value, name, props) => {
+                                const { payload } = props;  // payload contains the data of the hovered branch
+                                return [
+                                    `Total: ${value}`,  // Total number of people (or whatever 'total' represents)
+                                    `Verbatim: ${payload.memoCount}`  // Show memo count
+                                ];
+                            }}
+                        />
                         
                         {/* ปรับ Legend ให้เป็นสองแถว */}
                         <Legend
@@ -157,7 +169,7 @@ const SurveyGroup1 = () => {
             {selectedDepartment && (
                 <div 
                     className="mt-4 px-4 py-2 bg-white shadow-md"
-                    onClick={() => router.push(`/survey/BBD/${group}/${selectedDepartment}?startDate=${startDate}&endDate=${endDate}`)}
+                    onClick={() => router.push(`/survey/TCON/${selectedDepartment}/memo?startDate=${startDate}&endDate=${endDate}`)}
                 >
                     <h3 className="text-lg font-bold">รายละเอียดสำหรับเขต: {selectedDepartment}</h3>
                     <span className="text-sm text-[#0056FF]">(คลิกเพื่อดูรายละเอียด)</span>
@@ -180,7 +192,7 @@ const SurveyGroup1 = () => {
     );
 };
 
-export default SurveyGroup1;
+export default SurveyGroup;
 
-SurveyGroup1.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-SurveyGroup1.auth = true
+SurveyGroup.getLayout = (page) => <AppLayout>{page}</AppLayout>;
+SurveyGroup.auth = true

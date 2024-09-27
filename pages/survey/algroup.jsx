@@ -5,8 +5,7 @@ import { useRouter } from "next/router";
 import CircularProgress from '@mui/material/CircularProgress';
 import { IoIosArrowBack } from "react-icons/io";
 import { AppLayout } from "@/themes";
-import { MdOutlineHome } from "react-icons/md";
-import { IoIosArrowForward } from "react-icons/io";
+
 
 const colors = {
     1: "#FF0000",  // Red
@@ -17,37 +16,37 @@ const colors = {
     // You can map more groups or color them dynamically if more groups are added
 };
 
-const SurveyGroup1 = () => {
+const SurveyTeam = () => {
     const [startDate, setStartDate] = useState(new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split("T")[0]);
     const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
+    const [groupData, setGroupData] = useState([]);
+    const [selectedGroup, setSelectedGroup] = useState(null);
     const router = useRouter();
-    const { group } = router.query;
-    const teamGrop = 'Retail';
+    const { chief_th } = router.query;
+    const teamGrop = 'AL';
 
-    const [departmentData, setDepartmentData] = useState([]);
-    const [selectedDepartment, setSelectedDepartment] = useState(null);
-
+    // Fetch the survey data
     const fetchSurveyData = async () => {
         try {
-            const response = await axios.get(`/api/survey/board/bbd/group`, {
-                params: { startDate, endDate, teamGrop, group },
+            const response = await axios.get(`/api/survey/board/al/group`, {
+                params: { startDate, endDate, teamGrop, chief_th }
             });
-            setDepartmentData(response.data.data);
+            setGroupData(response.data.data);
         } catch (error) {
             console.error("Error fetching survey data:", error);
         }
     };
 
     useEffect(() => {
-        if (teamGrop && group) {
+        if (chief_th) {
             fetchSurveyData();
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [startDate, endDate, teamGrop, group]);
+    }, [startDate, endDate, chief_th]);
 
-     // Handle bar click to display details of the selected group
-     const handleBarClick = (department) => {
-        setSelectedDepartment(department);
+    // Handle bar click to display details of the selected group
+    const handleBarClick = (group) => {
+        setSelectedGroup(group);
     };
 
     // Survey details
@@ -58,7 +57,6 @@ const SurveyGroup1 = () => {
         { value: 2, label: 'พอใช้', color: '#FF8A00' },
         { value: 1, label: 'แย่', color: '#FF0000' }
     ];
-    
 
     return (
         <div className="flex-1 flex-col p-2 mb-20">
@@ -74,8 +72,8 @@ const SurveyGroup1 = () => {
                 <div></div>
             </div>
 
-            <div className="flex flex-col justify-center items-center gap-1 mt-2 w-full">
-                <span className="font-black text-2xl text-[#0056FF]">{group}</span>
+            <div className="flex flex-row justify-center items-center gap-2 px-2 w-full">
+                <span className="font-bold text-[#F2871F]">{chief_th}</span>
             </div>
 
             {/* Date picker */}
@@ -109,29 +107,30 @@ const SurveyGroup1 = () => {
 
             {/* Chart */}
             <div className="mt-4 bg-white shadow-md text-xs w-full">
-            {departmentData.length === 0 ? (
+            {groupData.length === 0 ? (
                 <CircularProgress />
             ) : (
-                <ResponsiveContainer width="100%" height={400}>
-                    <BarChart 
-                        data={departmentData}
-                        layout="vertical"  // เปลี่ยน layout เป็นแนวตั้ง
+                <ResponsiveContainer width="100%" height={300} >
+                    <BarChart data={groupData} 
                         onClick={({ activeLabel }) => handleBarClick(activeLabel)}
-                        margin={{ top: 10, right: 20, left: -35, bottom: 5 }}
+                        margin={{ top: 10, right: 20, left: -10, bottom: 5 }}
                     >
-                        {/* แกน X จะแสดงผลเป็นค่าตัวเลข เช่นจำนวนคน */}
-                        <XAxis type="number" />
-                        
-                        {/* แกน Y จะเป็น label ของ department */}
-                        <YAxis 
-                            dataKey="department"
-                            type="category"
-                            tickFormatter={(label) => label.length > 10 ? `${label.substring(0, 0)} ` : label}
+                        <XAxis dataKey="group" />
+                        <YAxis />
+                        <Tooltip
+                            cursor={{ fill: 'transparent' }}
+                            contentStyle={{ 
+                                display: 'flex',
+                                flexDirection: 'column',
+                            }}
+                            formatter={(value, name, props) => {
+                                const { payload } = props;  // payload contains the data of the hovered branch
+                                return [
+                                    `Total: ${value}`,  // Total number of people (or whatever 'total' represents)
+                                    `Verbatim: ${payload.memoCount}`  // Show memo count
+                                ];
+                            }}
                         />
-                        
-                        <Tooltip />
-                        
-                        {/* ปรับ Legend ให้เป็นสองแถว */}
                         <Legend
                             {...{
                                 payload: surveyDetails.map(detail => ({
@@ -141,11 +140,9 @@ const SurveyGroup1 = () => {
                                 }))
                             }}
                         />
-                       
-                        {/* Bar ที่ถูกเปลี่ยนให้เป็นแนวแกน Y */}
                         <Bar dataKey="total" fill="#8884d8">
-                            {departmentData.map((department, index) => (
-                                <Cell key={`cell-${index}`} fill={colors[department.average]} />
+                            {groupData.map((group, index) => (
+                                <Cell key={`cell-${index}`} fill={colors[group.average]} />
                             ))}
                         </Bar>
                     </BarChart>
@@ -154,25 +151,25 @@ const SurveyGroup1 = () => {
             </div>
 
             {/* Data breakdown for selected group */}
-            {selectedDepartment && (
+            {selectedGroup && (
                 <div 
                     className="mt-4 px-4 py-2 bg-white shadow-md"
-                    onClick={() => router.push(`/survey/BBD/${group}/${selectedDepartment}?startDate=${startDate}&endDate=${endDate}`)}
+                    onClick={() => router.push(`/survey/AL/${chief_th}/${selectedGroup}?startDate=${startDate}&endDate=${endDate}`)}
                 >
-                    <h3 className="text-lg font-bold">รายละเอียดสำหรับเขต: {selectedDepartment}</h3>
+                    <h3 className="text-lg font-bold">รายละเอียดสำหรับกลุ่ม: {selectedGroup}</h3>
                     <span className="text-sm text-[#0056FF]">(คลิกเพื่อดูรายละเอียด)</span>
                     <ul className="text-sm mt-1">
                         {surveyDetails
                             .sort((a, b) => b.value - a.value) // Sort from 5 to 1
                             .map(detail => (
                                 <li key={detail.value} style={{ color: detail.color }}>
-                                    <span className="font-bold">{detail.label} ({detail.value}): {departmentData.find(department => department.department === selectedDepartment)?.counts[detail.value] || 0} คน</span>
+                                    <span className="font-bold">{detail.label} ({detail.value}): {groupData.find(group => group.group === selectedGroup)?.counts[detail.value] || 0} คน</span>
                                 </li>
                             ))}
                     </ul>
                     <span 
                         className="flex font-bold mt-2">
-                            รวม: {departmentData.find(department => department.department === selectedDepartment)?.total || 0} คน
+                            รวม: {groupData.find(group => group.group === selectedGroup)?.total || 0} คน
                     </span>
                 </div>
             )}
@@ -180,7 +177,8 @@ const SurveyGroup1 = () => {
     );
 };
 
-export default SurveyGroup1;
+export default SurveyTeam;
 
-SurveyGroup1.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-SurveyGroup1.auth = true
+SurveyTeam.getLayout = (page) => <AppLayout>{page}</AppLayout>;
+SurveyTeam.auth = true;
+

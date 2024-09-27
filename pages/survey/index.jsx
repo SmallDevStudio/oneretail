@@ -29,10 +29,12 @@ const Survey = () => {
         if (status === "loading" || !user) return;
 
         if (managerGroup.includes(user.user.empId)) {
-            const teamGrop = user.user.teamGrop;
-            const Group = user.user.group;
-            router.push("/survey/group?teamGrop=" + teamGrop + "&Group=" + Group);
-        } else {
+            const group = user.user.group;
+            router.push("/survey/group?&group=" + group);
+        } else if (managerAL.includes(user.user.empId)) {
+            const chief_th = user.user.chief_th;
+            router.push("/survey/algroup?chief_th=" + chief_th);
+        }else {
             router.push("/survey/team");
             return;
         }

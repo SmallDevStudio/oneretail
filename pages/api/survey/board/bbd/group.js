@@ -72,12 +72,23 @@ export default async function handler(req, res) {
                     if (!userDepartment) return acc;
 
                     if (!acc[userDepartment]) {
-                        acc[userDepartment] = { department: userDepartment, counts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }, total: 0, sum: 0 };
+                        acc[userDepartment] = { 
+                            department: userDepartment, 
+                            counts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }, 
+                            total: 0, 
+                            sum: 0,
+                            memoCount: 0
+                        };
                     }
 
                     acc[userDepartment].counts[survey.value]++;
                     acc[userDepartment].total++;
                     acc[userDepartment].sum += survey.value;
+
+                    // Count memos (non-null and non-empty)
+                    if (survey.memo && survey.memo.trim() !== "") {
+                        acc[userDepartment].memoCount++;
+                    }
                     return acc;
                 }, {});
 

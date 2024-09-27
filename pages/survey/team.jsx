@@ -11,7 +11,7 @@ const SurveyTeams = () => {
             <div className="flex flex-row justify-between items-center gap-2 mt-5 w-full">
                 <IoIosArrowBack
                     className="text-xl inline text-gray-700"
-                    onClick={() => router.back()}
+                    onClick={() => router.push("/main")}
                     size={25}
                 />
                 <h2 className="text-3xl font-bold text-[#0056FF]">
@@ -23,7 +23,7 @@ const SurveyTeams = () => {
             <div className="flex flex-col justify-center items-center gap-5 mt-10 w-full">
                 <div className="flex justify-center items-center p-4 bg-[#0056FF] rounded-xl w-4/6">
                     <span className="font-bold text-white text-3xl"
-                        onClick={() => router.push("/survey/Retail")}
+                        onClick={() => router.push("/survey/BBD")}
                     >
                         BBD
                     </span>
@@ -53,8 +53,6 @@ const SurveyTeams = () => {
                     </span>
                 </div>
             </div>
-            
-           
             
         </div>
     );
