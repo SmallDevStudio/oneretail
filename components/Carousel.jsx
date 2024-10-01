@@ -11,9 +11,10 @@ import styles from '@/styles/carousel.module.css';
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 export default function Carousel() {
-  const { data: images } = useSWR("/api/main/carousel", fetcher);
-
+  const { data: mediaItems } = useSWR("/api/main/carousel", fetcher);
   const router = useRouter();
+
+  console.log(mediaItems);
 
   const settings = {
     accessibility: true,
@@ -38,17 +39,26 @@ export default function Carousel() {
   return (
     <div className="relative w-full">
       <Slider {...settings} className={styles.slider}>
-        {Array.isArray(images) && images.map((image, index) => (
-          <div key={index} onClick={() => handleClick(image.url)}>
-            <Image
-              src={image.image.url}
-              alt={'One Retail Carousel' + index}
-              width={750}
-              height={422}
-              className="relative w-full object-cover"
-              loading="lazy"
-              style={{ width: '100%', height: 'auto' }}
-            />
+        {Array.isArray(mediaItems) && mediaItems.map((media, index) => (
+          <div key={index} onClick={() => handleClick(media.url)}>
+            {media.media.type === 'image' ? (
+              <Image
+                src={media.media.url}
+                alt={`Carousel Image ${index}`}
+                width={750}
+                height={422}
+                className="relative w-full object-cover"
+                loading="lazy"
+                style={{ width: '100%', height: 'auto' }}
+              />
+            ) : (
+              <video
+                src={media.media.url}
+                controls
+                className="relative w-full object-cover"
+                style={{ width: '100%', height: 'auto' }}
+              />
+            )}
           </div>
         ))}
       </Slider>

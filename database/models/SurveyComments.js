@@ -6,9 +6,10 @@ const surveyCommentsSchema = new mongoose.Schema({
     comment: { type: String, required: true },
     stickers: {
         stickerId: { type: String },
-        sticker: { type: String },
+        url: { type: String },
     },
     medias: [{ public_id: { type: String }, url: { type: String }, type: { type: String } }],
+    reply: [{ type: mongoose.Schema.Types.ObjectId, ref: 'SurveyReply' }],
 }, {
     timestamps: true
 });
