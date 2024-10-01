@@ -7,6 +7,7 @@ import useSWR from "swr";
 import axios from "axios";
 import { useRouter } from "next/router";
 import styles from '@/styles/carousel.module.css';
+import ReactPlayer from "react-player";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -41,7 +42,7 @@ export default function Carousel() {
       <Slider {...settings} className={styles.slider}>
         {Array.isArray(mediaItems) && mediaItems.map((media, index) => (
           <div key={index} onClick={() => handleClick(media.url)}>
-            {media.media.type === 'image' ? (
+            {media.media && media.media.type === 'image' ? (
               <Image
                 src={media.media.url}
                 alt={`Carousel Image ${index}`}
@@ -51,11 +52,25 @@ export default function Carousel() {
                 loading="lazy"
                 style={{ width: '100%', height: 'auto' }}
               />
-            ) : (
+            ) : media.media && media.media.type === 'video' ? (
               <video
                 src={media.media.url}
+                alt={`Carousel Video ${index}`}
                 controls
-                className="relative w-full object-cover"
+                className="relative w-full"
+                style={{ width: '100%', height: 'auto' }}
+              />
+            ) : (
+              null
+            )}
+            {media.youtube && (
+              <ReactPlayer
+                url={media.youtube.url}
+                playing={true} // Enable autoplay
+                muted={true} // Mute the video to ensure autoplay works in most browsers
+                width={'100%'}
+                height={'240px'}
+                className="relative w-full"
                 style={{ width: '100%', height: 'auto' }}
               />
             )}

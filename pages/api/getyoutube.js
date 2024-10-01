@@ -2,7 +2,6 @@ import axios from "axios";
 
 export default async function handler(req, res) {
     const { youtubeUrl } = req.body;
-    console.log('youtubeUrl:',youtubeUrl);
 
     let videoId;
     const url = new URL(youtubeUrl);

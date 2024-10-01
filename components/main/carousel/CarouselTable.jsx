@@ -90,14 +90,34 @@ const CarouselTable = ({data, mutate, setLoading, setSelected, handleOpen}) => {
                         {data.map((item, index) => (
                             <tr key={index} className="text-center">
                                 <td className="flex w-[200px]">
-                                    <Image 
-                                        src={item.image.url}
+                                    {item.media && item.media.type === 'image' ? (
+                                       <Image 
+                                       src={item.media.url}
+                                       alt='image' 
+                                       width="200" 
+                                       height="200"
+                                       style={{width: '200px', height: 'auto'}}
+
+                                        />
+                                    ): item.media && item.media.type === 'video' ? (
+                                        <video 
+                                        src={item.media.url}
                                         alt='image' 
                                         width="200" 
                                         height="200"
                                         style={{width: '200px', height: 'auto'}}
+                                        />
+                                    ): null}
 
-                                    />
+                                    {item.youtube && (
+                                        <Image
+                                            src={item.youtube.thumbnailUrl}
+                                            alt='image'
+                                            width="200"
+                                            height="200"
+                                            style={{width: '200px', height: 'auto'}}
+                                        />
+                                    )}
                                 </td>
                                 <td className="text-left text-xs w-[400px]">{item.url}</td>
                                 <td className="text-xs w-[100px]">
