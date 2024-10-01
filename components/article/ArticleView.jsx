@@ -95,9 +95,9 @@ const ArticleView = ({ articleId }) => {
             // บันทึกคำตอบของผู้ใช้
             const res = await axios.post('/api/articles/quiz/answers', isCorrect);
 
-            if (res.data.data.answer) {
+            if (res.data.data.answer === true) {
                const resPoint = await axios.post('/api/points/point', {
-                    userId: session?.user?.id,
+                    userId: userId,
                     points: article?.point,
                     description: 'ตอบคำถามในบทความ',
                     contentId: article?._id,
