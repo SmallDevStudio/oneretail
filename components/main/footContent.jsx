@@ -36,7 +36,7 @@ export default function FooterContant() {
                     วีดีโอแนะนำ
                 </span>
                 <Divider className="w-full mb-1"/>
-                <div className="flex flex-row flex-wrap justify-evenly gap-2">
+                <div className="flex flex-row flex-wrap gap-2">
                     {Array.isArray(data.data) && data.data.map((content, index) => (
                         <div 
                             key={index} 
@@ -88,7 +88,7 @@ export default function FooterContant() {
                         บทความแนะนำ
                     </span>
                     <Divider className="w-full mb-1"/>
-                    <div className="flex flex-row flex-wrap justify-evenly gap-2">
+                    <div className="flex flex-row flex-wrap justify-between gap-1 px-1">
                     {Array.isArray(articles.data) && articles.data.map((article, index) => (
                         <div 
                         key={index} 
