@@ -46,7 +46,7 @@ const RedeemPage = () => {
   }, []);
 
   const fetchRedeems = async () => {
-    const res = await axios.get("/api/redeem");
+    const res = await axios.get("/api/redeem/table");
     setRedeems(res.data.data);
   };
 
@@ -241,15 +241,36 @@ const RedeemPage = () => {
     setEditId(null);
   };
 
+  const handleUpdateStatus = async (data) => {
+    // Toggle the status as a Boolean
+    const newStatus = !data.status;
+    
+    try {
+        const response = await axios.put(`/api/redeem/${data._id}`, {
+            status: newStatus,
+        });
+        console.log(response.data);
+
+        // Refresh the data after the update
+        fetchRedeems();
+    } catch (error) {
+        console.error('Error updating status:', error);
+    }
+  };
+
   const redeemColumns = [
     { field: "rewardCode", headerName: "Reward Code", width: 100 },
     {
-      field: "image",
-      headerName: "Image",
-      width: 100,
-      renderCell: (params) => (
-        <Image src={params.value} width={50} height={50} alt={params.row.name} />
-      ),
+        field: "image",
+        headerName: "Image",
+        width: 100,
+        renderCell: (params) => (
+            params.value ? (
+                <Image src={params.value} width={50} height={50} alt={params.row.name} />
+            ) : (
+                <div>No Image</div>
+            )
+        ),
     },
     { field: "name", headerName: "Name", width: 150 },
     { field: "description", headerName: "Description", width: 250 },
@@ -257,41 +278,66 @@ const RedeemPage = () => {
     { field: "coins", headerName: "Coins", width: 100 },
     { field: "point", headerName: "Points", width: 100 },
     {
-      field: "creator",
-      headerName: "Creator",
+      field: "status",
+      headerName: "Status",
       width: 100,
-      renderCell: (params) => (
-        <Image src={params.value} width={50} height={50} alt="Creator" />
-      ),
+      renderCell: (params) => {
+          const isActive = params.value === true; // Check if the value is true (Boolean)
+          const statusText = isActive ? "Active" : "Inactive";
+          const bgColor = isActive ? "bg-green-500" : "bg-red-500";
+  
+          return (
+              <div
+                  className={`${bgColor} text-white rounded-md items-center text-center cursor-pointer`}
+                  onClick={() => handleUpdateStatus(params.row)}
+              >
+                  {statusText}
+              </div>
+          );
+      },
     },
     {
-      field: "createdAt",
-      headerName: "Created At",
-      width: 150,
-      renderCell: (params) => moment(params.value).locale("th").format("DD/MM/YYYY HH:mm"),
+        field: "creator",
+        headerName: "Creator",
+        width: 100,
+        renderCell: (params) => (
+            params.value ? (
+                <Image src={params.value} width={50} height={50} alt="Creator" />
+            ) : (
+                <div>No Creator</div>
+            )
+        ),
     },
     {
-      field: "actions",
-      headerName: "Actions",
-      width: 150,
-      renderCell: (params) => (
-        <div className="flex space-x-2">
-          <button
-            className="text-blue-500"
-            onClick={() => handleEdit(params.row)}
-          >
-            Edit
-          </button>
-          <button
-            className="text-red-500"
-            onClick={() => handleDelete(params.row)}
-          >
-            Delete
-          </button>
-        </div>
-      ),
+        field: "createdAt",
+        headerName: "Created At",
+        width: 150,
+        renderCell: (params) => (
+            params.value ? moment(params.value).locale("th").format("DD/MM/YYYY HH:mm") : "N/A"
+        ),
     },
-  ];
+    {
+        field: "actions",
+        headerName: "Actions",
+        width: 150,
+        renderCell: (params) => (
+            <div className="flex space-x-2">
+                <button
+                    className="text-blue-500"
+                    onClick={() => handleEdit(params.row)}
+                >
+                    Edit
+                </button>
+                <button
+                    className="text-red-500"
+                    onClick={() => handleDelete(params.row)}
+                >
+                    Delete
+                </button>
+            </div>
+        ),
+    },
+];
 
   const redeemTransColumns = [
     { field: "seq", headerName: "ลำดับ", width: 80 },
@@ -522,10 +568,12 @@ const RedeemPage = () => {
   );
 };
 
+export default RedeemPage;
+
 RedeemPage.getLayout = function getLayout(page) {
   return <AdminLayout>{page}</AdminLayout>;
 };
 
 RedeemPage.auth = true;
 
-export default RedeemPage;
+

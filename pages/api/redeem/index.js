@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   switch (method) {
     case 'GET':
       try {
-        const redeems = await Redeem.find({}).sort({ createdAt: -1 });
+        const redeems = await Redeem.find({status: true}).sort({ createdAt: -1 });
         const redeemsWithUser = await Promise.all(
           redeems.map(async (redeem) => {
             const user = await Users.findOne({ userId: redeem.creator });
@@ -40,13 +40,12 @@ export default async function handler(req, res) {
       try {
         const { id, ...updateData } = req.body;
         // Find the redeem and update it
-        const redeem = await Redeem.findByIdAndUpdate(id, updateData, {
-          new: true,
-        })
-          if (!redeem) {
-              return res.status(404).json({ success: false, message: 'Redeem not found' });
-          }
-          res.status(200).json({ success: true, data: redeem });
+        const redeem = await Redeem.findOne({ _id: id });
+        if (!redeem) {
+          return res.status(404).json({ success: false, message: 'Redeem not found' });
+        }
+        const updatedRedeem = await Redeem.findByIdAndUpdate(id, updateData, { new: true });
+        res.status(200).json({ success: true, data: updatedRedeem });
         } catch (error) {
             res.status(400).json({ success: false, message: error.message });
         }
