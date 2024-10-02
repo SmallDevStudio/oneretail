@@ -58,8 +58,8 @@ const SurveyGroup1 = () => {
         { value: 2, label: 'พอใช้', color: '#FF8A00' },
         { value: 1, label: 'แย่', color: '#FF0000' }
     ];
-    
 
+    
     return (
         <div className="flex-1 flex-col p-2 mb-20">
             <div className="flex flex-row justify-between items-center gap-2 mt-5 w-full">
@@ -109,8 +109,10 @@ const SurveyGroup1 = () => {
 
             {/* Chart */}
             <div className="mt-4 bg-white shadow-md text-xs w-full">
-            {departmentData.length === 0 ? (
-                <CircularProgress />
+            {!departmentData || departmentData.length === 0 ? (
+                <div className="flex justify-center items-center h-96">
+                    <CircularProgress />
+                </div>
             ) : (
                 <ResponsiveContainer width="100%" height={400}>
                     <BarChart 

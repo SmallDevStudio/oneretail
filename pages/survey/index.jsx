@@ -30,7 +30,7 @@ const Survey = () => {
 
         if (managerGroup.includes(user.user.empId)) {
             const group = user.user.group;
-            router.push("/survey/group?&group=" + group);
+            router.push("/survey/group?group=" + group);
         } else if (managerAL.includes(user.user.empId)) {
             const chief_th = user.user.chief_th;
             router.push("/survey/algroup?chief_th=" + chief_th);
