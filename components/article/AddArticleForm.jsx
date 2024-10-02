@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -11,7 +11,7 @@ import { IoIosCloseCircle } from "react-icons/io";
 import Image from "next/image";
 import sha1 from "crypto-js/sha1";
 import CircularProgress from '@mui/material/CircularProgress'; 
-
+import useMedia from "@/lib/hook/useMedia";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -31,13 +31,43 @@ const AddArticleForm = () => {
   const [quizOpen, setQuizOpen] = useState(false);
   const [quizEdit, setQuizEdit] = useState({});
   const [edit, setEdit] = useState(false);
+  const { add } = useMedia();
 
   const router = useRouter();
+
+  const fileUploadRef = useRef(null);
+  const fileThumbnailRef = useRef(null);
 
   const { data, error: swrError } = useSWR(
     session?.user?.id ? `/api/users/${session?.user?.id}` : null,
     fetcher
   );
+
+  const handleThumbnailChange = async (e) => {
+    const file = e.target.files[0];
+    try {
+      const result = await add(file, session?.user?.id, "article");
+      setThumbnail(result);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const handleUploadChange = async (e) => {
+    const fileArray = Array.from(e.target.files); // Convert FileList to an array
+
+    try {
+        // Use Promise.all to upload all files concurrently
+        const uploadResults = await Promise.all(
+            fileArray.map(file => add(file, session?.user?.id, "article"))
+        );
+
+        // Update media state with the uploaded results
+        setMedia((prevMedia) => [...prevMedia, ...uploadResults]);
+    } catch (error) {
+        console.error('Error uploading files:', error);
+    }
+  };
 
   const handleTagInputChange = (e) => {
     const value = e.target.value;
@@ -52,112 +82,32 @@ const AddArticleForm = () => {
     }
   };
 
+  const handleRemoveMedia = async (url, public_id) => {
+    try {
+        await axios.delete(`/api/blob/delete`, {
+            params: { url },
+        });
+        
+        // Update the media state after successful deletion
+        setMedia((prevMedia) => prevMedia.filter((m) => m.public_id !== public_id));
+    } catch (error) {
+        console.error('Error deleting media:', error);
+    }
+  };
+
+  const handleRemoveThumbnail = async(url) => {
+    try {
+      await axios.delete(`/api/blob/delete?url=${url}`);
+      setThumbnail(null);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   const handleRemoveTag = (tagToRemove) => {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
-
-  const handleUploadClick = () => {
-    setError(null);
-    window.cloudinary.openUploadWidget(
-        {
-            cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-            uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
-            sources: ['local', 'url', 'camera', 'image_search', 'facebook', 'google_drive'],
-            multiple: true,
-            resourceType: 'auto', // Automatically determines if it's image or video
-        },
-        (error, result) => {
-            if (result.event === 'success') {
-                setMedia(prevMedia => [
-                    ...prevMedia,
-                    { url: result.info.secure_url, public_id: result.info.public_id, type: result.info.resource_type }
-                ]);
-            }
-        }
-    );
-  };
-
-  const handleUploadThumbnail = () => {
-    setError(null);
-    window.cloudinary.openUploadWidget(
-        {
-            cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-            uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
-            sources: ['local', 'url', 'camera', 'image_search', 'facebook', 'google_drive'],
-            multiple: true,
-            resourceType: 'auto', // Automatically determines if it's image or video
-        },
-        (error, result) => {
-            if (result.event === 'success') {
-                setThumbnail(
-                    { url: result.info.secure_url, public_id: result.info.public_id, type: result.info.resource_type }
-                );
-            }
-        }
-    );
-  };
-
-  const generateSHA1 = (data) => {
-    const hash = sha1(data);
-    return hash.toString();
-  }
-
-  const generateSignature = (publicId, apiSecret) => {
-      const timestamp = new Date().getTime();
-      const signature = `public_id=${publicId}&timestamp=${timestamp}${apiSecret}`;
-      return generateSHA1(signature);
-  }
-
-  const handleRemoveMedia = async(public_id) => {
-    
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-        const publicId = public_id;
-        const timestemp = new Date().getTime();
-        const apiKey = process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
-        const apiSecret = process.env.NEXT_PUBLIC_CLOUDINARY_API_SECRET;
-        const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`;
-
-        try {
-            const resp = await axios.post(url, {
-                public_id: publicId,
-                signature: generateSignature(publicId, apiSecret),
-                api_key: apiKey,
-                timestamp: timestemp,
-            });
-
-            setMedia(media.filter((m) => m.public_id !== public_id));
-
-        } catch (error) {
-            console.log(error);
-        }
-    
-  };
-
-  const handleRemoveThumbnail = async(public_id) => {
-    
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-        const publicId = public_id;
-        const timestemp = new Date().getTime();
-        const apiKey = process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
-        const apiSecret = process.env.NEXT_PUBLIC_CLOUDINARY_API_SECRET;
-        const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`;
-
-        try {
-            const resp = await axios.post(url, {
-                public_id: publicId,
-                signature: generateSignature(publicId, apiSecret),
-                api_key: apiKey,
-                timestamp: timestemp,
-            });
-
-            setThumbnail(null);
-
-        } catch (error) {
-            console.log(error);
-        }
-    
-  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -410,7 +360,7 @@ const AddArticleForm = () => {
               <div className="relative flex flex-col p-2 border-2 rounded-xl">
                 <IoIosCloseCircle
                   className="absolute top-0 right-0 text-xl cursor-pointer"
-                  onClick={() => handleRemoveThumbnail(thumbnail.public_id)}
+                  onClick={() => handleRemoveThumbnail(thumbnail.url)}
                   />
                 <Image
                   src={thumbnail.url}
@@ -426,16 +376,25 @@ const AddArticleForm = () => {
             <span className="text-black font-bold">Thumbnail:</span>
             <div className="flex flex-row w-full mb-2 border-2 p-1 rounded-3xl px-2">
               <button
-                onClick={handleUploadThumbnail}
+                onClick={() => fileThumbnailRef.current.click()}
                 className="flex flex-row items-center gap-2 cursor-pointer"
               >
               <ImFilePicture className="text-xl text-[#0056FF]" />
                   <div className="flex flex-row text-left">
-                    <span className="text-sm font-bold">อัพโหลดรูปภาพ/วิดีโอ</span>
+                    <span className="text-sm font-bold">อัพโหลดรูปภาพ</span>
                   
                   </div>
+                  <span className="text-[10px] text-red-500 ">* สามารถอัพโหลดได้ไม่เกิน 100MB</span>
               </button>
-              <span className="text-[10px] text-red-500 ">* สามารถอัพโหลดได้ไม่เกิน 100MB</span>
+              {/* ซ่อน input file แต่ใช้ ref เพื่อให้มันทำงานเมื่อกดปุ่ม */}
+              <input
+                  ref={fileThumbnailRef}
+                  type="file"
+                  name="thumbnail"
+                  accept="image/*" // จำกัดชนิดของไฟล์
+                  onChange={handleThumbnailChange}
+                  style={{ display: 'none' }} // ซ่อน input file
+                />
             </div>
           </div>
         </div>
@@ -448,7 +407,7 @@ const AddArticleForm = () => {
                                 <div className="relative flex flex-col p-2 border-2 rounded-xl">
                                     <IoIosCloseCircle
                                         className="absolute top-0 right-0 text-xl cursor-pointer"
-                                        onClick={() => handleRemoveMedia(media[index].public_id)}
+                                        onClick={() => handleRemoveMedia(media[index].url, media[index].public_id)}
                                     />
                                     {item.type === 'image' ? (
                                         <Image
@@ -476,16 +435,25 @@ const AddArticleForm = () => {
             <span className="block text-black font-bold">images:</span>
             <div className="flex flex-row w-full mb-2 border-2 p-1 rounded-3xl px-2">
               <button
-                onClick={handleUploadClick}
+                onClick={() => fileUploadRef.current.click()}
                 className="flex flex-row items-center gap-2 cursor-pointer"
               >
               <ImFilePicture className="text-xl text-[#0056FF]" />
                   <div className="flex flex-row text-left">
                     <span className="text-sm font-bold">อัพโหลดรูปภาพ/วิดีโอ</span>
-                  
+                    <span className="text-[10px] text-red-500 ">* สามารถอัพโหลดได้ไม่เกิน 100MB</span>
                   </div>
               </button>
-              <span className="text-[10px] text-red-500 ">* สามารถอัพโหลดได้ไม่เกิน 100MB</span>
+              {/* ซ่อน input file แต่ใช้ ref เพื่อให้มันทำงานเมื่อกดปุ่ม */}
+              <input
+                  ref={fileUploadRef}
+                  type="file"
+                  name="upload"
+                  multiple
+                  accept="image/*, video/*" // จำกัดชนิดของไฟล์
+                  onChange={handleUploadChange}
+                  style={{ display: 'none' }} // ซ่อน input file
+                />
             </div>
           </div>
         </div>

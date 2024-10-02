@@ -33,20 +33,6 @@ const CarouselTable = ({data, mutate, setLoading, setSelected, handleOpen}) => {
         if (result.isConfirmed) {
             setLoading(true);
             try {
-                const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-                const publicId = image;
-                const timestemp = new Date().getTime();
-                const apiKey = process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
-                const apiSecret = process.env.NEXT_PUBLIC_CLOUDINARY_API_SECRET;
-                const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`;
-
-                await axios.post(url, {
-                    public_id: publicId,
-                    signature: generateSignature(publicId, apiSecret),
-                    api_key: apiKey,
-                    timestamp: timestemp,
-                });
-
                 await axios.delete(`/api/main/carousel/${id}`);
                 mutate();
             } catch (error) {

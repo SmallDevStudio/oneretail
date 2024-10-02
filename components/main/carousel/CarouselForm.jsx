@@ -1,10 +1,11 @@
-import React,{ useState } from "react";
+import React,{ useState, useRef } from "react";
 import axios from "axios";
 import useSWR from "swr";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { ImFilePicture } from "react-icons/im";
 import { IoIosCloseCircle } from "react-icons/io";
+import useMedia from "@/lib/hook/useMedia";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -15,37 +16,22 @@ const CarouselForm = ({ selected, mutate, setLoading , setSelected, setOpen}) =>
     const [youtubeUrl, setYoutubeUrl] = useState(selected?.youtube.url || '');
     const [error, setError] = useState(null);
     const [Preview, setPreview] = useState(false);
+    const { add } = useMedia();
+
+    console.log('media', media);
+
+    const fileUploadRef = useRef(null);
 
     const { data: session } = useSession();
     const userId = session?.user?.id;
 
-    const handleUploadClick = () => {
-        setError(null);
-        setLoading(true);
-        window.cloudinary.openUploadWidget(
-            {
-                cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-                uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
-                sources: ['local', 'url', 'camera', 'image_search'],
-                multiple: false,
-                resourceType: 'auto', // Automatically determines if it's image or video
-            },
-            (error, result) => {
-                if (result.event === 'success') {
-                    setMedia({ 
-                        url: result.info.secure_url || '', 
-                        public_id: result.info.public_id || '',
-                        type: result.info.resource_type || 'image', // Default to 'image' if resource_type is not available
-                    });
-                } else if (error) {
-                    console.error('Upload error:', error);
-                }
-            }
-        );
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
+        const result = await add(file, userId, 'carousel');
+        setMedia(result);
         setPreview(true);
-        setLoading(false);
     };
-
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -113,6 +99,15 @@ const CarouselForm = ({ selected, mutate, setLoading , setSelected, setOpen}) =>
         }
     };
 
+    const handleDeleteMedia = async (url) => {
+        try {
+            await axios.delete(`/api/blob/delete?url=${url}`);
+            setMedia(null);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
 
     return (
         <div>
@@ -129,7 +124,7 @@ const CarouselForm = ({ selected, mutate, setLoading , setSelected, setOpen}) =>
                     {/* Previews */}
                     <div className="flex flex-col mb-4">
                     {Preview && media && media?.type === 'image'? (
-                            <div className="flex">
+                            
                             <Image
                                 src={media?.url}
                                 alt="Preview"
@@ -138,9 +133,9 @@ const CarouselForm = ({ selected, mutate, setLoading , setSelected, setOpen}) =>
                                 loading="lazy"
                                 style={{ width: '200px', height: 'auto' }}
                             />
-                        </div>
+                        
                         ): media?.type === 'video'? (
-                            <div className="flex">
+                            
                                 <video
                                     src={media?.url}
                                     controls
@@ -149,11 +144,11 @@ const CarouselForm = ({ selected, mutate, setLoading , setSelected, setOpen}) =>
                                     loading="lazy"
                                     style={{ width: '200px', height: 'auto' }}
                                 />
-                            </div>
+                            
                         ): null}
 
                         {youtube && (
-                            <div className="flex">
+                           
                                 <Image
                                     src={youtube.thumbnailUrl}
                                     alt="Preview"
@@ -162,6 +157,14 @@ const CarouselForm = ({ selected, mutate, setLoading , setSelected, setOpen}) =>
                                     loading="lazy"
                                     style={{ width: '200px', height: 'auto' }}
                                 />
+                           
+                        )}
+                        {Preview && media && (
+                            <div
+                                className="relative top-[-120px] right-[-200px] cursor-pointer"
+                                onClick={() => handleDeleteMedia(media?.url)}
+                            >
+                                <IoIosCloseCircle />
                             </div>
                         )}
                     </div>
@@ -169,7 +172,7 @@ const CarouselForm = ({ selected, mutate, setLoading , setSelected, setOpen}) =>
                     <div className="flex flex-col">
                         <div className="flex flex-col gap-2 w-full">
                             <button className="w-2/6" 
-                                onClick={handleUploadClick}
+                                onClick={() => fileUploadRef.current.click()}
                             >
                                 <div className="flex flex-row border rounded-xl p-2 items-center shadow-xl">
                                     <ImFilePicture className="text-3xl" />
@@ -179,6 +182,16 @@ const CarouselForm = ({ selected, mutate, setLoading , setSelected, setOpen}) =>
                                     </div>
                                 </div>
                             </button>
+
+                             {/* ซ่อน input file แต่ใช้ ref เพื่อให้มันทำงานเมื่อกดปุ่ม */}
+                            <input
+                                    ref={fileUploadRef}
+                                    type="file"
+                                    multiple // สามารถเลือกหลายไฟล์ได้
+                                    accept="image/*,video/*" // จำกัดชนิดของไฟล์
+                                    onChange={handleFileChange}
+                                    style={{ display: 'none' }} // ซ่อน input file
+                                />
                             {error && <p className="text-red-500">{error}</p>}
 
                             <div className="flex flex-row gap-2 items-center mt-2">
