@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { CldUploadWidget } from "next-cloudinary";
@@ -9,6 +9,8 @@ import { DataGrid } from "@mui/x-data-grid";
 import moment from "moment";
 import "moment/locale/th";
 import * as XLSX from 'xlsx';
+import useMedia from "@/lib/hook/useMedia";
+import Swal from "sweetalert2";
 
 const RedeemPage = () => {
   const [redeems, setRedeems] = useState([]);
@@ -29,8 +31,14 @@ const RedeemPage = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [editId, setEditId] = useState(null);
   const [activeTab, setActiveTab] = useState("redeem");
+  const [isUploading, setIsUploading] = useState(false);
+  const [media, setMedia] = useState(null);
   const { data: session } = useSession();
   const userId = session?.user?.id;
+
+  const { add, delete: deleteMedia } = useMedia();
+
+  const fileUploadRef = useRef(null);
 
   useEffect(() => {
     fetchRedeems();
@@ -58,6 +66,22 @@ const RedeemPage = () => {
         address: trans?.user?.address,
       }))
     );
+  };
+
+
+  const handleFileChange = async (e) => {
+    const folder = "redeem";
+    const file = e.target.files[0];
+    setIsUploading(true);
+    try {
+      const result = await add(file, userId, folder);
+      console.log('Media added:', result); // { publicId, url, type }
+      setMedia((prevMedia) => [...prevMedia, result]);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleDeliver = async () => {
@@ -112,11 +136,6 @@ const RedeemPage = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleUpload = (result) => {
-    if (result.event === "success") {
-      setForm({ ...form, image: result.info.secure_url });
-    }
-  };
 
   const generateRewardCode = () => {
     if (redeems.length === 0) {
@@ -133,12 +152,14 @@ const RedeemPage = () => {
     e.preventDefault();
     const formattedForm = {
       ...form,
+      image: media[0]?.url,
       creator: userId,
     };
     if (isEdit) {
       await axios.put("/api/redeem", { ...formattedForm, id: editId });
     } else {
       const newRewardCode = generateRewardCode();
+      console.log("newRewardCode", newRewardCode, "formattedForm", formattedForm);
       await axios.post("/api/redeem", {
         ...formattedForm,
         rewardCode: newRewardCode,
@@ -159,6 +180,7 @@ const RedeemPage = () => {
     });
     setIsEdit(false);
     setEditId(null);
+    setMedia(null);
   };
 
   const handleEdit = (redeem) => {
@@ -178,10 +200,30 @@ const RedeemPage = () => {
     setEditId(redeem._id);
   };
 
-  const handleDelete = async (id) => {
-    await axios.delete("/api/redeem", { data: { id } });
-    fetchRedeems();
-  };
+  const handleDelete = async (data) => {
+    const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+    });
+
+    if (result.isConfirmed) {
+        try {
+            const response = await axios.delete(`/api/redeem`, {
+                params: { id: data._id },
+            });
+            console.log(response.data);
+            fetchRedeems(); // Refresh the list after deletion
+            Swal.fire("Deleted!", "Your file has been deleted.", "success");
+        } catch (error) {
+            Swal.fire("Error!", error.response?.data?.message || "Failed to delete.", "error");
+        }
+    }
+};
 
   const handleCancel = () => {
     setForm({
@@ -242,7 +284,7 @@ const RedeemPage = () => {
           </button>
           <button
             className="text-red-500"
-            onClick={() => handleDelete(params.row._id)}
+            onClick={() => handleDelete(params.row)}
           >
             Delete
           </button>
@@ -356,25 +398,31 @@ const RedeemPage = () => {
                   />
                 </div>
                 <div>
-                  {form.image && (
-                    <div className="mb-4">
-                      <Image src={form.image} width={100} height={100} alt="Redeem" />
-                    </div>
+                  {media && media.length > 0 && (
+                    <Image
+                      src={media[0].url}
+                      width={200}
+                      height={200}
+                      alt={media.name}
+                      style={{ maxWidth: '200px', maxHeight: '200px' }}
+                    />
                   )}
-                  <CldUploadWidget
-                    uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
-                    onUpload={handleUpload}
+                  <button 
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    onClick={() => fileUploadRef.current.click()}
                   >
-                    {({ open }) => (
-                      <button
-                        type="button"
-                        onClick={open}
-                        className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg"
-                      >
-                        Upload Image
-                      </button>
-                    )}
-                  </CldUploadWidget>
+                    upload Image
+                  </button>
+
+                  {/* ซ่อน input file แต่ใช้ ref เพื่อให้มันทำงานเมื่อกดปุ่ม */}
+                  <input
+                        ref={fileUploadRef}
+                        type="file"
+                        multiple // สามารถเลือกหลายไฟล์ได้
+                        accept="image/*,video/*" // จำกัดชนิดของไฟล์
+                        onChange={handleFileChange}
+                        style={{ display: 'none' }} // ซ่อน input file
+                    />
                 </div>
                 <div className="grid grid-cols-4 gap-1">
                   <div className="col-span-1">

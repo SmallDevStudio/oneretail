@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const redeemSchema = new mongoose.Schema({
   rewardCode: { type: String, required: true},
   name: { type: String, required: true },
-  description: { type: String, required: true },
+  description: { type: String },
   image: { type: String },
   stock: { type: Number, required: true },
   coins: { type: Number },

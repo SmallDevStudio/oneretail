@@ -26,6 +26,8 @@ export default async function handler(req, res) {
       }
       break;
     case 'POST':
+      // Create a new redeem
+      console.log(req.body);
       try {
         const redeem = new Redeem(req.body);
         await redeem.save();
@@ -49,17 +51,21 @@ export default async function handler(req, res) {
             res.status(400).json({ success: false, message: error.message });
         }
         break;
-    case 'DELETE':
-      try {
-        const { id } = req.body;
-        const deletedRedeem = await Redeem.findByIdAndDelete(id);
-        if (!deletedRedeem) {
-          return res.status(400).json({ success: false });
-        }
-        res.status(200).json({ success: true, data: {} });
-      } catch (error) {
-        res.status(400).json({ success: false });
-      }
+        case 'DELETE':
+          try {
+              const { id } = req.query;
+              if (!id) {
+                  return res.status(400).json({ success: false, message: 'ID is required' });
+              }
+              const deletedRedeem = await Redeem.findByIdAndDelete(id);
+              if (!deletedRedeem) {
+                  return res.status(404).json({ success: false, message: 'Redeem not found' });
+              }
+              res.status(200).json({ success: true, data: {} });
+          } catch (error) {
+              res.status(400).json({ success: false, message: error.message });
+          }
+          break;
       break;
     default:
       res.status(400).json({ success: false });
