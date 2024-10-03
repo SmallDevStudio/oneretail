@@ -16,6 +16,8 @@ const StickerForm = (seletedData, handleClose) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
+    console.log('sticker', sticker);
+
     const { data: session } = useSession();
     const userId = session?.user?.id;
 
@@ -27,7 +29,7 @@ const StickerForm = (seletedData, handleClose) => {
     const handleIconChange = async(e) => {
         const file = e.target.files[0];
         try {
-            const result = await add(file, userId, 'stickers');
+            const result = await add(file, userId, 'stickers/icon');
             setIcon(result);
         } catch (error) {
             console.error(error);
@@ -45,6 +47,7 @@ const StickerForm = (seletedData, handleClose) => {
 
         // Update media state with the uploaded results
         setSticker((prevMedia) => [...prevMedia, ...uploadResults]);
+
         } catch (error) {
             console.error('Error uploading files:', error);
         }
@@ -54,6 +57,7 @@ const StickerForm = (seletedData, handleClose) => {
         try {
             await axios.delete(`/api/blob/delete?url=${url}`);
             setIcon(null);
+            fileIconRef.current.value = null;
         } catch (error) {
             console.error(error);
         }
@@ -65,6 +69,7 @@ const StickerForm = (seletedData, handleClose) => {
                 params: { url },
             });
             setSticker((prevMedia) => prevMedia.filter((m) => m.public_id !== public_id));
+            fileStickerRef.current.value = null;
         } catch (error) {
             console.error('Error deleting media:', error);
         }
@@ -165,7 +170,7 @@ const StickerForm = (seletedData, handleClose) => {
                     />
                 </div>
                 {icon && (
-                    <div className="relative flex flex-col p-2 border-2 rounded-xl">
+                    <div className="relative flex flex-col p-2 border-2 rounded-xl w-[80px]">
                         <IoIosCloseCircle
                         className="absolute top-0 right-0 text-xl cursor-pointer"
                         onClick={() => handleIconRemove(icon.url)}
@@ -176,7 +181,7 @@ const StickerForm = (seletedData, handleClose) => {
                             width={50}
                             height={50}
                             className='object-cover'
-                            style={{ width: 'auto', height: '50px' }}
+                            style={{ width: '50px', height: '50px' }}
                         />
                     </div>
                 )}

@@ -11,6 +11,7 @@ import "moment/locale/th";
 import * as XLSX from 'xlsx';
 import useMedia from "@/lib/hook/useMedia";
 import Swal from "sweetalert2";
+import Loading from "@/components/Loading";
 
 const RedeemPage = () => {
   const [redeems, setRedeems] = useState([]);
@@ -76,7 +77,7 @@ const RedeemPage = () => {
     try {
       const result = await add(file, userId, folder);
       console.log('Media added:', result); // { publicId, url, type }
-      setMedia((prevMedia) => [...prevMedia, result]);
+      setMedia(result);
     } catch (error) {
       console.error('Error uploading file:', error);
     } finally {
@@ -443,10 +444,10 @@ const RedeemPage = () => {
                     rows="4"
                   />
                 </div>
-                <div>
-                  {media && media.length > 0 && (
+                <div className="flex flex-col w-1/3 gap-2">
+                  {media && (
                     <Image
-                      src={media[0].url}
+                      src={media.url}
                       width={200}
                       height={200}
                       alt={media.name}
