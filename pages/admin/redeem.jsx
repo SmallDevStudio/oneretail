@@ -11,7 +11,7 @@ import "moment/locale/th";
 import * as XLSX from 'xlsx';
 import useMedia from "@/lib/hook/useMedia";
 import Swal from "sweetalert2";
-import Loading from "@/components/Loading";
+import CircularProgress from '@mui/material/CircularProgress';
 
 const RedeemPage = () => {
   const [redeems, setRedeems] = useState([]);
@@ -37,7 +37,7 @@ const RedeemPage = () => {
   const { data: session } = useSession();
   const userId = session?.user?.id;
 
-  const { add, delete: deleteMedia } = useMedia();
+  const { add } = useMedia();
 
   const fileUploadRef = useRef(null);
 
@@ -69,21 +69,33 @@ const RedeemPage = () => {
     );
   };
 
+  const handleUploadImageClick = (e) => {
+    e.preventDefault(); // Prevent default behavior
+    fileUploadRef.current.click(); // Trigger file input click
+  };
+
 
   const handleFileChange = async (e) => {
     const folder = "redeem";
     const file = e.target.files[0];
     setIsUploading(true);
     try {
-      const result = await add(file, userId, folder);
-      console.log('Media added:', result); // { publicId, url, type }
-      setMedia(result);
+        const result = await add(file, userId, folder);
+        console.log('Media added:', result); // { publicId, url, type }
+
+        // Set the image URL directly in the form state
+        setForm((prevForm) => ({
+            ...prevForm,
+            image: result.url,
+        }));
+
+        setMedia(result);
     } catch (error) {
-      console.error('Error uploading file:', error);
+        console.error('Error uploading file:', error);
     } finally {
-      setIsUploading(false);
+        setIsUploading(false);
     }
-  };
+};
 
   const handleDeliver = async () => {
     await Promise.all(
@@ -151,52 +163,69 @@ const RedeemPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Prepare the form data to submit
     const formattedForm = {
-      ...form,
-      image: media[0]?.url,
-      creator: userId,
+        ...form,
+        image: form.image || media?.url, // Use the form's image if it exists, else use the new media URL
+        creator: userId,
     };
+
     if (isEdit) {
-      await axios.put("/api/redeem", { ...formattedForm, id: editId });
+        console.log("Editing:", formattedForm);
+        try {
+            const response = await axios.put("/api/redeem", { ...formattedForm, id: editId });
+            console.log(response.data);
+            fetchRedeems();
+            setIsEdit(false);
+            setEditId(null);
+        } catch (error) {
+            console.error(error);
+        }
     } else {
-      const newRewardCode = generateRewardCode();
-      console.log("newRewardCode", newRewardCode, "formattedForm", formattedForm);
-      await axios.post("/api/redeem", {
-        ...formattedForm,
-        rewardCode: newRewardCode,
-      });
-      setForm({ ...form, rewardCode: newRewardCode });
+        console.log("Adding:", formattedForm);
+        const newRewardCode = generateRewardCode();
+        try {
+            await axios.post("/api/redeem", {
+                ...formattedForm,
+                rewardCode: newRewardCode,
+            });
+            fetchRedeems();
+        } catch (error) {
+            console.error(error);
+        }
     }
-    fetchRedeems();
+
+    // Clear the form after submission
     setForm({
-      rewardCode: "",
-      name: "",
-      description: "",
-      image: "",
-      stock: 0,
-      coins: 0,
-      point: 0,
-      status: "true",
-      type: "",
+        rewardCode: "",
+        name: "",
+        description: "",
+        image: "",
+        stock: 0,
+        coins: 0,
+        point: 0,
+        status: "true",
+        type: "",
     });
-    setIsEdit(false);
-    setEditId(null);
-    setMedia(null);
+    setMedia(null); // Clear media state
+    fileUploadRef.current.value = null;
   };
 
   const handleEdit = (redeem) => {
     setForm({
-      rewardCode: redeem.rewardCode,
-      name: redeem.name,
-      description: redeem.description,
-      image: redeem.image,
-      stock: redeem.stock,
-      coins: redeem.coins,
-      point: redeem.point,
-      status: redeem.status,
-      type: redeem.type,
-      creator: redeem.creator,
+        rewardCode: redeem.rewardCode,
+        name: redeem.name,
+        description: redeem.description,
+        image: redeem.image, // Set the current image URL
+        stock: redeem.stock,
+        coins: redeem.coins,
+        point: redeem.point,
+        status: redeem.status,
+        type: redeem.type,
+        creator: redeem.creator,
     });
+    setMedia({ url: redeem.image }); // Set the media with the current image URL
     setIsEdit(true);
     setEditId(redeem._id);
   };
@@ -445,31 +474,37 @@ const RedeemPage = () => {
                   />
                 </div>
                 <div className="flex flex-col w-1/3 gap-2">
+                  {isUploading && (
+                      <div className="flex justify-center items-center">
+                          <CircularProgress />
+                      </div>
+                  )}
+
                   {media && (
-                    <Image
-                      src={media.url}
-                      width={200}
-                      height={200}
-                      alt={media.name}
-                      style={{ maxWidth: '200px', maxHeight: '200px' }}
-                    />
+                      <Image
+                          src={media.url}
+                          width={200}
+                          height={200}
+                          alt={media.name}
+                          style={{ maxWidth: '200px', maxHeight: '200px' }}
+                      />
                   )}
                   <button 
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    onClick={() => fileUploadRef.current.click()}
+                      type="button" // Ensure the button is not of type "submit"
+                      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                      onClick={handleUploadImageClick} // Use the new function
                   >
-                    upload Image
+                      Upload Image
                   </button>
 
-                  {/* ซ่อน input file แต่ใช้ ref เพื่อให้มันทำงานเมื่อกดปุ่ม */}
+                  {/* Hidden file input */}
                   <input
-                        ref={fileUploadRef}
-                        type="file"
-                        multiple // สามารถเลือกหลายไฟล์ได้
-                        accept="image/*,video/*" // จำกัดชนิดของไฟล์
-                        onChange={handleFileChange}
-                        style={{ display: 'none' }} // ซ่อน input file
-                    />
+                      ref={fileUploadRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      style={{ display: 'none' }}
+                  />
                 </div>
                 <div className="grid grid-cols-4 gap-1">
                   <div className="col-span-1">

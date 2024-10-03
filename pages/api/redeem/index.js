@@ -27,7 +27,6 @@ export default async function handler(req, res) {
       break;
     case 'POST':
       // Create a new redeem
-      console.log(req.body);
       try {
         const redeem = new Redeem(req.body);
         await redeem.save();
@@ -50,7 +49,8 @@ export default async function handler(req, res) {
             res.status(400).json({ success: false, message: error.message });
         }
         break;
-        case 'DELETE':
+
+      case 'DELETE':
           try {
               const { id } = req.query;
               if (!id) {
@@ -64,8 +64,8 @@ export default async function handler(req, res) {
           } catch (error) {
               res.status(400).json({ success: false, message: error.message });
           }
-          break;
-      break;
+        break;
+
     default:
       res.status(400).json({ success: false });
       break;
