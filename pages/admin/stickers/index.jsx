@@ -40,7 +40,7 @@ const StickerAdmin = () => {
                         onClose={handleClose}
                         title="สร้าง Sticker"
                     >
-                        <StickerForm />
+                        <StickerForm handleClose={handleClose}/>
                     </Modal>
                 )}
             </div>

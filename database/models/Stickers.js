@@ -8,7 +8,7 @@ const Stickers = new mongoose.Schema({
         url: { type: String }, 
         type: { type: String } 
     },
-    image: [{ 
+    sticker: [{ 
         public_id: { type: String }, 
         url: { type: String }, 
         type: { type: String } 

@@ -25,13 +25,16 @@ const Modal = ({ children, onClose }) => {
                     justify-content: center;
                     align-items: center;
                     z-index: 1000;
+                    overflow: auto;
+                    padding: 20px;
                 }
                 .modal-content {
                     position: relative;
                     background: white;
                     padding: 20px;
                     border-radius: 15px;
-                    max-width: 500px;
+                    max-width: 100%;
+                    max-height: 100%;
                     width: 100%;
                     border: 3px solid #F68B1F;
                 }

@@ -27,6 +27,7 @@ export default async function handler(req, res) {
       break;
     case 'POST':
       // Create a new redeem
+      console.log(req.body);
       try {
         const redeem = new Redeem(req.body);
         await redeem.save();

@@ -152,12 +152,20 @@ const RedeemPage = () => {
 
   const generateRewardCode = () => {
     if (redeems.length === 0) {
-      return "ttb0001";
+        return "ttb0001";
     }
-    const lastRedeem = redeems[redeems.length - 1];
-    const lastCode = lastRedeem ? lastRedeem.rewardCode : "ttb0000";
-    const lastNumber = parseInt(lastCode.replace("ttb", ""), 10);
-    const newNumber = lastNumber + 1;
+
+    // Extract all reward numbers from existing codes
+    const numbers = redeems.map((redeem) => {
+        const code = redeem.rewardCode.replace("ttb", "");
+        return parseInt(code, 10);
+    });
+
+    // Find the maximum number and increment it
+    const maxNumber = Math.max(...numbers);
+    const newNumber = maxNumber + 1;
+
+    // Generate the new reward code
     return `ttb${String(newNumber).padStart(4, "0")}`;
   };
 
