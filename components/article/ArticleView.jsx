@@ -132,7 +132,7 @@ const ArticleView = ({ articleId }) => {
             const userId = session?.user?.id;
     
             // Check if there is either post content or media content
-            if (!data.post && (!data.media || data.media.length === 0)) {
+            if (!data.sticker && !data.post && (!data.media || data.media.length === 0)) {
                 setCheckError('กรุณากรอกข้อความหรือเพิ่มรูปภาพ');
                 setLoading(false);
                 return; // Exit the function if the condition is not met
@@ -143,6 +143,7 @@ const ArticleView = ({ articleId }) => {
                 medias: data.media,
                 files: data.files,
                 tagusers: data.selectedUsers,
+                sticker: data.sticker,
                 articleId,
                 userId,
             });
@@ -183,7 +184,7 @@ const ArticleView = ({ articleId }) => {
             const userId = session?.user?.id;
     
             // Check if there is either post content or media content
-            if (!data.post && (!data.media || data.media.length === 0)) {
+            if (!data.sticker && !data.post && (!data.media || data.media.length === 0)) {
                 setCheckError('กรุณากรอกข้อความหรือเพิ่มรูปภาพ');
                 setLoading(false);
                 return; // Exit the function if the condition is not met
@@ -194,6 +195,7 @@ const ArticleView = ({ articleId }) => {
                 medias: data.media,
                 files: data.files,
                 tagusers: data.selectedUsers,
+                sticker: data.sticker,
                 commentId,
                 userId
             });
@@ -507,18 +509,27 @@ const ArticleView = ({ articleId }) => {
                                         )}
                                 </div>
                                 <p className="text-[8px]">{moment(comment?.createdAt).fromNow()}</p>
-                                {comment?.tagusers.length > 0 && comment?.tagusers.map((taguser, index) => (
-                                <div className="flex flex-row w-full items-center gap-1 mb-2 mt-[-5px]" key={index}>
-                                    <PiUserCircleDuotone className="flex text-md"/>
-                                    <div key={index} className="flex w-full">
-                                        <span className="text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
-                                    </div>
+                                <div className="inline flex-wrap flex-row text-left gap-1 items-center w-full mt-[-5px]">
+                                    {comment?.tagusers.length > 0 && comment?.tagusers.map((taguser, index) => (
+                                    <span key={index} className="inline-block text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
+                                    ))}
                                 </div>
-                                ))}
                             </div>
                         </div>
                         <div className="flex flex-col w-full px-2">
                             <p className="text-xs">{comment?.comment}</p>
+                                {comment?.sticker && comment.sticker.url ?
+                                    <div className="flex">
+                                        <Image
+                                            src={comment?.sticker?.url}
+                                            alt="sticker"
+                                            width={100}
+                                            height={100}
+                                            className="rounded-lg"
+                                            style={{ width: '100px', height: 'auto' }}
+                                        />
+                                    </div>
+                                : null}
                                 {comment?.medias.length > 0 && (
                                 <ImageGallery medias={comment.medias} />
                                 )}
@@ -590,22 +601,30 @@ const ArticleView = ({ articleId }) => {
                                                 )}
                                             </div>
                                             <p className="text-[8px]">{moment(reply?.createdAt).fromNow()}</p>
-                                            {reply?.tagusers.length > 0 && reply?.tagusers.map((taguser, index) => (
-                                            <div className="flex flex-row w-full items-center gap-1 mb-2 mt-[-5px]" key={index}>
-                                                <PiUserCircleDuotone className="flex text-md"/>
-                                                <div key={index} className="flex w-full">
-                                                    <span className="text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
-                                                </div>
+                                            <div className="inline flex-wrap flex-row text-left gap-1 items-center w-full mt-[-5px]">
+                                                {reply?.tagusers.length > 0 && reply?.tagusers.map((taguser, index) => (
+                                                <span key={index} className="inline-block text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
+                                                ))}
                                             </div>
-                                            ))}
-                                            
                                         </div>
                                     </div>
                                     <div className="flex flex-col w-full px-3">
                                         <p className="text-xs">{reply?.reply}</p>
-                                            {reply?.medias.length > 0 && (
+                                        {reply?.sticker && reply?.sticker?.url && (
+                                            <div className="flex">
+                                                <Image
+                                                    src={reply?.sticker?.url}
+                                                    alt="sticker"
+                                                    width={100}
+                                                    height={100}
+                                                    className="rounded-lg"
+                                                    style={{ width: '100px', height: 'auto' }}
+                                                />
+                                            </div>
+                                        )}
+                                        {reply?.medias.length > 0 && (
                                             <ImageGallery medias={reply.medias} />
-                                            )}
+                                        )}
                                     </div>
                                     <div className="flex flex-row items-center gap-1 pl-3 justify-between mt-1 w-full">
                                         <div className="flex flex-row items-center gap-2">

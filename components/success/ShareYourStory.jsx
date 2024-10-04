@@ -589,14 +589,11 @@ const ShareYourStory = () => {
                                                 )}
                                             </div>
                                             <p className="text-[10px] text-left">{moment(comment?.createdAt).fromNow()}</p>
-                                            {comment?.tagusers.length > 0 && comment?.tagusers.map((taguser, index) => (
-                                                <div className="flex flex-row w-full items-center gap-1 mb-2 mt-[-5px]" key={index}>
-                                                <PiUserCircleDuotone className="flex text-md"/>
-                                                <div key={index} className="flex flex-row w-full">
-                                                    <span className="text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
-                                                </div>
-                                                </div>
-                                            ))}
+                                            <div className="inline flex-wrap flex-row text-left gap-1 items-center w-full mt-[-5px]">
+                                                {comment?.tagusers.length > 0 && comment?.tagusers.map((taguser, index) => (
+                                                <span key={index} className="inline-block text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
+                                                ))}
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="flex flex-col px-1 w-full">
@@ -684,14 +681,11 @@ const ShareYourStory = () => {
                                                         )}
                                                     </div>
                                                     <p className="flex text-[10px]">{moment(reply?.createdAt).fromNow()}</p>
-                                                    {reply?.tagusers.length > 0 && reply?.tagusers.map((taguser, index) => (
-                                                        <div className="flex flex-row w-full items-center gap-1 mb-2 mt-[-5px]" key={index}>
-                                                        <PiUserCircleDuotone className="flex text-md"/>
-                                                        <div key={index} className="flex flex-row w-full">
-                                                            <span className="text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
-                                                        </div>
-                                                        </div>
-                                                    ))}
+                                                    <div className="inline flex-wrap flex-row text-left gap-1 items-center w-full mt-[-5px]">
+                                                        {reply?.tagusers.length > 0 && reply?.tagusers.map((taguser, index) => (
+                                                            <span key={index} className="inline-block text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
+                                                        ))}
+                                                    </div>
                                                     <p className="text-xs">{reply?.reply}</p>
                                                     {reply?.sticker && reply?.sticker?.url && (
                                                         <div className="flex">
