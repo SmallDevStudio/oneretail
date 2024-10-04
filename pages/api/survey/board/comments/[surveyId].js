@@ -1,4 +1,4 @@
-import connetMongoDB from "@/lib/services/database/mongodb";
+import connectMongoDB from "@/lib/services/database/mongodb";
 import SurveyComments from "@/database/models/SurveyComments";
 import Survey from "@/database/models/Survey";
 import Users from "@/database/models/users";
@@ -6,7 +6,7 @@ import SurveyReply from "@/database/models/SurveyReply";
 
 export default async function handler(req, res) {
     const { method } = req;
-    await connetMongoDB();
+    await connectMongoDB();
 
     switch (method) {
         case "GET":
@@ -23,13 +23,8 @@ export default async function handler(req, res) {
                 let comments = await SurveyComments.find({ surveyId }).lean();
                 comments = comments || [];  // Default to an empty array if no comments are found
 
-                // Get userIds from comments and their replies
-                const userIds = [
-                    ...new Set([
-                        ...comments.map(comment => comment.userId),
-                        ...comments.flatMap(comment => comment.reply?.map(r => r.userId) || [])
-                    ])
-                ];
+                // Get userIds from comments
+                const userIds = [...new Set(comments.map(comment => comment.userId))];
 
                 // Fetch user details
                 const users = await Users.find({ userId: { $in: userIds } }).select("userId fullname pictureUrl");
@@ -39,16 +34,25 @@ export default async function handler(req, res) {
                 }, {});
 
                 // Process comments and their replies
-                const processedComments = comments.map(comment => ({
-                    ...comment,
-                    user: userMap[comment.userId] || null,
-                    reply: (comment.reply || []).map(replyId => {
-                        const reply = SurveyReply.findById(replyId);
-                        return {
-                            ...reply.toObject(),
-                            user: userMap[reply?.userId] || null,
-                        };
-                    })
+                const processedComments = await Promise.all(comments.map(async (comment) => {
+                    // Directly fetch user details for each reply
+                    const replies = await Promise.all((comment.reply || []).map(async (replyId) => {
+                        const reply = await SurveyReply.findById(replyId).lean();
+                        if (reply) {
+                            const replyUser = await Users.findOne({ userId: reply.userId }).select("userId fullname pictureUrl").lean();
+                            return {
+                                ...reply,
+                                user: replyUser || null, // Directly attach user details
+                            };
+                        }
+                        return null;
+                    }));
+
+                    return {
+                        ...comment,
+                        user: userMap[comment.userId] || null,
+                        reply: replies.filter(r => r !== null) // Filter out null values in case of missing replies
+                    };
                 }));
 
                 // Construct final response

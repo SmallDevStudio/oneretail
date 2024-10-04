@@ -43,6 +43,8 @@ const ShareYourStory = () => {
     });
 
     const folder = 'share-your-story';
+
+    console.log('posts', posts);
     
 
     const { data: user, mutate: mutateUser } = useSWR(`/api/users/${session?.user?.id}`, fetcher);
@@ -139,7 +141,7 @@ const ShareYourStory = () => {
             const userId = session?.user?.id;
     
             // Check if there is either post content or media content
-            if (!data.post && (!data.media || data.media.length === 0)) {
+            if (!data.sticker && !data.post && (!data.media || data.media.length === 0)) {
                 setCheckError('กรุณากรอกข้อความหรือเพิ่มรูปภาพ');
                 setLoading(false);
                 return; // Exit the function if the condition is not met
@@ -150,6 +152,7 @@ const ShareYourStory = () => {
                 medias: data.media,
                 files: data.files,
                 tagusers: data.selectedUsers,
+                sticker: data.sticker,
                 postId,
                 userId,
             });
@@ -188,7 +191,7 @@ const ShareYourStory = () => {
             const userId = session?.user?.id;
     
             // Check if there is either post content or media content
-            if (!data.post && (!data.media || data.media.length === 0)) {
+            if (!data.sticker && !data.post && (!data.media || data.media.length === 0)) {
                 setCheckError('กรุณากรอกข้อความหรือเพิ่มรูปภาพ');
                 setLoading(false);
                 return; // Exit the function if the condition is not met
@@ -199,6 +202,7 @@ const ShareYourStory = () => {
                 medias: data.media,
                 files: data.files,
                 tagusers: data.selectedUsers,
+                sticker: data.sticker,
                 commentId,
                 userId
             });
@@ -553,7 +557,8 @@ const ShareYourStory = () => {
                             </div>
 
                             {showComments === post._id && Array.isArray(post.comments) && post.comments.map((comment, commentIndex) => (
-                                <div key={commentIndex} className="flex flex-col w-full bg-gray-300 rounded-lg mt-2 ml-2">
+                                <div key={commentIndex} className="flex flex-col w-full">
+                                <div className="flex flex-col w-full bg-gray-300 rounded-lg mt-2 ml-2">
                                     <div className="flex flex-row items-center px-2 w-full gap-2 rounded-lg mt-1">
                                         <div className="flex items-center justify-center align-top w-[25px]">
                                             <Image
@@ -576,13 +581,14 @@ const ShareYourStory = () => {
                                                             open={Boolean(anchorEl)}
                                                             onClose={handleOptionClose}
                                                             classes={{ paper: "text-xs" }}
+                                                            sx={{ fontSize: "8px" }}
                                                         >
                                                             <MenuItem onClick={() => { handleCommentDelete(currentOption.id); handleOptionClose(); }}>Delete</MenuItem>
                                                         </Menu>
                                                     </div>
                                                 )}
                                             </div>
-                                            <p className="text-[8px] text-left">{moment(comment?.createdAt).fromNow()}</p>
+                                            <p className="text-[10px] text-left">{moment(comment?.createdAt).fromNow()}</p>
                                             {comment?.tagusers.length > 0 && comment?.tagusers.map((taguser, index) => (
                                                 <div className="flex flex-row w-full items-center gap-1 mb-2 mt-[-5px]" key={index}>
                                                 <PiUserCircleDuotone className="flex text-md"/>
@@ -595,6 +601,18 @@ const ShareYourStory = () => {
                                     </div>
                                     <div className="flex flex-col px-1 w-full">
                                         <p className="text-xs text-left px-1">{comment?.comment}</p>
+                                        {comment?.sticker && comment.sticker.url ?
+                                            <div className="flex">
+                                                <Image
+                                                    src={comment?.sticker?.url}
+                                                    alt="sticker"
+                                                    width={100}
+                                                    height={100}
+                                                    className="rounded-lg"
+                                                    style={{ width: '100px', height: 'auto' }}
+                                                />
+                                            </div>
+                                        : null}
                                         {comment?.medias.length > 0 && (
                                             <ImageGallery medias={comment.medias} />
                                         )}
@@ -630,11 +648,13 @@ const ShareYourStory = () => {
                                             </div>
                                         </div>
                                     </div>
+                                    </div>
 
                                     {showReply === comment._id && Array.isArray(comment.reply) && comment.reply.map((reply, replyIndex) => (
-                                        <div key={replyIndex} className="flex flex-col w-5/7 justify-end bg-gray-400 rounded-lg px-2 pb-2 ml-4 mb-1">
-                                            <div className="flex flex-row items-center px-2 w-full gap-2 justify-end bg-gray-400 rounded-lg">
-                                                <div className="flex items-center justify-center align-top w-[25px]">
+                                        <div key={replyIndex} className="flex flex-col w-full pl-5 mt-1 ml-2">
+                                        <div  className="flex flex-col bg-gray-200 rounded-lg  w-full ">
+                                            <div className="flex flex-row w-full  p-2 gap-2">
+                                                <div className="flex w-[25px]">
                                                     <Image
                                                         src={reply?.user?.pictureUrl}
                                                         alt="user"
@@ -644,6 +664,7 @@ const ShareYourStory = () => {
                                                         style={{ width: '20px', height: '20px' }}
                                                     />
                                                 </div>
+
                                                 <div className="flex flex-col w-full">
                                                     <div className="flex flex-row justify-between items-center">
                                                         <p className="text-xs font-bold text-[#0056FF]">{reply?.user?.fullname}</p>
@@ -655,13 +676,14 @@ const ShareYourStory = () => {
                                                                     open={Boolean(anchorEl)}
                                                                     onClose={handleOptionClose}
                                                                     classes={{ paper: "text-xs" }}
+                                                                    sx={{ fontSize: '10px' }}
                                                                 >
                                                                     <MenuItem onClick={() => { handleReplyDelete(currentOption.id); handleOptionClose(); }}>Delete</MenuItem>
                                                                 </Menu>
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <p className="text-[8px]">{moment(reply?.createdAt).fromNow()}</p>
+                                                    <p className="flex text-[10px]">{moment(reply?.createdAt).fromNow()}</p>
                                                     {reply?.tagusers.length > 0 && reply?.tagusers.map((taguser, index) => (
                                                         <div className="flex flex-row w-full items-center gap-1 mb-2 mt-[-5px]" key={index}>
                                                         <PiUserCircleDuotone className="flex text-md"/>
@@ -671,12 +693,24 @@ const ShareYourStory = () => {
                                                         </div>
                                                     ))}
                                                     <p className="text-xs">{reply?.reply}</p>
+                                                    {reply?.sticker && reply?.sticker?.url && (
+                                                        <div className="flex">
+                                                            <Image
+                                                                src={reply?.sticker?.url}
+                                                                alt="sticker"
+                                                                width={100}
+                                                                height={100}
+                                                                className="rounded-lg"
+                                                                style={{ width: '100px', height: 'auto' }}
+                                                            />
+                                                        </div>
+                                                    )}
                                                     {reply?.medias.length > 0 && (
                                                         <ImageGallery medias={reply.medias} />
                                                     )}
                                                 </div>
                                             </div>
-                                            <div className="flex flex-row items-center gap-2 justify-between pl-10 pr-1 mt-1 w-full">
+                                            <div className="flex flex-row items-center gap-2 justify-between pl-5 py-1 mt-1 w-full">
                                                 <div className="flex flex-row items-center gap-2">
                                                     {likes[reply._id] ? (
                                                         <AiFillHeart className="w-3 h-3 text-red-500" onClick={() => handleReplyLike(reply._id, comment.experienceId)} />
@@ -689,8 +723,10 @@ const ShareYourStory = () => {
                                                 </div>
                                             </div>
                                         </div>
+                                        </div>
                                     ))}
 
+                               
                                 </div>
                                 
                             ))}

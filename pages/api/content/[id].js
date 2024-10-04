@@ -2,6 +2,7 @@ import connectMongoDB from "@/lib/services/database/mongodb";
 import Content from "@/database/models/Content";
 import Users from "@/database/models/users";
 import ContentComment from "@/database/models/ContentComment";
+import ReplyContentComment from "@/database/models/ReplyContentComment";
 
 export default async function handler(req, res) {
   await connectMongoDB();
@@ -31,6 +32,8 @@ export default async function handler(req, res) {
           acc[user.userId] = user;
           return acc;
         }, {});
+
+        
 
         content.comments = comments.map(comment => {
           comment = comment.toObject();

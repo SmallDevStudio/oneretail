@@ -44,6 +44,7 @@ export default async function handler(req, res) {
 
                         return {
                             ...comment,
+                            ...replies,
                             user: userMap[comment.userId] || null,
                             replies: populatedReplies,
                         };
@@ -59,8 +60,7 @@ export default async function handler(req, res) {
 
         case 'POST':
             try {
-                const { comment, userId, contentId } = req.body;
-                const newComment = await ContentComment.create({ comment, userId, contentId });
+                const newComment = await ContentComment.create(req.body);
 
                 res.status(201).json({ success: true, data: newComment });
             } catch (error) {

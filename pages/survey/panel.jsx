@@ -6,23 +6,18 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import moment from "moment";
 import "moment/locale/th";
+import StickerPanel from "@/components/stickers/StickerPanel";
 import CircularProgress from '@mui/material/CircularProgress';
 import { IoIosArrowBack } from "react-icons/io";
-import { LuMessageSquarePlus } from "react-icons/lu";
 import { AppLayout } from "@/themes";
 import Dialog from '@mui/material/Dialog';
 import Slide from '@mui/material/Slide';
 import Divider from '@mui/material/Divider';
 import { RiEmojiStickerLine } from "react-icons/ri";
 import { ImFilePicture } from "react-icons/im";
-import { HiOutlineDotsVertical } from "react-icons/hi";
-import Swal from "sweetalert2";
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import { MdOutlineHome } from "react-icons/md";
-import { IoIosArrowForward } from "react-icons/io";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { FaRegCommentDots } from "react-icons/fa";
+import Swal from "sweetalert2";
 
 moment.locale('th');
 
@@ -36,6 +31,11 @@ const SurveyPanel = () => {
     const [open, setOpen] = useState(false);
     const [textareaValue, setTextareaValue] = useState('');
     const [seletedComment, setSelectedComment] = useState(null);
+    const [openSticker, setOpenSticker] = useState(false);
+    const [sticker, setSticker] = useState(null);
+    const [media, setMedia] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [openDropdown, setOpenDropdown] = useState(null); // State to handle open dropdown
 
     const router = useRouter();
     const { data: session } = useSession();
@@ -43,9 +43,61 @@ const SurveyPanel = () => {
     const surveyId = router.query.surveyId;
 
     const { data: survey, error: surveyError } = useSWR(() => userId ? `/api/survey/board/comments/${surveyId}` : null, fetcher);
+    const { data: user } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
 
     if (surveyError) return <div>Error loading Survey</div>;
     if (!survey) return <CircularProgress />;
+
+    console.log('survey', survey);
+
+    const toggleDropdown = (id) => {
+        setOpenDropdown(openDropdown === id ? null : id);
+    };
+
+    const handleEdit = (id) => {
+        console.log("Editing", id);
+        // Implement edit logic
+    };
+
+    const handleDelete = (id) => {
+        console.log("Deleting", id);
+        // Implement delete logic
+    };
+
+    const handleSend = async () => {
+        setIsLoading(true);
+
+        const newReply = {
+            commentId: seletedComment,
+            userId: userId,
+            reply: textareaValue,
+            sticker,
+            medias: media,
+        };
+
+        try {
+            const response = await axios.post(`/api/survey/board/reply`, newReply);
+            console.log('response', response);
+            handleClose();
+            setSelectedComment(null);
+            setTextareaValue('');
+            setSticker(null);
+            setMedia([]);
+            fetchSurveyData();
+            Swal.fire({
+                icon: 'success',
+                title: 'ส่งความคิดเห็นสําเร็จ',
+                text: 'คุณได้ส่งความคิดเห็นเรียบร้อยแล้ว',
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#0056FF',
+                allowOutsideClick: true,
+            });
+        } catch (error) {
+            console.error('Error adding comment:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
 
     const handleClickOpen = (id) => {
         setSelectedComment(id);
@@ -58,13 +110,29 @@ const SurveyPanel = () => {
         setOpen(false);
     };
 
+    const handleOpenSticker = () => {
+        setOpenSticker(true);
+    };
+
+    const handleCloseSticker = () => {
+        setOpenSticker(false);
+    };
+
+    const isCommentOwner = (commentUserId) => {
+        return commentUserId === userId;
+    };
+
+    const canDelete = () => {
+        return user?.role === "admin" || user?.role === "manager";
+    };
+
 
     return (
         <div className="flex-1 flex-col p-2 mb-20">
             <div className="flex flex-row justify-between items-center gap-2 mt-5 w-full">
                 <IoIosArrowBack
                     className="text-xl inline text-gray-700"
-                    onClick={() => router.back()}
+                    onClick={() => handleClose()}
                     size={25}
                 />
                 <h2 className="text-3xl font-bold text-[#0056FF]">
@@ -94,7 +162,9 @@ const SurveyPanel = () => {
                     </div>
                 </div>
             </div>
-            {Array.isArray(survey?.data?.comments) && survey?.data?.comments.map((comment, index) => (
+            {/* Comments List */}
+            {Array.isArray(survey?.data?.comments) && 
+                survey?.data?.comments.map((comment, index) => (
                 <div key={index} className="flex flex-col px-2 w-full">
                     <div className="flex flex-col bg-gray-200 rounded-xl p-1 w-full">
                         <div className="flex flex-row  w-full">
@@ -114,7 +184,10 @@ const SurveyPanel = () => {
                                     <span className="text-sm font-bold text-[#0056FF]">{comment.user.fullname}</span>
                                     <div className="flex flex-row gap-1">
                                         <span className="text-xs">{moment(comment.createdAt).locale("th").format("LL")}</span>
-                                        <BsThreeDotsVertical className="text-gay-300"/>
+                                        <BsThreeDotsVertical 
+                                            className="text-gay-300 cursor-pointer"
+                                            onClick={() => toggleDropdown(comment._id)}
+                                        />
                                     </div>
                                 </div>
 
@@ -151,12 +224,12 @@ const SurveyPanel = () => {
                     </div>
 
                     {Array.isArray(comment?.reply) && comment?.reply.map((reply, index) => (
-                        <div key={index} className="flex flex-col px-2 w-full">
+                        <div key={index} className="flex flex-col w-full mt-1">
                             <div className="flex flex-col bg-gray-100 rounded-xl p-1 w-full">
                                 <div className="flex flex-row  w-full">
-                                    <div className="flex flex-col">
+                                    <div className="flex flex-col w-[50px]">
                                         <Image
-                                            src={reply.user.pictureUrl}
+                                            src={reply?.user?.pictureUrl}
                                             alt="sticker"
                                             width={50}
                                             height={50}
@@ -167,20 +240,20 @@ const SurveyPanel = () => {
 
                                     <div className="flex flex-col w-full text-left ml-2 px-1">
                                         <div className="flex flex-row justify-between w-full ">
-                                            <span className="text-sm font-bold text-[#0056FF]">{reply.user.fullname}</span>
+                                            <span className="text-sm font-bold text-[#0056FF]">{reply?.user?.fullname}</span>
                                             <div className="flex flex-row gap-1">
-                                                <span className="text-xs">{moment(reply.createdAt).locale("th").format("LL")}</span>
+                                                <span className="text-xs">{moment(reply?.createdAt).locale("th").format("LL")}</span>
                                                 <BsThreeDotsVertical className="text-gay-300"/>
                                             </div>
                                         </div>
 
                                         <div className="flex flex-col">
-                                            <p className="text-sm">{reply.reply}</p>
-                                            <div className="flex flex-col jestify-center items-center w-full">
+                                            <p className="text-sm">{reply?.reply}</p>
+                                            <div className="flex flex-col w-full">
                                                 {reply?.sticker && (
                                                     <div className="flex flex-row gap-1">
                                                         <Image
-                                                            src={reply.sticker.url}
+                                                            src={reply?.sticker?.url}
                                                             alt="sticker"
                                                             width={80}
                                                             height={80}
@@ -224,6 +297,7 @@ const SurveyPanel = () => {
                 }}
             >
                 <div>
+                    {isLoading && <CircularProgress />}
                     <div className="flex flex-row items-center gap-2 mt-5 w-full">
                         <IoIosArrowBack 
                             className="text-xl inline text-gray-700"
@@ -245,10 +319,22 @@ const SurveyPanel = () => {
                                 value={textareaValue}
                                 onChange={(e) => setTextareaValue(e.target.value)}
                             />
+                            {sticker && (
+                                <div className="flex flex-col jestify-center items-center gap-1">
+                                    <Image
+                                        src={sticker.url}
+                                        alt="sticker"
+                                        width={80}
+                                        height={80}
+                                        style={{ width: 'auto', height: '80px' }}
+                                    />
+                                </div>
+                            )}
                             <div className="flex flex-row justify-end items-center gap-2 px-1">
                                 <RiEmojiStickerLine 
                                     className="text-xl inline text-gray-500"
                                     size={20}
+                                    onClick={handleOpenSticker}
                                 />
                                 <ImFilePicture 
                                     className="text-xl inline text-gray-500"
@@ -260,12 +346,26 @@ const SurveyPanel = () => {
                     <div className="flex flex-row justify-end items-center gap-2 px-6 w-full mt-2">
                         <button
                             className="text-white bg-[#0056FF] rounded-xl px-6 py-1"
+                            onClick={handleSend}
                         >
                             ส่ง
                         </button>
                     </div>
                 </div>
             </Dialog>
+
+            {openSticker && (
+                <Dialog
+                    open={openSticker}
+                    onClose={handleCloseSticker}
+                    TransitionComponent={Transition}
+                >
+                    <StickerPanel
+                        setSticker={setSticker}
+                        onClose={handleCloseSticker}
+                    />
+                </Dialog>
+            )}
 
         </div>
     );

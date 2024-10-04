@@ -141,7 +141,7 @@ const Experience = () => {
             const userId = session?.user?.id;
     
             // Check if there is either post content or media content
-            if (!data.post && (!data.media || data.media.length === 0)) {
+            if (!data.sticker && !data.post && (!data.media || data.media.length === 0)) {
                 setCheckError('กรุณากรอกข้อความหรือเพิ่มรูปภาพ');
                 setLoading(false);
                 return; // Exit the function if the condition is not met
@@ -152,6 +152,7 @@ const Experience = () => {
                 medias: data.media,
                 files: data.files,
                 tagusers: data.selectedUsers,
+                sticker: data.sticker,
                 experienceId,
                 userId,
             });
@@ -190,7 +191,7 @@ const Experience = () => {
             const userId = session?.user?.id;
     
             // Check if there is either post content or media content
-            if (!data.post && (!data.media || data.media.length === 0)) {
+            if (!data.sticker && !data.post && (!data.media || data.media.length === 0)) {
                 setCheckError('กรุณากรอกข้อความหรือเพิ่มรูปภาพ');
                 setLoading(false);
                 return; // Exit the function if the condition is not met
@@ -201,6 +202,7 @@ const Experience = () => {
                 medias: data.media,
                 files: data.files,
                 tagusers: data.selectedUsers,
+                sticker: data.sticker,
                 commentId,
                 userId
             });
@@ -458,16 +460,13 @@ const Experience = () => {
                                     </div>
                                 </div>
                                 <p className="text-[8px]">{moment(experience?.createdAt).fromNow()}</p>
-                                {experience?.tagusers.length > 0 && experience?.tagusers.map((taguser, index) => (
-                                    <>
-                                    <div className="flex flex-row items-center mt-[-5px] gap-1">
-                                        <PiUserCircleDuotone className="text-md"/>
-                                        <div className="flex flex-row w-full items-center gap-1" key={index}>
-                                            <span className="text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
-                                        </div>
+                                <div className="flex flex-row gap-1 w-full">
+                                    <div className="inline">
+                                        {experience?.tagusers.length > 0 && experience?.tagusers.map((taguser, index) => (
+                                            <span key={index}  className="relative text-[10px] text-[#F2871F] ml-1">{taguser?.fullname}</span>            
+                                        ))}
                                     </div>
-                                    </>
-                                ))}
+                                </div>
                             </div>
                         </div>
                         <div className="flex flex-col w-full">
@@ -512,8 +511,8 @@ const Experience = () => {
 
                             {showComments === experience._id && Array.isArray(experience.comments) && experience.comments.map((comment, commentIndex) => (
                                 <div key={commentIndex} className="flex flex-col w-full bg-black/50 rounded-lg mt-2 ml-2">
-                                    <div className="flex flex-row items-center px-2 w-full gap-2 bg-black/50 rounded-lg mt-1">
-                                        <div className="flex items-center justify-center align-top w-[25px]">
+                                    <div className="flex flex-row px-2 w-full gap-2 bg-black/50 rounded-lg mt-1">
+                                        <div className="flex w-[25px]">
                                             <Image
                                                 src={comment?.user?.pictureUrl}
                                                 alt="user"
@@ -541,31 +540,42 @@ const Experience = () => {
                                                 )}
                                             </div>
                                             <p className="text-[8px]">{moment(comment?.createdAt).fromNow()}</p>
-                                            {comment?.tagusers.length > 0 && comment?.tagusers.map((taguser, index) => (
-                                                <div className="flex flex-row w-full items-center gap-1 mb-2 mt-[-5px]" key={index}>
-                                                <PiUserCircleDuotone className="flex text-md"/>
-                                                <div key={index} className="flex flex-row w-full">
-                                                    <span className="text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
+                                            <div className="flex flex-row gap-1 w-full">
+                                                <div className="gap-1">
+                                                    {comment?.tagusers.length > 0 && comment?.tagusers.map((taguser, index) => ( 
+                                                    <span key={index}  className="text-[10px] text-[#F2871F] ml-1">{taguser?.fullname}</span>
+                                                    ))}
                                                 </div>
-                                                </div>
-                                            ))}
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="flex flex-col w-full">
-                                        <p className="text-xs">{comment?.comment}</p>
+                                    <div className="flex flex-col w-full mt-2">
+                                        <p className="text-sm mb-2">{comment?.comment}</p>
+                                        {comment?.sticker && comment.sticker.url ?
+                                            <div className="flex">
+                                                <Image
+                                                    src={comment?.sticker?.url}
+                                                    alt="sticker"
+                                                    width={100}
+                                                    height={100}
+                                                    className="rounded-lg"
+                                                    style={{ width: '100px', height: 'auto' }}
+                                                />
+                                            </div>
+                                        : null}
                                         {comment?.medias.length > 0 && (
                                             <ImageGallery medias={comment.medias} />
                                         )}
                                     </div>
                                     <div>
-                                        <div className="flex flex-row items-center justify-between w-full px-4 pb-2 mt-1">
+                                        <div className="flex flex-row items-center justify-between w-full px-4 pb-2 mt-2">
                                             <div className="flex flex-row items-center gap-2">
                                                 {likes[comment._id] ? (
                                                     <AiFillHeart className="w-3 h-3 text-red-500" onClick={() => handleCommentLike(comment._id)} />
                                                 ) : (
                                                     <AiOutlineHeart className="w-3 h-3" onClick={() => handleCommentLike(comment._id)} />
                                                 )}
-                                                <span>
+                                                <span className="text-xs">
                                                     {Array.isArray(comment?.likes) ? comment?.likes.length : 0}
                                                 </span>
                                             </div>
@@ -620,15 +630,27 @@ const Experience = () => {
                                                         )}
                                                     </div>
                                                     <p className="text-[8px]">{moment(reply?.createdAt).fromNow()}</p>
-                                                    {reply?.tagusers.length > 0 && reply?.tagusers.map((taguser, index) => (
-                                                        <div className="flex flex-row w-full items-center gap-1 mb-2 mt-[-5px]" key={index}>
-                                                        <PiUserCircleDuotone className="flex text-md"/>
-                                                        <div key={index} className="flex flex-row w-full">
-                                                            <span className="text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
+                                                    <div className="flex flex-row gap-1 w-full">
+                                                        <div className="gap-1">
+                                                            {reply?.tagusers.length > 0 && reply?.tagusers.map((taguser, index) => ( 
+                                                            <span key={index}  className="text-[10px] text-[#F2871F] ml-1">{taguser?.fullname}</span>
+                                                            ))}
                                                         </div>
-                                                        </div>
-                                                    ))}
+                                                    </div>
+
                                                     <p className="text-xs">{reply?.reply}</p>
+                                                    {reply?.sticker && reply?.sticker?.url && (
+                                                        <div className="flex">
+                                                            <Image
+                                                                src={reply?.sticker?.url}
+                                                                alt="sticker"
+                                                                width={100}
+                                                                height={100}
+                                                                className="rounded-lg"
+                                                                style={{ width: '100px', height: 'auto' }}
+                                                            />
+                                                        </div>
+                                                    )}
                                                     {reply?.medias.length > 0 && (
                                                         <ImageGallery medias={reply.medias} />
                                                     )}

@@ -19,7 +19,8 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 const CommentList = ({ content, comments, user, contentMutate, commentMutate }) => {
-    const [showReply, setShowReply] = useState(false);
+    const [showComments, setShowComments] = useState({});
+    const [showReply, setShowReply] = useState({});
     const [currentDialog, setCurrentDialog] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -31,6 +32,10 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
     const [commentLikes, setCommentLikes] = useState({});
     const [replyLikes, setReplyLikes] = useState({});
     const { data: session } = useSession();
+
+    console.log('currentDialog:', currentDialog);
+    console.log('currentOption:', currentOption);
+    console.log('comments:', comments);
 
     useEffect(() => {
         if (content && session) {
@@ -56,6 +61,106 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
             setReplyLikes(replyLikesState);
         }
     }, [comments, session]);
+
+    const handleCommentSubmit = async (contentId, data) => {
+        setLoading(true);
+        try {
+            const userId = session?.user?.id;
+    
+            // Check if there is either post content or media content
+            if (!data.sticker && !data.post && (!data.media || data.media.length === 0)) {
+                setCheckError('กรุณากรอกข้อความหรือเพิ่มรูปภาพ');
+                setLoading(false);
+                return; // Exit the function if the condition is not met
+            }
+    
+            const response = await axios.post('/api/content/comments', {
+                comment: data.post,
+                medias: data.media,
+                files: data.files,
+                tagusers: data.selectedUsers,
+                sticker: data.sticker,
+                contentId,
+                userId,
+            });
+
+            const post = response.data.data;
+
+            if (data.selectedUsers && data.selectedUsers.length > 0) {
+                for (const user of data.selectedUsers) {
+                    await axios.post('/api/notifications', {
+                        userId: user.userId,
+                        senderId: userId,
+                        description: `ได้แท็คโพสใน Share Your Story`,
+                        referId: post._id,
+                        path: 'Share Your Story',
+                        subpath: 'Comment',
+                        url: `${window.location.origin}stores?tab=share-your-story#${post._id}`,
+                        type: 'Tag'
+                    });
+                }
+            }
+
+            setLoading(false);
+            setCheckError(null);
+            commentMutate();
+            handleClose();
+            setShowComments({ ...showComments, [postId]: true });
+        } catch (error) {
+            console.error(error);
+            setLoading(false);
+        }
+    };
+
+    const handleReplySubmit = async (commentId, data) => {
+        setLoading(true);
+        try {
+            const userId = session?.user?.id;
+    
+            // Check if there is either post content or media content
+            if (!data.sticker && !data.post && (!data.media || data.media.length === 0)) {
+                setCheckError('กรุณากรอกข้อความหรือเพิ่มรูปภาพ');
+                setLoading(false);
+                return; // Exit the function if the condition is not met
+            }
+    
+            const response = await axios.post('/api/content/reply', {
+                reply: data.post,
+                medias: data.media,
+                files: data.files,
+                tagusers: data.selectedUsers,
+                sticker: data.sticker,
+                commentId,
+                userId
+            });
+
+            const post = response.data.data;
+
+            if (data.selectedUsers && data.selectedUsers.length > 0) {
+                for (const user of data.selectedUsers) {
+                    await axios.post('/api/notifications', {
+                        userId: user.userId,
+                        senderId: userId,
+                        description: `ได้แท็คโพสใน Share Your Story`,
+                        referId: post._id,
+                        path: 'Share Your Story',
+                        subpath: 'Reply',
+                        url: `${window.location.origin}stores?tab=share-your-story#${post.commentId}`,
+                        type: 'Tag'
+                    });
+                }
+            }
+
+            setLoading(false);
+            setCheckError(null);
+            commentMutate();
+            handleClose();
+            setShowReply({ ...showReply, [commentId]: true });
+        } catch (error) {
+            console.error(error);
+            setLoading(false);
+        }
+    };
 
     const handleLike = async (contentId) => {
         const userId = session.user.id;
@@ -137,7 +242,7 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
         if (result.isConfirmed) {
             setLoading(true);
             try {
-                await axios.delete(`/api/content/reply?replyId=${replyId}`);
+                await axios.delete(`/api/content/${replyId}`);
                 commentMutate();
             } catch (error) {
                 console.error(error);
@@ -150,7 +255,7 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
 
     const handleOptionClick = (event, type, id) => {
         setAnchorEl(event.currentTarget);
-        setCurrentOption({ type, id });
+        setCurrentOption({ type, id }); // Store both the type (comment/reply) and the ID
     };
 
     const handleOptionClose = () => {
@@ -165,6 +270,7 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
 
     const handleClose = () => {
         setIsDialogOpen(false);
+        setCurrentDialog(null);
     };
 
     return (
@@ -185,7 +291,7 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
                 </div>
             </div>
 
-            <div className="flex flex-col w-full bg-gray-300">
+            <div className="flex flex-col w-full bg-gray-300 min-h-[300px]">
             {comments && comments.length > 0 ? comments.map((comment, index) => (
                     <div key={index} className="px-1">
                     <div className="flex flex-col w-full bg-white rounded-xl mt-1 px-2 border">
@@ -284,21 +390,23 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
                                         <div className="flex flex-col w-full">
                                             <div className="flex flex-row justify-between items-center">
                                                 <p className="text-xs font-bold text-[#0056FF]">{reply?.user?.fullname}</p>
+                                                <span>{reply._id}</span>
                                                 {(reply.userId === session?.user?.id || user?.role === 'admin' || user?.role === 'manager') && (
-                                                        <div className="relative">
-                                                            <BsThreeDotsVertical onClick={(e) => handleOptionClick(e, 'reply', reply._id)} />
-                                                            <Menu
-                                                                anchorEl={anchorEl}
-                                                                open={Boolean(anchorEl)}
-                                                                onClose={handleOptionClose}
-                                                                classes={{ paper: "text-xs" }}>
-                                                                <MenuItem onClick={() => { handleReplyDelete(currentOption.id); handleOptionClose(); }}>Delete</MenuItem>
-                                                            </Menu>
-                                                        </div>
-                                                    )}
+                                                    <div className="relative">
+                                                        <BsThreeDotsVertical onClick={(e) => handleOptionClick(e, 'reply', reply._id)} />
+                                                        <Menu
+                                                            anchorEl={anchorEl}
+                                                            open={Boolean(anchorEl)}
+                                                            onClose={handleOptionClose}
+                                                            classes={{ paper: "text-xs" }}
+                                                        >
+                                                            <MenuItem onClick={() => { handleReplyDelete(currentOption.id); handleOptionClose(); }}>Delete</MenuItem>
+                                                        </Menu>
+                                                    </div>
+                                                )}
                                                 </div>
-                                            <p className="text-[8px]">{moment(reply?.createdAt).fromNow()}</p>
-                                            {reply?.tagusers.length > 0 && reply?.tagusers.map((taguser, index) => (
+                                            <p className="flex text-[8px]">{moment(reply?.createdAt).fromNow()}</p>
+                                            {reply?.tagusers?.length > 0 && reply?.tagusers.map((taguser, index) => (
                                             <div className="flex flex-row w-full items-center gap-1 mb-2 mt-[-5px]" key={index}>
                                                 <div key={index} className="flex w-full">
                                                     <span className="text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
@@ -310,7 +418,19 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
                                     </div>
                                     <div className="flex flex-col w-full px-3">
                                         <p className="text-xs">{reply?.reply}</p>
-                                            {reply?.medias.length > 0 && (
+                                            {reply?.sticker && reply?.sticker?.url && (
+                                                <div className="flex">
+                                                    <Image
+                                                        src={reply?.sticker?.url}
+                                                        alt="sticker"
+                                                        width={100}
+                                                        height={100}
+                                                        className=""
+                                                        style={{ width: '100px', height: 'auto' }}
+                                                    />
+                                                </div>
+                                            )}
+                                            {reply?.medias?.length > 0 && (
                                             <ImageGallery medias={reply.medias} />
                                             )}
                                     </div>

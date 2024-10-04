@@ -2,7 +2,6 @@ import connectMongoDB from "@/lib/services/database/mongodb";
 import ReplyContentComment from "@/database/models/ReplyContentComment";
 import ContentComment from "@/database/models/ContentComment";
 
-
 export default async function handler(req, res) {
 
     const { method } = req;
@@ -25,6 +24,7 @@ export default async function handler(req, res) {
             case 'DELETE':
             try {
                 const { replyId } = req.query;
+
                 const reply = await ReplyContentComment.findById(replyId);
                 if (!reply) {
                     return res.status(400).json({ success: false });

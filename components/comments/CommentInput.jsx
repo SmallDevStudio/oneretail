@@ -13,12 +13,21 @@ import axios from 'axios';
 import { IoIosArrowBack } from "react-icons/io";
 import { RiEmojiStickerLine } from "react-icons/ri";
 import CircularProgress from '@mui/material/CircularProgress';
+import StickerPanel from "../stickers/StickerPanel";
+import Dialog from '@mui/material/Dialog';
+import Slide from '@mui/material/Slide';
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const CommentInput = ({ handleSubmit, userId, handleClose, checkError, folder }) => {
     const [post, setPost] = useState("");
     const [media, setMedia] = useState([]);
     const [files, setFiles] = useState(null); // สำหรับการอัพโหลดเอกสารครั้งละ 1 ไฟล์
     const [link, setLink] = useState("");
+    const [sticker, setSticker] = useState(null);
+    const [openSticker, setOpenSticker] = useState(false);
     const [linkPreview, setLinkPreview] = useState(null);
     const [inputKey, setInputKey] = useState(Date.now());
     const [selectedUsers, setSelectedUser] = useState([]);
@@ -28,7 +37,6 @@ const CommentInput = ({ handleSubmit, userId, handleClose, checkError, folder })
     const [uploadProgress, setUploadProgress] = useState(0);
     
     const [error, setError] = useState(null);
-    const [selectSticker, setSelectSticker] = useState(null);
 
     const fileInputRef = useRef(null); // สร้าง ref สำหรับ input file
 
@@ -56,6 +64,7 @@ const CommentInput = ({ handleSubmit, userId, handleClose, checkError, folder })
               type: file.type.startsWith('image') ? 'image' : 'video',
               userId, // เชื่อมโยงกับ userId ของผู้ใช้
               folder: folder, // สามารถแก้ไขเพิ่มเติมถ้าต้องการจัดเก็บใน folder
+              subfolder: 'comments', // สามารถแก้ไขเพิ่มเติมถ้าต้องการจัดเก็บใน subfolder
             };
       
             // ส่งข้อมูลไฟล์ไปยัง API /api/upload/save เพื่อบันทึกลงในฐานข้อมูล
@@ -119,20 +128,24 @@ const CommentInput = ({ handleSubmit, userId, handleClose, checkError, folder })
     };
 
     const handleSubmitComment = async () => {
-        setIsLoading(true);
-        if (!post && (!media || media.length === 0)) {
-            setError('กรุณากรอกข้อความหรืออัพโหลดไฟล์');
-            setIsLoading(false);
-            return;
+        if (!sticker && !post && (!media || media.length === 0)) {
+            setCheckError('กรุณากรอกข้อความหรือเพิ่มรูปภาพ');
+            setLoading(false);
+            return; // Exit the function if the condition is not met
         }
+
+        setIsLoading(true);
 
         const newPost = {
             post: post.replace(link, "").trim(),
             media,
             files: files ? [{ url: files.url, public_id: files.public_id, type: 'file' }] : [],
+            sticker,
             link,
             selectedUsers,
         };
+
+        console.log('newPost', newPost);
 
         setPost("");
         setLink("");
@@ -171,8 +184,12 @@ const CommentInput = ({ handleSubmit, userId, handleClose, checkError, folder })
         return null;
     };
 
-    const handleStickerClick = (sticker) => {
-        setSelectSticker(sticker);
+    const handleOpenSticker = () => {
+        setOpenSticker(true);
+    };
+
+    const handleCloseSticker = () => {
+        setOpenSticker(false);
     };
 
     return (
@@ -194,7 +211,9 @@ const CommentInput = ({ handleSubmit, userId, handleClose, checkError, folder })
                     ))}
                 </div>
                 <textarea
-                    className="w-full min-h-32 border-gray-300 rounded-lg outline-none"
+                    className={`w-full border-gray-300 rounded-lg outline-none
+                            ${sticker ? 'min-h-10' : 'min-h-32'}
+                        `}
                     value={post}
                     name="post"
                     placeholder="แสดงความคิดเห็น"
@@ -202,6 +221,17 @@ const CommentInput = ({ handleSubmit, userId, handleClose, checkError, folder })
                 />
                 {error && (
                     <span className="text-red-500 text-sm">{error}</span>
+                )}
+                {sticker && (
+                    <div className="flex justify-center">
+                        <Image
+                            src={sticker.url}
+                            alt="Sticker"
+                            width={150}
+                            height={150}
+                            className="object-cover"
+                        />
+                    </div>
                 )}
                 {isUploading && (
                     <div className="flex justify-center">
@@ -283,6 +313,7 @@ const CommentInput = ({ handleSubmit, userId, handleClose, checkError, folder })
                         <RiEmojiStickerLine 
                             className="text-gray-500" 
                             size={20}
+                            onClick={handleOpenSticker}
                         />
                     </div>
                 </div>
@@ -331,6 +362,19 @@ const CommentInput = ({ handleSubmit, userId, handleClose, checkError, folder })
 
             {/* Modal */}
             <TagUsers isOpen={isOpen} handleCloseModal={handleCloseModal} setSelectedUser={setSelectedUser} />
+            
+            {openSticker && (
+                <Dialog
+                    open={openSticker}
+                    onClose={handleCloseSticker}
+                    TransitionComponent={Transition}
+                >
+                    <StickerPanel
+                        setSticker={setSticker}
+                        onClose={handleCloseSticker}
+                    />
+                </Dialog>
+            )}
         </div>
     );
 };

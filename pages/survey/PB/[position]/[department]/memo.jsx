@@ -176,20 +176,6 @@ const SurveyMemo = () => {
                 <span className="font-bold text-lg text-[#F2871F]">{department}</span>
             </div>
 
-            <div className="flex flex-row items-center gap-1 mt-2 px-2 w-full text-gray-400 text-xs">
-                <MdOutlineHome size={15}
-                    onClick={() => router.push(`/main`)}
-                />
-                <IoIosArrowForward size={15}/>
-                <div
-                    className="flex flex-row items-center gap-1"
-                    onClick={() => router.push(`/survey`)}
-                >
-                    <span>TeamGroup</span>
-                </div>
-                
-            </div>
-
             <div className="flex flex-col mt-5 w-full">
             {memoData && memoData.length > 0 ? (
                 <div>

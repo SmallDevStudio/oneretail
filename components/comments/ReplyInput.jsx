@@ -12,6 +12,13 @@ import Link from "next/link";
 import { IoIosArrowBack } from "react-icons/io";
 import { RiEmojiStickerLine } from "react-icons/ri";
 import CircularProgress from '@mui/material/CircularProgress';
+import StickerPanel from "../stickers/StickerPanel";
+import Dialog from '@mui/material/Dialog';
+import Slide from '@mui/material/Slide';
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const ReplyInput = ({ handleSubmit, userId, handleClose, checkError, folder }) => {
     const [post, setPost] = useState("");
@@ -19,6 +26,8 @@ const ReplyInput = ({ handleSubmit, userId, handleClose, checkError, folder }) =
     const [files, setFiles] = useState(null); // สำหรับการอัพโหลดเอกสารครั้งละ 1 ไฟล์
     const [link, setLink] = useState("");
     const [linkPreview, setLinkPreview] = useState(null);
+    const [sticker, setSticker] = useState(null);
+    const [openSticker, setOpenSticker] = useState(false);
     const [inputKey, setInputKey] = useState(Date.now());
     const [selectedUsers, setSelectedUser] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
@@ -81,8 +90,6 @@ const ReplyInput = ({ handleSubmit, userId, handleClose, checkError, folder }) =
     const handleRemoveMedia = async (index) => {
         const url = media[index].url;
 
-        console.log('url', url);
-      
         try {
           // ส่งคำขอ DELETE ไปยัง API
           await axios.delete(`/api/blob/delete?url=${url}`);
@@ -118,7 +125,7 @@ const ReplyInput = ({ handleSubmit, userId, handleClose, checkError, folder }) =
 
     const handleSubmitComment = async () => {
         setIsLoading(true);
-        if (!post && (!media || media.length === 0)) {
+        if (!sticker && !post && (!media || media.length === 0)) {
             setError('กรุณากรอกข้อความหรืออัพโหลดไฟล์');
             setIsLoading(false);
             return;
@@ -129,6 +136,7 @@ const ReplyInput = ({ handleSubmit, userId, handleClose, checkError, folder }) =
             media,
             files: files ? [{ url: files.url, public_id: files.public_id, type: 'file' }] : [],
             link,
+            sticker,
             selectedUsers,
         };
 
@@ -169,6 +177,14 @@ const ReplyInput = ({ handleSubmit, userId, handleClose, checkError, folder }) =
         return null;
     };
 
+    const handleOpenSticker = () => {
+        setOpenSticker(true);
+    };
+
+    const handleCloseSticker = () => {
+        setOpenSticker(false);
+    };
+
     return (
         <div>
             <div className="flex flex-row items-center mb-4 gap-4">
@@ -188,7 +204,9 @@ const ReplyInput = ({ handleSubmit, userId, handleClose, checkError, folder }) =
                     ))}
                 </div>
                 <textarea
-                    className="w-full min-h-32 border-gray-300 rounded-lg outline-none"
+                    className={`w-full border-gray-300 rounded-lg outline-none
+                        ${sticker ? 'min-h-10' : 'min-h-32'}
+                    `}
                     value={post}
                     name="post"
                     placeholder="ตอบกลับแสดงความคิดเห็น"
@@ -196,6 +214,17 @@ const ReplyInput = ({ handleSubmit, userId, handleClose, checkError, folder }) =
                 />
                 {error && (
                     <span className="text-red-500 text-sm">{error}</span>
+                )}
+                {sticker && (
+                    <div className="flex justify-center">
+                        <Image
+                            src={sticker.url}
+                            alt="Sticker"
+                            width={150}
+                            height={150}
+                            className="object-cover"
+                        />
+                    </div>
                 )}
                 {isUploading && (
                     <div className="flex justify-center">
@@ -277,6 +306,7 @@ const ReplyInput = ({ handleSubmit, userId, handleClose, checkError, folder }) =
                         <RiEmojiStickerLine
                             className="text-gray-500" 
                             size={20}
+                            onClick={handleOpenSticker}
                         />
                     </div>
                 </div>
@@ -324,6 +354,19 @@ const ReplyInput = ({ handleSubmit, userId, handleClose, checkError, folder }) =
 
             {/* Modal */}
             <TagUsers isOpen={isOpen} handleCloseModal={handleCloseModal} setSelectedUser={setSelectedUser} />
+
+            {openSticker && (
+                <Dialog
+                    open={openSticker}
+                    onClose={handleCloseSticker}
+                    TransitionComponent={Transition}
+                >
+                    <StickerPanel
+                        setSticker={setSticker}
+                        onClose={handleCloseSticker}
+                    />
+                </Dialog>
+            )}
         </div>
     );
 };

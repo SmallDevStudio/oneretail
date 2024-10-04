@@ -75,20 +75,6 @@ const SurveyBranch = () => {
                 <span className="font-black text-lg text-[#0056FF]">{department}</span>
             </div>
 
-            <div className="flex flex-row items-center gap-1 mt-2 px-2 w-full text-gray-400 text-xs">
-                <MdOutlineHome size={15}
-                    onClick={() => router.push(`/main`)}
-                />
-                <IoIosArrowForward size={15}/>
-                <div
-                    className="flex flex-row items-center gap-1"
-                    onClick={() => router.push(`/survey`)}
-                >
-                    <span>TeamGroup</span>
-                </div>
-                
-            </div>
-
         {/* Chart */}
         <div className="mt-4 bg-white shadow-md text-xs w-full">
             {branchData.length === 0 ? (

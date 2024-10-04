@@ -77,20 +77,6 @@ const SurveyChief = () => {
                 <span className="font-black text-2xl text-[#0056FF]">{teamGrop}</span>
             </div>
 
-            <div className="flex flex-row items-center gap-1 mt-2 px-2 w-full text-gray-400 text-xs">
-                <MdOutlineHome size={15}
-                    onClick={() => router.push(`/main`)}
-                />
-                <IoIosArrowForward size={15}/>
-                <div
-                    className="flex flex-row items-center gap-1"
-                    onClick={() => router.push(`/survey`)}
-                >
-                    <span>TeamGroup</span>
-                </div>
-                
-            </div>
-
             {/* Date picker */}
             <div className="flex flex-row justify-evenly items-center gap-2 p-2 w-full text-sm">
                 <div className="flex flex-row items-center gap-1">

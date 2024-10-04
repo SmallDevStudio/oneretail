@@ -5,16 +5,17 @@ import Image from 'next/image';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Divider } from "@mui/material";
 import Swal from "sweetalert2";
+import { IoIosArrowBack } from "react-icons/io";
 
 const fetcher = url => axios.get(url).then(res => res.data);
 
-const StickerPanel = () => {
+const StickerPanel = ({ onClose, setSticker }) => {
     const [tab, setTab] = useState(0);
     const [selectedSticker, setSelectedSticker] = useState(null);
     const [selected, setSelected] = useState(null);
 
     const { data, error } = useSWR('/api/stickers/list', fetcher);
-
+    
     useEffect(() => {
         if (data) {
             setSelectedSticker(data?.data[tab]?.sticker);
@@ -39,19 +40,30 @@ const StickerPanel = () => {
             });
             return;
         }
-
-        console.log(selected);
+        setSticker(selected);
         setSelected(null);
+        onClose();
     };
 
     return (
         <div className="flex flex-col gap-2 p-4">
             {!data && <CircularProgress />}
             {/* Panel Header */}
-            <div></div>
+            <div className="flex flex-row items-center gap-2 w-full">
+                <IoIosArrowBack 
+                    className="text-xl inline text-gray-700"
+                    onClick={onClose}
+                    size={25}
+                />
+                <div>
+                    <span className="font-bold text-lg text-[#0056FF]">Sticker</span>
+                </div>
+            </div>
+
+            <Divider className="mt-2"/>
 
             {/* Panel Body */}
-            <div className="flex flex-col gap-2 mt-2 w-full max-w-[70%]">
+            <div className="flex flex-col gap-2 mt-2 w-full">
                 {selectedSticker && selectedSticker.length > 0 && (
                     <div 
                         className="flex flex-row flex-wrap gap-2"
@@ -81,24 +93,29 @@ const StickerPanel = () => {
             
             <Divider className="mt-2"/>
             {/* Panel Footer */}
-            <div className="flex flex-row gap-2 mt-2">
+            <div className="flex flex-row gap-2">
                 {data && (
-                    <div className="flex flex-row flex-wrap gap-2">
+                    <div className="flex flex-row flex-wrap items-center gap-2">
                         {data.data.map((sticker, index) => (
                             <li 
                                 key={index} 
-                                className={`w-10 h-10 list-none cursor-pointer items-center justify-center
-                                ${tab === index ? 'scale-150' : ''}
+                                className={`list-none cursor-pointer items-center justify-center rounded-lg
+                                ${tab === index ? 'bg-gray-200 p-1' : 'bg-white'}
                                 `}
                             >
                                 <Image
                                     src={sticker.icon.url}
                                     alt="Sticker"
-                                    width={30}
-                                    height={30}
+                                    width={20}
+                                    height={20}
                                     priority
                                     className="cursor-pointer"
                                     onClick={() => handleSelected(sticker, index)}
+                                    style={{
+                                        width: '20px',
+                                        height: '20px',
+                                        objectFit: 'cover',
+                                    }}
                                 />
                             </li>
                         ))}
@@ -127,6 +144,7 @@ const StickerPanel = () => {
                     <div className="flex flex-row justify-center gap-2 mt-2">
                         <button
                             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                            onClick={handleSubmit}
                         >
                             เลือก
                         </button>
