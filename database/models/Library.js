@@ -11,6 +11,7 @@ const LibrarySchema = new mongoose.Schema({
     url: { type: String, required: true }, // เพิ่มฟิลด์ URL เพื่อเก็บ public URL ของรูปภาพ
     type: { type: String, enum: ['image', 'video', 'file'], required: true },
     folder: { type: String },
+    subfolder: { type: String },
     isTemplate: { type: Boolean, default: false },
     userId: { type: String, ref: 'Users', required: true },
     group: { type: String },

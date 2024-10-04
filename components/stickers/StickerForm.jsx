@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import useMedia from '@/lib/hook/useMedia';
@@ -9,16 +9,15 @@ import { RiEmojiStickerLine } from "react-icons/ri";
 import { IoIosCloseCircle } from "react-icons/io";
 import CircularProgress from '@mui/material/CircularProgress'; 
 
-const StickerForm = (seletedData, handleClose) => {
+const StickerForm = ({ isEditing, selectedData, handleClose, mutateStickers }) => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [icon, setIcon] = useState(null);
     const [sticker, setSticker] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [iconLoading, setIconLoading] = useState(false);
+    const [stickerLoading, setStickerLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [selectedSticker, setSelectedSticker] = useState(null);
-
-    console.log('sticker', sticker);
 
     const { data: session } = useSession();
     const userId = session?.user?.id;
@@ -28,29 +27,56 @@ const StickerForm = (seletedData, handleClose) => {
     const fileIconRef = useRef(null);
     const fileStickerRef = useRef(null);
 
+    console.log('selectedData:', selectedData);
+
+    // Initialize form fields with selectedData when editing
+    useEffect(() => {
+        if (isEditing && selectedData) {
+            setName(selectedData.name);
+            setDescription(selectedData.description);
+            setIcon(selectedData.icon);
+            setSticker(selectedData.sticker);
+        }
+    }, [isEditing, selectedData]);
+
+
     const handleIconChange = async(e) => {
+        if (!name) {
+            setError('Please enter a name for your sticker.');
+            return;
+        }
+        setIconLoading(true);
         const file = e.target.files[0];
         try {
-            const result = await add(file, userId, 'stickers/icon');
+            const result = await add(file, userId, 'stickers', name);
             setIcon(result);
         } catch (error) {
             console.error(error);
+        }finally {
+            setIconLoading(false);
         }
     };
 
     const handleStickerChange = async (e) => {
+        if (!name) {
+            setError('Please enter a name for your sticker.');
+            return;
+        }
+        setStickerLoading(true);
         const fileArray = Array.from(e.target.files); // Convert FileList to an array
     
         try {
             // Use Promise.all to upload all files concurrently
             const uploadResults = await Promise.all(
-                fileArray.map(file => add(file, userId, "stickers"))
+                fileArray.map(file => add(file, userId, "stickers", name))
             );
     
             // Update sticker state with the uploaded results
             setSticker((prevStickers) => [...prevStickers, ...uploadResults]);
         } catch (error) {
             console.error('Error uploading files:', error);
+        } finally {
+            setStickerLoading(false);
         }
     };
 
@@ -87,33 +113,68 @@ const StickerForm = (seletedData, handleClose) => {
             return;
         }
 
-        if (!icon || icon.length === 0) {
+        if (!icon) {
             setError('กรุณาเลือกไอคอน');
             setLoading(false);
             return;
         }
 
-        if (!sticker || sticker.length === 0) {
+        if (!sticker.length) {
             setError('กรุณาเลือกสติกเกอร์');
             setLoading(false);
             return;
         }
 
         try {
-            const res = await axios.post('/api/stickers', {
-                name,
-                description,
-                icon,
-                sticker,
-                userId
-            });
+            if (isEditing) {
+                // Update sticker
+                await axios.put(`/api/stickers/${selectedData._id}`, {
+                    name,
+                    description,
+                    icon,
+                    sticker,
+                    userId
+                });
+                Swal.fire({
+                    title: 'แก้ไข Sticker สำเร็จ',
+                    text: 'Sticker ได้ถูกแก้ไขแล้ว',
+                    icon: 'success',
+                    confirmButtonText: 'ตกลง',
+                });
+            } else {
+                // Create new sticker
+                await axios.post('/api/stickers', {
+                    name,
+                    description,
+                    icon,
+                    sticker,
+                    userId
+                });
+
+
+                Swal.fire({
+                    title: 'สร้าง Sticker สำเร็จ',
+                    text: 'Sticker ได้ถูกสร้างแล้ว',
+                    icon: 'success',
+                    confirmButtonText: 'ตกลง',
+                });
+            }
+
+            // Reset form
             setName('');
             setDescription('');
             setIcon(null);
-            setSticker([]); // Reset sticker to an empty array
-            setLoading(false);
+            setSticker([]);
+            handleClose(); // Close the modal after successful submission
+            mutateStickers(); // Refresh stickers
         } catch (error) {
             console.error(error);
+            Swal.fire({
+                title: 'เกิดข้อผิดพลาด',
+                text: 'ไม่สามารถสร้าง/แก้ไข Sticker ได้',
+                icon: 'error',
+                confirmButtonText: 'ตกลง',
+            });
             setLoading(false);
         }
     };
@@ -137,7 +198,7 @@ const StickerForm = (seletedData, handleClose) => {
             {/* Header */}
             <div className='flex flex-row items-center mb-5'>
                 <span className='text-lg font-bold'>
-                    สร้าง Sticker
+                    {isEditing ? 'แก้ไข Sticker' : 'สร้าง Sticker'}
                 </span>
             </div>
             {/* Form */}
@@ -170,6 +231,11 @@ const StickerForm = (seletedData, handleClose) => {
                         onChange={(e) => setDescription(e.target.value)}
                     />
                 </div>
+                {iconLoading && 
+                    <div className="relative flex flex-col p-2 border-2 rounded-xl w-[80px]">
+                        <CircularProgress />
+                    </div>
+                }
                 {icon && (
                     <div className="relative flex flex-col p-2 border-2 rounded-xl w-[80px]">
                         <IoIosCloseCircle
@@ -210,6 +276,11 @@ const StickerForm = (seletedData, handleClose) => {
                     />
                 </div>
                 <div className='flex flex-row flex-wrap gap-2'>
+                    {stickerLoading && 
+                        <div className="relative flex flex-col p-2">
+                            <CircularProgress />
+                        </div>
+                    }
                     {sticker && sticker.length > 0 && sticker.map((sticker, index) => (
                         <div key={index} className="relative flex flex-col p-2 border-2 rounded-xl">
                         <IoIosCloseCircle
@@ -257,7 +328,7 @@ const StickerForm = (seletedData, handleClose) => {
                     className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
                     onClick={handleSubmit} // Corrected function call
                 >
-                    บันทึก
+                    {isEditing ? 'บันทึกการแก้ไข' : 'บันทึก'}
                 </button>
                 <button
                     className='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded'

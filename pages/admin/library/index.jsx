@@ -110,6 +110,8 @@ const Library = () => {
                             <th scope="col" className="px-2 py-3 font-bold text-center">ลำดับ</th>
                             <th scope="col" className="px-2 py-3 font-bold text-center">Public_id</th>
                             <th scope="col" className="px-2 py-3 font-bold text-center">Image</th>
+                            <th scope="col" className="px-2 py-3 font-bold text-center">folder</th>
+                            <th scope="col" className="px-2 py-3 font-bold text-center">subfolder</th>
                             <th scope="col" className="px-2 py-3 font-bold text-center">CreatedAt</th>
                         </tr>
                     </thead>
@@ -136,7 +138,7 @@ const Library = () => {
                                     <div className="flex justify-center">
                                         <Image
                                             src={library.url}
-                                            alt={library.public_id}
+                                            alt={library.publicId}
                                             width={100}
                                             height={100}
                                             className="object-cover"
@@ -146,7 +148,13 @@ const Library = () => {
                                     </div>
                                 </td>
                                 <td className="px-2 py-2 font-bold text-center">
-                                    {moment(library.createdAt).format("DD/MM/YYYY")}
+                                    {library.folder}
+                                </td>
+                                <td className="px-2 py-2 font-bold text-center">
+                                    {library.subfolder}
+                                </td>
+                                <td className="px-2 py-2 font-bold text-center">
+                                    {moment(library.createdAt).format("lll")}
                                 </td>
                             </tr>
                         ))}

@@ -33,7 +33,7 @@ const Modal = ({ children, onClose }) => {
                     background: white;
                     padding: 20px;
                     border-radius: 15px;
-                    max-width: 100%;
+                    max-width: 80%;
                     max-height: 100%;
                     width: 100%;
                     border: 3px solid #F68B1F;
