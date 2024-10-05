@@ -119,7 +119,7 @@ const CarouselTable = ({data, mutate, setLoading, setSelected, handleOpen}) => {
                                             <FiEdit size={20}/>
                                         </button>
                                         <button
-                                            onClick={() => handleDelete(item._id, item.image.public_id)}
+                                            onClick={() => handleDelete(item._id)}
                                             className="text-red-500"
                                         >
                                             <IoIosCloseCircle size={20}/>
