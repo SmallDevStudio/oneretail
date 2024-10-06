@@ -19,7 +19,7 @@ const colors = {
 
 const SurveyBranch = () => {
     const router = useRouter();
-    const { group, department, startDate, endDate } = router.query;
+    const { position, group, department, startDate, endDate } = router.query;
     const teamGrop = "Retail";
 
     const [branchData, setBranchData] = useState([]);
@@ -27,8 +27,8 @@ const SurveyBranch = () => {
 
     const fetchSurveyData = async () => {
         try {
-            const response = await axios.get(`/api/survey/board/bbd/department`, {
-                params: { startDate, endDate, teamGrop, group, department },
+            const response = await axios.get(`/api/survey/board/bbdservice/department`, {
+                params: { startDate, endDate, teamGrop, position, group, department },
             });
             setBranchData(response.data.data);
         } catch (error) {
@@ -37,11 +37,11 @@ const SurveyBranch = () => {
     };
 
     useEffect(() => {
-        if (teamGrop && group && department) {
+        if (teamGrop && position && group && department) {
             fetchSurveyData();
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [startDate, endDate, teamGrop, group, department]);
+    }, [startDate, endDate, teamGrop, position, group, department]);
 
      // Handle bar click to display details of the selected group
      const handleBarClick = (branch) => {
@@ -142,7 +142,7 @@ const SurveyBranch = () => {
             {selectedBranch && (
                 <div 
                     className="mt-4 px-4 py-2 bg-white shadow-md"
-                    onClick={() => router.push(`/survey/BBD/${group}/${department}/memo?branch=${selectedBranch}&startDate=${startDate}&endDate=${endDate}`)}
+                    onClick={() => router.push(`/survey/BBDSERVICE/${position}/${group}/${department}/memo?branch=${selectedBranch}&startDate=${startDate}&endDate=${endDate}`)}
                 >
                     <h3 className="text-lg font-bold">รายละเอียดสำหรับสาขา: {selectedBranch}</h3>
                     <span className="text-sm text-[#0056FF]">(คลิกเพื่อดูรายละเอียด)</span>

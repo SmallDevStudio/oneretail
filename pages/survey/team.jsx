@@ -31,6 +31,14 @@ const SurveyTeams = () => {
 
                 <div className="flex justify-center items-center p-4 bg-[#0056FF] rounded-xl w-4/6">
                     <span className="font-bold text-white text-3xl"
+                        onClick={() => router.push("/survey/BBDSERVICE")}
+                    >
+                        BBD (Service)
+                    </span>
+                </div>
+
+                <div className="flex justify-center items-center p-4 bg-[#0056FF] rounded-xl w-4/6">
+                    <span className="font-bold text-white text-3xl"
                         onClick={() => router.push("/survey/AL")}
                     >
                         AL

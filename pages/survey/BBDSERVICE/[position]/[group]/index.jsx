@@ -19,7 +19,7 @@ const colors = {
 
 const SurveyGroup = () => {
     const router = useRouter();
-    const { group, startDate, endDate } = router.query;
+    const { position, group, startDate, endDate } = router.query;
     const teamGrop = 'Retail';
 
     const [departmentData, setDepartmentData] = useState([]);
@@ -27,8 +27,8 @@ const SurveyGroup = () => {
 
     const fetchSurveyData = async () => {
         try {
-            const response = await axios.get(`/api/survey/board/bbd/group`, {
-                params: { startDate, endDate, teamGrop, group },
+            const response = await axios.get(`/api/survey/board/bbdservice/group`, {
+                params: { startDate, endDate, teamGrop, position, group },
             });
             setDepartmentData(response.data.data);
         } catch (error) {
@@ -37,11 +37,11 @@ const SurveyGroup = () => {
     };
 
     useEffect(() => {
-        if (teamGrop && group) {
+        if (teamGrop && position && group) {
             fetchSurveyData();
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [startDate, endDate, teamGrop, group]);
+    }, [startDate, endDate, teamGrop, position, group]);
 
      // Handle bar click to display details of the selected group
      const handleBarClick = (department) => {
@@ -139,7 +139,7 @@ const SurveyGroup = () => {
             {selectedDepartment && (
                 <div 
                     className="mt-4 px-4 py-2 bg-white shadow-md"
-                    onClick={() => router.push(`/survey/BBD/${group}/${selectedDepartment}?startDate=${startDate}&endDate=${endDate}`)}
+                    onClick={() => router.push(`/survey/BBDSERVICE/${position}/${group}/${selectedDepartment}?startDate=${startDate}&endDate=${endDate}`)}
                 >
                     <h3 className="text-lg font-bold">รายละเอียดสำหรับเขต: {selectedDepartment}</h3>
                     <span className="text-sm text-[#0056FF]">(คลิกเพื่อดูรายละเอียด)</span>

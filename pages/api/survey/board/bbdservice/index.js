@@ -68,42 +68,42 @@ export default async function handler(req, res) {
                 });
                             
                 // Aggregate by group and calculate counts, total, sum, and average
-                const groupData = filteredData.reduce((acc, survey) => {
-                    const userGroup = userMap[survey.userId]?.group;
-                    if (!userGroup) return acc;  // Skip if no group
+                const positionData = filteredData.reduce((acc, survey) => {
+                    const userPosition = userMap[survey.userId]?.position;
+                    if (!userPosition) return acc;  // Skip if no group
 
-                    if (!acc[userGroup]) {
-                        acc[userGroup] = { 
-                            group: userGroup, 
+                    if (!acc[userPosition]) {
+                        acc[userPosition] = { 
+                            position: userPosition, 
                             counts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }, 
                             total: 0, 
                             sum: 0, 
                             average: 0,
-                            memoCount: 0
+                            memoCount: 0, // Initialize memoCount to 0
                         };
                     }
 
-                    acc[userGroup].counts[survey.value]++;
-                    acc[userGroup].total++;
-                    acc[userGroup].sum += survey.value; // Sum up the values for average calculation
+                    acc[userPosition].counts[survey.value]++;
+                    acc[userPosition].total++;
+                    acc[userPosition].sum += survey.value; // Sum up the values for average calculation
 
                     // Count memos (non-null and non-empty)
                     if (survey.memo && survey.memo.trim() !== "") {
-                        acc[userGroup].memoCount++;
+                        acc[userPosition].memoCount++;
                     }
                     return acc;
                 }, {});
 
                 // Calculate the average for each group and convert the object into an array
-                const groupDataArray = Object.values(groupData).map(group => {
-                    group.average = group.total > 0 ? Math.round(group.sum / group.total) : 0;
-                    return group;
+                const positionDataArray = Object.values(positionData).map(position => {
+                    position.average = position.total > 0 ? Math.round(position.sum / position.total) : 0;
+                    return position;
                 });
 
                 // Sort by group name (alphabetically)
-                groupDataArray.sort((a, b) => a.group.localeCompare(b.group));
+                positionDataArray.sort((a, b) => a.position.localeCompare(b.position));
 
-                res.status(200).json({ success: true, data: groupDataArray });
+                res.status(200).json({ success: true, data: positionDataArray });
             } catch (error) {
                 console.error("Error fetching surveys:", error);
                 res.status(400).json({ success: false, error: error.message });

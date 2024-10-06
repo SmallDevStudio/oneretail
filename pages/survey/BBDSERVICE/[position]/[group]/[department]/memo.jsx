@@ -29,7 +29,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const SurveyMemo = () => {
     const router = useRouter();
-    const { group, department, branch, startDate, endDate } = router.query;
+    const { position, group, department, branch, startDate, endDate } = router.query;
     const teamGrop = 'Retail';
 
     const [memoData, setMemoData] = useState([]);
@@ -49,7 +49,7 @@ const SurveyMemo = () => {
         try {
             // Fetch memo data
             const memoResponse = await axios.get(`/api/survey/board/bbd/memo`, {
-                params: { startDate, endDate, teamGrop, group, department, branch },
+                params: { startDate, endDate, teamGrop, position, group, department, branch },
             });
             const memoData = memoResponse.data.data;
     

@@ -17,20 +17,20 @@ const colors = {
 };
 
 const SurveyTeam = () => {
-    const [groupData, setGroupData] = useState([]);
+    const [positionData, setPositionData] = useState([]);
     const [startDate, setStartDate] = useState(new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split("T")[0]);
     const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
-    const [selectedGroup, setSelectedGroup] = useState(null);
+    const [selectedPosition, setSelectedPosition] = useState(null);
     const router = useRouter();
     const teamGrop = 'Retail';
 
     // Fetch the survey data
     const fetchSurveyData = async () => {
         try {
-            const response = await axios.get(`/api/survey/board/bbd`, {
+            const response = await axios.get(`/api/survey/board/bbdservice`, {
                 params: { startDate, endDate, teamGrop }
             });
-            setGroupData(response.data.data);
+            setPositionData(response.data.data);
         } catch (error) {
             console.error("Error fetching survey data:", error);
         }
@@ -44,8 +44,8 @@ const SurveyTeam = () => {
     }, [startDate, endDate, teamGrop]);
 
     // Handle bar click to display details of the selected group
-    const handleBarClick = (group) => {
-        setSelectedGroup(group);
+    const handleBarClick = (position) => {
+        setSelectedPosition(position);
     };
 
     // Survey details
@@ -73,7 +73,7 @@ const SurveyTeam = () => {
 
             <div className="flex flex-row justify-center items-center gap-2 px-2 w-full">
                 <span className="font-bold text-[#0056FF]">TeamGroup:</span>
-                <span className="font-bold text-[#F2871F]">{teamGrop === 'Retail' ? 'BBD' : teamGrop}</span>
+                <span className="font-bold text-[#F2871F]">{teamGrop === 'Retail' ? 'BBD (service)' : teamGrop}</span>
             </div>
 
             <div className="flex flex-row justify-evenly items-center gap-2 p-2 w-full text-sm">
@@ -106,15 +106,15 @@ const SurveyTeam = () => {
 
             {/* Chart */}
             <div className="mt-4 bg-white shadow-md text-xs w-full">
-            {groupData.length === 0 ? (
+            {positionData.length === 0 ? (
                 <CircularProgress />
             ) : (
                 <ResponsiveContainer width="100%" height={300} >
-                    <BarChart data={groupData} 
+                    <BarChart data={positionData} 
                         onClick={({ activeLabel }) => handleBarClick(activeLabel)}
                         margin={{ top: 10, right: 20, left: -10, bottom: 5 }}
                     >
-                        <XAxis dataKey="group" />
+                        <XAxis dataKey="position" />
                         <YAxis />
                         <Tooltip
                             cursor={{ fill: 'transparent' }}
@@ -140,8 +140,8 @@ const SurveyTeam = () => {
                             }}
                         />
                         <Bar dataKey="total" fill="#8884d8">
-                            {groupData.map((group, index) => (
-                                <Cell key={`cell-${index}`} fill={colors[group.average]} />
+                            {positionData.map((position, index) => (
+                                <Cell key={`cell-${index}`} fill={colors[position.average]} />
                             ))}
                         </Bar>
                     </BarChart>
@@ -150,25 +150,25 @@ const SurveyTeam = () => {
             </div>
 
             {/* Data breakdown for selected group */}
-            {selectedGroup && (
+            {selectedPosition && (
                 <div 
                     className="mt-4 px-4 py-2 bg-white shadow-md"
-                    onClick={() => router.push(`/survey/BBD/${selectedGroup}?startDate=${startDate}&endDate=${endDate}`)}
+                    onClick={() => router.push(`/survey/BBDSERVICE/${selectedPosition}?startDate=${startDate}&endDate=${endDate}`)}
                 >
-                    <h3 className="text-lg font-bold">รายละเอียดสำหรับกลุ่ม: {selectedGroup}</h3>
+                    <h3 className="text-lg font-bold">รายละเอียดสำหรับกลุ่ม: {selectedPosition}</h3>
                     <span className="text-sm text-[#0056FF]">(คลิกเพื่อดูรายละเอียด)</span>
                     <ul className="text-sm mt-1">
                         {surveyDetails
                             .sort((a, b) => b.value - a.value) // Sort from 5 to 1
                             .map(detail => (
                                 <li key={detail.value} style={{ color: detail.color }}>
-                                    <span className="font-bold">{detail.label} ({detail.value}): {groupData.find(group => group.group === selectedGroup)?.counts[detail.value] || 0} คน</span>
+                                    <span className="font-bold">{detail.label} ({detail.value}): {positionData.find(position => position.position === selectedPosition)?.counts[detail.value] || 0} คน</span>
                                 </li>
                             ))}
                     </ul>
                     <span 
                         className="flex font-bold mt-2">
-                            รวม: {groupData.find(group => group.group === selectedGroup)?.total || 0} คน
+                            รวม: {positionData.find(position => position.position === selectedPosition)?.total || 0} คน
                     </span>
                 </div>
             )}
