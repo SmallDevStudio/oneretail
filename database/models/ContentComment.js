@@ -2,7 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import Users from "@/pages/admin/users";
 
 const ContentCommentSchema = new Schema({
-    comment: { type: String, required: true }, // Renamed from 'content' to 'comment'
+    comment: { type: String }, // Renamed from 'content' to 'comment'
     userId: { type: String, required: true, ref: 'Users' }, // Renamed from 'user' to 'userId'
     medias: [{ public_id: { type: String }, url: { type: String }, type: { type: String } }],
     files: [{ public_id: { type: String }, url: { type: String } }],

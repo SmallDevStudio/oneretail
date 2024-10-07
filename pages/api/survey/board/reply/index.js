@@ -9,16 +9,23 @@ export default async function handler(req, res) {
 
     switch (method) {
         case "POST":
-            try {
-                const reply = await SurveyReply.create(req.body);
-                await SurveyComments.findByIdAndUpdate(req.body.commentId, {
-                    $push: { reply: reply._id }
-                });
-                res.status(201).json({ success: true, data: reply });
-            } catch (error) {
-                res.status(400).json({ success: false, error: error.message });
-            }
-            break;
+    try {
+        // Create a new reply
+        const reply = await SurveyReply.create(req.body);
+
+        // Update the comment by pushing the new reply's ID
+        const updatedComment = await SurveyComments.findByIdAndUpdate(
+            req.body.commentId,
+            { $push: { reply: reply._id } },
+            { new: true } // Return the updated document
+        );
+
+        res.status(201).json({ success: true, data: reply });
+        } catch (error) {
+            console.error("Error adding reply:", error);
+            res.status(400).json({ success: false, error: error.message });
+        }
+        break;
 
         case "PUT":
             try {

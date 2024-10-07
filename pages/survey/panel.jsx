@@ -18,6 +18,8 @@ import { ImFilePicture } from "react-icons/im";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { FaRegCommentDots } from "react-icons/fa";
 import Swal from "sweetalert2";
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 
 moment.locale('th');
 
@@ -35,33 +37,67 @@ const SurveyPanel = () => {
     const [sticker, setSticker] = useState(null);
     const [media, setMedia] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [openDropdown, setOpenDropdown] = useState(null); // State to handle open dropdown
+    const [menuAnchorEl, setMenuAnchorEl] = useState(null);  // Menu anchor state
 
     const router = useRouter();
     const { data: session } = useSession();
     const userId = session?.user?.id;
     const surveyId = router.query.surveyId;
 
-    const { data: survey, error: surveyError } = useSWR(() => userId ? `/api/survey/board/comments/${surveyId}` : null, fetcher);
+    const { data: survey, error: surveyError, mutate: fetchSurveyData } = useSWR(() => userId ? `/api/survey/board/comments/${surveyId}` : null, fetcher);
     const { data: user } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
 
     if (surveyError) return <div>Error loading Survey</div>;
     if (!survey) return <CircularProgress />;
 
-    console.log('survey', survey);
-
-    const toggleDropdown = (id) => {
-        setOpenDropdown(openDropdown === id ? null : id);
-    };
-
-    const handleEdit = (id) => {
+    const handleEditComment = (id) => {
         console.log("Editing", id);
         // Implement edit logic
     };
 
-    const handleDelete = (id) => {
-        console.log("Deleting", id);
-        // Implement delete logic
+    const handleDeleteComment = async (id) => {
+        setMenuAnchorEl(null);
+    
+        // Await the Swal.fire promise to ensure it waits for user action
+        const result = await Swal.fire({
+            title: 'คุณต้องการลบความคิดเห็นใช่หรือไม่?',
+            text: 'คุณจะไม่สามารถย้อนกลับได้',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#0056FF',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'ยืนยัน',
+            cancelButtonText: 'ยกเลิก',
+        });
+    
+        if (result.isConfirmed) {
+            setIsLoading(true);
+            console.log("Deleting", id);
+            try {
+                await axios.delete(`/api/survey/board/comments/delete?id=${id}`);
+                fetchSurveyData(); // Refresh survey data
+                Swal.fire({
+                    icon: 'success',
+                    title: 'ลบความคิดเห็นสําเร็จ',
+                    text: 'คุณได้ลบความคิดเห็นเรียบร้อยแล้ว',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#0056FF',
+                    allowOutsideClick: true,
+                });
+            } catch (error) {
+                console.error("Error deleting comment:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ลบความคิดเห็นไม่สําเร็จ',
+                    text: 'เกิดข้อผิดพลาดขณะลบความคิดเห็น',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#0056FF',
+                    allowOutsideClick: true,
+                });
+            } finally {
+                setIsLoading(false);
+            }
+        }
     };
 
     const handleSend = async () => {
@@ -77,13 +113,29 @@ const SurveyPanel = () => {
 
         try {
             const response = await axios.post(`/api/survey/board/reply`, newReply);
-            console.log('response', response);
-            handleClose();
+            if (response.success) {
+                try {
+                    await axios.post('/api/notifications', {
+                        userId: response.data.data.userId,
+                        senderId: userId,
+                        description: `แสดงความคิดเห็นใน Verbatim`,
+                        referId: response.data.data._id,
+                        path: 'Survey',
+                        subpath: 'Memo',
+                        url: `/survey/panel?surveyId=${survey.data._id}`,
+                        type: 'Reply'
+                    });
+                } catch (error) {
+                    console.error("Error posting notification:", error);
+                }
+            }
+            
             setSelectedComment(null);
             setTextareaValue('');
             setSticker(null);
             setMedia([]);
             fetchSurveyData();
+            handleClose();
             Swal.fire({
                 icon: 'success',
                 title: 'ส่งความคิดเห็นสําเร็จ',
@@ -118,6 +170,16 @@ const SurveyPanel = () => {
         setOpenSticker(false);
     };
 
+    const handleMenuClick = (event, commentId) => {
+        setMenuAnchorEl(event.currentTarget);
+        setSelectedComment(commentId);  // Save the commentId for deletion
+    };
+
+    const handleMenuClose = () => {
+        setMenuAnchorEl(null);
+        setSelectedComment(null);
+    };
+
     const isCommentOwner = (commentUserId) => {
         return commentUserId === userId;
     };
@@ -136,7 +198,7 @@ const SurveyPanel = () => {
                     size={25}
                 />
                 <h2 className="text-3xl font-bold text-[#0056FF]">
-                    แสดงความคิดเห็น
+                    Verbatim
                 </h2>
                 <div></div>
             </div>
@@ -186,9 +248,20 @@ const SurveyPanel = () => {
                                         <span className="text-xs">{moment(comment.createdAt).locale("th").format("LL")}</span>
                                         <BsThreeDotsVertical 
                                             className="text-gay-300 cursor-pointer"
-                                            onClick={() => toggleDropdown(comment._id)}
+                                            onClick={(e) => handleMenuClick(e, comment._id)}
                                         />
                                     </div>
+
+                                    {/* Dropdown menu */}
+                                    <Menu
+                                        anchorEl={menuAnchorEl}
+                                        open={Boolean(menuAnchorEl)}
+                                        onClose={handleMenuClose}
+                                    >
+                                        <MenuItem onClick={() => handleDeleteComment(seletedComment)}>
+                                            ลบความคิดเห็น
+                                        </MenuItem>
+                                    </Menu>
                                 </div>
 
                                 <div className="flex flex-col">
@@ -243,8 +316,22 @@ const SurveyPanel = () => {
                                             <span className="text-sm font-bold text-[#0056FF]">{reply?.user?.fullname}</span>
                                             <div className="flex flex-row gap-1">
                                                 <span className="text-xs">{moment(reply?.createdAt).locale("th").format("LL")}</span>
-                                                <BsThreeDotsVertical className="text-gay-300"/>
+                                                <BsThreeDotsVertical 
+                                                    className="text-gay-300"
+                                                    onClick={(e) => handleMenuClick(e, reply?._id)}
+                                                />
                                             </div>
+
+                                            {/* Dropdown menu */}
+                                            <Menu
+                                                anchorEl={menuAnchorEl}
+                                                open={Boolean(menuAnchorEl)}
+                                                onClose={handleMenuClose}
+                                            >
+                                                <MenuItem onClick={() => handleDeleteComment(seletedComment)}>
+                                                    ลบความคิดเห็น
+                                                </MenuItem>
+                                            </Menu>
                                         </div>
 
                                         <div className="flex flex-col">

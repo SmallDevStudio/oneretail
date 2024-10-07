@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, memo } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
@@ -20,6 +20,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { MdOutlineHome } from "react-icons/md";
 import { IoIosArrowForward } from "react-icons/io";
+import StickerPanel from "@/components/stickers/StickerPanel";
 
 moment.locale('th');
 
@@ -37,6 +38,7 @@ const SurveyMemo = () => {
     const [textareaValue, setTextareaValue] = useState('');
     const [seletedSurvey, setSelectedSurvey] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [openSticker, setOpenSticker] = useState(false);
     const [sticker, setSticker] = useState(null);
     const [media, setMedia] = useState(null);
     const [menuAnchorEl, setMenuAnchorEl] = useState(null);  // Menu anchor state
@@ -48,7 +50,7 @@ const SurveyMemo = () => {
     const fetchSurveyData = async () => {
         try {
             // Fetch memo data
-            const memoResponse = await axios.get(`/api/survey/board/bbd/memo`, {
+            const memoResponse = await axios.get(`/api/survey/board/bbdservice/memo`, {
                 params: { startDate, endDate, teamGrop, position, group, department, branch },
             });
             const memoData = memoResponse.data.data;
@@ -74,12 +76,15 @@ const SurveyMemo = () => {
         }
     };
 
+    
     useEffect(() => {
         if (teamGrop && group && department && branch) {
             fetchSurveyData();
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [startDate, endDate, teamGrop, group, department, branch]);
+
+    if (isLoading || !memoData) return <div><CircularProgress /></div>;
 
     const handleClickOpen = (id) => {
         setSelectedSurvey(id);
@@ -89,6 +94,8 @@ const SurveyMemo = () => {
     const handleClose = () => {
         setSelectedSurvey(null);
         setTextareaValue('');
+        setSticker(null);
+        setMedia(null);
         setOpen(false);
     };
 
@@ -98,13 +105,29 @@ const SurveyMemo = () => {
             surveyId: seletedSurvey,
             comment: textareaValue,
             userId: userId,
-            stickers: sticker,
+            sticker,
             medias: media,
         };
 
         try {
             const response = await axios.post(`/api/survey/board/comments`, newComment);
-            setComments([...comments, response.data.data]);
+            if (response.success) {
+                try {
+                    await axios.post('/api/notifications', {
+                        userId: memoData.userId,
+                        senderId: userId,
+                        description: `แสดงความคิดเห็นใน Verbatim`,
+                        referId: response.data.data._id,
+                        path: 'Survey',
+                        subpath: 'Memo',
+                        url: `/survey/panel?surveyId=${response.data.data._id}`,
+                        type: 'Comment'
+                    });
+                } catch (error) {
+                    console.error("Error posting notification:", error);
+                }
+            }
+        
         } catch (error) {
             console.error("Error adding comment:", error);
         }
@@ -156,7 +179,15 @@ const SurveyMemo = () => {
         setMenuAnchorEl(null);
     };
 
-    if (isLoading || !memoData) return <div><CircularProgress /></div>;
+    const handleOpenSticker = () => {
+        setOpenSticker(true);
+    };
+
+    const handleCloseSticker = () => {
+        setOpenSticker(false);
+    };
+
+    
 
     return (
         <div className="flex-1 flex-col p-2 mb-20">
@@ -227,6 +258,18 @@ const SurveyMemo = () => {
                                             <div className="flex flex-col gap-1 w-[calc(90%-40px)]">
                                                 <p className="text-xs">{moment(comment.createdAt).locale("th").format("DD MMMM YYYY")}</p>
                                                 <p className="text-sm line-clamp-2">{comment.comment}</p>
+                                                { comment.sticker && (
+                                                    <div className="flex flex-row gap-1">
+                                                        <Image
+                                                            src={comment.sticker.url}
+                                                            alt="Sticker"
+                                                            width={80}
+                                                            height={80}
+                                                            className="object-contain"
+                                                            style={{ width: '80px', height: '80px' }}
+                                                        />
+                                                    </div>
+                                                )}
                                             </div>
                                             <div className="flex flex-col items-center mt-1 w-[20px]">
                                                 <HiOutlineDotsVertical 
@@ -297,10 +340,23 @@ const SurveyMemo = () => {
                                 value={textareaValue}
                                 onChange={(e) => setTextareaValue(e.target.value)}
                             />
+                            {sticker && (
+                                <div className="flex flex-row justify-center items-center px-1">
+                                    <Image
+                                        src={sticker.url}
+                                        alt="Sticker"
+                                        width={100}
+                                        height={100}
+                                        className="object-contain"
+                                        style={{ width: '100px', height: '100px' }}
+                                    />
+                                </div>
+                            )}
                             <div className="flex flex-row justify-end items-center gap-2 px-1">
                                 <RiEmojiStickerLine 
                                     className="text-xl inline text-gray-500"
                                     size={20}
+                                    onClick={handleOpenSticker}
                                 />
                                 <ImFilePicture 
                                     className="text-xl inline text-gray-500"
@@ -319,6 +375,19 @@ const SurveyMemo = () => {
                     </div>
                 </div>
             </Dialog>
+
+            {openSticker && (
+                <Dialog
+                    open={openSticker}
+                    onClose={handleCloseSticker}
+                    TransitionComponent={Transition}
+                >
+                    <StickerPanel
+                        setSticker={setSticker}
+                        onClose={handleCloseSticker}
+                    />
+                </Dialog>
+            )}
         </div>
     );
 }

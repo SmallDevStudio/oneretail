@@ -62,7 +62,15 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
         }
     }, [comments, session]);
 
+    console.log('comments', comments);
+
     const handleCommentSubmit = async (contentId, data) => {
+
+        if (!data.sticker && !data.post && (!data.media || data.media.length === 0)) {
+            setCheckError('กรุณากรอกข้อความหรือเพิ่มรูปภาพ');
+            return;
+        }
+
         setLoading(true);
         try {
             const userId = session?.user?.id;
@@ -113,6 +121,12 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
     };
 
     const handleReplySubmit = async (commentId, data) => {
+
+        if (!data.sticker && !data.post && (!data.media || data.media.length === 0)) {
+            setCheckError('กรุณากรอกข้อความหรือเพิ่มรูปภาพ');
+            return;
+        }
+
         setLoading(true);
         try {
             const userId = session?.user?.id;
@@ -334,6 +348,17 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
                         </div>
                         <div className="flex flex-col w-full px-2 mt-1">
                             <p className="text-xs text-left px-7">{comment?.comment}</p>
+                            {comment?.sticker && (
+                                <div className="flex justify-center">
+                                    <Image
+                                        src={comment?.sticker?.url}
+                                        alt="Sticker"
+                                        width={150}
+                                        height={150}
+                                        className="object-cover"
+                                    />
+                                </div>
+                            )}
                                 {comment?.medias?.length > 0 && (
                                 <ImageGallery medias={comment.medias} />
                                 )}

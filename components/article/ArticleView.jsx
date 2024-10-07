@@ -127,6 +127,12 @@ const ArticleView = ({ articleId }) => {
     }
 
     const handleCommentSubmit = async (articleId, data) => {
+
+        if (!data.sticker && !data.post && (!data.media || data.media.length === 0)) {
+            setCheckError('กรุณากรอกข้อความหรือเพิ่มรูปภาพ');
+            return;
+        }
+
         setLoading(true);
         try {
             const userId = session?.user?.id;
@@ -179,6 +185,12 @@ const ArticleView = ({ articleId }) => {
     };
 
     const handleReplySubmit = async (commentId, data) => {
+
+        if (!data.sticker && !data.post && (!data.media || data.media.length === 0)) {
+            setCheckError('กรุณากรอกข้อความหรือเพิ่มรูปภาพ');
+            return;
+        }
+        
         setLoading(true);
         try {
             const userId = session?.user?.id;

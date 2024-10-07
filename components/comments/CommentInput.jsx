@@ -86,7 +86,6 @@ const CommentInput = ({ handleSubmit, userId, handleClose, checkError, folder })
           // รีเซ็ตค่า input เพื่อให้สามารถเลือกไฟล์ใหม่ได้หลังการอัปโหลดเสร็จ
           fileInputRef.current.value = '';
         
-        
     };
 
     const handleRemoveMedia = async (index) => {
@@ -128,8 +127,9 @@ const CommentInput = ({ handleSubmit, userId, handleClose, checkError, folder })
     };
 
     const handleSubmitComment = async () => {
+
         if (!sticker && !post && (!media || media.length === 0)) {
-            setCheckError('กรุณากรอกข้อความหรือเพิ่มรูปภาพ');
+            setError('กรุณากรอกข้อความหรือเพิ่มรูปภาพ');
             setLoading(false);
             return; // Exit the function if the condition is not met
         }
@@ -144,8 +144,6 @@ const CommentInput = ({ handleSubmit, userId, handleClose, checkError, folder })
             link,
             selectedUsers,
         };
-
-        console.log('newPost', newPost);
 
         setPost("");
         setLink("");
