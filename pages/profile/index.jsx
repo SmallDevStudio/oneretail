@@ -24,7 +24,7 @@ const ProfileContent = ({ session }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [profileImage, setProfileImage] = useState(users?.user?.pictureUrl);
 
-    const { data: user, error: userError } = useSWR(session ? `/api/users/${session.user.id}` : null, fetcher, {
+    const { data: user, error: userError, mutate: mutateUser } = useSWR(session ? `/api/users/${session.user.id}` : null, fetcher, {
         onSuccess: (data) => setUsers(data),
     });
     const { data: level, error: levelError } = useSWR(session ? `/api/level/user?userId=${session.user.id}` : null, fetcher, {
@@ -49,14 +49,8 @@ const ProfileContent = ({ session }) => {
     };
 
 
-    const onSubmit = async (formData) => {
-        try {
-            await axios.put(`/api/users?userId=${session.user.id}`, formData);
-            mutate(`/api/users/${session.user.id}`);
-            setIsModalOpen(false);
-        } catch (error) {
-            console.error("Error updating profile", error);
-        }
+    const onSubmit = async () => {
+       mutateUser();
     };
 
     return (
@@ -171,7 +165,14 @@ const ProfileContent = ({ session }) => {
                     </button>
                 </div>
             </div>
-            <UserModal isOpen={isModalOpen} onRequestClose={onRequestClose} user={user} onSubmit={onSubmit} />
+
+            <UserModal 
+                isOpen={isModalOpen} 
+                onRequestClose={onRequestClose} 
+                user={user} 
+                onSubmit={onSubmit} 
+            />
+            
             <div className="flex p-2 flex-col items-center justify-center text-center mt-3 w-full">
                 <Link href="/redeem">
                     <button className="w-40 h-10 bg-[#F2871F] text-white rounded-3xl font-semibold text-xl mb-5 mt-3">

@@ -1,5 +1,7 @@
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import axios from 'axios';
 import Modal from 'react-modal';
 import UserListMediaModal from './media/UserListMediaModal';
 
@@ -29,6 +31,9 @@ const UserModal = ({ isOpen, onRequestClose, onSubmit, user }) => {
     const [pictureUrl, setPictureUrl] = useState(user.user.pictureUrl);
     const [showModal, setShowModal] = useState(false);
 
+    const { data: session } = useSession();
+    const userId = session?.user?.id;
+
     useEffect(() => {
         setFullname(user.user.fullname);
         setBirthdate(user.user.birthdate ? new Date(user.user.birthdate).toISOString().split('T')[0] : '');
@@ -42,15 +47,22 @@ const UserModal = ({ isOpen, onRequestClose, onSubmit, user }) => {
         setShowModal(true);
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onSubmit({
+    const handleSubmit = async () => {
+        const newData = {
             fullname,
             birthdate,
             phone,
             address,
             pictureUrl,
-        });
+        };
+
+        try {
+            await axios.put (`/api/users?userId=${userId}`, newData);
+            onSubmit();
+            onRequestClose();
+        } catch (error) {
+            console.error('Error updating profile', error);
+        }
     };
 
     const handleCloseModal = () => {
@@ -88,7 +100,6 @@ const UserModal = ({ isOpen, onRequestClose, onSubmit, user }) => {
                 
                 <span className='text-[10px] font-bold mt-1 mb-2'>Click ที่รูปเพื่ออัปโหลด</span>
                 
-                <form className='flex flex-col justify-start items-center w-full gap-2 mt-2' onSubmit={handleSubmit}>
                     <div className='flex gap-2 items-center'>
                         <label className='text-md font-bold'>ชื่อ-นามสกุล:</label>  
                         <input type='text'
@@ -130,11 +141,12 @@ const UserModal = ({ isOpen, onRequestClose, onSubmit, user }) => {
                         <button
                             type="submit"
                             className="btn bg-[#F68B1F] text-white pl-2 pr-2 py-1 font-bold rounded-3xl"
+                            onClick={handleSubmit}
                         >
                             บันทึก
                         </button>
                     </div>
-                </form>
+               
             </div>
         </Modal>
     );

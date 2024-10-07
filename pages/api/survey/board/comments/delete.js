@@ -20,7 +20,7 @@ export default async function handler(req, res) {
                 comment.reply = comment.reply.filter((replyId) => replyId.toString() !== id);
                 await comment.save();
 
-                await reply.remove();
+                await SurveyReply.findByIdAndDelete(id);
 
                 res.status(200).json({ success: true, data: reply });
             } catch (error) {

@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { upload } from '@vercel/blob/client';
+import { nanoid } from 'nanoid';
 import Image from 'next/image';
 import Modal from 'react-modal';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import useSWR from 'swr';
+import { ImFilePicture } from "react-icons/im";
+import Divider from '@mui/material/Divider';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -25,56 +30,71 @@ const customStyles = {
 
 const UserListMediaModal = ({ isOpen, onRequestClose, setPictureUrl }) => {
     const [imageSrc, setImageSrc] = useState(null);
-    const [selectImg, setSelectImg] = useState(null);
     const [selectedImageUrl, setSelectedImageUrl] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [progress, setProgress] = useState(0);
+    const [isUploading, setIsUploading] = useState(false);
+
+    const fileInputRef = useRef(null); // สร้าง ref สำหรับ input file
 
     const { data: session } = useSession();
+    const userId = session?.user?.id;
 
-    const { data: media } = useSWR(() => session?.user?.id ? `/api/media/list?userId=${session?.user?.id}` : null, fetcher);
+    const { data, error } = useSWR(`/api/libraries/avatar?userId=${userId}`, fetcher);
 
-    const updateImg = (e) => {
-        setSelectImg(e.target.files[0]);
-        setImageSrc(URL.createObjectURL(e.target.files[0]));
+    if (error) return <div>Error loading data</div>
+
+    const handleUploadClick = () => {
+        fileInputRef.current.click(); // เมื่อกดปุ่ม ให้เปิด input file
     };
 
-    const uploadImg = async (e) => {
-        e.preventDefault();
-        if (selectImg) {
-            const data = new FormData();
-            data.append('file', selectImg);
-            data.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET);
-            data.append('cloud_name', process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME);
+    const handleFileChange = async (e) => {
+        setIsUploading(true); // เริ่มการอัปโหลด
+        const fileArray = Array.from(e.target.files); // แปลง FileList เป็น array
 
-            try {
-                setLoading(true);
-                const resp = await axios.post(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`, data, {
-                    onUploadProgress: (progressEvent) => {
-                        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                        setProgress(percentCompleted);
-                    }
-                });
+        const uploadPromises = fileArray.map(async (file) => {
+            const newBlob = await upload(file.name, file, {
+              access: 'public',
+              handleUploadUrl: '/api/blob/upload',
+            });
+      
+            const mediaEntry = {
+              url: newBlob.url,
+              public_id: nanoid(10),
+              file_name: file.name,
+              mime_type: file.type,
+              file_size: file.size,
+              type: file.type.startsWith('image') ? 'image' : 'video',
+              userId, // เชื่อมโยงกับ userId ของผู้ใช้
+              folder: 'avatar', // สามารถแก้ไขเพิ่มเติมถ้าต้องการจัดเก็บใน folder
+              subfolder: 'comments', // สามารถแก้ไขเพิ่มเติมถ้าต้องการจัดเก็บใน subfolder
+            };
+      
+            // ส่งข้อมูลไฟล์ไปยัง API /api/upload/save เพื่อบันทึกลงในฐานข้อมูล
+            await axios.post('/api/upload/save', mediaEntry);
+      
+            return mediaEntry;
+          });
+      
+          // รอการอัปโหลดทั้งหมดเสร็จสิ้น
+          const uploadedMedia = await Promise.all(uploadPromises);
+      
+          // เพิ่มไฟล์ที่อัปโหลดทั้งหมดใน state media
+          setSelectedImageUrl(uploadedMedia[0].url);
+      
+          setIsUploading(false);
+      
+          // รีเซ็ตค่า input เพื่อให้สามารถเลือกไฟล์ใหม่ได้หลังการอัปโหลดเสร็จ
+          fileInputRef.current.value = '';
+        
+    };
 
-                const res = await axios.post('/api/media', {
-                    url: resp.data.secure_url,
-                    publicId: resp.data.public_id,
-                    name: session.user.id,
-                    userId: session.user.id,
-                    type: 'image',
-                    path: 'avatars',
-                    isTemplate: false
-                });
+    const selectedImage = (url) => {
+        setSelectedImageUrl(url);
+        setImageSrc(url);
+    };
 
-                setPictureUrl(resp.data.secure_url);
-                setImageSrc(null);
-                setLoading(false);
-                onRequestClose();
-            } catch (error) {
-                console.error(error);
-                setLoading(false);
-            }
-        }
+    const handleSubmit = () => {
+        setPictureUrl(selectedImageUrl);
+        onRequestClose();
     };
 
     const handleClose = () => {
@@ -82,16 +102,6 @@ const UserListMediaModal = ({ isOpen, onRequestClose, setPictureUrl }) => {
         onRequestClose();
     };
 
-    const handleImageSelect = (url) => {
-        setSelectedImageUrl(url);
-        setImageSrc(url);
-    };
-
-    const handleConfirmSelection = () => {
-        setPictureUrl(selectedImageUrl);
-        setSelectedImageUrl(null);
-        onRequestClose();
-    };
 
     return (
         <Modal
@@ -109,72 +119,86 @@ const UserListMediaModal = ({ isOpen, onRequestClose, setPictureUrl }) => {
                     </button>
                 </div>
             </div>
-            <div className="flex flex-col justify-center items-center text-sm">
-                {imageSrc && (
-                    <div className='w-full relative'>
-                        <Image
-                            src={imageSrc}
-                            width={200}
-                            height={200}
-                            alt="imageSrc"
-                            style={{
-                                width: '200px',
-                                height: '200px',
-                                objectFit: 'cover',
-                                borderRadius: '10px',
-                                marginTop: '10px',
-                            }}
-                        />
+            <div className="flex flex-col justify-center items-center text-sm w-full">
+                {isUploading ? (
+                    <div>
+                        <CircularProgress />
                     </div>
-                )}
-                <div className='flex flex-row w-full items-center py-2'>
-                    <input 
-                        type="file"
-                        onChange={updateImg}
-                    />
-                    <button
-                        className='w-35 h-8 bg-[#F68B1F] text-white text-sm rounded-full p-2 ml-[-50px]'
-                        onClick={uploadImg}
-                        disabled={loading}
-                    >
-                        {loading ? 'กำลังอัปโหลด...' : 'อัพโหลด'}
-                    </button>
-                </div>
-                {loading && (
-                    <div className="w-full bg-gray-200 rounded-full mt-4">
-                        <div className="bg-blue-500 text-xs leading-none py-1 text-center text-white rounded-full" style={{ width: `${progress}%` }}>
-                            {progress}%
+                ): (
+                    imageSrc && (
+                        <div className='flex w-full justify-center items-center relative'>
+                            <Image
+                                src={imageSrc}
+                                width={200}
+                                height={200}
+                                alt="imageSrc"
+                                style={{
+                                    width: '200px',
+                                    height: '200px',
+                                    objectFit: 'cover',
+                                    borderRadius: '10px',
+                                    marginTop: '10px',
+                                }}
+                            />
                         </div>
-                    </div>
+                    )
                 )}
+
+                <div className='flex justify-center w-full items-center py-2'>
+                    <button
+                        onClick={handleUploadClick}
+                        className="flex flex-row items-center gap-2 p-2 cursor-pointer bg-gray-200 rounded-md"
+                    >
+                        <ImFilePicture className="text-xl text-[#0056FF]" />
+                        <div className="flex flex-col text-left">
+                            <span className="text-sm font-bold">อัพโหลดรูปภาพ</span>
+                            <span className="text-[10px] text-red-500 ">* สามารถอัพโหลดได้ไม่เกิน 100MB</span>
+                        </div>
+                    </button>
+                    {/* ซ่อน input file แต่ใช้ ref เพื่อให้มันทำงานเมื่อกดปุ่ม */}
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        multiple // สามารถเลือกหลายไฟล์ได้
+                        accept="image/*" // จำกัดชนิดของไฟล์
+                        onChange={handleFileChange} // ดักการเปลี่ยนแปลงของไฟล์ที่เลือก
+                        style={{ display: 'none' }} // ซ่อน input file
+                    />
+                </div>
             </div>
+            <Divider className='w-full mt-2' />
             <div>
                 {/* MediaList */}
                 <div className="grid grid-cols-3 gap-4 p-4">
-                    {media && media.map((item) => (
-                        <div 
-                            key={item._id} 
-                            className={`relative cursor-pointer ${selectedImageUrl === item.url ? 'border-4 border-blue-500' : ''}`}
-                            onClick={() => handleImageSelect(item.url)}
-                        >
-                            <Image 
-                                src={item.url} 
-                                alt={item.name} 
-                                layout="responsive" 
-                                width={100} 
-                                height={100} 
-                                style={{ width: '100%', height: '100%', borderRadius: '10px', objectFit: 'cover' }} 
-                            />
+                    {!data ? (
+                        <div className="flex justify-center items-center">
+                            <CircularProgress />
                         </div>
-                    ))}
+                    ): (
+                        data?.data && data.data.length > 0 && data.data.map((media, index) => (
+                            <Image
+                                key={index}
+                                src={media.url}
+                                alt={media.public_id}
+                                width={100}
+                                height={100}
+                                style={{
+                                    width: '100px',
+                                    height: 'auto',
+                                }}
+                                className="object-cover"
+                                onClick={() => selectedImage(media.url)}
+                            />
+                        ))
+                    )}
                 </div>
                 {selectedImageUrl && (
-                    <div className="flex justify-center mt-4">
+                    <div className="flex justify-center">
                         <button
-                            className='w-24 h-8 bg-[#F68B1F] text-white rounded-full'
-                            onClick={handleConfirmSelection}
+                            className='bg-[#0056FF] px-2 py-1 rounded-md text-white'
+                            onClick={handleSubmit}
                         >
-                            เลือกรูปภาพนี้
+                            เลือกรูปภาพ
                         </button>
                     </div>
                 )}
