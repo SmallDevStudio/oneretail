@@ -25,12 +25,10 @@ const SurveyGroup = () => {
     const [error, setError] = useState(null);
 
     const fetchSurveyData = async () => {
-        console.log("Fetching survey data with:", { startDate, endDate, teamGrop, position }); // Debug log
         try {
             const response = await axios.get(`/api/survey/board/bbdservice/position`, {
                 params: { startDate, endDate, teamGrop, position },
             });
-            console.log("API Response:", response.data); // Debug log to check API response
             setGroupData(response.data.data);
             setLoading(false);
         } catch (error) {
@@ -41,7 +39,6 @@ const SurveyGroup = () => {
     };
 
     useEffect(() => {
-        console.log("Router query:", router.query); // Debug log to check query parameters
         if (teamGrop && position && startDate && endDate) {
             setLoading(true); // Set loading state before API call
             fetchSurveyData();

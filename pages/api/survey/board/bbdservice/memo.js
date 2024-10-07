@@ -1,5 +1,7 @@
 import connectMongoDB from "@/lib/services/database/mongodb";
 import Survey from "@/database/models/Survey";
+import SurveyComments from "@/database/models/SurveyComments";
+import SurveyReply from "@/database/models/SurveyReply";
 import Emp from "@/database/models/emp";
 import Users from "@/database/models/users";
 
@@ -27,14 +29,14 @@ export default async function handler(req, res) {
                 });
 
                 const userIds = surveys.map(survey => survey.userId);
-                const users = await Users.find({ userId: { $in: userIds } }).select('userId empId');
+                const users = await Users.find({ userId: { $in: userIds } }).select('userId empId fullname pictureUrl');
             
                 const empIds = users.map(user => user.empId);
                 const emps = await Emp.find({ empId: { $in: empIds } }).lean();
 
                 const empMap = emps.reduce((acc, emp) => {
                     if (!emp.teamGrop) {
-                        console.log("Missing teamGrop for emp:", emp.empId);  // Log missing teamGrop for empId
+                        console.log("Missing teamGrop for emp:", emp.empId);
                     }
                     acc[emp.empId] = emp;
                     return acc;
@@ -53,7 +55,6 @@ export default async function handler(req, res) {
                         branch: empData?.branch || 'Unknown',
                         group: empData?.group || 'Unknown',
                     };
-                    
                     return acc;
                 }, {});
 
@@ -69,7 +70,55 @@ export default async function handler(req, res) {
                     );
                 });
 
-                // Filter only the records with memo not null or empty
+                // Get all comments for the filtered surveys
+                const surveyIds = filteredData.map(survey => survey._id);
+                const comments = await SurveyComments.find({ surveyId: { $in: surveyIds } });
+                const commentIds = comments.map(comment => comment._id);
+
+                // Get all replies for the comments
+                const replies = await SurveyReply.find({ commentId: { $in: commentIds } });
+
+                // Get all userIds for comments and replies
+                const commentUserIds = comments.map(comment => comment.userId);
+                const replyUserIds = replies.map(reply => reply.userId);
+                const allUserIds = [...new Set([...commentUserIds, ...replyUserIds])];
+                const commentUsers = await Users.find({ userId: { $in: allUserIds } }).select('userId fullname pictureUrl');
+
+                const commentUserMap = commentUsers.reduce((acc, user) => {
+                    acc[user.userId] = {
+                        userId: user.userId,
+                        fullname: user.fullname,
+                        pictureUrl: user.pictureUrl,
+                    };
+                    return acc;
+                }, {});
+
+                // Map replies to their respective comments
+                const replyMap = replies.reduce((acc, reply) => {
+                    const user = commentUserMap[reply.userId];
+                    if (!acc[reply.commentId]) {
+                        acc[reply.commentId] = [];
+                    }
+                    acc[reply.commentId].push({
+                        ...reply.toObject(),
+                        user,
+                    });
+                    return acc;
+                }, {});
+
+                // Map comments to their respective surveys and include replies
+                const commentMap = comments.reduce((acc, comment) => {
+                    const user = commentUserMap[comment.userId];
+                    acc[comment.surveyId] = acc[comment.surveyId] || [];
+                    acc[comment.surveyId].push({
+                        ...comment.toObject(),
+                        user,
+                        replies: replyMap[comment._id] || [],
+                    });
+                    return acc;
+                }, {});
+
+                // Map filtered surveys with comments
                 const memoFilteredData = filteredData
                     .filter(survey => survey.memo && survey.memo.trim() !== "")
                     .map(survey => ({
@@ -84,9 +133,10 @@ export default async function handler(req, res) {
                         group: userMap[survey.userId].group,
                         value: survey.value,
                         memo: survey.memo,
-                        createdAt: survey.createdAt
+                        createdAt: survey.createdAt,
+                        comments: commentMap[survey._id] || [], // Include comments
                     }))
-                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sort by createdAt
+                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
                 res.status(200).json({ success: true, data: memoFilteredData });
             } catch (error) {

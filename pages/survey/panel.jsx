@@ -20,6 +20,8 @@ import { FaRegCommentDots } from "react-icons/fa";
 import Swal from "sweetalert2";
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import { LuMessageSquarePlus } from "react-icons/lu";
+import { IoCloseCircle } from "react-icons/io5";
 
 moment.locale('th');
 
@@ -31,17 +33,22 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const SurveyPanel = () => {
     const [open, setOpen] = useState(false);
-    const [openReply, setOpenReply] = useState(false);
+    const [type, setType] = useState(null);
+    const [isEdit, setIsEdit] = useState(false);
+    
     const [textareaValue, setTextareaValue] = useState('');
-    const [seletedComment, setSelectedComment] = useState(null);
-    const [openSticker, setOpenSticker] = useState(false);
+    const [selectedComment, setSelectedComment] = useState(null);
     const [sticker, setSticker] = useState(null);
     const [media, setMedia] = useState([]);
+
+    const [error, setError] = useState(null);
+
     const [isLoading, setIsLoading] = useState(false);
+    const [openSticker, setOpenSticker] = useState(false);
     const [menuAnchorEl, setMenuAnchorEl] = useState(null);  // Menu anchor state
     const [selectData , setSelectData] = useState(null);
     const [user, setUser] = useState(null);
-    const [isEdit, setIsEdit] = useState(false);
+    
 
     const router = useRouter();
     const { data: session } = useSession();
@@ -59,8 +66,178 @@ const SurveyPanel = () => {
     if (surveyError) return <div>Error loading Survey</div>;
     if (!survey) return <CircularProgress />;
 
+    const handleCommentSubmit = async () => {
+        if (!sticker && !textareaValue ) {
+            setError('กรุณาใส่ความคิดเห็นหรือสติกเกอร์');
+            return;
+        }
 
-    const handleDeleteComment = async (id) => {
+        setIsLoading(true);
+
+        if (isEdit) {
+            const updateComment = {
+                comment: textareaValue,
+                sticker,
+                medias: media
+            }
+
+            console.log('updateComment', updateComment);
+            
+            try {
+                await axios.put(`/api/survey/board/comments/update?id=${selectedComment}`, updateComment);
+                fetchSurveyData();
+                handleClose();
+            } catch (error) {
+                console.error("Error updating comment:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'แก้ไขความคิดเห็นไม่สําเร็จ',
+                    text: 'เกิดข้อผิดพลาดขณะแก้ไขความคิดเห็น',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#0056FF',
+                    allowOutsideClick: true,
+                });
+            } 
+        } else {
+            try {
+                const newComment = {
+                    surveyId: selectedComment,
+                    comment: textareaValue,
+                    userId,
+                    sticker,
+                    medias: media,
+                };
+
+                const response = await axios.post(`/api/survey/board/comments`, newComment);
+                if (response.data.success) {
+                    try {
+                        await axios.post('/api/notifications', {
+                            userId: response.data.data.userId,
+                            senderId: userId,
+                            description: `แสดงความคิดเห็นใน Verbatim`,
+                            referId: response.data.data._id,
+                            path: 'Survey',
+                            subpath: 'Memo',
+                            url: `/survey/panel?surveyId=${survey.data._id}`,
+                            type: 'Comment'
+                        });
+                    } catch (error) {
+                        console.error("Error posting notification:", error);
+                    }
+                }
+                fetchSurveyData();
+                handleClose();
+            } catch (error) {
+                console.error("Error adding comment:", error);
+            }
+        }
+
+        setIsLoading(false);
+    }
+
+    const handleDeleteComment = async (commentId) => {
+        handleMenuClose();
+        const result = await Swal.fire({
+            title: "Are you sure?",
+            text: "Do you really want to delete this comment? This process cannot be undone.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "Cancel",
+        });
+
+        if (result.isConfirmed) {
+            setIsLoading(true);
+            try {
+                await axios.delete(`/api/survey/board/comments/delete?id=${commentId}`);
+            } catch (error) {
+                console.error("Error deleting comment:", error);
+            } finally {
+                setIsLoading(false);
+                fetchSurveyData();
+            }
+        }
+    }
+
+    const handleEditComment = (id) => {
+        handleMenuClose();
+        console.log("Editing", id);
+        // Implement edit logic
+        setTextareaValue(survey.data.comments.find(comment => comment._id === id).comment);
+        setSticker(survey.data.comments.find(comment => comment._id === id).sticker);
+        setMedia(survey.data.comments.find(comment => comment._id === id).medias);
+        setSelectedComment(id);
+        setType('comment');
+        setIsEdit(true);
+        setOpen(true);
+    };
+
+
+    const handleReplySubmit = async () => {
+        setIsLoading(true);
+        
+        if (isEdit) {
+            const updateReply = {
+                reply: textareaValue,
+                sticker,
+                medias: media
+            }
+            try {
+                await axios.put(`/api/survey/board/reply/update?id=${selectedComment}`, updateReply);
+                fetchSurveyData();
+                handleClose();
+            } catch (error) {
+                console.error("Error updating reply:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'แก้ไขความคิดเห็นไม่สําเร็จ',
+                    text: 'เกิดข้อผิดพลาดขณะแก้ไขความคิดเห็น',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#0056FF',
+                    allowOutsideClick: true,
+                });
+            }
+        } else {
+            try {
+                const newReply = {
+                    commentId: selectedComment,
+                    userId: userId,
+                    reply: textareaValue,
+                    sticker,
+                    medias: media,
+                };
+                const response = await axios.post(`/api/survey/board/reply`, newReply);
+                if (response.data.success) {
+                    try {
+                        await axios.post('/api/notifications', {
+                            userId: response.data.data.userId,
+                            senderId: userId,
+                            description: `แสดงความคิดเห็นใน Verbatim`,
+                            referId: response.data.data._id,
+                            path: 'Survey',
+                            subpath: 'Memo',
+                            url: `/survey/panel?surveyId=${survey.data._id}`,
+                            type: 'Reply'
+                        });
+                    } catch (error) {
+                        console.error("Error posting notification:", error);
+                    }
+                }
+                
+                fetchSurveyData();
+                handleClose();
+            } catch (error) {
+                console.error('Error adding comment:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+    };
+
+
+    const handleDeleteReply = async (id) => {
         setMenuAnchorEl(null);
     
         // Await the Swal.fire promise to ensure it waits for user action
@@ -77,18 +254,9 @@ const SurveyPanel = () => {
     
         if (result.isConfirmed) {
             setIsLoading(true);
-            console.log("Deleting", id);
             try {
-                await axios.delete(`/api/survey/board/comments/delete?id=${id}`);
+                await axios.delete(`/api/survey/board/reply/delete?id=${id}`);
                 fetchSurveyData(); // Refresh survey data
-                Swal.fire({
-                    icon: 'success',
-                    title: 'ลบความคิดเห็นสําเร็จ',
-                    text: 'คุณได้ลบความคิดเห็นเรียบร้อยแล้ว',
-                    confirmButtonText: 'ตกลง',
-                    confirmButtonColor: '#0056FF',
-                    allowOutsideClick: true,
-                });
             } catch (error) {
                 console.error("Error deleting comment:", error);
                 Swal.fire({
@@ -105,104 +273,7 @@ const SurveyPanel = () => {
         }
     };
 
-    const handleSend = async () => {
-        setIsLoading(true);
-
-        const newReply = {
-            commentId: seletedComment,
-            userId: userId,
-            reply: textareaValue,
-            sticker,
-            medias: media,
-        };
-
-        try {
-            const response = await axios.post(`/api/survey/board/reply`, newReply);
-            if (response.success) {
-                try {
-                    await axios.post('/api/notifications', {
-                        userId: response.data.data.userId,
-                        senderId: userId,
-                        description: `แสดงความคิดเห็นใน Verbatim`,
-                        referId: response.data.data._id,
-                        path: 'Survey',
-                        subpath: 'Memo',
-                        url: `/survey/panel?surveyId=${survey.data._id}`,
-                        type: 'Reply'
-                    });
-                } catch (error) {
-                    console.error("Error posting notification:", error);
-                }
-            }
-            
-            setSelectedComment(null);
-            setTextareaValue('');
-            setSticker(null);
-            setMedia([]);
-            fetchSurveyData();
-            handleClose();
-        } catch (error) {
-            console.error('Error adding comment:', error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleReply = async () => {
-        setIsLoading(true);
-
-        const newReply = {
-            commentId: seletedComment,
-            userId: userId,
-            reply: textareaValue,
-            sticker,
-            medias: media,
-        };
-
-        try {
-            const response = await axios.post(`/api/survey/board/reply`, newReply);
-            if (response.success) {
-                try {
-                    await axios.post('/api/notifications', {
-                        userId: selectData.userId,
-                        senderId: userId,
-                        description: `แสดงความคิดเห็นใน Verbatim`,
-                        referId: response.data.data._id,
-                        path: 'Survey',
-                        subpath: 'Memo',
-                        url: `/survey/panel?surveyId=${survey.data._id}`,
-                        type: 'Reply'
-                    });
-                } catch (error) {
-                    console.error("Error posting notification:", error);
-                }
-            }
-            
-            setSelectedComment(null);
-            setTextareaValue('');
-            setSticker(null);
-            setMedia([]);
-            fetchSurveyData();
-            handleClose();
-        } catch (error) {
-            console.error('Error adding comment:', error);
-        } finally {
-            setIsLoading(false);
-        }
-
-    }
-
-    const handleEditComment = (id) => {
-        handleMenuClose();
-        console.log("Editing", id);
-        // Implement edit logic
-        setTextareaValue(survey.data.comments.find(comment => comment._id === id).comment);
-        setSticker(survey.data.comments.find(comment => comment._id === id).sticker);
-        setMedia(survey.data.comments.find(comment => comment._id === id).medias);
-        setOpen(true);
-    };
-
-
+   
     const handleEditReply = (id, reply) => {
         handleMenuClose();
         console.log("Editing", id);
@@ -215,63 +286,24 @@ const SurveyPanel = () => {
         setOpen(true);
     };
 
-    const handleCommentEdit = async () => {
-        
-    }
 
-    const handleReplyEdit = async () => {
-        setIsLoading(true);
-
-        const uploadReply = {
-            reply: textareaValue,
-            sticker,
-            medias: media,
-        }
-
-        try {
-            await axios.put(`/api/survey/board/reply?id=${seletedComment}`, uploadReply);
-            fetchSurveyData();
-            
-        } catch (error) {
-            console.error("Error editing comment:", error);
-            Swal.fire({
-                icon: 'error',
-                title: 'แก้ไขความคิดเห็นไม่สําเร็จ',
-                text: 'เกิดข้อผิดพลาดขณะแก้ไขความคิดเห็น',
-                confirmButtonText: 'ตกลง',
-                confirmButtonColor: '#0056FF',
-                allowOutsideClick: true,
-            })
-        } finally {
-            handleClose();
-            setIsLoading(false);
-        }
-
-    }
-
-    const handleClickOpen = (id) => {
+    const handleClickOpen = (type, id) => {
         setSelectedComment(id);
+        setType(type);
         setOpen(true);
     };
     
     const handleClose = () => {
-        setSelectData(null);
-        setMenuAnchorEl(null);
         setSelectedComment(null);
+        setType(null);
+        setError(null);
         setTextareaValue('');
         setSticker(null);
         setMedia([]);
-        setOpenReply(false);
         setIsEdit(false);
         setOpen(false);
     };
 
-    const handleClickOpenReply = (id, reply) => {
-        setSelectedComment(id);
-        setSelectData(reply);
-        setOpenReply(true);
-        setOpen(true);
-    }
 
     const handleOpenSticker = () => {
         setOpenSticker(true);
@@ -288,7 +320,6 @@ const SurveyPanel = () => {
 
     const handleMenuClose = () => {
         setMenuAnchorEl(null);
-        setSelectedComment(null);
     };
 
     return (
@@ -296,7 +327,7 @@ const SurveyPanel = () => {
             <div className="flex flex-row justify-between items-center gap-2 mt-5 w-full">
                 <IoIosArrowBack
                     className="text-xl inline text-gray-700"
-                    onClick={() => handleClose()}
+                    onClick={() => router.back()}
                     size={25}
                 />
                 <h2 className="text-3xl font-bold text-[#0056FF]">
@@ -307,29 +338,49 @@ const SurveyPanel = () => {
 
             <div className="flex flex-col mt-5 w-full">
                 <div className="flex flex-col px-2 py-1 w-full">
-                    <div className="flex flex-row gap-4 px-2 py-1 w-full bg-gray-300 rounded-xl text-sm">
-                        <div className="flex flex-col w-[40px]">
-                            <Image
-                                src="/images/survey/3.svg"
-                                alt="Profile"
-                                width={50}
-                                height={50}
-                                className="rounded-full bg-white p-1"
-                                style={{ width: '40px', height: '40px' }}
-                            />
+                    <div className="flex flex-col p-2 bg-gray-300 rounded-3xl text-sm w-full mb-2">
+                        <div className="flex flex-row gap-4 mb-2 w-full ">
+                            <div className="flex flex-col w-[40px]">
+                                <Image
+                                    src="/images/survey/3.svg"
+                                    alt="Profile"
+                                    width={50}
+                                    height={50}
+                                    className="rounded-full"
+                                    style={{ width: '40px', height: '40px' }}
+                                />
+                            </div>
+                            
+                            <div className="flex flex-row justify-between px-1 w-full">
+                                <p className="text-sm">{survey?.data?.memo}</p>
+                                <p className="text-xs">{moment(survey?.data?.createdAt).locale("th").format("lll")}</p>
+                            </div>
                         </div>
-                        
-                        <div className="flex flex-col gap-1 w-[calc(75%-40px)]">
-                            <p className="text-xs">{moment(survey?.data?.createdAt).locale("th").format("DD MMMM YYYY")}</p>
-                            <p className="text-sm">{survey?.data?.memo}</p>
-                        </div>
+
+                        <Divider className="w-full mb-2"/>
+
+                        <div className="flex flex-row justify-end items-center px-2 w-full">
+                                <div 
+                                    className="flex flex-row gap-2 items-center"
+                                    onClick={() => handleClickOpen('comment', survey?.data._id)}
+                                >
+                                    <LuMessageSquarePlus className="text-gray-700" size={15}/>
+                                    <div className="flex flex-row gap-1 items-center">
+                                        <span>ความคิดเห็น</span>
+                                        <span>
+                                            {survey?.data?.comments.length > 0 && survey?.data?.comments.length}
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                            </div>
                     </div>
                 </div>
             </div>
             {/* Comments List */}
             {Array.isArray(survey?.data?.comments) && 
                 survey?.data?.comments.map((comment, index) => (
-                <div key={index} className="flex flex-col px-2 w-full">
+                <div key={index} className="flex flex-col px-2 w-full mb-1">
                     <div className="flex flex-col bg-gray-200 rounded-xl p-1 w-full">
                         <div className="flex flex-row  w-full">
                             <div className="flex flex-col">
@@ -347,17 +398,17 @@ const SurveyPanel = () => {
                                 <div className="flex flex-row justify-between w-full ">
                                     <span className="text-sm font-bold text-[#0056FF]">{comment.user.fullname}</span>
                                     <div className="flex flex-row gap-1">
-                                        <span className="text-xs">{moment(comment.createdAt).locale("th").format("LL")}</span>
-                                            <BsThreeDotsVertical 
-                                                className="text-gay-300 cursor-pointer"
-                                                onClick={(e) => handleMenuClick(e, comment._id)}
-                                            />
+                                        <span className="text-xs">{moment(comment.createdAt).locale("th").format("lll")}</span>
+                                        <BsThreeDotsVertical 
+                                            className="text-gay-300 cursor-pointer"
+                                            onClick={(e) => handleMenuClick(e, comment._id)}
+                                        />
                                     </div>
 
                                     {/* Dropdown menu */}
                                     <Menu
                                         anchorEl={menuAnchorEl}
-                                        open={Boolean(menuAnchorEl) && seletedComment === comment._id}
+                                        open={Boolean(menuAnchorEl) && selectedComment === comment._id}
                                         onClose={handleMenuClose}
                                     >
                                          {comment.userId === userId  && (
@@ -367,7 +418,7 @@ const SurveyPanel = () => {
                                         )}
 
                                         {(user?.role === "admin" || user?.role === "manager" || comment.userId === userId) && (
-                                            <MenuItem onClick={() => handleDeleteComment(seletedComment)}>
+                                            <MenuItem onClick={() => handleDeleteComment(selectedComment)}>
                                                 ลบความคิดเห็น
                                             </MenuItem>
                                         )}
@@ -376,9 +427,9 @@ const SurveyPanel = () => {
 
                                 <div className="flex flex-col">
                                     <p className="text-sm">{comment.comment}</p>
-                                    <div className="flex flex-col jestify-center items-center w-full">
+                                    <div className="flex flex-col w-full">
                                         {comment?.sticker && (
-                                            <div className="flex flex-row gap-1">
+                                            <div className="flex gap-1">
                                                 <Image
                                                     src={comment.sticker.url}
                                                     alt="Profile"
@@ -398,7 +449,7 @@ const SurveyPanel = () => {
 
                         <div className="flex flex-row justify-end items-center gap-2 mx-2">
                             <div className="flex flex-row items-center jestify-center gap-1 text-xs bg-gray-100 px-2 py-1 rounded-xl shadow-sm"
-                                onClick={() => handleClickOpen(comment._id)}
+                                onClick={() => handleClickOpen('reply', comment._id)}
                             >
                                 <FaRegCommentDots className="text-gray-500 text-sm"/>
                                 <span>ตอบกลับ</span>
@@ -435,7 +486,7 @@ const SurveyPanel = () => {
                                             {/* Dropdown menu */}
                                             <Menu
                                                 anchorEl={menuAnchorEl}
-                                                open={Boolean(menuAnchorEl) && seletedComment === reply?._id}
+                                                open={Boolean(menuAnchorEl) && selectedComment === reply?._id}
                                                 onClose={handleMenuClose}
                                             >
                                                 {reply.userId === userId  && (
@@ -445,7 +496,7 @@ const SurveyPanel = () => {
                                                 )}
 
                                                 {(user?.role === "admin" || user?.role === "manager") && (
-                                                    <MenuItem onClick={() => handleDeleteComment(reply?._id)}>
+                                                    <MenuItem onClick={() => handleDeleteReply(reply?._id)}>
                                                         ลบความคิดเห็น
                                                     </MenuItem>
                                                 )}
@@ -472,16 +523,7 @@ const SurveyPanel = () => {
                                     </div>
                                 </div>
 
-                                <Divider className="w-full my-1" />
-
-                                <div className="flex flex-row justify-end items-center gap-2 mx-2">
-                                    <div className="flex flex-row items-center jestify-center gap-1 text-xs bg-gray-100 px-2 py-1 rounded-xl shadow-sm">
-                                        <FaRegCommentDots className="text-gray-500 text-sm"
-                                            onClick={() => handleClickOpenReply(comment._id)}
-                                        />
-                                        <span>ตอบกลับ</span>
-                                    </div>
-                                </div>
+                                {/* Tools */}
                             </div>
                         </div>
                     ))}
@@ -504,7 +546,6 @@ const SurveyPanel = () => {
                 }}
             >
                 <div>
-                    {isLoading && <CircularProgress />}
                     <div className="flex flex-row items-center gap-2 mt-5 w-full">
                         <IoIosArrowBack 
                             className="text-xl inline text-gray-700"
@@ -512,11 +553,18 @@ const SurveyPanel = () => {
                             size={25}
                         />
                         <div>
-                            <span className="font-bold text-lg text-[#0056FF]">ตอบกลับความคิดเห็น</span>
+                            <span className="font-bold text-lg text-[#0056FF]">
+                                {type === "comment" ? "ตอบกลับ Verbatim" : "ตอบความคิดเห็น"}
+                            </span>
                         </div>
                     </div>
 
                     <Divider className="w-full mt-4 mb-4" />
+                    {error && 
+                        <div>
+                            <span className="text-red-500 px-4">{error}</span>
+                        </div>
+                    }
 
                     <div className="flex flex-col justify-center items-center gap-1 mt-2 px-4 w-full">
                         <div className="flex flex-col p-2 bg-white border rounded-xl w-full">
@@ -526,17 +574,31 @@ const SurveyPanel = () => {
                                 value={textareaValue}
                                 onChange={(e) => setTextareaValue(e.target.value)}
                             />
+                            <div className="flex flex-col jestify-center items-center">
                             {sticker && (
-                                <div className="flex flex-col jestify-center items-center gap-1">
+                                <>
+                                    <div className="relative flex justify-end items-center ml-20">
+                                        <IoCloseCircle 
+                                            className="text-lg inline text-gray-900" 
+                                            onClick={() => setSticker(null)}
+                                        />
+                                    </div>
+                                    
                                     <Image
                                         src={sticker.url}
                                         alt="sticker"
                                         width={80}
                                         height={80}
-                                        style={{ width: 'auto', height: '80px' }}
+                                        style={{ 
+                                            width: 'auto', 
+                                            height: '80px',
+                                            marginTop: '-20px'
+                                        }}
                                     />
-                                </div>
-                            )}
+                                </>
+                                )}
+                                
+                            </div>
                             <div className="flex flex-row justify-end items-center gap-2 px-1">
                                 <RiEmojiStickerLine 
                                     className="text-xl inline text-gray-500"
@@ -551,21 +613,12 @@ const SurveyPanel = () => {
                         </div>
                     </div>
                     <div className="flex flex-row justify-end items-center gap-2 px-6 w-full mt-2">
-                        {isEdit ? (
-                            <button
-                                className="text-white bg-[#0056FF] rounded-xl px-6 py-1"
-                                onClick={handleReplyEdit}
-                            >
-                                แก้ไข
-                            </button>
-                        ): (
-                            <button
-                                className="text-white bg-[#0056FF] rounded-xl px-6 py-1"
-                                onClick={openReply ? handleReply : handleSend}
-                            >
-                                ตอบกลับ
-                            </button>
-                        )}
+                        <button
+                            className="text-white bg-[#0056FF] rounded-xl px-6 py-1"
+                            onClick={type === "comment" ? handleCommentSubmit : handleReplySubmit}
+                        >
+                            {isEdit ? "แก้ไข" : "ตอบกลับ"}
+                        </button>
                     </div>
                 </div>
             </Dialog>
