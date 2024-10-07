@@ -96,7 +96,11 @@ const UserModal = ({ isOpen, onRequestClose, onSubmit, user }) => {
                     </div>
                 )}
 
-                <UserListMediaModal isOpen={showModal} onRequestClose={handleCloseModal} setPictureUrl={setPictureUrl} />
+                <UserListMediaModal 
+                    isOpen={showModal} 
+                    onRequestClose={handleCloseModal} 
+                    setPictureUrl={setPictureUrl} 
+                />
                 
                 <span className='text-[10px] font-bold mt-1 mb-2'>Click ที่รูปเพื่ออัปโหลด</span>
                 

@@ -5,12 +5,14 @@ import { LuInfo } from "react-icons/lu";
 import { IoMdArrowRoundForward } from "react-icons/io";
 import ExchangeModal from "@/components/ExchangeModal";
 import LevelModal from "@/components/LevelModal";
+import UserModal from "../UserModal";
 
 const LineProgressBar = dynamic(() => import("@/components/ProfileLineProgressBar"), { ssr: false });
 
-const UserPanel = ({user, level, onExchangeAdd, setLoading, loading, coins}) => {
+const UserPanel = ({user, level, onExchangeAdd, setLoading, loading, coins, onUpload}) => {
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [IsLevelModal, setIsLevelModal] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [conversionRate, setConversionRate] = useState(25);
     const percent = level?.nextLevelRequiredPoints
         ? parseFloat((level?.totalPoints / level?.nextLevelRequiredPoints ) * 100)
@@ -21,6 +23,16 @@ const UserPanel = ({user, level, onExchangeAdd, setLoading, loading, coins}) => 
 
     const openLevelModal = () => setIsLevelModal(true);
     const closeLevelModal = () => setIsLevelModal(false);
+
+    const onRequestClose = async () => {
+        setIsModalOpen(false);
+    };
+
+    const onSubmit = () => {
+        onUpload();
+        setIsModalOpen(false);
+    };
+
 
     return (
         <div className="flex flex-row bg-[#0056FF] text-white items-start justify-between rounded-xl px-2 shadow-lg">
@@ -42,6 +54,7 @@ const UserPanel = ({user, level, onExchangeAdd, setLoading, loading, coins}) => 
                                         objectFit: "cover",
                                         objectPosition: "center",
                                     }}
+                                    onClick={() => setIsModalOpen(true)}
                                 />
                             </div>
                             
@@ -135,6 +148,13 @@ const UserPanel = ({user, level, onExchangeAdd, setLoading, loading, coins}) => 
             <LevelModal
                 isOpen={IsLevelModal}
                 onRequestClose={closeLevelModal}
+            />
+
+            <UserModal 
+                isOpen={isModalOpen} 
+                onRequestClose={onRequestClose} 
+                user={user} 
+                onSubmit={onSubmit} 
             />
         </div>
     )

@@ -95,7 +95,7 @@ const manager = ['22392', '20569', '56428', '23782',
         const router = useRouter();
         const userId = session?.user?.id;
     
-        const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
+        const { data: user, error: userError, mutate: mutateUser } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
         const { data: level, error: levelError, mutate } = useSWR(session ? `/api/level/user?userId=${userId}` : null, fetcher);
         const { data: coins, error: coinsError, mutate: mutateCoins } = useSWR('/api/coins/user?userId=' + session?.user?.id, fetcher);
     
@@ -171,6 +171,10 @@ const manager = ['22392', '20569', '56428', '23782',
             mutate();
             mutateCoins();
         };
+
+        const onUplad = () => {
+            mutateUser();
+        };
     
         if (status === "loading" || !user || !level || loading ) return <Loading />;
         if (userError) return <div>Error loading data</div>;
@@ -183,7 +187,15 @@ const manager = ['22392', '20569', '56428', '23782',
                             <MenuPanel user={user} />
                         </div>
                         <div className="w-full p-5 mt-[-10px]">
-                            <UserPanel user={user} level={level} onExchangeAdd={onExchangeAdd} setLoading={setLoading} loading={loading} coins={coins}/>
+                            <UserPanel 
+                                user={user} 
+                                level={level} 
+                                onExchangeAdd={onExchangeAdd} 
+                                setLoading={setLoading} 
+                                loading={loading} 
+                                coins={coins}
+                                onUplad={onUplad}
+                            />
                         </div>
                         <div className="flex-grow flex items-center justify-center">
                             <MainIconMenu />

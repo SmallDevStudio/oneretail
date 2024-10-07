@@ -54,7 +54,7 @@ const ProfileContent = ({ session }) => {
     };
 
     return (
-        <main className="flex flex-col mb-20">
+        <main className="flex-1 flex-col mb-20">
             <div style={{ position: "fixed", top: 0, left: '38%', zIndex: 10, cursor: "pointer", minWidth: "100%", justifyItems: "end" }}>
                 <div className="flex p-2 flex-row items-center justify-center gap-1">
                     {level?.user?.role === "admin" && (
@@ -172,7 +172,7 @@ const ProfileContent = ({ session }) => {
                 user={user} 
                 onSubmit={onSubmit} 
             />
-            
+
             <div className="flex p-2 flex-col items-center justify-center text-center mt-3 w-full">
                 <Link href="/redeem">
                     <button className="w-40 h-10 bg-[#F2871F] text-white rounded-3xl font-semibold text-xl mb-5 mt-3">
