@@ -101,7 +101,7 @@ const LeaderBoard = () => {
 
             <div className="flex justify-center items-center w-full">
                 <span className="text-xl font-bold text-white">
-                    อันดับประจำเดือน <span className="text-[#0056FF]">มิถุนายน</span>
+                    อันดับประจำเดือน <span className="text-[#0056FF]">กรกฎาคม</span>
                 </span>
             </div>
 
