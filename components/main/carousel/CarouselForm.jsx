@@ -1,26 +1,24 @@
 import React,{ useState, useRef } from "react";
 import axios from "axios";
-import useSWR from "swr";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { ImFilePicture } from "react-icons/im";
 import { IoIosCloseCircle } from "react-icons/io";
 import useMedia from "@/lib/hook/useMedia";
 
-const fetcher = (url) => axios.get(url).then((res) => res.data);
-
 const CarouselForm = ({ selected, mutate, setLoading , setSelected, setOpen}) => {
     const [url, setUrl] = useState(selected?.url || '');
-    const [media, setMedia] = useState({url: selected?.media?.url, public_id: selected?.media?.public_id, type: selected?.media?.type} || null);
-    const [youtube, setYoutube] = useState(null);
-    const [youtubeUrl, setYoutubeUrl] = useState(selected?.youtube.url || '');
+    const [media, setMedia] = useState(selected?.media || null);
+    const [youtube, setYoutube] = useState(selected?.youtube || null);
+    const [youtubeUrl, setYoutubeUrl] = useState(selected?.youtube?.url || '');
     const [error, setError] = useState(null);
     const [Preview, setPreview] = useState(false);
     const { add } = useMedia();
 
-    console.log('media', media);
-
     const fileUploadRef = useRef(null);
+
+    console.log('selected form:', selected);
+    console.log('media form:', media);
 
     const { data: session } = useSession();
     const userId = session?.user?.id;
@@ -46,15 +44,13 @@ const CarouselForm = ({ selected, mutate, setLoading , setSelected, setOpen}) =>
         // Construct `newData` according to your schema
         const newData = {
             url: url || '', // Fallback to empty string if URL is not set
-            image: media && media.url ? { ...media } : null, // Ensure media has a valid URL
+            media: media && media.url ? { ...media } : null, // Ensure media has a valid URL
             youtube: youtube ? {
                 url: youtubeUrl,
                 thumbnailUrl: youtube?.thumbnailUrl || null,
             } : null,
             userId
         };
-    
-        console.log('Submitting data:', newData); // Log the data being sent
     
         try {
             if (selected) {
@@ -123,7 +119,7 @@ const CarouselForm = ({ selected, mutate, setLoading , setSelected, setOpen}) =>
                 <div className="flex flex-col mt-4 border rounded-xl p-4">
                     {/* Previews */}
                     <div className="flex flex-col mb-4">
-                    {Preview && media && media?.type === 'image'? (
+                    {media && media?.type === 'image'? (
                             
                             <Image
                                 src={media?.url}
@@ -159,7 +155,7 @@ const CarouselForm = ({ selected, mutate, setLoading , setSelected, setOpen}) =>
                                 />
                            
                         )}
-                        {Preview && media && (
+                        {media && (
                             <div
                                 className="relative top-[-120px] right-[-200px] cursor-pointer"
                                 onClick={() => handleDeleteMedia(media?.url)}

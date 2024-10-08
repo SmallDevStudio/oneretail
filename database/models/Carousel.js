@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const CarouselSchema = new mongoose.Schema({
-    image: { 
+    media: { 
         public_id: { type: String }, 
         url: { type: String }, 
         type: { type: String, enum: ['image', 'video'] }, // Add type to distinguish between image and video

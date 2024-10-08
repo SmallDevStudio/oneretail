@@ -6,6 +6,7 @@ import CarouselForm from "@/components/main/carousel/CarouselForm";
 import useSWR from "swr";
 import axios from "axios";
 import CircularProgress from '@mui/material/CircularProgress';
+import Modal from "@/components/Modal";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -23,6 +24,8 @@ const HomeOptions = () => {
     };
 
     const handleClose = () => {
+        setSelected(null);
+        setLoading(false);
         setOpen(false);
     };
 
@@ -50,7 +53,12 @@ const HomeOptions = () => {
                </div>
                <div>
                {open && (
-                    <CarouselForm 
+                    <Modal
+                        open={open}
+                        onClose={handleClose}
+                        title="เพิ่มเนื้อหาหน้าแรก"
+                    >
+                        <CarouselForm 
                         handleClose={handleClose} 
                         selected={selected} 
                         setSelected={setSelected} 
@@ -58,6 +66,7 @@ const HomeOptions = () => {
                         mutate={mutate} 
                         setLoading={setLoading} 
                     />
+                    </Modal>
                 )}
                </div>
             </div>

@@ -4,20 +4,8 @@ import Image from "next/image";
 import Swal from "sweetalert2";
 import { IoIosCloseCircle } from "react-icons/io";
 import { FiEdit } from "react-icons/fi";
-import sha1 from "crypto-js/sha1";
 
 const CarouselTable = ({data, mutate, setLoading, setSelected, handleOpen}) => {
-
-    const generateSHA1 = (data) => {
-        const hash = sha1(data);
-        return hash.toString();
-    };
-
-    const generateSignature = (publicId, apiSecret) => {
-        const timestamp = new Date().getTime();
-        const signature = `public_id=${publicId}&timestamp=${timestamp}${apiSecret}`;
-        return generateSHA1(signature);
-    };
 
     const handleDelete = async (id, image) => {
         const result = await Swal.fire({

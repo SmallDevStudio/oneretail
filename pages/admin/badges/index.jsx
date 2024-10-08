@@ -1,6 +1,7 @@
 import React from "react";
 import Header from "@/components/admin/global/Header";
 import BadgeTable from "@/components/badges/BadgeTable";
+import BadgeForm from "@/components/badges/BadgeForm";
 import { AdminLayout } from "@/themes";
 
 const BadgesAdmin = () => {
@@ -20,6 +21,7 @@ const BadgesAdmin = () => {
 
                 <BadgeTable />
             </div>
+
         </div>
     );
 };

@@ -44,9 +44,6 @@ const ShareYourStory = () => {
 
     const folder = 'share-your-story';
 
-    console.log('posts', posts);
-    
-
     const { data: user, mutate: mutateUser } = useSWR(`/api/users/${session?.user?.id}`, fetcher);
 
     useEffect(() => {

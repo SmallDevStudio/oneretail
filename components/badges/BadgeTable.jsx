@@ -6,6 +6,10 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import CircularProgress from '@mui/material/CircularProgress';
 import { IoIosCloseCircle } from "react-icons/io";
+import moment from "moment";
+import "moment/locale/th";
+
+moment.locale('th');
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -186,10 +190,11 @@ const BadgeTable = () => {
                 <table className="table-auto w-full">
                     <thead className="bg-gray-200 border border-gray-300">
                         <tr>
-                            <th className="border border-gray-300 px-2">No</th>
-                            <th className="border border-gray-300 px-2">Name</th>
-                            <th className="border border-gray-300 px-2">Description</th>
-                            <th className="border border-gray-300 px-2">Image</th>
+                            <th className="border border-gray-300 px-2">ลำดับ</th>
+                            <th className="border border-gray-300 px-2">ชื่อ</th>
+                            <th className="border border-gray-300 px-2">รายละเอียด</th>
+                            <th className="border border-gray-300 px-2">ไอคอน</th>
+                            <th className="border border-gray-300 px-2">วันที่สร้าง</th>
                             <th className="border border-gray-300 px-2">Actions</th>
                         </tr>
                     </thead>
@@ -208,6 +213,7 @@ const BadgeTable = () => {
                                             height={50}
                                         />
                                     </td>
+                                    <td>{moment(badge.createdAt).locale('th').format('LLL')}</td>
                                     <td>
                                         <button
                                             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
@@ -304,7 +310,7 @@ const BadgeTable = () => {
 
                     <div className="flex flex-row items-center gap-2">
                         <label htmlFor="image" className="font-bold">
-                            Image:
+                            Icon:
                             <span className="text-red-500">*</span>
                         </label>
                         <input 

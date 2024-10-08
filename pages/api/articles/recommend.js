@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     switch (method) {
         case 'GET':
             try {
-                const articles = await Article.find({ status: 'published' })
+                const articles = await Article.find({ status: 'published' }).sort({ pinned: -1, createdAt: -1 })
                     .limit(10)
                     .sort({ createdAt: -1 });
                 if (articles.length === 0) {
