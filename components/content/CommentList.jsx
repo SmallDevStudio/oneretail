@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
 import axios from 'axios';
 import moment from 'moment';
 import "moment/locale/th";
@@ -33,9 +34,8 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
     const [replyLikes, setReplyLikes] = useState({});
     const { data: session } = useSession();
 
-    console.log('currentDialog:', currentDialog);
-    console.log('currentOption:', currentOption);
-    console.log('comments:', comments);
+    const router = useRouter();
+    const { id } = router.query;
 
     useEffect(() => {
         if (content && session) {
@@ -99,11 +99,11 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
                     await axios.post('/api/notifications', {
                         userId: user.userId,
                         senderId: userId,
-                        description: `ได้แท็คโพสใน Share Your Story`,
+                        description: `ได้แท็คโพสใน Learning`,
                         referId: post._id,
-                        path: 'Share Your Story',
+                        path: 'Learning',
                         subpath: 'Comment',
-                        url: `${window.location.origin}stores?tab=share-your-story#${post._id}`,
+                        url: `/learning/${contentId}`,
                         type: 'Tag'
                     });
                 }
@@ -155,11 +155,11 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
                     await axios.post('/api/notifications', {
                         userId: user.userId,
                         senderId: userId,
-                        description: `ได้แท็คโพสใน Share Your Story`,
+                        description: `ได้แท็คโพสใน Learning`,
                         referId: post._id,
-                        path: 'Share Your Story',
+                        path: 'Learning',
                         subpath: 'Reply',
-                        url: `${window.location.origin}stores?tab=share-your-story#${post.commentId}`,
+                        url: `/learning/${id}`,
                         type: 'Tag'
                     });
                 }
