@@ -594,7 +594,7 @@ const ShareYourStory = () => {
                                         </div>
                                     </div>
                                     <div className="flex flex-col px-1 w-full">
-                                        <p className="text-xs text-left px-1">{comment?.comment}</p>
+                                        <p className="text-sm text-left px-1">{comment?.comment}</p>
                                         {comment?.sticker && comment.sticker.url ?
                                             <div className="flex">
                                                 <Image
@@ -683,7 +683,7 @@ const ShareYourStory = () => {
                                                             <span key={index} className="inline-block text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
                                                         ))}
                                                     </div>
-                                                    <p className="text-xs">{reply?.reply}</p>
+                                                    <p className="text-sm text-left px-1">{reply?.reply}</p>
                                                     {reply?.sticker && reply?.sticker?.url && (
                                                         <div className="flex">
                                                             <Image
