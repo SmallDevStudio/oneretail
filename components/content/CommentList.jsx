@@ -347,7 +347,7 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
                             </div>
                         </div>
                         <div className="flex flex-col w-full px-2 mt-1">
-                            <p className="text-xs text-left px-7">{comment?.comment}</p>
+                            <p className="text-sm text-left px-7">{comment?.comment}</p>
                             {comment?.sticker && (
                                 <div className="flex justify-center">
                                     <Image
@@ -442,7 +442,7 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
                                         </div>
                                     </div>
                                     <div className="flex flex-col w-full px-3">
-                                        <p className="text-xs">{reply?.reply}</p>
+                                        <p className="text-sm">{reply?.reply}</p>
                                             {reply?.sticker && reply?.sticker?.url && (
                                                 <div className="flex">
                                                     <Image
