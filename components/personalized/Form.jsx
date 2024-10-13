@@ -48,8 +48,6 @@ const ContentForm = () => {
     });
 
 
-    console.log(personalized);
-
     const handleSubmitPersonalized = async () => {
         if (isEdit) {
             const update = {
@@ -162,6 +160,36 @@ const ContentForm = () => {
             }
         }
     }
+
+    const handleActivePersonalized = async (data, id) => {
+        // Toggle the status as a Boolean
+       let newStatus;
+
+        if (data.active) {
+            newStatus = false;
+        } else {
+            newStatus = true;
+        }
+
+        try {
+            const response = await axios.put(`/api/personal/contents/active?id=${id}`, { active: newStatus });
+            if (response.status === 200) {
+                mutate();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่สามารถบันทึกข้อมูลได้',
+                    text: response.data.message,
+                });
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: error.response.data.message,
+            });
+        }
+    };
 
     const handleClearPersonalized = async () => {
         setSelectedContent([]);
@@ -316,6 +344,7 @@ const ContentForm = () => {
                                         <td className="border px-4 py-2 text-center">
                                             <button
                                                 className={`inline-block ${item.active ? "bg-green-500" : "bg-red-500"} text-white rounded-md px-2 py-1`}
+                                                onClick={() => handleActivePersonalized(item, item._id)}
                                             >
                                                 <span className={`inline-block text-sm font-bold text-white`}>
                                                     {item.active? "ใช้งาน" : "ไม่ใช้งาน"}
