@@ -47,7 +47,6 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
       <Box
         sx={{
           "& .pro-sidebar": {
-            height: "100vh",
             zIndex: "50",
           },
           "& .pro-sidebar-inner": {

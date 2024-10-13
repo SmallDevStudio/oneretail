@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import Header from "@/components/admin/global/Header";
 import ContentForm from "@/components/personalized/Form";
+import QuestionsForm from "@/components/personalized/QuestionsForm";
 import { AdminLayout } from "@/themes";
 import CircularProgress from '@mui/material/CircularProgress';
 import { Divider } from "@mui/material";
@@ -61,7 +62,7 @@ const Personalized = () => {
 
                 {activeTab === 'questions' && (
                     <div>
-                        Questions
+                        <QuestionsForm />
                     </div>
                 )}
             </div>
