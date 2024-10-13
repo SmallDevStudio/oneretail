@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import useSWR from "swr";
 import Image from "next/image";
-import Header from "@/components/admin/global/Header";
 import { useSession } from "next-auth/react";
 import { IoIosCloseCircle } from "react-icons/io";
 import CircularProgress from '@mui/material/CircularProgress';
@@ -258,11 +257,6 @@ const ContentForm = () => {
             </div>
         ) : (
         <div>
-            {/* Header */}
-            <div>
-                <Header title="Personalized" subtitle="Personalized" />
-            </div>
-
             {/* Table */}
             <div className="p-5">
                 <div>
