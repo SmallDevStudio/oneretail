@@ -17,6 +17,7 @@ import { IoShareSocialOutline } from "react-icons/io5";
 import { PiExam } from "react-icons/pi";
 import { SlBadge } from "react-icons/sl";
 import { LuSticker } from "react-icons/lu";
+import { LuBaby } from "react-icons/lu";
 import Image from "next/image";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
@@ -175,6 +176,14 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                 title="จัดการบทความ"
                 to="/admin/articles"
                 icon={<GrArticle />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+
+              <Item
+                title="Personalize"
+                to="/admin/personalized"
+                icon={<LuBaby />}
                 selected={selected}
                 setSelected={setSelected}
               />

@@ -22,12 +22,26 @@ const LearningGen = () => {
         }
     });
 
-    console.log(user);
+    const handleLink = (link) => {
+        router.push(`/gen/${link}`);
+    };
 
     return (
         <div className="flex-1 flex-col w-full mb-20 px-4 min-h-[80vh]">
             {/* User Panel */}
             <div className='flex flex-col justify-center items-center w-full p-2 mt-5'>
+                <div className='relative justify-center items-center w-full top-1'>
+                    <Image
+                        src="/images/gen/badge.png"
+                        alt="badge"
+                        width={120}
+                        height={120}
+                        style={{
+                            width: "100%",
+                            height: "auto",
+                        }}
+                            />
+                </div>
                 <div className='flex flex-row gap-2 bg-gray-100 p-2 w-[300px] rounded-md'>
                     <div className='flex flex-col items-center justify-center w-full'>
                         <span className='text-xl text-[#0056FF] font-bold'>{user?.fullname}</span>
@@ -66,21 +80,24 @@ const LearningGen = () => {
             />
 
             {/* Content */}
-            <div className="flex flex-col mt-5 gap-5">
+            <div className="flex flex-col mt-5 gap-5 px-2">
                 <button 
-                    className='bg-[#0056FF] text-white text-2xl font-bold py-10 px-4 rounded-md'
+                    className='bg-[#0056FF] text-white text-2xl font-bold py-10 px-4 rounded-lg'
+                    onClick={() => handleLink('newjoiner')}
                 >
                     New Joiner
                 </button>
 
                 <button 
-                    className='bg-[#0056FF] text-white text-2xl font-bold py-10 px-4 rounded-md'
+                    className='bg-[#0056FF] text-white text-2xl font-bold py-10 px-4 rounded-lg'
+                    onClick={() => handleLink('cyc')}
                 >
                     CYC
                 </button>
 
                 <button 
-                    className='bg-[#0056FF] text-white text-2xl font-bold py-10 px-4 rounded-md'
+                    className='bg-[#0056FF] text-white text-2xl font-bold py-10 px-4 rounded-lg'
+                    onClick={() => handleLink('housingload')}
                 >
                     housing load
                 </button>

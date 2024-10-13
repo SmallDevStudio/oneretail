@@ -4,6 +4,12 @@ import Content from "@/database/models/Content";
 import Users from "@/database/models/users";
 import ContentViews from "@/database/models/ContentViews";
 
+export const config = {
+  api: {
+    responseLimit: false,
+  },
+};
+
 export default async function handler(req, res) {
   const { method, query } = req;
 

@@ -10,11 +10,7 @@ const empSchema = new Schema({
     chief_th: { type: String},
     chief_eng: { type: String},
     position: { type: String},
-    branch_en: { type: String},
-    department_en: { type: String},
-    group_en: { type: String},
-    position2: { type: String},
-    position3: { type: String},
+    name: { type: String},
 });
 
 const Emp = mongoose.models.emp || mongoose.model('emp', empSchema);
