@@ -10,21 +10,15 @@ import { Divider } from '@mui/material';
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 const LearningGen = () => {
-    const [user, setUser] = useState(null);
-
     const router = useRouter();
     const { data: session } = useSession();
     const userId = session?.user?.id;
 
-    const { data: users, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher, {
-        onSuccess: (data) => {
-            setUser(data?.user);
-        }
-    });
+    const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
 
-    const handleLink = (link) => {
-        router.push(`/gen/${link}`);
-    };
+    const { data: PersonalizedData, error: PersonalizedError } = useSWR( `/api/personal/contents`, fetcher);
+        
+    if (userError || PersonalizedError) return <div>Error loading data</div>;
 
     return (
         <div className="flex-1 flex-col w-full mb-20 px-4 min-h-[80vh]">
@@ -44,12 +38,12 @@ const LearningGen = () => {
                 </div>
                 <div className='flex flex-row gap-2 bg-gray-100 p-2 w-[300px] rounded-md'>
                     <div className='flex flex-col items-center justify-center w-full'>
-                        <span className='text-xl text-[#0056FF] font-bold'>{user?.fullname}</span>
-                        <span className='text-xl text-[#F2871F] font-bold'>{user?.position}</span>
+                        <span className='text-xl text-[#0056FF] font-bold'>{user?.user?.fullname}</span>
+                        <span className='text-xl text-[#F2871F] font-bold'>{user?.user?.position}</span>
                     </div>
                     <div className='flex flex-col items-center justify-center w-[120px]'>
                         <Image
-                            src={user?.pictureUrl}
+                            src={user?.user?.pictureUrl}
                             alt="Avatar"
                             width={80}
                             height={80}
@@ -81,26 +75,14 @@ const LearningGen = () => {
 
             {/* Content */}
             <div className="flex flex-col mt-5 gap-5 px-2">
-                <button 
-                    className='bg-[#0056FF] text-white text-2xl font-bold py-10 px-4 rounded-lg'
-                    onClick={() => handleLink('newjoiner')}
-                >
-                    New Joiner
-                </button>
-
-                <button 
-                    className='bg-[#0056FF] text-white text-2xl font-bold py-10 px-4 rounded-lg'
-                    onClick={() => handleLink('cyc')}
-                >
-                    CYC
-                </button>
-
-                <button 
-                    className='bg-[#0056FF] text-white text-2xl font-bold py-10 px-4 rounded-lg'
-                    onClick={() => handleLink('housingload')}
-                >
-                    housing load
-                </button>
+                {PersonalizedData?.data?.map((data, index) => (
+                    <button key={index}
+                        className='bg-[#0056FF] text-white text-2xl font-bold py-10 px-4 rounded-lg'
+                        onClick={() => router.push(`/personalized/${data._id}`)}
+                    >
+                        {data.name}
+                    </button>
+                ))}
             </div>
         </div>
     );

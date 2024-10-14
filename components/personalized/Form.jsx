@@ -319,7 +319,7 @@ const ContentForm = () => {
                                         <td className="border px-4 py-2 text-center">{index + 1}</td>
                                         <td className="border px-4 py-2 text-center">{item.name}</td>
                                         <td className="border px-4 py-2">
-                                            {item.contents.map((content, index) => (
+                                            {item?.contents?.map((content, index) => (
                                                 <div key={index}>
                                                     <li>{content.title}</li>
                                                 </div>

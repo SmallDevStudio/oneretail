@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from 'axios';
 import useSWR from 'swr';
 import Image from 'next/image';
@@ -13,20 +13,53 @@ import { IoIosArrowBack } from "react-icons/io";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
-const CYC = () => {
-    const [user, setUser] = useState(null);
-
+const PersonalizedID = () => {
+    const [score, setScore] = useState(0);
     const router = useRouter();
     const { data: session } = useSession();
     const userId = session?.user?.id;
+    const { id } = router.query;
 
     const LineProgressBar = dynamic(() => import("@/components/GenLineProgressBar"), { ssr: false });
 
-    const { data: users, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher, {
-        onSuccess: (data) => {
-            setUser(data?.user);
+    const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
+    const { data: PersonalizedData, error: PersonalizedError, isLoading } = useSWR( `/api/personal/contents/${id}`, fetcher);
+    const { data: contents, error: contentError } = useSWR(`/api/personal/content/${userId}`, fetcher);
+    const { data: pretest, error: pretestError } = useSWR(`/api/personal/pretest/${userId}`, fetcher);
+    const { data: posttest, error: posttestError } = useSWR(`/api/personal/posttest/${userId}`, fetcher);
+
+    useEffect(() => {
+        let newScore = 0;
+      
+        // เช็ค pretest ถ้ามี data ให้เพิ่ม score เป็น 1
+        if (pretest?.data) {
+          newScore += 1;
         }
-    });
+      
+        // เช็ค contents ถ้ามี data ให้เพิ่ม score ตามจำนวน content.data.length
+        if (contents?.data) {
+          newScore += contents.data.length;
+        }
+      
+        // เช็ค posttest ถ้ามี data ให้เพิ่ม score เป็น 1
+        if (posttest?.data) {
+          newScore += 1;
+        }
+      
+        // อัพเดทค่า score
+        setScore(newScore);
+    }, [pretest, contents, posttest]); // รัน effect เมื่อค่าเหล่านี้เปลี่ยนแปลง
+
+    const totalScore = contents?.data?.length + 2;
+    const percentage = (score / totalScore) * 100;
+
+
+    console.log('pretest', pretest);
+    console.log('contents', contents);
+    console.log('posttest', posttest);
+
+    if (userError || PersonalizedError || contentError || pretestError || posttestError ) return <div>Error loading data</div>;
+    if (!PersonalizedData || !user || isLoading || !contents || !pretest || !posttest) return <div>Loading...</div>;
 
     return (
         <div className="flex flex-col min-h-[80vh] mb-20">
@@ -36,14 +69,14 @@ const CYC = () => {
                         className="text-xl inline text-gray-700"
                         onClick={() => router.back()}
                     />
-                    <span className="text-lg font-bold text-[#0056FF]">CYC</span>
+                    <span className="text-lg font-bold text-[#0056FF]">{PersonalizedData?.data?.name}</span>
                 </div>
             </div>
             {/* User Panel */}
             <div className="flex flex-row justify-evenly items-center px-8 mt-4 gap-4 w-full">
                 <div className="flex w-[120px]">
                     <Image
-                        src={user?.pictureUrl}
+                        src={user?.user?.pictureUrl}
                         alt="Avatar"
                         width={80}
                         height={80}
@@ -58,8 +91,8 @@ const CYC = () => {
                 </div>
 
                 <div className='flex flex-col items-center w-full'>
-                    <span className='text-xl text-[#0056FF] font-bold'>{user?.fullname}</span>
-                    <span className='text-xl text-[#F2871F] font-bold'>{user?.position}</span>
+                    <span className='text-xl text-[#0056FF] font-bold'>{user?.user?.fullname}</span>
+                    <span className='text-xl text-[#F2871F] font-bold'>{user?.user?.position}</span>
                 </div>
             </div>
 
@@ -71,9 +104,10 @@ const CYC = () => {
                 <div className="flex flex-row items-center w-full gap-2 mb-2 mt-2">
                     <span className="text-sm font-bold text-gray-400">Progress</span>
                     <div className="flex flex-col w-full">
-                        <LineProgressBar percent={25} />
+                        <LineProgressBar percent={percentage} />
                     </div>
-                    <span className="text-sm text-gray-400">1/4</span>
+                    <span className="text-sm text-gray-400">
+                        {score}/{totalScore}</span>
                 </div>
 
                 <span className="text-xs text-gray-400">
@@ -89,7 +123,7 @@ const CYC = () => {
                             className="inline text-[#0056FF]"
                             size={20}
                         />
-                        <span className="text-sm text-gray-700">: 3 Video</span>
+                        <span className="text-sm text-gray-700">: {PersonalizedData?.data?.contents?.length} Video</span>
                     </div>
                     <div className="flex flex-row item-center gap-2">
                         <PiExam 
@@ -103,7 +137,11 @@ const CYC = () => {
                 {/* Content */}
                 
                 <div className="flex flex-col w-full gap-4 mt-5 text-sm">
-                    <button className="flex items-center w-full text-left">
+                    <button 
+                        className="flex items-center w-full text-left"
+                        onClick={() => router.push(`/personalized/pretest`)}
+                        disabled={pretest.data.length > 0 ? false : true}
+                    >
                         <div className="grid grid-cols-5 items-center w-full gap-1">
                             <div className="col-span-1">
                                 <Image
@@ -128,82 +166,47 @@ const CYC = () => {
                         </div>
                    </button>
                     {/* video */}
-                    <button className="flex items-center w-full text-left">
-                        <div className="grid grid-cols-5 w-full gap-1">
-                            <div className="col-span-1">
-                                <Image
-                                    src="/images/gen/video-icon.png"
-                                    alt="Quiz Icon"
-                                    width={80}
-                                    height={80}
-                                    style={{
-                                        width: "50px",
-                                        height: "auto",
-                                    }}
-                                />
-                            </div>
+                    {PersonalizedData?.data?.contents?.map((content, index) => (
+                        <div key={index}>
+                            <button 
+                                className="flex items-center w-full text-left"
+                                onClick={() => router.push(`/personalized/content/${content._id}`)}
+                                disabled={contents.data?.some(item => item.contentId === content._id) ? true : false}
+                            >
+                                <div className="grid grid-cols-5 items-center w-full gap-1">
+                                    <div className="col-span-1">
+                                        <Image
+                                            src="/images/gen/video-icon.png"
+                                            alt="Quiz Icon"
+                                            width={80}
+                                            height={80}
+                                            style={{
+                                                width: "50px",
+                                                height: "auto",
+                                                filter: `${pretest.data ? '' : 'grayscale(100%)'}`,
+                                            }}
+                                        />
+                                    </div>
 
-                            <div className="col-span-3 font-bold pr-8">
-                                <span>ความแตกต่างระหว่าง CYB และ CYC</span>
-                            </div>
-                            
-                            <div className="col-span-1 font-bold">
-                                <span>10 Point</span>
-                            </div>
+                                    <div className="col-span-3 font-bold pr-8">
+                                        <span>{content.title}</span>
+                                    </div>
+                                    
+                                    <div className="col-span-1 font-bold">
+                                        <span>10 Point</span>
+                                    </div>
+                                </div>
+                            </button>
                         </div>
-                    </button>
+                    ))}
 
-                    <button className="flex items-center w-full text-left">
-                        <div className="grid grid-cols-5 items-center w-full gap-1">
-                            <div className="col-span-1">
-                                <Image
-                                    src="/images/gen/video-icon.png"
-                                    alt="Quiz Icon"
-                                    width={80}
-                                    height={80}
-                                    style={{
-                                        width: "50px",
-                                        height: "auto",
-                                    }}
-                                />
-                            </div>
-
-                            <div className="col-span-3 font-bold pr-8">
-                                <span>เจาะลึก CYB</span>
-                            </div>
-                            
-                            <div className="col-span-1 font-bold">
-                                <span>10 Point</span>
-                            </div>
-                        </div>
-                    </button>
-
-                    <button className="flex items-center w-full text-left">
-                        <div className="grid grid-cols-5 items-center w-full gap-1">
-                            <div className="col-span-1">
-                                <Image
-                                    src="/images/gen/video-icon.png"
-                                    alt="Quiz Icon"
-                                    width={80}
-                                    height={80}
-                                    style={{
-                                        width: "50px",
-                                        height: "auto",
-                                    }}
-                                />
-                            </div>
-
-                            <div className="col-span-3 font-bold pr-8">
-                                <span>รถแบบไหนกันที่ทำ CYB ได้และไม่ได้</span>
-                            </div>
-                            
-                            <div className="col-span-1 font-bold">
-                                <span>10 Point</span>
-                            </div>
-                        </div>
-                    </button>
-
-                    <button className="flex items-center w-full text-left">
+                    <button 
+                        className="flex items-center w-full text-left"
+                        disabled={contents.data?.length !== PersonalizedData?.data?.contents?.length ? true : 
+                            posttest?.data?.finished ? true : false
+                        }
+                        onClick={() => router.push(`/personalized/posttest`)}
+                    >
                         <div className="grid grid-cols-5 items-center w-full gap-1">
                             <div className="col-span-1">
                                 <Image
@@ -214,6 +217,7 @@ const CYC = () => {
                                     style={{
                                         width: "50px",
                                         height: "auto",
+                                        filter: `${contents?.data?.length === PersonalizedData?.data?.contents?.length ? '' : 'grayscale(100%)'}`,
                                     }}
                                 />
                             </div>
@@ -236,7 +240,7 @@ const CYC = () => {
     )
 }
 
-export default CYC;
+export default PersonalizedID;
 
-CYC.getLayout = (page) => <AppLayout>{page}</AppLayout>
-CYC.auth = true
+PersonalizedID.getLayout = (page) => <AppLayout>{page}</AppLayout>
+PersonalizedID.auth = true

@@ -1,12 +1,7 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
 import PersonalizedContents from "@/database/models/PersonalizedContents";
 import Users from "@/database/models/users";
-
-export const config = {
-    api: {
-      responseLimit: false,
-    },
-  };
+import Content from "@/database/models/Content";
 
 export default async function handler(req, res) {
     const { method } = req;
@@ -16,9 +11,9 @@ export default async function handler(req, res) {
         case 'GET':
             try {
                 const contents = await PersonalizedContents.find()
+                .populate('contents')
                 .sort({ createdAt: -1 })
-                .populate('contents');
-
+                
                 const userIds = contents.map(content => content.creator);
                 const users = await Users.find({ userId: { $in: userIds } }).select('userId empId fullname pictureUrl role');
                 const userMap = users.reduce((acc, user) => {
