@@ -221,7 +221,7 @@ const PersonalizedID = () => {
 
                     <button 
                         className="flex items-center w-full text-left"
-                        disabled={contents.data?.length !== PersonalizedData?.data?.contents?.length ? true : 
+                        disabled={contents.data?.length !== PersonalizedData.contents?.length ? true : 
                             posttest?.data?.finished ? true : false
                         }
                         onClick={() => router.push(`/personalized/posttest`)}
@@ -236,7 +236,7 @@ const PersonalizedID = () => {
                                     style={{
                                         width: "50px",
                                         height: "auto",
-                                        filter: `${contents?.data?.length === PersonalizedData?.data?.contents?.length ? '' : 'grayscale(100%)'}`,
+                                        filter: `${contents?.data?.length === PersonalizedData?.contents?.length ? '' : 'grayscale(100%)'}`,
                                     }}
                                 />
                             </div>
