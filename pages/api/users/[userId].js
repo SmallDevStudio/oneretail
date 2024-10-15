@@ -24,13 +24,13 @@ export default async function handler(req, res) {
                         ...users._doc,
                         teamGrop: emp.teamGrop? emp.teamGrop : null,
                         position: emp.position? emp.position : null,
-                        branch: emp.branch,
-                        department: emp.department,
-                        group: emp.group,
-                        chief_th: emp.chief_th,
-                        chief_eng: emp.chief_eng,
-                        name: emp.name
-                    }
+                        branch: emp.branch? emp.branch : null,
+                        department: emp.department? emp.department : null,
+                        group: emp.group? emp.group : null,
+                        chief_th: emp.chief_th? emp.chief_th : null,
+                        chief_eng: emp.chief_eng? emp.chief_eng : null,
+                        name: emp.name? emp.name : null
+                    };
                     res.status(200).json({ user });
                 }
             } catch (error) {
