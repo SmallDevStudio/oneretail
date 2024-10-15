@@ -21,7 +21,15 @@ export default async function handler(req, res) {
             try {
                 const content = await ContentGen.find({ active: true })
                 .sort({ createdAt: -1 })
-                .populate('contents');
+                .populate({
+                    path: 'contents',
+                    populate: [
+                        { path: 'categories' },
+                        { path: 'subcategories' },
+                        { path: 'groups' },
+                        { path: 'subgroups' },
+                    ]
+                });
                 
                 if (!content) {
                     return res.status(200).json({ success: true, data: [] });

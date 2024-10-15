@@ -20,7 +20,9 @@ export default async function handler(req, res) {
                 }
 
                 const content = await ContentGen.findOne({ _id: id })
-                .populate('contents');
+                .populate({
+                    path: 'contents', 
+                });
                 
                 res.status(200).json({ success: true, data: content });
             } catch (error) {

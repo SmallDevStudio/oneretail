@@ -154,7 +154,7 @@ const PersonalizedID = () => {
                             className="inline text-[#0056FF]"
                             size={20}
                         />
-                        <span className="text-sm text-gray-700">: {PersonalizedData?.data?.contents?.length} Video</span>
+                        <span className="text-sm text-gray-700">: {PersonalizedData?.contents?.length} Video</span>
                     </div>
                     <div className="flex flex-row item-center gap-2">
                         <PiExam 
