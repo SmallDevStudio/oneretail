@@ -24,7 +24,7 @@ const PersonalizedID = () => {
     const LineProgressBar = dynamic(() => import("@/components/GenLineProgressBar"), { ssr: false });
 
     const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
-    const { data: PersonalizedData, error: PersonalizedError, isLoading } = useSWR( `/api/personal/contents/${id}`, fetcher);
+    const { data: PersonalizedData, error: PersonalizedError, isLoading } = useSWR( `/api/personalized/contents?id=${id}`, fetcher);
     const { data: contents, error: contentError } = useSWR(`/api/personal/content/${userId}`, fetcher);
     const { data: pretest, error: pretestError } = useSWR(`/api/personal/pretest/${userId}`, fetcher);
     const { data: posttest, error: posttestError } = useSWR(`/api/personal/posttest/${userId}`, fetcher);

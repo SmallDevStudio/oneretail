@@ -466,7 +466,7 @@ const SurveyPanel = () => {
                     </div>
 
                     {Array.isArray(comment?.reply) && comment?.reply.map((reply, index) => (
-                        <div key={index} className="flex flex-col w-full mt-1">
+                        <div key={index} className="flex flex-col w-full mt-1 pl-5">
                             <div className="flex flex-col bg-gray-100 rounded-xl p-1 w-full">
                                 <div className="flex flex-row  w-full">
                                     <div className="flex flex-col w-[50px]">
