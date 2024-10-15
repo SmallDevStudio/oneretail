@@ -55,6 +55,11 @@ const PersonalizedID = () => {
 
     if (PersonalizedLoading || contentsLoading || pretestLoading || posttestLoading ) return <Loading />;
     if (!PersonalizedData?.data || !user || !contents?.data || !pretest?.data || !posttest?.data) return <Loading />;
+    if (userError) return <div>Error loading user data</div>;
+    if (PersonalizedError) return <div>Error loading Personalized data</div>;
+    if (contentError) return <div>Error loading content data</div>;
+    if (pretestError) return <div>Error loading pretest data</div>;
+    if (posttestError) return <div>Error loading posttest data</div>;
 
     const totalScore = contents?.data?.length + 2;
     const percentage = (score / totalScore) * 100;
