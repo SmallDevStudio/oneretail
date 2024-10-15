@@ -1,3 +1,4 @@
+"use client"
 import { useEffect, useState } from "react";
 import axios from 'axios';
 import useSWR from 'swr';
@@ -16,8 +17,9 @@ const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 const PersonalizedID = () => {
     const [score, setScore] = useState(0);
-    const router = useRouter();
+
     const { data: session } = useSession();
+    const router = useRouter();
     const userId = session?.user?.id;
     const { id } = router.query;
 
