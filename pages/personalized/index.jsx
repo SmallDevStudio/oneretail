@@ -11,15 +11,27 @@ import Loading from '@/components/Loading';
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 const LearningGen = () => {
+    const [PersonalizedData, setPersonalizedData] = useState([]);
     const router = useRouter();
     const { data: session } = useSession();
     const userId = session?.user?.id;
 
     const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
 
-    const { data: PersonalizedData, error: PersonalizedError } = useSWR( `/api/personalized`, fetcher);
-        
-    if (userError || PersonalizedError) return <div>Error loading data</div>;
+    useEffect(() => {
+        const fetchPersonalized = async () => {
+            try {
+                const response = await axios.get(`/api/personalized`);
+                setPersonalizedData(response.data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchPersonalized();
+    }, []);
+    
+    if (!user || !PersonalizedData) return <Loading />;
+    if (userError) return <div>Error loading data</div>;
     return (
         <div className="flex-1 flex-col w-full mb-20 px-4 min-h-[80vh]">
             {/* User Panel */}
