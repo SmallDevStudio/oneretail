@@ -55,7 +55,7 @@ const PersonalizedID = () => {
       
         // เช็ค contents ถ้ามี data ให้เพิ่ม score ตามจำนวน content.data.length
         if (contents?.data) {
-          newScore += contents.data.length;
+          newScore += contents.data.contents.length;
         }
       
         // เช็ค posttest ถ้ามี data ให้เพิ่ม score เป็น 1
@@ -68,13 +68,13 @@ const PersonalizedID = () => {
     }, [pretest, contents, posttest]); // รัน effect เมื่อค่าเหล่านี้เปลี่ยนแปลง
 
     if (contentsLoading || pretestLoading || posttestLoading ) return <Loading />;
-    if (!user || !contents || !pretest || !posttest) return <Loading />;
+    if (!PersonalizedData) return <Loading />;
     if (userError) return <div>Error loading user data</div>;
     if (contentError) return <div>Error loading content data</div>;
     if (pretestError) return <div>Error loading pretest data</div>;
     if (posttestError) return <div>Error loading posttest data</div>;
 
-    const totalScore = contents?.data?.length + 2;
+    const totalScore = contents?.data?.contents?.length + 2;
     const percentage = (score / totalScore) * 100;
     
     return (
@@ -85,7 +85,7 @@ const PersonalizedID = () => {
                         className="text-xl inline text-gray-700"
                         onClick={() => router.back()}
                     />
-                    <span className="text-lg font-bold text-[#0056FF]">{PersonalizedData?.data?.name}</span>
+                    <span className="text-lg font-bold text-[#0056FF]">{PersonalizedData?.name}</span>
                 </div>
             </div>
             {/* User Panel */}
@@ -120,7 +120,7 @@ const PersonalizedID = () => {
                 <div className="flex flex-row items-center w-full gap-2 mb-2 mt-2">
                     <span className="text-sm font-bold text-gray-400">Progress</span>
                     <div className="flex flex-col w-full">
-                        <LineProgressBar percent={0} />
+                        <LineProgressBar percent={percentage} />
                     </div>
                     <span className="text-sm text-gray-400">
                         {score}/{totalScore}</span>
