@@ -45,9 +45,6 @@ const PersonalizedID = () => {
         }
     }, [id]);
 
-    console.log("PersonalizedData:", PersonalizedData);
-    console.log('contents:', contents);
-
     useEffect(() => {
         let newScore = 0;
       
@@ -221,7 +218,7 @@ const PersonalizedID = () => {
 
                     <button 
                         className="flex items-center w-full text-left"
-                        disabled={contents.data?.length !== PersonalizedData.contents?.length ? true : 
+                        disabled={contents.data?.contents?.length !== PersonalizedData?.contents?.length ? true : 
                             posttest?.data?.finished ? true : false
                         }
                         onClick={() => router.push(`/personalized/posttest`)}
@@ -236,7 +233,7 @@ const PersonalizedID = () => {
                                     style={{
                                         width: "50px",
                                         height: "auto",
-                                        filter: `${contents?.data?.length === PersonalizedData?.contents?.length ? '' : 'grayscale(100%)'}`,
+                                        filter: `${PersonalizedData?.contents?.length === contents.data?.contents.length ? '' : 'grayscale(100%)'}`,
                                     }}
                                 />
                             </div>
