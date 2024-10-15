@@ -1,6 +1,12 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
 import ContentGen from "@/database/models/ContentGen";
 
+export const config = {
+    api: {
+        responseLimit: false,
+    },
+};
+
 export default async function handler(req, res) {
     const { method } = req;
     const { id } = req.query;
