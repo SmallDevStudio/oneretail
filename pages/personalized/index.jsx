@@ -28,8 +28,8 @@ const LearningGen = () => {
                     <Image
                         src="/images/gen/badge.png"
                         alt="badge"
-                        width={120}
-                        height={120}
+                        width={500}
+                        height={500}
                         style={{
                             width: "100%",
                             height: "auto",

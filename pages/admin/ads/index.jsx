@@ -80,6 +80,14 @@ const Ads = () => {
         }
       };
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+    }
+
+    const handleCancel = async (e) => {
+        e.preventDefault();
+    }
+
     return (
         <div>
             <Header
@@ -166,6 +174,43 @@ const Ads = () => {
                             style={{ display: 'none' }} // ซ่อน input file
                         />
                     </div>
+                </div>
+
+                <div>
+                    <label htmlFor="url">link:</label>
+                    <input
+                        type="text"
+                        name="url"
+                        id="url"
+                    />
+                </div>
+                
+                <div>
+                    <label htmlFor="position">ตำแหน่ง:</label>
+                    <select
+                        id="position"
+                        name="position"
+                    >
+                        <option value="">กรุณาเลือก</option>
+                        <option value="main">Main</option>
+                        <option value="external">Externel</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <button
+                        type="submit"
+                        onClick={handleSubmit}
+                    >
+                        บันทึก
+                    </button>
+
+                    <button
+                        type="submit"
+                        onClick={handleCancel}
+                    >
+                        ยกเลิก
+                    </button>
                 </div>
             </div>
         </div>

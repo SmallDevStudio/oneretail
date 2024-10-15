@@ -18,6 +18,7 @@ const fetcher = (url) => axios.get(url).then((res) => res.data);
 const PersonalizedID = () => {
     const [score, setScore] = useState(0);
     const [PersonalizedData, setPersonalizedData] = useState([]);
+    const [contents, setContents] = useState(null);
 
     const { data: session } = useSession();
     const router = useRouter();
@@ -27,7 +28,6 @@ const PersonalizedID = () => {
     const LineProgressBar = dynamic(() => import("@/components/GenLineProgressBar"), { ssr: false });
 
     const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
-    const { data: contents, error: contentError, isLoading: contentsLoading } = useSWR(() => id ? `/api/personalized/contents?id=${id}` : null, fetcher);
     const { data: pretest, error: pretestError, isLoading: pretestLoading } = useSWR(`/api/personal/pretest/${userId}`, fetcher);
     const { data: posttest, error: posttestError, isLoading: posttestLoading } = useSWR(`/api/personal/posttest/${userId}`, fetcher);
 
@@ -46,6 +46,22 @@ const PersonalizedID = () => {
     }, [id]);
 
     useEffect(() => {
+        if (userId) {
+            const fetchContents = async () => {
+                try {
+                    const res = await axios.get(`/api/personal/content/${userId}`);
+                    setContents(res.data);
+                } catch (error) {
+                    console.log(error);
+                }
+            };
+            fetchContents();
+        } else {
+            return;
+        }
+    }, [userId]);
+
+    useEffect(() => {
         let newScore = 0;
       
         // เช็ค pretest ถ้ามี data ให้เพิ่ม score เป็น 1
@@ -55,7 +71,7 @@ const PersonalizedID = () => {
       
         // เช็ค contents ถ้ามี data ให้เพิ่ม score ตามจำนวน content.data.length
         if (contents?.data) {
-          newScore += contents.data.contents.length;
+          newScore += contents.data.length;
         }
       
         // เช็ค posttest ถ้ามี data ให้เพิ่ม score เป็น 1
@@ -67,14 +83,13 @@ const PersonalizedID = () => {
         setScore(newScore);
     }, [pretest, contents, posttest]); // รัน effect เมื่อค่าเหล่านี้เปลี่ยนแปลง
 
-    if (contentsLoading || pretestLoading || posttestLoading ) return <Loading />;
-    if (!PersonalizedData) return <Loading />;
+    if ( pretestLoading || posttestLoading ) return <Loading />;
+    if (!PersonalizedData || !contents) return <Loading />;
     if (userError) return <div>Error loading user data</div>;
-    if (contentError) return <div>Error loading content data</div>;
     if (pretestError) return <div>Error loading pretest data</div>;
     if (posttestError) return <div>Error loading posttest data</div>;
 
-    const totalScore = contents?.data?.contents?.length + 2;
+    const totalScore = contents?.data?.length + 2;
     const percentage = (score / totalScore) * 100;
     
     return (
@@ -187,7 +202,7 @@ const PersonalizedID = () => {
                             <button 
                                 className="flex items-center w-full text-left"
                                 onClick={() => router.push(`/personalized/content/${content._id}`)}
-                                disabled={contents.data?.contents?.some(item => item.contentId === content._id) ? true : false}
+                                disabled={contents.data?.some(item => item.contentId === content._id) ? true : false}
                             >
                                 <div className="grid grid-cols-5 items-center w-full gap-1">
                                     <div className="col-span-1">
@@ -218,7 +233,7 @@ const PersonalizedID = () => {
 
                     <button 
                         className="flex items-center w-full text-left"
-                        disabled={contents.data?.contents?.length !== PersonalizedData?.contents?.length ? true : 
+                        disabled={contents.data?.length !== PersonalizedData?.contents?.length ? true : 
                             posttest?.data?.finished ? true : false
                         }
                         onClick={() => router.push(`/personalized/posttest`)}
@@ -233,7 +248,7 @@ const PersonalizedID = () => {
                                     style={{
                                         width: "50px",
                                         height: "auto",
-                                        filter: `${PersonalizedData?.contents?.length === contents.data?.contents.length ? '' : 'grayscale(100%)'}`,
+                                        filter: `${PersonalizedData?.contents?.length === contents.data?.length ? '' : 'grayscale(100%)'}`,
                                     }}
                                 />
                             </div>
