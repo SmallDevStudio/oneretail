@@ -38,6 +38,7 @@ const SurveyPanel = () => {
     
     const [textareaValue, setTextareaValue] = useState('');
     const [selectedComment, setSelectedComment] = useState(null);
+    const [selectedData, setSelectedData] = useState(null);
     const [sticker, setSticker] = useState(null);
     const [media, setMedia] = useState([]);
 
@@ -46,8 +47,11 @@ const SurveyPanel = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [openSticker, setOpenSticker] = useState(false);
     const [menuAnchorEl, setMenuAnchorEl] = useState(null);  // Menu anchor state
-    const [selectData , setSelectData] = useState(null);
     const [user, setUser] = useState(null);
+
+    console.log('selectedData', selectedData);
+    console.log('selectedComment', selectedComment);
+    console.log('isEdit', isEdit);
     
 
     const router = useRouter();
@@ -80,8 +84,6 @@ const SurveyPanel = () => {
                 sticker,
                 medias: media
             }
-
-            console.log('updateComment', updateComment);
             
             try {
                 await axios.put(`/api/survey/board/comments/update?id=${selectedComment}`, updateComment);
@@ -108,11 +110,14 @@ const SurveyPanel = () => {
                     medias: media,
                 };
 
+                console.log('newComment', newComment);
+
                 const response = await axios.post(`/api/survey/board/comments`, newComment);
+                console.log('response', response.data);
                 if (response.data.success) {
                     try {
                         await axios.post('/api/notifications', {
-                            userId: response.data.data.userId,
+                            userId: selectedData.userId,
                             senderId: userId,
                             description: `แสดงความคิดเห็นใน Verbatim`,
                             referId: response.data.data._id,
@@ -209,12 +214,12 @@ const SurveyPanel = () => {
                     medias: media,
                 };
                 const response = await axios.post(`/api/survey/board/reply`, newReply);
-                if (response.data.success) {
+                if (response.status === 201) {
                     try {
                         await axios.post('/api/notifications', {
-                            userId: response.data.data.userId,
+                            userId: selectedData.userId,
                             senderId: userId,
-                            description: `แสดงความคิดเห็นใน Verbatim`,
+                            description: `ตอบกลับความคิดเห็นใน Verbatim`,
                             referId: response.data.data._id,
                             path: 'Survey',
                             subpath: 'Memo',
@@ -287,14 +292,17 @@ const SurveyPanel = () => {
     };
 
 
-    const handleClickOpen = (type, id) => {
+    const handleClickOpen = (type, data) => {
+        const id = data._id;
         setSelectedComment(id);
+        setSelectedData(data);
         setType(type);
         setOpen(true);
     };
     
     const handleClose = () => {
         setSelectedComment(null);
+        setSelectedData(null);
         setType(null);
         setError(null);
         setTextareaValue('');
@@ -362,7 +370,7 @@ const SurveyPanel = () => {
                         <div className="flex flex-row justify-end items-center px-2 w-full">
                                 <div 
                                     className="flex flex-row gap-2 items-center"
-                                    onClick={() => handleClickOpen('comment', survey?.data._id)}
+                                    onClick={() => handleClickOpen('comment', survey?.data,)}
                                 >
                                     <LuMessageSquarePlus className="text-gray-700" size={15}/>
                                     <div className="flex flex-row gap-1 items-center">
@@ -449,7 +457,7 @@ const SurveyPanel = () => {
 
                         <div className="flex flex-row justify-end items-center gap-2 mx-2">
                             <div className="flex flex-row items-center jestify-center gap-1 text-xs bg-gray-100 px-2 py-1 rounded-xl shadow-sm"
-                                onClick={() => handleClickOpen('reply', comment._id)}
+                                onClick={() => handleClickOpen('reply', comment)}
                             >
                                 <FaRegCommentDots className="text-gray-500 text-sm"/>
                                 <span>ตอบกลับ</span>
@@ -524,6 +532,7 @@ const SurveyPanel = () => {
                                 </div>
 
                                 {/* Tools */}
+                                
                             </div>
                         </div>
                     ))}

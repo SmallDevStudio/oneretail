@@ -39,7 +39,7 @@ const Content = () => {
         return () => clearInterval(interval);
       }, []);
 
-    const { data, error } = useSWR(() => id ? `/api/content/${id}` : null, fetcher);
+    const { data, error } = useSWR(`/api/content/${id}`, fetcher);
 
     if (error) return <div>{error}</div>;
     if (!data) return <Loading />;
