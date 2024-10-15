@@ -27,7 +27,7 @@ const PersonalizedID = () => {
 
     const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
     const { data: PersonalizedData, error: PersonalizedError, isLoading: PersonalizedLoading } = useSWR( `/api/personalized/contents?id=${id}`, fetcher);
-    const { data: contents, error: contentError, isLoading: contentsLoading } = useSWR(`/api/personal/content/${userId}`, fetcher);
+    const { data: contents, error: contentError, isLoading: contentsLoading } = useSWR(() => id ? `/api/personalized/contents?id=${id}` : null, fetcher);
     const { data: pretest, error: pretestError, isLoading: pretestLoading } = useSWR(`/api/personal/pretest/${userId}`, fetcher);
     const { data: posttest, error: posttestError, isLoading: posttestLoading } = useSWR(`/api/personal/posttest/${userId}`, fetcher);
 
@@ -55,7 +55,6 @@ const PersonalizedID = () => {
 
     if (PersonalizedLoading || contentsLoading || pretestLoading || posttestLoading ) return <Loading />;
     if (!PersonalizedData || !user || !contents || !pretest || !posttest) return <Loading />;
-    if (userError || PersonalizedError || contentError || pretestError || posttestError ) return <div>Error loading {userError || PersonalizedError || contentError || pretestError || posttestError} data</div>;
 
     const totalScore = contents?.data?.length + 2;
     const percentage = (score / totalScore) * 100;

@@ -1,10 +1,31 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
+import Header from "@/components/admin/global/Header";
 import { AdminLayout } from "@/themes";
 
 const Ads = () => {
     return (
         <div>
-            <h1>Ads</h1>
+            <Header
+                title="ADS"
+                subtitle="จัดการ ADS"
+            />
+            
+            {/* AdsTable */}
+            <div></div>
+
+            {/* AdsForm */}
+            <div>
+                <div>
+                    <label htmlFor="name">ชื่อ:</label>
+                    <input
+                        type="text"
+                        name="name"
+                        id="name"
+                        required
+                    />
+                </div>
+            </div>
         </div>
     );
 };
