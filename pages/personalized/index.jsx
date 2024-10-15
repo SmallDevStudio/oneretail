@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 import { AppLayout } from '@/themes';
 import { Divider } from '@mui/material';
+import Loading from '@/components/Loading';
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -19,7 +20,6 @@ const LearningGen = () => {
     const { data: PersonalizedData, error: PersonalizedError } = useSWR( `/api/personal/contents`, fetcher);
         
     if (userError || PersonalizedError) return <div>Error loading data</div>;
-
     return (
         <div className="flex-1 flex-col w-full mb-20 px-4 min-h-[80vh]">
             {/* User Panel */}

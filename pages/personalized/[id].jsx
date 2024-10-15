@@ -10,6 +10,7 @@ import { Divider } from '@mui/material';
 import { MdOutlineOndemandVideo } from "react-icons/md";
 import { PiExam } from "react-icons/pi";
 import { IoIosArrowBack } from "react-icons/io";
+import Loading from "@/components/Loading";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -53,14 +54,10 @@ const PersonalizedID = () => {
     const totalScore = contents?.data?.length + 2;
     const percentage = (score / totalScore) * 100;
 
-
-    console.log('pretest', pretest);
-    console.log('contents', contents);
-    console.log('posttest', posttest);
-
+    if (isLoading) return <Loading />;
+    if (!PersonalizedData || !user || !contents || !pretest || !posttest) return <Loading />;
     if (userError || PersonalizedError || contentError || pretestError || posttestError ) return <div>Error loading data</div>;
-    if (!PersonalizedData || !user || isLoading || !contents || !pretest || !posttest) return <div>Loading...</div>;
-
+    
     return (
         <div className="flex flex-col min-h-[80vh] mb-20">
             <div className="flex flex-col px-4 mt-5">

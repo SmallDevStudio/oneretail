@@ -18,6 +18,8 @@ import { PiExam } from "react-icons/pi";
 import { SlBadge } from "react-icons/sl";
 import { LuSticker } from "react-icons/lu";
 import { LuBaby } from "react-icons/lu";
+import { TbSpeakerphone } from "react-icons/tb";
+import { FaWpforms } from "react-icons/fa";
 import Image from "next/image";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
@@ -315,6 +317,14 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                   selected={selected}
                   setSelected={setSelected}
                   />
+
+                  <Item
+                  title="จัดการ Ads"
+                  to="/admin/ads"
+                  icon={<TbSpeakerphone />}
+                  selected={selected}
+                  setSelected={setSelected}
+                  />
                 </SubMenu>
 
                   <Item
@@ -332,6 +342,14 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                   selected={selected}
                   setSelected={setSelected}
                   />    
+
+                  <Item
+                  title="Form"
+                  to="/admin/forms"
+                  icon={<FaWpforms />}
+                  selected={selected}
+                  setSelected={setSelected}
+                  />
 
                   <Item
                   title="Report"
