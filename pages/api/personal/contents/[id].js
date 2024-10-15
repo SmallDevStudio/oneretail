@@ -1,5 +1,5 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
-import PersonalizedContents from "@/database/models/PersonalizedContents";
+import ContentGen from "@/database/models/ContentGen";
 
 export default async function handler(req, res) {
     const { method } = req;
@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     switch (method) {
         case 'GET':
             try {
-                const content = await PersonalizedContents.findById(id).populate('contents');
+                const content = await ContentGen.findById(id).populate('contents');
                 res.status(200).json({ success: true, data: content });
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });
@@ -19,7 +19,7 @@ export default async function handler(req, res) {
         case 'PUT':
             try {
                 const { name, contents, active } = req.body;
-                const content = await PersonalizedContents.findByIdAndUpdate(
+                const content = await ContentGen.findByIdAndUpdate(
                     id, {
                         name,
                         contents,
@@ -36,7 +36,7 @@ export default async function handler(req, res) {
 
         case 'DELETE':
             try {
-                const content = await PersonalizedContents.findByIdAndDelete(id);
+                const content = await ContentGen.findByIdAndDelete(id);
                 res.status(200).json({ success: true, data: content });
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });

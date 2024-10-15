@@ -1,5 +1,5 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
-import PersonalizedContents from "@/database/models/PersonalizedContents";
+import ContentGen from "@/database/models/ContentGen";
 import Users from "@/database/models/users";
 import Content from "@/database/models/Content";
 
@@ -10,32 +10,18 @@ export default async function handler(req, res) {
     switch (method) {
         case 'GET':
             try {
-                const contents = await PersonalizedContents.find()
+                const contents = await ContentGen.find()
                 .populate('contents')
                 .sort({ createdAt: -1 })
-                
-                const userIds = contents.map(content => content.creator);
-                const users = await Users.find({ userId: { $in: userIds } }).select('userId empId fullname pictureUrl role');
-                const userMap = users.reduce((acc, user) => {
-                    acc[user.userId] = user;
-                    return acc;
-                }, {});
 
-                const populatedContents = contents.map(content => {
-                    const user = userMap[content.creator];
-                    return {
-                        ...content._doc,
-                        creator: user || null, // หากไม่พบ user ให้ตั้งค่าเป็น null
-                    };
-                });
-
-                res.status(200).json({ success: true, data: populatedContents });
+                res.status(200).json({ success: true, data: contents });
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });
             }
+            break;
         case 'POST':
             try {
-                const group = await PersonalizedContents.create(req.body);
+                const group = await ContentGen.create(req.body);
                 res.status(201).json({ success: true, data: group });
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });

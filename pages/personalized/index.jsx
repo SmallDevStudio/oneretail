@@ -17,7 +17,7 @@ const LearningGen = () => {
 
     const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
 
-    const { data: PersonalizedData, error: PersonalizedError } = useSWR( `/api/personal/contents`, fetcher);
+    const { data: PersonalizedData, error: PersonalizedError } = useSWR( `/api/personalized`, fetcher);
         
     if (userError || PersonalizedError) return <div>Error loading data</div>;
     return (
