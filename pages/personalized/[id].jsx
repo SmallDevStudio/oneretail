@@ -17,6 +17,7 @@ const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 const PersonalizedID = () => {
     const [score, setScore] = useState(0);
+    const [PersonalizedData, setPersonalizedData] = useState([]);
 
     const { data: session } = useSession();
     const router = useRouter();
@@ -26,10 +27,26 @@ const PersonalizedID = () => {
     const LineProgressBar = dynamic(() => import("@/components/GenLineProgressBar"), { ssr: false });
 
     const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
-    const { data: PersonalizedData, error: PersonalizedError, isLoading: PersonalizedLoading } = useSWR(() => id ? `/api/personalized/contents?id=${id}` : null, fetcher);
     const { data: contents, error: contentError, isLoading: contentsLoading } = useSWR(() => id ? `/api/personalized/contents?id=${id}` : null, fetcher);
     const { data: pretest, error: pretestError, isLoading: pretestLoading } = useSWR(`/api/personal/pretest/${userId}`, fetcher);
     const { data: posttest, error: posttestError, isLoading: posttestLoading } = useSWR(`/api/personal/posttest/${userId}`, fetcher);
+
+    useEffect(() => {
+        if (id) {
+            const fetchPersonalizedData = async () => {
+                try {
+                    const res = await axios.get(`/api/personalized/contents?id=${id}`);
+                    setPersonalizedData(res.data.data);
+                } catch (error) {
+                    console.log(error);
+                }
+            };
+            fetchPersonalizedData();
+        }
+    }, [id]);
+
+    console.log("PersonalizedData:", PersonalizedData);
+    console.log('contents:', contents);
 
     useEffect(() => {
         let newScore = 0;
@@ -53,10 +70,9 @@ const PersonalizedID = () => {
         setScore(newScore);
     }, [pretest, contents, posttest]); // รัน effect เมื่อค่าเหล่านี้เปลี่ยนแปลง
 
-    if (PersonalizedLoading || contentsLoading || pretestLoading || posttestLoading ) return <Loading />;
-    if (!PersonalizedData?.data || !user || !contents?.data || !pretest?.data || !posttest?.data) return <Loading />;
+    if (contentsLoading || pretestLoading || posttestLoading ) return <Loading />;
+    if (!user || !contents || !pretest || !posttest) return <Loading />;
     if (userError) return <div>Error loading user data</div>;
-    if (PersonalizedError) return <div>Error loading Personalized data</div>;
     if (contentError) return <div>Error loading content data</div>;
     if (pretestError) return <div>Error loading pretest data</div>;
     if (posttestError) return <div>Error loading posttest data</div>;
@@ -107,7 +123,7 @@ const PersonalizedID = () => {
                 <div className="flex flex-row items-center w-full gap-2 mb-2 mt-2">
                     <span className="text-sm font-bold text-gray-400">Progress</span>
                     <div className="flex flex-col w-full">
-                        <LineProgressBar percent={percentage} />
+                        <LineProgressBar percent={0} />
                     </div>
                     <span className="text-sm text-gray-400">
                         {score}/{totalScore}</span>
@@ -169,12 +185,12 @@ const PersonalizedID = () => {
                         </div>
                    </button>
                     {/* video */}
-                    {PersonalizedData?.data?.contents?.map((content, index) => (
+                    {PersonalizedData.contents?.map((content, index) => (
                         <div key={index}>
                             <button 
                                 className="flex items-center w-full text-left"
                                 onClick={() => router.push(`/personalized/content/${content._id}`)}
-                                disabled={contents.data?.some(item => item.contentId === content._id) ? true : false}
+                                disabled={contents.data?.contents?.some(item => item.contentId === content._id) ? true : false}
                             >
                                 <div className="grid grid-cols-5 items-center w-full gap-1">
                                     <div className="col-span-1">
