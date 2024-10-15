@@ -51,12 +51,12 @@ const PersonalizedID = () => {
         setScore(newScore);
     }, [pretest, contents, posttest]); // รัน effect เมื่อค่าเหล่านี้เปลี่ยนแปลง
 
-    const totalScore = contents?.data?.length + 2;
-    const percentage = (score / totalScore) * 100;
-
     if (isLoading) return <Loading />;
     if (!PersonalizedData || !user || !contents || !pretest || !posttest) return <Loading />;
     if (userError || PersonalizedError || contentError || pretestError || posttestError ) return <div>Error loading data</div>;
+
+    const totalScore = contents?.data?.length + 2;
+    const percentage = (score / totalScore) * 100;
     
     return (
         <div className="flex flex-col min-h-[80vh] mb-20">
