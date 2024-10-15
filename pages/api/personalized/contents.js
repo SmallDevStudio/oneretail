@@ -9,7 +9,8 @@ export default async function handler(req, res) {
     switch (method) {
         case 'GET':
             try {
-                const content = await ContentGen.findById(id).populate('contents');
+                const content = await ContentGen.findOne({ _id: id })
+                .populate('contents');
                 res.status(200).json({ success: true, data: content });
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });

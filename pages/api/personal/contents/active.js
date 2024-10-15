@@ -1,5 +1,5 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
-import PersonalizedContents from "@/database/models/PersonalizedContents";
+import ContentGen from "@/database/models/ContentGen";
 
 export default async function handler(req, res) {
     const { method } = req;
@@ -10,7 +10,7 @@ export default async function handler(req, res) {
         case 'PUT':
             try {
                 const { active } = req.body;
-                const content = await PersonalizedContents.findByIdAndUpdate(
+                const content = await ContentGen.findByIdAndUpdate(
                     id, {
                         active
                     }, {
