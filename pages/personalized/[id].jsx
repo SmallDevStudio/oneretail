@@ -13,6 +13,7 @@ import { PiExam } from "react-icons/pi";
 import { IoIosArrowBack } from "react-icons/io";
 import { IoEyeSharp } from "react-icons/io5";
 import Loading from "@/components/Loading";
+import ModalPersonalized from "@/components/ModalPersonalized";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -21,6 +22,7 @@ const PersonalizedID = () => {
     const [PersonalizedData, setPersonalizedData] = useState([]);
     const [contents, setContents] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [open, setOpen] = useState(false);
 
     const { data: session } = useSession();
     const router = useRouter();
@@ -87,6 +89,11 @@ const PersonalizedID = () => {
         setScore(newScore);
     }, [pretest, contents, posttest]); // รัน effect เมื่อค่าเหล่านี้เปลี่ยนแปลง
 
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => {
+        setOpen(false);
+        router.push('/main');
+    }
 
     if ( pretestLoading || posttestLoading || loading ) return <Loading />;
     if (!PersonalizedData || !contents) return <Loading />;
@@ -94,7 +101,8 @@ const PersonalizedID = () => {
     if (pretestError) return <div>Error loading pretest data</div>;
     if (posttestError) return <div>Error loading posttest data</div>;
 
-    const percentage = (score / (PersonalizedData?.contents?.length + 2)) * 100;
+    const total = PersonalizedData?.contents?.length + 2;
+    const percentage = (score / total) * 100;
     
     return (
         <div className="flex flex-col min-h-[80vh] mb-20">
@@ -278,7 +286,40 @@ const PersonalizedID = () => {
                 </div>
 
             </div>
-
+                {posttest?.data?.finished && (
+                    <ModalPersonalized
+                        open={open}
+                        onClose={handleClose}
+                        title="Congratulations!"
+                        description="คุณได้ทำข้อสอบถูกทุกข้อแล้ว"
+                    >
+                        <div
+                            className="flex flex-col gap-2 w-full" 
+                            style={{
+                                width: "100%",
+                                height: "100%",
+                                backgroundImage: "url('/images/bg.png')",
+                                backgroundSize: "cover",
+                                backgroundPosition: "center",
+                                backgroundRepeat: "no-repeat",
+                                padding: "5px",
+                            }}>
+                                <div className="flex flex-col justify-center items-center gap-2 bg-white/80 p-2.5 w-full">
+                                    <h1 className="text-3xl font-bold">Congratulations!</h1>
+                                    <p className="text-md font-bold">ยินดีด้วยคุณได้ผ่านการทดสอบแล้ว</p>
+                                    <p className="text-md">คุณได้ Point ทั้งหมด <span className="text-[#F2871F] text-lg font-bold">{total *10} </span> Point</p>
+                                    <div className="flex justify-center items-center mt-4">
+                                        <button
+                                            onClick={() => router.push('/main')}
+                                            className="bg-[#0056FF] text-white font-bold py-2 px-4 rounded-full"
+                                        >
+                                            กลับไปหน้าหลัก
+                                        </button>
+                                    </div>
+                                </div>
+                        </div>
+                    </ModalPersonalized>
+                    )}
         </div>
     )
 }
