@@ -33,6 +33,7 @@ const PostTest = () => {
     const { data: session } = useSession();
     const router = useRouter();
     const userId = session?.user?.id;
+    const { id } = router.query;
 
     if (error) return <div>Failed to load</div>;
     if (isLoading || !questions.length) return <Loading />;
@@ -154,6 +155,7 @@ const PostTest = () => {
         try {
             const data = {
                 userId,
+                contentGenId: id,
                 posttest: userAnswers,
                 finished: true
             }

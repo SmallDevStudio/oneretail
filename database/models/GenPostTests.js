@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const GenPostTestsSchema = new mongoose.Schema({
     userId: { type: String, ref: 'Users', required: true },
+    contentGenId: { type: String, ref: 'ContentGen', required: true },
     posttest: [{
         questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'PersonalizedQuizs'},
         answer: { type: String },

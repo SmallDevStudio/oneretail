@@ -9,8 +9,7 @@ export default async function handler(req, res) {
     switch (method) {
         case "GET":
             try {
-                const GenContent = await GenContents.find()
-                .populate('contentId');
+                const GenContent = await GenContents.find().sort({ createdAt: -1 });
 
                 res.status(200).json({ success: true, data: GenContent });
             } catch (error) {

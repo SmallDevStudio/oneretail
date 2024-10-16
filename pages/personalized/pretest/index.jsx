@@ -33,7 +33,8 @@ const Pretest = () => {
 
     if (questionsError) return <div>Error loading data</div>;
     if (isLoading || !data || questions.length === 0) return <Loading />;
-    console.log('userAnswers:', userAnswers);
+    
+    console.log(id);
 
     const handleAnswer = () => {
         setSubmitted(false);
@@ -74,6 +75,7 @@ const Pretest = () => {
         try {
             const data = {
                 userId: session.user.id,
+                contentGenId: id,
                 pretest: userAnswers
             }
 

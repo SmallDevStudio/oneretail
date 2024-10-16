@@ -4,13 +4,13 @@ import Content from "@/database/models/Content";
 
 export default async function handler(req, res) {
     const { method } = req;
-    const { userId } = req.query;
+    const { userId, contentGenId } = req.query;
     await connetMongoDB();
 
     switch (method) {
         case "GET":
             try {
-                const GenContent = await GenContents.find({ userId });
+                const GenContent = await GenContents.find({ contentGenId, userId });
 
                 res.status(200).json({ success: true, data: GenContent });
             } catch (error) {

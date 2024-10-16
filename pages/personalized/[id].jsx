@@ -28,8 +28,8 @@ const PersonalizedID = () => {
     const LineProgressBar = dynamic(() => import("@/components/GenLineProgressBar"), { ssr: false });
 
     const { data: user, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
-    const { data: pretest, error: pretestError, isLoading: pretestLoading } = useSWR(`/api/personal/pretest/${userId}`, fetcher);
-    const { data: posttest, error: posttestError, isLoading: posttestLoading } = useSWR(`/api/personal/posttest/${userId}`, fetcher);
+    const { data: pretest, error: pretestError, isLoading: pretestLoading } = useSWR(`/api/personal/pretest/${userId}?contentGenId=${id}`, fetcher);
+    const { data: posttest, error: posttestError, isLoading: posttestLoading } = useSWR(`/api/personal/posttest/${userId}?contentGenId=${id}`, fetcher);
 
     useEffect(() => {
         if (id) {
@@ -170,7 +170,7 @@ const PersonalizedID = () => {
                 <div className="flex flex-col w-full gap-4 mt-5 text-sm">
                     <button 
                         className="flex items-center w-full text-left"
-                        onClick={() => router.push(`/personalized/pretest`)}
+                        onClick={() => router.push(`/personalized/pretest?id=${PersonalizedData._id}`)}
                         disabled={pretest?.data === null ? false : true}
                     >
                         <div className="grid grid-cols-5 items-center w-full gap-1">
@@ -236,7 +236,7 @@ const PersonalizedID = () => {
                         disabled={contents.data?.length !== PersonalizedData?.contents?.length ? true : 
                             posttest?.data?.finished ? true : false
                         }
-                        onClick={() => router.push(`/personalized/posttest`)}
+                        onClick={() => router.push(`/personalized/posttest?id=${PersonalizedData._id}`)}
                     >
                         <div className="grid grid-cols-5 items-center w-full gap-1">
                             <div className="col-span-1">
