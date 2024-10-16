@@ -23,7 +23,7 @@ const Content = () => {
     const router = useRouter();
     const { data: session } = useSession();
     const userId = session?.user?.id;
-    const { id } = router.query;
+    const { id, contentGenId } = router.query;
     const playerRef = useRef(null);
 
     useEffect(() => {
@@ -55,7 +55,11 @@ const Content = () => {
     
         if (viewed >= duration - 2 && !completed) { // Check if the video is almost complete
             setCompleted(true);
-            await axios.post('/api/personal/content', { userId, contentId: data.data._id });
+            await axios.post('/api/personal/content', { 
+                userId, 
+                contentGenId,
+                contentId: data.data._id 
+            });
             await axios.post('/api/points/earn', {
                 userId,
                 description: `views video ${data.data._id}`,

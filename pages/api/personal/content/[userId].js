@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     switch (method) {
         case "GET":
             try {
-                const GenContent = await GenContents.find({ contentGenId, userId });
+                const GenContent = await GenContents.find({ contentGenId: contentGenId, userId: userId }).sort({ createdAt: -1 });
 
                 res.status(200).json({ success: true, data: GenContent });
             } catch (error) {

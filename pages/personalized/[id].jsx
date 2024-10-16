@@ -51,7 +51,7 @@ const PersonalizedID = () => {
         if (userId) {
             const fetchContents = async () => {
                 try {
-                    const res = await axios.get(`/api/personal/content/${userId}`);
+                    const res = await axios.get(`/api/personal/content/${userId}?contentGenId=${id}`);
                     setContents(res.data);
                 } catch (error) {
                     console.log(error);
@@ -62,7 +62,7 @@ const PersonalizedID = () => {
         } else {
             return;
         }
-    }, [userId]);
+    }, [id, userId]);
 
     useEffect(() => {
         let newScore = 0;
@@ -85,6 +85,8 @@ const PersonalizedID = () => {
         // อัพเดทค่า score
         setScore(newScore);
     }, [pretest, contents, posttest]); // รัน effect เมื่อค่าเหล่านี้เปลี่ยนแปลง
+
+    console.log('contents', contents);
 
     if ( pretestLoading || posttestLoading ) return <Loading />;
     if (!PersonalizedData || !contents) return <Loading />;
@@ -203,7 +205,7 @@ const PersonalizedID = () => {
                         <div key={index}>
                             <button 
                                 className="flex items-center w-full text-left"
-                                onClick={() => router.push(`/personalized/content/${content._id}`)}
+                                onClick={() => router.push(`/personalized/content/${content._id}?contentGenId=${PersonalizedData._id}`)}
                                 disabled={contents.data?.some(item => item.contentId === content._id) ? true : false}
                             >
                                 <div className="grid grid-cols-5 items-center w-full gap-1">
