@@ -11,6 +11,7 @@ import { Divider } from '@mui/material';
 import { MdOutlineOndemandVideo } from "react-icons/md";
 import { PiExam } from "react-icons/pi";
 import { IoIosArrowBack } from "react-icons/io";
+import { IoEyeSharp } from "react-icons/io5";
 import Loading from "@/components/Loading";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
@@ -86,7 +87,6 @@ const PersonalizedID = () => {
         setScore(newScore);
     }, [pretest, contents, posttest]); // รัน effect เมื่อค่าเหล่านี้เปลี่ยนแปลง
 
-    console.log('contents', contents);
 
     if ( pretestLoading || posttestLoading ) return <Loading />;
     if (!PersonalizedData || !contents) return <Loading />;
@@ -209,7 +209,7 @@ const PersonalizedID = () => {
                                 disabled={contents.data?.some(item => item.contentId === content._id) ? true : false}
                             >
                                 <div className="grid grid-cols-5 items-center w-full gap-1">
-                                    <div className="col-span-1">
+                                    <div className="relative flex items-center col-span-1">
                                         <Image
                                             src="/images/gen/video-icon.png"
                                             alt="Quiz Icon"
@@ -221,6 +221,14 @@ const PersonalizedID = () => {
                                                 filter: `${pretest.data ? '' : 'grayscale(100%)'}`,
                                             }}
                                         />
+
+                                        {contents.data?.some(item => item.contentId === content._id) && (
+                                            <IoEyeSharp 
+                                                size={20} 
+                                                className="absolute top-[31px] left-7 text-[#F2871F]"
+                                            />
+                                        )}
+
                                     </div>
 
                                     <div className="col-span-3 font-bold pr-8">
