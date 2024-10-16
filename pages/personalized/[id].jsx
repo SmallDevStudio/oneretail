@@ -88,7 +88,7 @@ const PersonalizedID = () => {
     }, [pretest, contents, posttest]); // รัน effect เมื่อค่าเหล่านี้เปลี่ยนแปลง
 
 
-    if ( pretestLoading || posttestLoading ) return <Loading />;
+    if ( pretestLoading || posttestLoading || loading ) return <Loading />;
     if (!PersonalizedData || !contents) return <Loading />;
     if (userError) return <div>Error loading user data</div>;
     if (pretestError) return <div>Error loading pretest data</div>;
