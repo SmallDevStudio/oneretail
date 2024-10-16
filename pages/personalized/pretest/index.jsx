@@ -33,8 +33,6 @@ const Pretest = () => {
 
     if (questionsError) return <div>Error loading data</div>;
     if (isLoading || !data || questions.length === 0) return <Loading />;
-    
-    console.log(id);
 
     const handleAnswer = () => {
         setSubmitted(false);
