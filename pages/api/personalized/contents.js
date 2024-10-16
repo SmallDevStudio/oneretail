@@ -1,5 +1,6 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
 import ContentGen from "@/database/models/ContentGen";
+import Content from "@/database/models/Content";
 
 export const config = {
     api: {
@@ -15,16 +16,26 @@ export default async function handler(req, res) {
     switch (method) {
         case 'GET':
             try {
-                if (!id) {
-                    return res.status(400).json({ success: false, message: 'ID is required' });
+                // ดึงข้อมูลจาก ContentGen
+                const contentGen = await ContentGen.findOne({ _id: id });
+
+                if (!contentGen) {
+                    return res.status(404).json({ success: false, message: 'Content not found' });
                 }
 
-                const content = await ContentGen.findOne({ _id: id })
-                .populate({
-                    path: 'contents', 
+                // ดึงข้อมูล Content ที่เกี่ยวข้องกับ contents array
+                const contentList = await Content.find({
+                    _id: { $in: contentGen.contents }
                 });
-                
-                res.status(200).json({ success: true, data: content });
+
+                // สร้าง response data ที่รวมทั้งข้อมูลจาก ContentGen และ Content
+                const responseData = {
+                    ...contentGen.toObject(), // เอาข้อมูลจาก contentGen มาใส่
+                    contentsData: contentList // ใส่ข้อมูล content ที่ดึงมา
+                };
+
+                // ส่งข้อมูลกลับไปยัง client
+                res.status(200).json({ success: true, data: responseData });
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });
             }

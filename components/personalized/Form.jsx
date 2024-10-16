@@ -46,8 +46,7 @@ const ContentForm = () => {
             setAllContents(data?.data); // เก็บข้อมูลทั้งหมดไว้ใน allContents
         },
     });
-
-
+    
     const handleSubmitPersonalized = async () => {
         if (isEdit) {
             const update = {
@@ -318,8 +317,8 @@ const ContentForm = () => {
                                     <tr key={index}>
                                         <td className="border px-4 py-2 text-center">{index + 1}</td>
                                         <td className="border px-4 py-2 text-center">{item.name}</td>
-                                        <td className="border px-4 py-2">
-                                            {item?.contents?.map((content, index) => (
+                                        <td className="border px-4 py-2 text-sm">
+                                            {item?.contentsData?.map((content, index) => (
                                                 <div key={index}>
                                                     <li>{content.title}</li>
                                                 </div>

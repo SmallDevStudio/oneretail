@@ -171,7 +171,7 @@ const PersonalizedID = () => {
                     <button 
                         className="flex items-center w-full text-left"
                         onClick={() => router.push(`/personalized/pretest`)}
-                        disabled={pretest.data.length > 0 ? false : true}
+                        disabled={pretest?.data === null ? false : true}
                     >
                         <div className="grid grid-cols-5 items-center w-full gap-1">
                             <div className="col-span-1">
@@ -197,7 +197,7 @@ const PersonalizedID = () => {
                         </div>
                    </button>
                     {/* video */}
-                    {PersonalizedData.contents?.map((content, index) => (
+                    {PersonalizedData.contentsData?.map((content, index) => (
                         <div key={index}>
                             <button 
                                 className="flex items-center w-full text-left"

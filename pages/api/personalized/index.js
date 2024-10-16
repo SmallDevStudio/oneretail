@@ -19,23 +19,13 @@ export default async function handler(req, res) {
     switch (method) {
         case "GET":
             try {
-                const content = await ContentGen.find({ active: true })
-                .sort({ createdAt: -1 })
-                .populate({
-                    path: 'contents',
-                    populate: [
-                        { path: 'categories' },
-                        { path: 'subcategories' },
-                        { path: 'groups' },
-                        { path: 'subgroups' },
-                    ]
-                });
-                
-                if (!content) {
-                    return res.status(200).json({ success: true, data: [] });
-                }
+                const contentGen = await ContentGen.find().sort({ createdAt: -1 });
 
-                res.status(200).json({ success: true, data: content });
+                if (!contentGen) {
+                    return res.status(404).json({ success: false, message: "Content not found" });
+                }
+                // ส่งข้อมูลกลับไปยัง client
+                res.status(200).json({ success: true, data: contentGen });
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });
             }

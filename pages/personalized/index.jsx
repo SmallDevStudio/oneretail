@@ -22,7 +22,7 @@ const LearningGen = () => {
         const fetchPersonalized = async () => {
             try {
                 const response = await axios.get(`/api/personalized`);
-                setPersonalizedData(response.data);
+                setPersonalizedData(response.data.data);
             } catch (error) {
                 console.error(error);
             }
@@ -87,7 +87,7 @@ const LearningGen = () => {
 
             {/* Content */}
             <div className="flex flex-col mt-5 gap-5 px-2">
-                {PersonalizedData?.data?.map((data, index) => (
+                {PersonalizedData.map((data, index) => (
                     <button key={index}
                         className='bg-[#0056FF] text-white text-2xl font-bold py-10 px-4 rounded-lg'
                         onClick={() => router.push(`/personalized/${data._id}`)}
