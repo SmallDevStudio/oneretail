@@ -19,6 +19,7 @@ const PersonalizedID = () => {
     const [score, setScore] = useState(0);
     const [PersonalizedData, setPersonalizedData] = useState([]);
     const [contents, setContents] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     const { data: session } = useSession();
     const router = useRouter();
@@ -32,7 +33,7 @@ const PersonalizedID = () => {
     const { data: posttest, error: posttestError, isLoading: posttestLoading } = useSWR(`/api/personal/posttest/${userId}?contentGenId=${id}`, fetcher);
 
     useEffect(() => {
-        if (id) {
+        setLoading(true);
             const fetchPersonalizedData = async () => {
                 try {
                     const res = await axios.get(`/api/personalized/contents?id=${id}`);
@@ -42,10 +43,11 @@ const PersonalizedID = () => {
                 }
             };
             fetchPersonalizedData();
-        }
+            setLoading(false);
     }, [id]);
 
     useEffect(() => {
+        setLoading(true);
         if (userId) {
             const fetchContents = async () => {
                 try {
@@ -56,6 +58,7 @@ const PersonalizedID = () => {
                 }
             };
             fetchContents();
+            setLoading(false);
         } else {
             return;
         }
@@ -89,8 +92,7 @@ const PersonalizedID = () => {
     if (pretestError) return <div>Error loading pretest data</div>;
     if (posttestError) return <div>Error loading posttest data</div>;
 
-    const totalScore = contents?.data?.length + 2;
-    const percentage = (score / totalScore) * 100;
+    const percentage = (score / (PersonalizedData?.contents?.length + 2)) * 100;
     
     return (
         <div className="flex flex-col min-h-[80vh] mb-20">
@@ -138,7 +140,7 @@ const PersonalizedID = () => {
                         <LineProgressBar percent={percentage} />
                     </div>
                     <span className="text-sm text-gray-400">
-                        {score}/{totalScore}</span>
+                        {score}/{PersonalizedData?.contents?.length + 2}</span>
                 </div>
 
                 <span className="text-xs text-gray-400">
