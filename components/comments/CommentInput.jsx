@@ -90,9 +90,7 @@ const CommentInput = ({ handleSubmit, userId, handleClose, checkError, folder })
 
     const handleRemoveMedia = async (index) => {
         const url = media[index].url;
-
-        console.log('url', url);
-      
+        
         try {
           // ส่งคำขอ DELETE ไปยัง API
           await axios.delete(`/api/blob/delete?url=${url}`);

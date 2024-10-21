@@ -111,6 +111,22 @@ const RedeemPage = () => {
     fetchRedeemTrans();
   };
 
+  const handleDone = async () => {
+    await Promise.all(
+      selectedRows.map(async (rowId) => {
+        const redeemTran = redeemTrans.find((trans) => trans.id === rowId);
+        await axios.put("/api/done", {
+          redeemTransId: rowId,
+          userId: redeemTran.userId,
+          creator: userId,
+        });
+      })
+    );
+    fetchRedeemTrans();
+  };
+
+
+
   const handlePrint = () => {
     const selectedData = redeemTrans.filter((trans) => selectedRows.includes(trans.id));
     
@@ -601,6 +617,7 @@ const RedeemPage = () => {
             {selectedRows.length > 0 && (
               <div className="mt-4">
                 <button onClick={handleDeliver} className="bg-green-500 text-white px-4 py-2 rounded mr-2">Deliver</button>
+                <button onClick={handleDone} className="bg-green-500 text-white px-4 py-2 rounded mr-2">Done</button>
                 <button onClick={handlePrint} className="bg-blue-500 text-white px-4 py-2 rounded mr-2">Print</button>
                 <button onClick={handleExport} className="bg-yellow-500 text-white px-4 py-2 rounded">Export</button>
               </div>

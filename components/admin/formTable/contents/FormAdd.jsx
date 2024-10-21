@@ -109,8 +109,6 @@ const FormAdd = () => {
             recommend: formData.recommend || false,
         };
     
-        console.log("Form data:", form);
-    
         try {
             const response = await axios.post('/api/contents', form);
             if (response.data) {
