@@ -114,6 +114,7 @@ const FormsAdmin = () => {
     };
     const handleCloseQr = () => {
         setOpenQr(!openQr);
+        setUrlQr(null);
     };
 
     
