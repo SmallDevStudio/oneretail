@@ -193,6 +193,12 @@ const Ads = () => {
     }
 
     const handleClose = () => {
+        setIsEdit(false);
+        setSelected(null);
+        setName("");
+        setMedia(null);
+        setUrl("");
+        setPosition("");
         setOpen(false);
     }
 
@@ -339,7 +345,7 @@ const Ads = () => {
                                     {media && (
                                         <div className="flex gap-2 ml-2">
                                             <div className="relative flex flex-col p-2 border-2 rounded-xl">
-                                                {isUploading ? (
+                                                { isUploading ? (
                                                     <div className="flex justify-center">
                                                         <CircularProgress />
                                                     </div>
@@ -420,7 +426,7 @@ const Ads = () => {
                             >
                                 <option value="">กรุณาเลือก</option>
                                 <option value="main">Main</option>
-                                <option value="external">Externel</option>
+                                <option value="page">Page</option>
                             </select>
                         </div>
                         

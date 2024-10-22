@@ -21,7 +21,7 @@ const PulseSurvey = () => {
 
     useEffect(() => {
         if (surveyData?.completed) {
-            router.push('/main');
+            router.push('/ads');
         }
     }, [surveyData, router]);
 
@@ -74,7 +74,7 @@ const PulseSurvey = () => {
 
     const onRequestClose = () => {
         setShowModal(false);
-        router.push('/main');
+        router.push('/ads');
     };
 
     return (
