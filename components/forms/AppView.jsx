@@ -7,6 +7,7 @@ import ReactPlayer from "react-player";
 import moment from "moment";
 import "moment/locale/th";
 import Swal from "sweetalert2";
+import { IoIosArrowBack } from "react-icons/io";
 
 moment.locale('th');
 
@@ -70,7 +71,15 @@ export default function AppView({ data }) {
 
     return (
         <main className="flex flex-col w-full bg-[#0056FF] min-h-[100vh] mb-20">
-            <div className="w-full">
+            <div className="flex flex-row bg-white w-full h-10 items-center">
+                <IoIosArrowBack
+                    className="text-xl inline text-gray-700"
+                    onClick={() => router.back()}
+                    size={25}
+                />
+                <span className="text-xl font-bold text-[#0056FF] ml-2">One Retail Forms</span>
+            </div>
+            <div className="w-full bg-white">
                 {data.image && (
                     <Image
                         src={data.image.url}
@@ -89,10 +98,9 @@ export default function AppView({ data }) {
                     />
                 )}
             </div>
-            <div className="w-full px-2 bg-white rounded-b-lg">
-                <h1 className="text-3xl font-bold">{data.title}</h1>
-                <p className="text-lg">{data.description}</p>
-                <p className="text-sm text-gray-400">{moment(data.date).format('ll')}</p>
+            <div className="w-full px-2 py-2 bg-white rounded-b-lg">
+                <h1 className="text-3xl font-bold text-[#0056FF]">{data.title}</h1>
+                <p className="text-md">{data.description}</p>
             </div>
             <div className="w-full">
                 {data.fields.map((field, index) => (
