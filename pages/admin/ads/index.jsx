@@ -19,7 +19,7 @@ const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 const Ads = () => {
     const [name, setName] = useState("");
-    const [media, setMedia] = useState([]);
+    const [media, setMedia] = useState(null);
     const [url, setUrl] = useState("");
     const [position, setPosition] = useState("");
     const [isUploading, setIsUploading] = useState(false); // จัดการสถานะการอัปโหลด
@@ -43,59 +43,52 @@ const Ads = () => {
 
     const handleFileChange = async (e) => {
         setIsUploading(true); // เริ่มการอัปโหลด
-        const fileArray = Array.from(e.target.files); // แปลง FileList เป็น array
+        const file = e.target.files;
 
-        console.log(fileArray);
+        console.log('file:', file);
 
-        const uploadPromises = fileArray.map(async (file) => {
-            const newBlob = await upload(file.name, file, {
-              access: 'public',
-              handleUploadUrl: '/api/blob/upload',
-            });
+        const newBlob = await upload(file[0].name, file[0], {
+            access: 'public',
+            handleUploadUrl: '/api/blob/upload',
+        });
       
-            const mediaEntry = {
-              url: newBlob.url,
-              public_id: nanoid(10),
-              file_name: file.name,
-              mime_type: file.type,
-              file_size: file.size,
-              type: file.type.startsWith('image') ? 'image' : 'video',
-              userId, // เชื่อมโยงกับ userId ของผู้ใช้
-              folder: 'ads', // สามารถแก้ไขเพิ่มเติมถ้าต้องการจัดเก็บใน folder
-            };
+        const mediaEntry = {
+            url: newBlob.url,
+            public_id: nanoid(10),
+            file_name: file[0].name,
+            mime_type: file[0].type,
+            file_size: file[0].size,
+            type: file[0].type.startsWith('image') ? 'image' : 'video',
+            userId, // เชื่อมโยงกับ userId ของผู้ใช้
+            folder: 'ads', // สามารถแก้ไขเพิ่มเติมถ้าต้องการจัดเก็บใน folder
+        };
       
             // ส่งข้อมูลไฟล์ไปยัง API /api/upload/save เพื่อบันทึกลงในฐานข้อมูล
-            await axios.post('/api/upload/save', mediaEntry);
+        await axios.post('/api/upload/save', mediaEntry);
       
-            return mediaEntry;
-          });
+        const imageData = {
+            public_id: mediaEntry.public_id,
+            url: mediaEntry.url,
+            type: mediaEntry.type,
+        }
+        setMedia(imageData);
       
-          // รอการอัปโหลดทั้งหมดเสร็จสิ้น
-          const uploadedMedia = await Promise.all(uploadPromises);
-      
-          // เพิ่มไฟล์ที่อัปโหลดทั้งหมดใน state media
-          setMedia((prevMedia) => [...prevMedia, ...uploadedMedia]);
-      
-          setIsUploading(false);    
-          // รีเซ็ตค่า input เพื่อให้สามารถเลือกไฟล์ใหม่ได้หลังการอัปโหลดเสร็จ
-          fileInputRef.current.value = '';
-        
-        
+        setIsUploading(false);    
+        // รีเซ็ตค่า input เพื่อให้สามารถเลือกไฟล์ใหม่ได้หลังการอัปโหลดเสร็จ
+        fileInputRef.current.value = '';
     };
 
-    const handleRemoveMedia = async (index) => {
-        const url = media[index].url;
-        const publicId = media[index].public_id;
+    const handleRemoveMedia = async (media) => {
+        const url = media.url;
+        const publicId = media.public_id;
 
         try {
           // ส่งคำขอ DELETE ไปยัง API
           await axios.delete(`/api/blob/delete?url=${url}`);
 
           await axios.post(`/api/libraries?publicId=${publicId}`);
-      
-          // ลบรายการใน state หลังจากที่ลบสำเร็จ
-          const updatedMedia = media.filter((_, i) => i !== index);
-          setMedia(updatedMedia);
+    
+          setMedia(null);
         } catch (error) {
           console.error('Error removing media:', error);
         }
@@ -106,14 +99,14 @@ const Ads = () => {
         if (isEdit) {
             await axios.put(`/api/ads/${selected._id}`, {
                 name,
-                medias: media,
+                media,
                 url,
                 position
             });
         } else {
             const newAds = {
                 name,
-                medias: media,
+                media,
                 url,
                 position,
                 userId
@@ -123,7 +116,7 @@ const Ads = () => {
                 const response = await axios.post("/api/ads", newAds);
                 if (response.status === 201) {
                     setName("");
-                    setMedia([]);
+                    setMedia(null);
                     setUrl("");
                     setPosition("");
                     setOpen(false);
@@ -152,7 +145,7 @@ const Ads = () => {
         setIsEdit(false);
         setSelected(null);
         setName("");
-        setMedia([]);
+        setMedia(null);
         setUrl("");
         setPosition("");
         setOpen(false);
@@ -162,7 +155,7 @@ const Ads = () => {
         setIsEdit(true);
         setSelected(ads);
         setName(ads.name);
-        setMedia(ads.medias);
+        setMedia(ads.media);
         setUrl(ads.url);
         setPosition(ads.position);
         setOpen(true);
@@ -181,8 +174,8 @@ const Ads = () => {
         })
 
         if (result.isConfirmed) {
-            const url = ads.medias[0].url;
-            const publicId = ads.medias[0].public_id;
+            const url = ads.media.url;
+            const publicId = ads.media.public_id;
             try {
                 await axios.delete(`/api/blob/delete?url=${url}`);
                 await axios.delete(`/api/libraries/delete?public_id=${publicId}`);
@@ -249,10 +242,10 @@ const Ads = () => {
                                 <td className="border-y px-4 py-2 text-center">{item.name}</td>
                                 <td className="border-y px-4 py-2">
                                     <div className="flex justify-center items-center"
-                                        onClick={() => handleOpenPreview(item.medias[0].url)}
+                                        onClick={() => handleOpenPreview(item.media.url)}
                                     >
                                         <Image
-                                            src={item.medias[0].url}
+                                            src={item.media.url}
                                             alt={item.name}
                                             width={50}
                                             height={50}
@@ -343,8 +336,8 @@ const Ads = () => {
                             {/* Preview Media */}
                             <div>
                                 <div className="flex flex-row items-center w-full mb-2">
-                                    {Array.isArray(media) && media.length > 0 && media.map((item, index) => (
-                                        <div key={index} className="flex gap-2 ml-2">
+                                    {media && (
+                                        <div className="flex gap-2 ml-2">
                                             <div className="relative flex flex-col p-2 border-2 rounded-xl">
                                                 {isUploading ? (
                                                     <div className="flex justify-center">
@@ -354,11 +347,11 @@ const Ads = () => {
                                                         <>
                                                         <IoIosCloseCircle
                                                             className="absolute top-0 right-0 text-xl cursor-pointer"
-                                                            onClick={() => handleRemoveMedia(index)}
+                                                            onClick={() => handleRemoveMedia(media)}
                                                         />
-                                                        {item.type === 'image' ? (
+                                                        {media.type === 'image' ? (
                                                             <Image
-                                                                src={item.url}
+                                                                src={media.url}
                                                                 alt="Thumbnail"
                                                                 width={200}
                                                                 height={200}
@@ -367,7 +360,7 @@ const Ads = () => {
                                                             />
                                                         ) : (
                                                             <video
-                                                                src={item.url}
+                                                                src={media.url}
                                                                 className="rounded-lg object-cover"
                                                                 style={{ width: '150px', height: 'auto' }}
                                                             />
@@ -376,7 +369,7 @@ const Ads = () => {
                                                     )}
                                             </div>
                                         </div>
-                                    ))}
+                                    )}
                                 </div>
                             </div>
 
@@ -397,7 +390,6 @@ const Ads = () => {
                                 <input
                                     ref={fileInputRef}
                                     type="file"
-                                    multiple // สามารถเลือกหลายไฟล์ได้
                                     accept="image/*,video/*" // จำกัดชนิดของไฟล์
                                     onChange={handleFileChange} // ดักการเปลี่ยนแปลงของไฟล์ที่เลือก
                                     style={{ display: 'none' }} // ซ่อน input file

@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const adsSchema = new mongoose.Schema({
     name: { type: String, required: true },
-    medias: [{ public_id: { type: String }, url: { type: String }, type: { type: String } }],
+    media: { public_id: { type: String }, url: { type: String }, type: { type: String }},
     url: { type: String },
     status: { type: Boolean, default: true },
     position: { type: String },
