@@ -8,6 +8,7 @@ import { useSession } from "next-auth/react";
 import { ImFilePicture } from "react-icons/im";
 import { IoIosCloseCircle } from "react-icons/io";
 import { FaCirclePlus } from "react-icons/fa6";
+import { RiDeleteBack2Fill } from "react-icons/ri";
 import { Divider } from "@mui/material";
 import tagify from "@yaireo/tagify";
 import Loading from "../Loading";
@@ -26,9 +27,12 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
     const [fields, setFields] = useState([{
         title: "",
         description: "",
+        insertType: "",
         image: null,
+        youtubeUrl: "",
+        thumbnailUrl: "",
         type: "",
-        options: ["", "", "", ""],
+        options: [],
         vote: [],
     }]);
     const [showOptionField, setShowOptionField] = useState(false);
@@ -36,11 +40,10 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
     const [group, setGroup] = useState([]);
     const [openPermissions, setOpenPermissions] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [fieldYoutubeLink, setFieldYoutubeLink] = useState([]);
 
     const { data: session } = useSession();
     const userId = session?.user?.id;
-
-    console.log('Image:', image);
 
     useEffect(() => {
         if (isEdit && form) {
@@ -53,22 +56,18 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
             setTeamGrop(form.teamGrop? form.teamGrop : "");
             setGroup(form.group? form.group : []);
             setShowOptionField(true);
-        } else {
-            setTitle("");
-            setDescription("");
-            setYoutubeLink("");
-            setYoutube(null);
-            setImage(null);
-            setFields([{ title: "", description: "", type: "", options: ["", "", "", ""] }]);
-            setTeamGrop("");
-            setGroup([]);
         }
     }, [isEdit, form]);
 
     const fileInputRef = useRef(null);
+    const uploadRef = useRef(null);
 
     const handleUploadClick = () => {
         fileInputRef.current.click(); // เมื่อกดปุ่ม ให้เปิด input file
+    };
+
+    const handleFieldUploadClick = () => {
+        uploadRef.current.click(); // เมื่อกดปุ่ม ให้เปิด input file
     };
 
     const handleFileChange = async (e) => {
@@ -123,7 +122,7 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
 
     const handleAddField = () => {
         setFieldIndex((prevIndex) => prevIndex + 1);
-        setFields([...fields, { title: "", description: "", image: null, type: "", options: ["", "", "", ""], vote: [] }]);
+        setFields([...fields, { title: "", description: "", insertType: "", image: null, youtubeUrl: "", thumbnailUrl: "", type: "", options: [], vote: [] }]);
     };
 
     const handleOptionChange = (index, value, fieldIndex) => {
@@ -195,12 +194,14 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
         setYoutubeLink("");
         setYoutube(null);
         setImage(null);
-        setFields([...fields, { title: "", description: "", image: null, type: "", options: ["", "", "", ""], vote: [] }]);
+        setFields([...fields, { title: "", description: "", insertType: "", image: null, youtubeUrl: "", thumbnailUrl: "", type: "", options: [], vote: [] }]);
         setShowOptionField(false);
         setFieldIndex(0);
         setTeamGrop("");
         setGroup([]);
         setOpenPermissions(false);
+        setLoading(false);
+        setFieldYoutubeLink([]);
         onclose();
     };
 
@@ -247,6 +248,105 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
         }
     }
 
+    const handleAddOption = (fieldIndex) => {
+        const newFields = [...fields];
+        newFields[fieldIndex].options.push("");  // เพิ่มตัวเลือกใหม่ที่เป็นค่าเริ่มต้นเป็นค่าว่าง
+        setFields(newFields);
+    };
+
+    const handleDeleteOption = (optionIndex, fieldIndex) => {
+        const updatedFields = [...fields];
+        updatedFields[fieldIndex].options.splice(optionIndex, 1); // ลบตัวเลือกที่ optionIndex
+        setFields(updatedFields); // อัปเดตฟิลด์ใหม่
+    };
+
+    const handleFieldFileChange = async (e, index) => {
+        setIsUploading(true); // เริ่มการอัปโหลด
+        const file = e.target.files;
+
+        const newBlob = await upload(file[0].name, file[0], {
+            access: 'public',
+            handleUploadUrl: '/api/blob/upload',
+        });
+      
+        const mediaEntry = {
+            url: newBlob.url,
+            public_id: nanoid(10),
+            file_name: file[0].name,
+            mime_type: file[0].type,
+            file_size: file[0].size,
+            type: file[0].type.startsWith('image') ? 'image' : 'video',
+            userId, // เชื่อมโยงกับ userId ของผู้ใช้
+            folder: 'forms', // สามารถแก้ไขเพิ่มเติมถ้าต้องการจัดเก็บใน folder
+        };
+      
+            // ส่งข้อมูลไฟล์ไปยัง API /api/upload/save เพื่อบันทึกลงในฐานข้อมูล
+        await axios.post('/api/upload/save', mediaEntry);
+      
+        const imageData = {
+            public_id: mediaEntry.public_id,
+            url: mediaEntry.url,
+            type: mediaEntry.type,
+        }
+
+        setFields(preField => {
+            const updatedFields = [...preField];
+            updatedFields[index].image = imageData;
+            return updatedFields;
+        })
+        setIsUploading(false);
+        // รีเซ็ตค่า input เพื่อให้สามารถเลือกไฟล์ใหม่ได้หลังการอัปโหลดเสร็จ
+        uploadRef.current.value = '';
+    };
+
+    const handleRemoveFieldImage = (fieldIndex) => {
+        const newFields = [...fields];
+        newFields[fieldIndex].image = null;
+        setFields(newFields);
+    };
+
+    const handleFieldYoutube = async (link, fieldIndex) => {
+        const fieldLink = [...fieldYoutubeLink];
+        fieldLink[fieldIndex] = link;
+        setFieldYoutubeLink(fieldLink);
+        
+        try {
+            const response = await axios.post('/api/getyoutube', { youtubeUrl: link });
+            const video = response.data;
+
+            setFields(preField => {
+                const updatedFields = [...preField];
+                updatedFields[fieldIndex] = {
+                    ...updatedFields[fieldIndex],
+                    youtubeUrl: link,
+                    thumbnailUrl: video.thumbnailUrl,
+                }
+                return updatedFields;
+            });
+            
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleRemoveFieldYoutube = (fieldIndex) => {
+        const newFields = [...fields];
+        newFields[fieldIndex] = {
+            ...newFields[fieldIndex],
+            youtubeUrl: '',
+            thumbnailUrl: '',
+        }
+        setFields(newFields);
+    };
+
+    const handleFieldTypeSelection = (index, selectedType) => {
+        const newFields = [...fields];
+        newFields[index].insertType = selectedType; // อัปเดต fieldSelectedType สำหรับฟิลด์ที่เลือก
+        setFields(newFields);
+    };
+
+    console.log('fieldYoutubeLink:', fieldYoutubeLink);
+    console.log('fields:', fields);
 
     if (loading) return <Loading />;
 
@@ -389,9 +489,14 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
                         <span className="text-xl font-bold text-[#0056FF]">
                             Field
                         </span>
-                        <FaCirclePlus 
+                        <div 
+                            className="flex flex-row items-center bg-[#0056FF] gap-2 cursor-pointer px-4 py-2 rounded-xl text-white"
                             onClick={() => handleAddField()}
-                        />
+                        >
+                            <FaCirclePlus />
+                            <span className="text-sm font-bold">เพิ่ม Field</span>
+
+                        </div>
                     </div>
                 </Divider>
             </div>
@@ -399,9 +504,9 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
             {/* Fields */}
             {fields.map((field, index) => (
                 <div key={index} className="flex flex-col border border-gray-200 gap-2 mt-1 p-2 rounded-lg">
-                    <span className="text-sm text-[#0056FF] font-bold">Field {index + 1}</span>
+                    <span className="text-sm text-[#0056FF] font-bold">ข้อที่ {index + 1}</span>
                 <div className="flex flex-row items-center gap-2">
-                    <label className="text-sm font-bold">ชื่อ Field:<span className="text-red-500">*</span></label>
+                    <label className="text-sm font-bold">Title :<span className="text-red-500">*</span></label>
                     <input
                         type="text"
                         name="title"
@@ -413,7 +518,7 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
                     </div>
 
                 <div className="flex flex-row gap-2">
-                    <label className="text-sm font-bold">รายละเอียด Field:</label>
+                    <label className="text-sm font-bold">รายละเอียด:</label>
                     <textarea
                         name="description"
                         placeholder="รายละเอียด Field"
@@ -424,8 +529,111 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
                     />
                 </div>
 
+                {/* Select Type */}
+                <div className="flex flex-col gap-2">
+                    <div className="flex flex-row items-center gap-2">
+                        <label className="text-sm font-bold">Option:</label>
+                        <select 
+                            name="seletedType" 
+                            id="seletedType"
+                            value={fields[index]?.insertType}
+                            onChange={(e) => handleFieldTypeSelection(index, e.target.value)}
+                            className="border border-gray-300 rounded-md text-sm font-light text-gray-600 px-2 py-1"
+                        >
+                            <option value="">เลือกประเภท</option>
+                            <option value="image">Image</option>
+                            <option value="youtube">youtube</option>
+                        </select>
+                    </div>
+
+                    {/* Image preview */}
+                    <div>
+                        {fields[index]?.image && (
+                            <div className="relative border-2 rounded-lg w-[120px] p-2.5">
+                                {isUploading ? (
+                                    <div className="flex justify-center items-center">
+                                        <CircularProgress />
+                                    </div>
+                                ) : (
+                                    <>
+                                        <IoIosCloseCircle 
+                                            className="relative top-0 left-20 cursor-pointer text-red-500"
+                                            onClick={handleRemoveFieldImage(index)}
+                                        />
+                                        <Image
+                                            src={fields[index]?.image?.url}
+                                            alt="Image Thumbnail"
+                                            width={100}
+                                            height={100}
+                                            className="rounded-md"
+                                            style={{
+                                                height: "auto",
+                                                width: "100px",   
+                                                }}
+                                        />
+                                    </>
+                                )}
+                            </div>
+                        )}
+                        {fields[index]?.thumbnailUrl && (
+                            <div className="relative border-2 rounded-lg w-[120px] p-2.5">
+                                <IoIosCloseCircle 
+                                    className="relative top-0 left-20 cursor-pointer text-red-500"
+                                    onClick={handleRemoveFieldYoutube(index)}
+                                />
+                                <Image
+                                    src={fields[index]?.thumbnailUrl}
+                                    alt="Youtube Thumbnail"
+                                    width={100}
+                                    height={100}
+                                    className="rounded-md"
+                                />
+                            </div>
+                        )}
+                    </div>
+                    {/* Upload Image */}
+                    {fields[index]?.insertType === "image" && (
+                        <div>
+                            <button
+                                onClick={handleFieldUploadClick}
+                                className="flex flex-row items-center gap-2 p-2 cursor-pointer border-2 rounded-xl"
+                            >
+                                <ImFilePicture className="text-xl text-[#0056FF]" />
+                                <div className="flex flex-col text-left">
+                                    <span className="text-sm font-bold">อัพโหลดรูปภาพ</span>
+                                    <span className="text-[10px] text-red-500 ">* สามารถอัพโหลดได้ไม่เกิน 100MB</span>
+                                </div>
+                            </button>
+
+                            {/* ซ่อน input file แต่ใช้ ref เพื่อให้มันทำงานเมื่อกดปุ่ม */}
+                            <input
+                                ref={uploadRef}
+                                type="file"
+                                accept="image/*" // จำกัดชนิดของไฟล์
+                                onChange={(e) => handleFieldFileChange(e, index)} // ดักการเปลี่ยนแปลงของไฟล์ที่เลือก
+                                style={{ display: 'none' }} // ซ่อน input file
+                            />
+                        </div>
+                    )}
+
+                    {fields[index]?.insertType === "youtube" && (
+                        <div className="flex flex-row gap-2">
+                            <label className="text-sm font-bold">Youtube URL:</label>
+                            <input
+                                type="text"
+                                name="fieldYoutube"
+                                placeholder="Youtube URL"
+                                className="text-sm font-light text-gray-600 w-1/2 px-2 py-1 border-2 rounded-xl"
+                                value={fieldYoutubeLink[index] || ''}
+                                onChange={(e) => handleFieldYoutube(e.target.value, index)}
+                            ></input>
+                        </div>
+                    )}
+                </div>
+
+
                 <div className="flex flex-row items-center gap-2">
-                    <label className="text-sm font-bold">ประเภท Field:</label>
+                    <label className="text-sm font-bold">ประเภท:</label>
                     <select
                         name="type"
                         className="text-sm font-light text-gray-600 w-36 px-2 py-1 border-2 rounded-xl"
@@ -436,20 +644,34 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
                         <option value="text">Text</option>
                         <option value="option">Option</option>
                     </select>
+                    {fields[index]?.type === "option" && (
+                        <div 
+                            className="flex flex-row items-center bg-[#F2871F] gap-2 cursor-pointer px-4 py-1 rounded-xl text-white"
+                            onClick={() => handleAddOption(index)} // เพิ่มการเรียกใช้งานเพื่อเพิ่มตัวเลือก
+                        >
+                            <FaCirclePlus />
+                            <span>เพิ่มตัวเลือก</span>
+                        </div>
+                    )}
                 </div>
 
                 {fields[index]?.type === "option" && showOptionField && (
-                    <div className="flex flex-row gap-2">
-                        {fields[index].options?.map((option, Optionindex) => (
-                            <input
-                                key={Optionindex}
-                                type="text"
-                                name="option"
-                                placeholder={`ตัวเลือก ${Optionindex + 1}`}
-                                className="text-sm font-light text-gray-600 w-1/2 px-2 py-1 border-2 rounded-xl"
-                                value={option}
-                                onChange={(e) => handleOptionChange(Optionindex, e.target.value, index)}
-                            />
+                    <div className="flex flex-col gap-2">
+                        {fields[index].options?.map((option, optionIndex) => (
+                            <div key={optionIndex} className="flex flex-row items-center gap-2">
+                                <input
+                                    type="text"
+                                    name="option"
+                                    placeholder={`ตัวเลือก ${optionIndex + 1}`}
+                                    className="text-sm font-light text-gray-600 w-1/2 px-2 py-1 border-2 rounded-xl"
+                                    value={option}
+                                    onChange={(e) => handleOptionChange(optionIndex, e.target.value, index)}
+                                />
+                                <RiDeleteBack2Fill 
+                                    className="text-xl text-red-500 cursor-pointer"
+                                    onClick={() => handleDeleteOption(optionIndex, index)} // เรียกฟังก์ชันลบเมื่อคลิก
+                                />
+                            </div>
                         ))}
                     </div>
                 )}

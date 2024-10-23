@@ -14,7 +14,10 @@ const formSchema = new mongoose.Schema({
     fields: [{
         title: { type: String, required: true },
         description: { type: String },
+        insertType: { type: String },
         image: { public_id: { type: String }, url: { type: String }, type: { type: String } },
+        youtubeUrl: { type: String },
+        thumbnailUrl: { type: String },
         type: { type: String, required: true },
         options: [{ type: String }],
         vote: [{ type: String, ref: 'Vote' }],
