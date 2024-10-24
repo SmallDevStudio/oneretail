@@ -8,10 +8,13 @@ import RedeemReport from "@/components/reports/RedeemReport";
 import RegisterReport from "@/components/reports/RegisterReport";
 import LoginReport from "@/components/reports/LoginReport";
 import ShareYourStory from "@/components/reports/ShareYourStory";
+import Leaderboard from "@/components/reports/Leaderboard";
+import Points from "@/components/reports/Points";
 
 const Reports = () => {
     return (
         <div>
+            <Points />
             <UserRankReport />
             <UserContentViews />
             <ContentReport />
@@ -20,6 +23,7 @@ const Reports = () => {
             <RegisterReport />
             <LoginReport />
             <ShareYourStory />
+            <Leaderboard />
         </div>
     );
 };

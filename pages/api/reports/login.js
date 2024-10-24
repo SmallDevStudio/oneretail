@@ -6,6 +6,12 @@ import "moment/locale/th";
 
 moment.locale('th');
 
+export const config = {
+    api: {
+        responseLimit: false,
+    },
+};
+
 export default async function handler(req, res) {
     const { method } = req;
 

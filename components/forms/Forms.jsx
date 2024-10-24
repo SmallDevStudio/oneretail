@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { nanoid } from "nanoid";
 import { upload } from "@vercel/blob/client";
 import axios from "axios";
@@ -13,6 +13,7 @@ import { Divider } from "@mui/material";
 import tagify from "@yaireo/tagify";
 import Loading from "../Loading";
 import CircularProgress from "@mui/material";
+import { debounce, set } from "lodash";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -29,8 +30,7 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
         description: "",
         insertType: "",
         image: null,
-        youtubeUrl: "",
-        thumbnailUrl: "",
+        youtube: null,
         type: "",
         options: [],
         vote: [],
@@ -122,7 +122,10 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
 
     const handleAddField = () => {
         setFieldIndex((prevIndex) => prevIndex + 1);
-        setFields([...fields, { title: "", description: "", insertType: "", image: null, youtubeUrl: "", thumbnailUrl: "", type: "", options: [], vote: [] }]);
+        setFields((prevFields) => [
+            ...prevFields, 
+            { title: "", description: "", insertType: "", image: null, youtubeUrl: "", youtube: null, type: "", options: [], vote: [] }
+        ]);
     };
 
     const handleOptionChange = (index, value, fieldIndex) => {
@@ -194,7 +197,7 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
         setYoutubeLink("");
         setYoutube(null);
         setImage(null);
-        setFields([...fields, { title: "", description: "", insertType: "", image: null, youtubeUrl: "", thumbnailUrl: "", type: "", options: [], vote: [] }]);
+        setFields([...fields, { title: "", description: "", insertType: "", image: null, youtubeUrl: "", youtube: null, type: "", options: [], vote: [] }]);
         setShowOptionField(false);
         setFieldIndex(0);
         setTeamGrop("");
@@ -261,92 +264,115 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
     };
 
     const handleFieldFileChange = async (e, index) => {
-        setIsUploading(true); // เริ่มการอัปโหลด
+        setIsUploading(true); // Start uploading
         const file = e.target.files;
-
-        const newBlob = await upload(file[0].name, file[0], {
-            access: 'public',
-            handleUploadUrl: '/api/blob/upload',
-        });
-      
-        const mediaEntry = {
-            url: newBlob.url,
-            public_id: nanoid(10),
-            file_name: file[0].name,
-            mime_type: file[0].type,
-            file_size: file[0].size,
-            type: file[0].type.startsWith('image') ? 'image' : 'video',
-            userId, // เชื่อมโยงกับ userId ของผู้ใช้
-            folder: 'forms', // สามารถแก้ไขเพิ่มเติมถ้าต้องการจัดเก็บใน folder
-        };
-      
-            // ส่งข้อมูลไฟล์ไปยัง API /api/upload/save เพื่อบันทึกลงในฐานข้อมูล
-        await axios.post('/api/upload/save', mediaEntry);
-      
-        const imageData = {
-            public_id: mediaEntry.public_id,
-            url: mediaEntry.url,
-            type: mediaEntry.type,
+    
+        if (!file || file.length === 0) {
+            console.error("No file selected");
+            setIsUploading(false);
+            return; // Ensure we have a file
         }
-
-        setFields(preField => {
-            const updatedFields = [...preField];
-            updatedFields[index].image = imageData;
-            return updatedFields;
-        })
-        setIsUploading(false);
-        // รีเซ็ตค่า input เพื่อให้สามารถเลือกไฟล์ใหม่ได้หลังการอัปโหลดเสร็จ
-        uploadRef.current.value = '';
+    
+        try {
+            const newBlob = await upload(file[0].name, file[0], {
+                access: 'public',
+                handleUploadUrl: '/api/blob/upload',
+            });
+            
+            const mediaEntry = {
+                url: newBlob.url,
+                public_id: nanoid(10),
+                file_name: file[0].name,
+                mime_type: file[0].type,
+                file_size: file[0].size,
+                type: file[0].type.startsWith('image') ? 'image' : 'video',
+                userId,
+                folder: 'forms',
+            };
+    
+            await axios.post('/api/upload/save', mediaEntry);
+    
+            const imageData = {
+                public_id: mediaEntry.public_id,
+                url: mediaEntry.url,
+                type: mediaEntry.type,
+            };
+    
+            setFields((prevFields) => {
+                const newFields = [...prevFields];
+                newFields[index].image = imageData;
+                return newFields;
+            });
+    
+        } catch (error) {
+            console.error("Error uploading file:", error);
+        } finally {
+            setIsUploading(false);
+            uploadRef.current.value = ''; // Reset input
+        }
     };
 
-    const handleRemoveFieldImage = (fieldIndex) => {
-        const newFields = [...fields];
-        newFields[fieldIndex].image = null;
-        setFields(newFields);
+    const handleRemoveFieldImage = useCallback((fieldIndex) => {
+        setFields((prevFields) => {
+            const newFields = [...prevFields];
+            newFields[fieldIndex].image = null;
+            return newFields;
+        });
+    }, [setFields]);
+
+    const handleFieldLinkChange = (link, fieldIndex) => {
+        const youtubeLink = [...fieldYoutubeLink];
+        youtubeLink[fieldIndex] = link;
+        setFieldYoutubeLink(youtubeLink);
     };
 
     const handleFieldYoutube = async (link, fieldIndex) => {
-        const fieldLink = [...fieldYoutubeLink];
-        fieldLink[fieldIndex] = link;
-        setFieldYoutubeLink(fieldLink);
-        
+        if (!link) return; // Prevent empty links
+
         try {
             const response = await axios.post('/api/getyoutube', { youtubeUrl: link });
             const video = response.data;
+            const youtubeData = {
+                slug: video.videoId,
+                title: video.title,
+                description: video.description,
+                thumbnailUrl: video.thumbnailUrl,
+                url: video.videoUrl
+            };
 
-            setFields(preField => {
-                const updatedFields = [...preField];
-                updatedFields[fieldIndex] = {
-                    ...updatedFields[fieldIndex],
-                    youtubeUrl: link,
-                    thumbnailUrl: video.thumbnailUrl,
-                }
-                return updatedFields;
+            // Use functional state update to avoid issues
+            setFields((prevFields) => {
+                const newFields = [...prevFields];
+                newFields[fieldIndex] = {
+                    ...newFields[fieldIndex],
+                    youtube: youtubeData,
+                };
+                return newFields; // Return updated fields to avoid unnecessary re-renders
             });
-            
         } catch (error) {
-            console.error(error);
+            console.error("Error fetching YouTube data:", error);
         }
     };
 
-    const handleRemoveFieldYoutube = (fieldIndex) => {
-        const newFields = [...fields];
-        newFields[fieldIndex] = {
-            ...newFields[fieldIndex],
-            youtubeUrl: '',
-            thumbnailUrl: '',
-        }
-        setFields(newFields);
-    };
+    const handleRemoveFieldYoutube = useCallback((fieldIndex) => {
+        setFields((prevFields) => {
+            const newFields = [...prevFields];
+            newFields[fieldIndex] = {
+                ...newFields[fieldIndex],
+                youtubeUrl: '',
+                thumbnailUrl: '',
+            }
+            return newFields;
+        });
+    }, [setFields]);
 
     const handleFieldTypeSelection = (index, selectedType) => {
-        const newFields = [...fields];
-        newFields[index].insertType = selectedType; // อัปเดต fieldSelectedType สำหรับฟิลด์ที่เลือก
-        setFields(newFields);
+        setFields((prevFields) => {
+            const newFields = [...prevFields];
+            newFields[index].insertType = selectedType; // Correctly update field type
+            return newFields;
+        });
     };
-
-    console.log('fieldYoutubeLink:', fieldYoutubeLink);
-    console.log('fields:', fields);
 
     if (loading) return <Loading />;
 
@@ -511,7 +537,7 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
                         type="text"
                         name="title"
                         placeholder="ชื่อ Field"
-                        value={fields[index]?.title}
+                        value={field.title}
                         onChange={(e) => handleFieldChange(e, index)}
                         className="text-sm font-light text-gray-600 w-1/2 px-2 py-1 border-2 rounded-xl"
                         />
@@ -522,7 +548,7 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
                     <textarea
                         name="description"
                         placeholder="รายละเอียด Field"
-                        value={fields[index]?.description}
+                        value={field.description}
                         onChange={(e) => handleFieldChange(e, index)}
                         className="text-sm font-light text-gray-600 w-1/2 px-2 py-1 border-2 rounded-xl"
                         rows={2}
@@ -536,7 +562,7 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
                         <select 
                             name="seletedType" 
                             id="seletedType"
-                            value={fields[index]?.insertType}
+                            value={field.insertType}
                             onChange={(e) => handleFieldTypeSelection(index, e.target.value)}
                             className="border border-gray-300 rounded-md text-sm font-light text-gray-600 px-2 py-1"
                         >
@@ -548,7 +574,7 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
 
                     {/* Image preview */}
                     <div>
-                        {fields[index]?.image && (
+                        {field.image && (
                             <div className="relative border-2 rounded-lg w-[120px] p-2.5">
                                 {isUploading ? (
                                     <div className="flex justify-center items-center">
@@ -558,7 +584,7 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
                                     <>
                                         <IoIosCloseCircle 
                                             className="relative top-0 left-20 cursor-pointer text-red-500"
-                                            onClick={handleRemoveFieldImage(index)}
+                                            onClick={() => handleRemoveFieldImage(index)}
                                         />
                                         <Image
                                             src={fields[index]?.image?.url}
@@ -575,14 +601,14 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
                                 )}
                             </div>
                         )}
-                        {fields[index]?.thumbnailUrl && (
+                        {field.youtube && (
                             <div className="relative border-2 rounded-lg w-[120px] p-2.5">
                                 <IoIosCloseCircle 
                                     className="relative top-0 left-20 cursor-pointer text-red-500"
-                                    onClick={handleRemoveFieldYoutube(index)}
+                                    onClick={() => handleRemoveFieldYoutube(index)}
                                 />
                                 <Image
-                                    src={fields[index]?.thumbnailUrl}
+                                    src={field.youtube?.thumbnailUrl}
                                     alt="Youtube Thumbnail"
                                     width={100}
                                     height={100}
@@ -592,7 +618,7 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
                         )}
                     </div>
                     {/* Upload Image */}
-                    {fields[index]?.insertType === "image" && (
+                    {field.insertType === "image" && (
                         <div>
                             <button
                                 onClick={handleFieldUploadClick}
@@ -616,7 +642,7 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
                         </div>
                     )}
 
-                    {fields[index]?.insertType === "youtube" && (
+                    {field.insertType === "youtube" && (
                         <div className="flex flex-row gap-2">
                             <label className="text-sm font-bold">Youtube URL:</label>
                             <input
@@ -625,8 +651,14 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
                                 placeholder="Youtube URL"
                                 className="text-sm font-light text-gray-600 w-1/2 px-2 py-1 border-2 rounded-xl"
                                 value={fieldYoutubeLink[index] || ''}
-                                onChange={(e) => handleFieldYoutube(e.target.value, index)}
-                            ></input>
+                                onChange={(e) => handleFieldLinkChange(e.target.value, index)}
+                            />
+                            <button
+                                className="bg-red-500 text-white px-4 py-1 rounded-xl"
+                                onClick={() => handleFieldYoutube(fieldYoutubeLink[index], index)}
+                            >
+                                Get
+                            </button>
                         </div>
                     )}
                 </div>
@@ -637,14 +669,14 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
                     <select
                         name="type"
                         className="text-sm font-light text-gray-600 w-36 px-2 py-1 border-2 rounded-xl"
-                        value={fields[index]?.type}
+                        value={field.type}
                         onChange={(e) => handleFieldChange(e, index)}
                     >
                         <option value="">กรุณาเลือก</option>
                         <option value="text">Text</option>
                         <option value="option">Option</option>
                     </select>
-                    {fields[index]?.type === "option" && (
+                    {field.type === "option" && (
                         <div 
                             className="flex flex-row items-center bg-[#F2871F] gap-2 cursor-pointer px-4 py-1 rounded-xl text-white"
                             onClick={() => handleAddOption(index)} // เพิ่มการเรียกใช้งานเพื่อเพิ่มตัวเลือก
@@ -655,7 +687,7 @@ export default function Forms({ form, isEdit, onEditForm, onclose }) {
                     )}
                 </div>
 
-                {fields[index]?.type === "option" && showOptionField && (
+                {field.type === "option" && (
                     <div className="flex flex-col gap-2">
                         {fields[index].options?.map((option, optionIndex) => (
                             <div key={optionIndex} className="flex flex-row items-center gap-2">

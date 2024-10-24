@@ -33,34 +33,54 @@ const AnswerReport = () => {
     if (error) return <div>Failed to load</div>;
     if (!data) return <Loading />;
 
-    console.log('Answers:', answers);
-
     const handleExport = async () => {
         setLoading(true);
-
+    
         try {
             const rawData = answers;
-
-            // Format dates using moment before exporting
-            const formattedData = rawData.map(item => ({
-                ...item,
-                user: item.user.empId + '-' + item.user.fullname,
-                created_at: moment(item.createdAt).format('lll'),
-                answers: item.answers.map(answer => {
-                    // Format answers as "ข้อที่ {answer.index}: {answer.text or answer.option}"
-                    const answerText = answer.text ? `ข้อที่ ${answer.index}: ${answer.text}` : `ข้อที่ ${answer.index}: ${answer.option}`;
-                    return answerText;
-                }).join(', '),  // Combine all formatted answers into a single string
-            }));
-
+    
+            // Create a set to hold all unique question indexes (for dynamic columns)
+            const questionIndexes = new Set();
+    
+            // First pass: gather all question indexes
+            rawData.forEach(item => {
+                item.answers.forEach(answer => {
+                    questionIndexes.add(`ข้อที่ ${answer.index}`); // Add unique question names (ข้อที่)
+                });
+            });
+    
+            // Convert set to array and sort (for consistent column order)
+            const questionColumns = Array.from(questionIndexes).sort();
+    
+            // Second pass: format data for export
+            const formattedData = rawData.map(item => {
+                // Create a base object with separate empId and fullname columns
+                const baseData = {
+                    empId: item.user.empId,
+                    fullname: item.user.fullname,
+                    created_at: moment(item.createdAt).format('lll'),
+                };
+    
+                // Fill answers in corresponding columns
+                const answerData = {};
+                item.answers.forEach(answer => {
+                    const questionKey = `ข้อที่ ${answer.index}`;
+                    answerData[questionKey] = answer.text || answer.option; // Set text or option as the answer
+                });
+    
+                // Merge the base data with the dynamically generated answer columns
+                return { ...baseData, ...answerData };
+            });
+    
+            // Prepare the Excel workbook and worksheet
             const workbook = XLSX.utils.book_new();
-            const worksheet = XLSX.utils.json_to_sheet(formattedData);
-
+            const worksheet = XLSX.utils.json_to_sheet(formattedData, { header: ['empId', 'fullname', 'created_at', ...questionColumns] });
+    
             XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-
+    
             // Export to Excel
             XLSX.writeFile(workbook, `forms-report.xlsx`);
-
+    
             setLoading(false);
         } catch (error) {
             console.error('Error exporting data:', error);

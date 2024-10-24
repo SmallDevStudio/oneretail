@@ -68,8 +68,6 @@ export default function View({ data, onClose }) {
         }
     };
 
-    console.log('answers', answers);
-
     return (
         <div className="flex flex-col w-full">
             <div className="w-full">
@@ -109,6 +107,17 @@ export default function View({ data, onClose }) {
                                     width={500}
                                     height={500}
                                     style={{width: '200px', height: 'auto'}}
+                                />
+                            </div>
+                        )}
+                        {field.youtube && (
+                            <div className="flex mt-2">
+                                <ReactPlayer
+                                    url={field.youtube.url + '&modestbranding=1&rel=0'}
+                                    controls
+                                    width="100%"
+                                    height="230px"
+                                    playing={false}
                                 />
                             </div>
                         )}

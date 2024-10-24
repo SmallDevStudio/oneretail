@@ -4,6 +4,12 @@ import Users from "@/database/models/users";
 import Emp from "@/database/models/emp";
 import ContentViews from "@/database/models/ContentViews";
 
+export const config = {
+    api: {
+        responseLimit: false,
+    },
+};
+
 export default async function handler(req, res) {
     const { method } = req;
     await connectMongoDB();

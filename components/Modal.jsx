@@ -37,6 +37,11 @@ const Modal = ({ children, onClose }) => {
                     max-height: 100%;
                     width: 100%;
                     border: 3px solid #F68B1F;
+                    overflow: hidden;
+                    overflow-y: auto;
+                    webkit-overflow-scrolling: touch;
+                    -ms-overflow-style: -ms-autohiding-scrollbar;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
                 }
                 .modal-close {
                     position: absolute;

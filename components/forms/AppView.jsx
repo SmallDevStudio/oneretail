@@ -114,7 +114,18 @@ export default function AppView({ data }) {
                                     alt={field.title}
                                     width={500}
                                     height={500}
-                                    style={{width: '200px', height: 'auto'}}
+                                    style={{width: 'auto', height: '100%'}}
+                                />
+                            </div>
+                        )}
+                        {field.youtube && (
+                            <div className="flex mt-2">
+                                <ReactPlayer
+                                    url={field.youtube.url + '&modestbranding=1&rel=0'}
+                                    controls
+                                    width="100%"
+                                    height="250px"
+                                    playing={false}
                                 />
                             </div>
                         )}
