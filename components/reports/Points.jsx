@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import CircularProgress from '@mui/material/CircularProgress';
 
 export default function Points() {
     const [data, setData] = useState(null);
@@ -29,19 +30,19 @@ export default function Points() {
                         คะแนนทั้งหมด
                     </span>
                     <span className="text-2xl font-bold text-[#F2871F]">
-                            {data?.earn}
+                            {!data?.earn ? <CircularProgress /> : data?.earn}
                     </span>
                     <span className="ml-2">
                         คะแนนที่ใช้จ่าย
                     </span>
                     <span className="text-2xl font-bold text-[#F2871F]">
-                            {data?.pay}
+                            {!data?.pay ? <CircularProgress /> : data?.pay}
                     </span>
                     <span className="ml-5">
                         คะแนนคงเหลือให้ระบบ
                     </span>
                     <span className="text-3xl font-bold text-red-600">
-                            {data?.totalpoint}
+                            {!data?.totalpoint ? <CircularProgress /> : data?.totalpoint}
                     </span>
                 </div>
             </div>

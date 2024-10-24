@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import useSWR from "swr";
 import { useSession } from "next-auth/react";
-import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
 import { AdminLayout } from "@/themes";
 import { DataGrid } from "@mui/x-data-grid";
@@ -12,6 +12,17 @@ import * as XLSX from 'xlsx';
 import useMedia from "@/lib/hook/useMedia";
 import Swal from "sweetalert2";
 import CircularProgress from '@mui/material/CircularProgress';
+import Modal from "@/components/Modal";
+import DatePicker, { registerLocale } from "react-datepicker"; // Import DatePicker
+import "react-datepicker/dist/react-datepicker.css"; // DatePicker CSS
+import th from "date-fns/locale/th"; // Import Thai locale for DatePicker
+
+// Register Thai locale for the DatePicker
+registerLocale('th', th);
+
+moment.locale('th');
+
+const fetcher = url => axios.get(url).then(res => res.data);
 
 const RedeemPage = () => {
   const [redeems, setRedeems] = useState([]);
@@ -27,13 +38,16 @@ const RedeemPage = () => {
     point: 0,
     status: "true",
     type: "",
-    creator: "",
+    group: "",
+    expireDate: null,
   });
   const [isEdit, setIsEdit] = useState(false);
   const [editId, setEditId] = useState(null);
   const [activeTab, setActiveTab] = useState("redeem");
   const [isUploading, setIsUploading] = useState(false);
   const [media, setMedia] = useState(null);
+  const [open, setOpen] = useState(false);
+
   const { data: session } = useSession();
   const userId = session?.user?.id;
 
@@ -42,14 +56,16 @@ const RedeemPage = () => {
   const fileUploadRef = useRef(null);
 
   useEffect(() => {
-    fetchRedeems();
     fetchRedeemTrans();
   }, []);
 
-  const fetchRedeems = async () => {
-    const res = await axios.get("/api/redeem/table");
-    setRedeems(res.data.data);
-  };
+  const { data: redeem, mutate: mutateRedeem } = useSWR('/api/redeem/table', fetcher, {
+    onSuccess: (data) => {
+      // Sort the data by customOrder
+      const sortedData = data.data.sort((a, b) => a.customOrder - b.customOrder);
+      setRedeems(sortedData);
+    }
+  });
 
   const fetchRedeemTrans = async () => {
     const res = await axios.get("/api/redeemtran");
@@ -67,6 +83,28 @@ const RedeemPage = () => {
         address: trans?.user?.address,
       }))
     );
+  };
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setForm({
+      rewardCode: "",
+      name: "",
+      description: "",
+      image: "",
+      stock: 0,
+      coins: 0,
+      point: 0,
+      status: "true",
+      type: "",
+      group: "",
+      expireDate: null,
+    });
+    setIsEdit(false);
+    setOpen(false);
   };
 
   const handleUploadImageClick = (e) => {
@@ -95,7 +133,20 @@ const RedeemPage = () => {
     } finally {
         setIsUploading(false);
     }
-};
+  };
+
+// Update custom order (Admin functionality, optional)
+  const updateOrder = async (redeemItem, newOrder) => {
+    try {
+      await axios.put(`/api/redeem/${redeemItem._id}`, {
+        customOrder: newOrder
+      });
+      Swal.fire('Updated!', 'Custom order updated successfully.', 'success');
+      mutateRedeem(); // Refresh the list after update
+    } catch (error) {
+      Swal.fire('Error!', 'Failed to update custom order.', 'error');
+    }
+  };
 
   const handleDeliver = async () => {
     await Promise.all(
@@ -193,14 +244,16 @@ const RedeemPage = () => {
         ...form,
         image: form.image || media?.url, // Use the form's image if it exists, else use the new media URL
         creator: userId,
+        customOrder: redeems.length + 1,
+        currentStock: form.stock,
+        expireDate: form.expireDate ? new Date(form.expireDate).toISOString() : null,
     };
 
     if (isEdit) {
-        console.log("Editing:", formattedForm);
         try {
             const response = await axios.put("/api/redeem", { ...formattedForm, id: editId });
             console.log(response.data);
-            fetchRedeems();
+            mutateRedeem();
             setIsEdit(false);
             setEditId(null);
         } catch (error) {
@@ -214,7 +267,7 @@ const RedeemPage = () => {
                 ...formattedForm,
                 rewardCode: newRewardCode,
             });
-            fetchRedeems();
+            mutateRedeem();
         } catch (error) {
             console.error(error);
         }
@@ -231,8 +284,12 @@ const RedeemPage = () => {
         point: 0,
         status: "true",
         type: "",
+        group: "",
+        expireDate: null,
     });
+
     setMedia(null); // Clear media state
+
     fileUploadRef.current.value = null;
   };
 
@@ -248,10 +305,15 @@ const RedeemPage = () => {
         status: redeem.status,
         type: redeem.type,
         creator: redeem.creator,
+        group: redeem.group,
+        customOrder: redeem.customOrder,
+        currentStock: redeem.currentStock,
+        expireDate: redeem.expireDate? redeem.expireDate : null,
     });
     setMedia({ url: redeem.image }); // Set the media with the current image URL
     setIsEdit(true);
     setEditId(redeem._id);
+    setOpen(true);
   };
 
   const handleDelete = async (data) => {
@@ -290,6 +352,8 @@ const RedeemPage = () => {
       point: 0,
       status: "true",
       type: "",
+      group: "",
+      expireDate: "",
     });
     setIsEdit(false);
     setEditId(null);
@@ -306,14 +370,17 @@ const RedeemPage = () => {
         console.log(response.data);
 
         // Refresh the data after the update
-        fetchRedeems();
+        mutateRedeem();
     } catch (error) {
         console.error('Error updating status:', error);
     }
   };
 
+  if (!redeem) return <div>Loading...</div>;
+
   const redeemColumns = [
     { field: "rewardCode", headerName: "Reward Code", width: 100 },
+    { field: "customOrder", headerName: "CustomOrder", width: 80 },
     {
         field: "image",
         headerName: "Image",
@@ -331,6 +398,13 @@ const RedeemPage = () => {
     { field: "stock", headerName: "Stock", width: 100 },
     { field: "coins", headerName: "Coins", width: 100 },
     { field: "point", headerName: "Points", width: 100 },
+    { field: "group", headerName: "Group", width: 100 },
+    {
+      field: "expireDate",
+      headerName: "Expired Date",
+      width: 150,
+      renderCell: (params) => params.value ? moment(params.value).locale("th").format("DD/MM/YYYY") : "N/A",
+    },
     {
       field: "status",
       headerName: "Status",
@@ -377,13 +451,13 @@ const RedeemPage = () => {
         renderCell: (params) => (
             <div className="flex space-x-2">
                 <button
-                    className="text-blue-500"
+                    className="flex bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 rounded h-10 items-center text-center cursor-pointer"
                     onClick={() => handleEdit(params.row)}
                 >
                     Edit
                 </button>
                 <button
-                    className="text-red-500"
+                    className="flex bg-red-500 hover:bg-red-700 text-white font-bold px-2 rounded h-10 items-center text-center cursor-pointer"
                     onClick={() => handleDelete(params.row)}
                 >
                     Delete
@@ -412,6 +486,7 @@ const RedeemPage = () => {
       headerName: "Full Name",
       width: 150,
     },
+    
     {
       field: "pictureUrl",
       headerName: "Avatar",
@@ -429,7 +504,7 @@ const RedeemPage = () => {
   ];
 
   return (
-    <div className="p-4">
+    <div className="p-4 text-sm">
       <h1 className="text-2xl font-bold mb-4">จัดการแลกของรางวัล</h1>
       <div className="mb-6">
         <div className="flex space-x-4 mb-4">
@@ -448,153 +523,190 @@ const RedeemPage = () => {
         </div>
         {activeTab === "redeem" ? (
           <>
-            <div style={{ height: 400, width: "100%" }}>
+          <div>
+            <button
+              className="bg-blue-500 text-white px-4 py-2 rounded mb-2"
+              onClick={handleOpen}
+            >
+              เพิ่ม
+            </button>
+          </div>
+          <div style={{ height: "600px", width: "100%" }}>
               <DataGrid
                 rows={redeems}
                 columns={redeemColumns}
                 pageSize={10}
                 getRowId={(row) => row._id}
               />
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-lg mt-4">
-              <h2 className="text-xl font-bold mb-4">{isEdit ? "แก้ไข" : "เพิ่ม"} รางวัล</h2>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-5 gap-1">
-                  <div className="col-span-1">
-                    <label className="block text-gray-700 font-bold mb-2">Reward Code:</label>
-                    <input
-                      type="text"
-                      name="rewardCode"
-                      value={form.rewardCode}
-                      onChange={handleInputChange}
-                      placeholder="Reward Code"
-                      readOnly
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-200"
-                    />
-                  </div>
-                  <div className="col-span-4">
-                    <label className="block text-gray-700 font-bold mb-2">Name:</label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={form.name}
-                      onChange={handleInputChange}
-                      placeholder="Name"
-                      required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-gray-700 font-bold mb-2">Description:</label>
-                  <textarea
-                    type="text"
-                    name="description"
-                    value={form.description}
-                    onChange={handleInputChange}
-                    placeholder="Description"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                    rows="4"
-                  />
-                </div>
-                <div className="flex flex-col w-1/3 gap-2">
-                  {isUploading && (
-                      <div className="flex justify-center items-center">
-                          <CircularProgress />
+          </div>
+
+            {open && (
+              <Modal
+                open={open}
+                onClose={handleClose}
+              >
+                  <div className="bg-white p-6 rounded-lg shadow-lg mt-4">
+                    <h2 className="text-xl font-bold mb-4">{isEdit ? "แก้ไข" : "เพิ่ม"} รางวัล</h2>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                      <div className="grid grid-cols-5 gap-1">
+                        <div className="col-span-1">
+                          <label className="block text-gray-700 font-bold mb-2">Reward Code:</label>
+                          <input
+                            type="text"
+                            name="rewardCode"
+                            value={form.rewardCode}
+                            onChange={handleInputChange}
+                            placeholder="Reward Code"
+                            readOnly
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-200"
+                          />
+                        </div>
+                        <div className="col-span-4">
+                          <label className="block text-gray-700 font-bold mb-2">Name:</label>
+                          <input
+                            type="text"
+                            name="name"
+                            value={form.name}
+                            onChange={handleInputChange}
+                            placeholder="Name"
+                            required
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                          />
+                        </div>
                       </div>
-                  )}
+                      <div>
+                        <label className="block text-gray-700 font-bold mb-2">Description:</label>
+                        <textarea
+                          type="text"
+                          name="description"
+                          value={form.description}
+                          onChange={handleInputChange}
+                          placeholder="Description"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                          rows="4"
+                        />
+                      </div>
+                      <div className="flex flex-col w-1/3 gap-2">
+                        {isUploading && (
+                            <div className="flex justify-center items-center">
+                                <CircularProgress />
+                            </div>
+                        )}
 
-                  {media && (
-                      <Image
-                          src={media.url}
-                          width={200}
-                          height={200}
-                          alt={media.name}
-                          style={{ maxWidth: '200px', maxHeight: '200px' }}
-                      />
-                  )}
-                  <button 
-                      type="button" // Ensure the button is not of type "submit"
-                      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                      onClick={handleUploadImageClick} // Use the new function
-                  >
-                      Upload Image
-                  </button>
+                        {media && (
+                            <Image
+                                src={media.url}
+                                width={200}
+                                height={200}
+                                alt={media.name}
+                                style={{ maxWidth: '200px', maxHeight: '200px' }}
+                            />
+                        )}
+                        <button 
+                            type="button" // Ensure the button is not of type "submit"
+                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                            onClick={handleUploadImageClick} // Use the new function
+                        >
+                            Upload Image
+                        </button>
 
-                  {/* Hidden file input */}
-                  <input
-                      ref={fileUploadRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      style={{ display: 'none' }}
-                  />
-                </div>
-                <div className="grid grid-cols-4 gap-1">
-                  <div className="col-span-1">
-                    <label className="block text-gray-700 font-bold mb-2">Stock:</label>
-                    <input
-                      type="number"
-                      name="stock"
-                      value={form.stock}
-                      onChange={handleInputChange}
-                      placeholder="Stock"
-                      required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                    />
+                        {/* Hidden file input */}
+                        <input
+                            ref={fileUploadRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            style={{ display: 'none' }}
+                        />
+                      </div>
+                      <div className="flex flex-row items-center gap-4">
+                        <label className="block text-gray-700 font-bold mb-2">Expire Date:</label>
+                        <DatePicker
+                          selected={form.expireDate}
+                          onChange={(date) => setForm({ ...form, expireDate: date })}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                          dateFormat="dd/MM/yyyy" // Display format
+                          locale="th" // Use Thai locale
+                        />
+                      </div>
+                      <div className="grid grid-cols-3 items-center gap-4">
+                        <div className="flex flex-row items-center gap-2 col-span-1">
+                            <label className="block text-gray-700 font-bold mb-2">Stock:</label>
+                            <input
+                              type="number"
+                              name="stock"
+                              value={form.stock}
+                              onChange={handleInputChange}
+                              placeholder="Stock"
+                              required
+                              className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                            />
+                          </div>
+                          <div className="flex flex-row items-center gap-2 col-span-1">
+                            <label className="block text-gray-700 font-bold mb-2">Coins:</label>
+                            <input
+                              type="number"
+                              name="coins"
+                              value={form.coins}
+                              onChange={handleInputChange}
+                              placeholder="Coins"
+                              className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                            />
+                          </div>
+                          <div className="flex flex-row items-center gap-2 col-span-1">
+                            <label className="block text-gray-700 font-bold mb-2">Points:</label>
+                            <input
+                              type="number"
+                              name="point"
+                              value={form.point}
+                              onChange={handleInputChange}
+                              placeholder="Points"
+                              className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                            />
+                          </div>
+                      </div>
+                      <div className="flex flex-row items-center gap-4">
+                        <div className="flex flex-row items-center gap-2 w-full">
+                          <label className="block text-gray-700 font-bold mb-2">Type:</label>
+                          <input
+                            type="text"
+                            name="type"
+                            value={form.type}
+                            onChange={handleInputChange}
+                            placeholder="Type"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                          />
+                        </div>
+                        <div className="flex flex-row items-center gap-2 w-full">
+                          <label className="block text-gray-700 font-bold mb-2">Group:</label>
+                          <input
+                            type="text"
+                            name="group"
+                            value={form.group}
+                            onChange={handleInputChange}
+                            placeholder="Group"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex flex-row justify-center items-center gap-2 w-full">
+                        <button
+                          type="submit"
+                          className="w-[50%] px-4 py-2 bg-green-500 text-white rounded-full"
+                        >
+                          {isEdit ? "อัปเดต" : "เพิ่ม"}
+                        </button>
+                        <button
+                          className="w-[50%] px-4 py-2 bg-red-500 text-white rounded-full ml-2"
+                          onClick={handleCancel}
+                        >
+                          ยกเลิก
+                        </button>
+                      </div>
+                    </form>
                   </div>
-                </div>
-                <div className="grid grid-cols-2 gap-1">
-                  <div className="col-span-1">
-                    <label className="block text-gray-700 font-bold mb-2">Coins:</label>
-                    <input
-                      type="number"
-                      name="coins"
-                      value={form.coins}
-                      onChange={handleInputChange}
-                      placeholder="Coins"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                    />
-                  </div>
-                  <div className="col-span-1">
-                    <label className="block text-gray-700 font-bold mb-2">Points:</label>
-                    <input
-                      type="number"
-                      name="point"
-                      value={form.point}
-                      onChange={handleInputChange}
-                      placeholder="Points"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-gray-700 font-bold mb-2">Type:</label>
-                  <input
-                    type="number"
-                    name="type"
-                    value={form.type}
-                    onChange={handleInputChange}
-                    placeholder="Type"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                  />
-                </div>
-                <div className="flex flex-row justify-center items-center gap-2 w-full">
-                  <button
-                    type="submit"
-                    className="w-[50%] px-4 py-2 bg-green-500 text-white rounded-full"
-                  >
-                    {isEdit ? "อัปเดต" : "เพิ่ม"}
-                  </button>
-                  <button
-                    className="w-[50%] px-4 py-2 bg-red-500 text-white rounded-full ml-2"
-                    onClick={handleCancel}
-                  >
-                    ยกเลิก
-                  </button>
-                </div>
-              </form>
-            </div>
+                </Modal>
+            )}
           </>
         ) : (
           <>
