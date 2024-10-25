@@ -256,6 +256,7 @@ const RedeemPage = () => {
             mutateRedeem();
             setIsEdit(false);
             setEditId(null);
+            setOpen(false);
         } catch (error) {
             console.error(error);
         }
@@ -289,6 +290,7 @@ const RedeemPage = () => {
     });
 
     setMedia(null); // Clear media state
+    setOpen(false);
 
     fileUploadRef.current.value = null;
   };
