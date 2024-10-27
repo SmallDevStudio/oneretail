@@ -33,24 +33,25 @@ const AdminCheckIn = () => {
     const userId = session?.user?.id;
 
     useEffect(() => {
-       if (id && userId) {
         setLoading(true);
+       if (id && userId) {
            const fetcherAdminEvent = async () => {
              try {
+                const resEvent = await axios.get(`/api/events/${id}`);
+                setEvent(resEvent.data.data);
+
                 const res = await axios.get(`/api/checkin/admin?eventId=${id}`);
                 if (!res.data.data) {
                     const res = await axios.post('/api/checkin/admin', { eventId: id, userId });
                     setOn(res.data.data.on);
                     setAdminId(res.data.data._id);
-                    
                 } else {
                     setOn(res.data.data.on);
                     setAdminId(res.data.data._id);
                     setPoint(res.data.data.point);
                     setCoins(res.data.data.coins);
                 }
-                const resEvent = await axios.get(`/api/events/${id}`);
-                setEvent(resEvent.data.data);
+
              } catch (error) {
                setLoading(false);
              } finally {
@@ -200,9 +201,9 @@ const AdminCheckIn = () => {
 
             <div className="flex flex-col items-center p-2 mt-4"> 
                 <div className="flex flex-col bg-gray-300 text-sm w-full p-2.5 rounded-xl gap-1">
-                    <div className="flex flex-row items-center">
+                    <div className="inlineitems-center">
                         <span className="text-lg font-bold">{event.title}</span>
-                        {event.No && <span className='text-sm font-bold text-[#F68B1F] ml-2 '>(รุ่นที่ {event.No})</span>}
+                        {event.No && <span className='text-sm font-bold text-[#F68B1F]'>(รุ่นที่ {event.No})</span>}
                     </div>
                     <div className="flex flex-row items-center">
                         <span className='text-sm text-[#0056FF]'>

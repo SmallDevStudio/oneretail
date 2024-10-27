@@ -1,6 +1,7 @@
 // components/Calendar.js
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { useSession } from 'next-auth/react';
 import Calendar from 'react-calendar';
 import moment from 'moment';
 import 'react-calendar/dist/Calendar.css';
@@ -9,17 +10,40 @@ import axios from 'axios';
 import 'moment/locale/th';
 import Image from 'next/image';
 import Link from 'next/link';
+import Loading from './Loading';
 
 moment.locale('th');
 
 const CustomCalendar = () => {
     const [date, setDate] = useState(new Date());
+    const [user, setUser] = useState({});
     const [events, setEvents] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [weekEvents, setWeekEvents] = useState({});
 
+    const { data: session } = useSession();
     const router = useRouter();
+    const userId = session?.user?.id;
+
+    useEffect(() => {
+        setLoading(true);
+        if (userId) {
+            const fetcherUser = async () => {
+                try {
+                    const response = await axios.get(`/api/users/${userId}`);
+                    setUser(response.data.user);
+                } catch (error) {
+                    console.error(error);
+                } finally {
+                    setLoading(false);
+                }
+            }
+
+            fetcherUser();
+        }
+    }, [userId]);
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -86,6 +110,8 @@ const CustomCalendar = () => {
         }
     };
 
+    console.log(user);
+
     return (
         <div className='flex flex-col items-center justify-center w-full'>
             <Calendar
@@ -121,22 +147,35 @@ const CustomCalendar = () => {
                 <Modal onClose={() => setModalVisible(false)} style={{ }}>
                     <div className='w-full p-2 '>
                         <span className='font-bold text-lg text-[#0056FF]'>{selectedEvent.title}</span>
-                        {selectedEvent.No && <span className='text-sm font-bold text-[#F68B1F] ml-2 '>(รุ่นที่ {selectedEvent.No})</span>}
-                        <br/>
-                        <span className='text-sm text-[#0056FF]'>
-                            {moment(selectedEvent.startDate).format('LL')}
-                            {moment(selectedEvent.startDate).isSame(selectedEvent.endDate, 'day') 
-                                ? '' 
-                                : ` - ${moment(selectedEvent.endDate).format('LL')}`}
-                        </span>
-                        <span className='text-sm ml-2'>{selectedEvent.startTime} - {selectedEvent.endTime}</span>
-                        <br/>
-                        <span className='text-sm font-bold'>Channel:</span>
-                        <span className={`text-sm ml-1 text-white rounded-lg pl-1 pr-1 ${getChannelColor(selectedEvent.channel)}`}>{selectedEvent.channel}</span>
-                        <span className='text-sm ml-2 font-bold'>Position:</span>
-                        <span className='text-sm ml-1'> {selectedEvent.position}</span>
+                        {selectedEvent.No && <span className='text-sm font-bold text-[#F68B1F]'>(รุ่นที่ {selectedEvent.No})</span>}
+
+                        <div className='flex flex-col mb-1'>
+                            <span className='text-sm text-[#0056FF]'>
+                                {moment(selectedEvent.startDate).format('LL')}
+                                {moment(selectedEvent.startDate).isSame(selectedEvent.endDate, 'day') 
+                                    ? '' 
+                                    : ` - ${moment(selectedEvent.endDate).format('LL')}`}
+                            </span>
+                            <span className='text-sm'>{selectedEvent.startTime} - {selectedEvent.endTime}</span>
+                        </div>
+                        
+                        {selectedEvent.channel && 
+                            <>
+                            <span className='text-sm font-bold'>Channel:</span>
+                            <span 
+                                className={`text-sm font-bold text-white rounded-lg pl-1 pr-1 ${getChannelColor(selectedEvent.channel)}`}>{selectedEvent.channel}
+                            </span>
+                            </>
+                        }
+                        {selectedEvent.position && (
+                            <>
+                                <span className='text-sm ml-2 font-bold'>Position:</span>
+                                <span className='text-sm ml-1'> {selectedEvent.position}</span>
+                            </>
+                        )}
                         <br/>
                         <p className='text-md mb-4'>{selectedEvent.description}</p>
+                        
                         <div className='flex flex-row gap-2 items-center'>
                             <span className='text-sm text-[#F68B1F]'>
                                 <Image
@@ -152,14 +191,16 @@ const CustomCalendar = () => {
                                 <p className='text-sm font-bold'>{selectedEvent.mapLocation} - {selectedEvent.place}</p>
                             </Link>
                         </div>
-                        <div className='flex items-center justify-center w-full mt-5'>
-                            <button
-                                className="bg-[#0056FF] text-white font-bold py-2 px-4 rounded-full"
-                                onClick={() => router.push(`/checkin/admin?id=${selectedEvent._id}`)}
-                            >
-                                Check-In
-                            </button>
-                        </div>
+                        {user.role === 'admin' && (
+                            <div className='flex items-center justify-center w-full mt-5'>
+                                <button
+                                    className="bg-[#0056FF] text-white font-bold py-2 px-4 rounded-full"
+                                    onClick={() => router.push(`/checkin/admin?id=${selectedEvent._id}`)}
+                                >
+                                    Check-In
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </Modal>
             )}
