@@ -1,5 +1,6 @@
 // components/Calendar.js
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import Calendar from 'react-calendar';
 import moment from 'moment';
 import 'react-calendar/dist/Calendar.css';
@@ -17,6 +18,8 @@ const CustomCalendar = () => {
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [weekEvents, setWeekEvents] = useState({});
+
+    const router = useRouter();
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -148,6 +151,14 @@ const CustomCalendar = () => {
                             <Link href={selectedEvent.link? selectedEvent.link : '#'} target={selectedEvent.link? '_blank' : '_self'}>
                                 <p className='text-sm font-bold'>{selectedEvent.mapLocation} - {selectedEvent.place}</p>
                             </Link>
+                        </div>
+                        <div className='flex items-center justify-center w-full mt-5'>
+                            <button
+                                className="bg-[#0056FF] text-white font-bold py-2 px-4 rounded-full"
+                                onClick={() => router.push(`/checkin/admin?id=${selectedEvent._id}`)}
+                            >
+                                Check-In
+                            </button>
                         </div>
                     </div>
                 </Modal>

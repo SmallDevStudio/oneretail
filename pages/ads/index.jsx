@@ -30,11 +30,14 @@ export default function Ads() {
     };
 
     useEffect(() => {
-        if (ads && ads.data.length === 0) {
+        setLoading(true);
+        if (ads.data.length === 0) {
+            setLoading(false);
             router.push('/main');
             return;
         }
-    }, [ads, router]);
+        setLoading(false);
+    }, [ads.data.length, router]);
 
     useEffect(() => {
         let interval;
@@ -51,6 +54,7 @@ export default function Ads() {
         }
 
         return () => clearInterval(interval); // เคลียร์ interval เมื่อเปลี่ยนโฆษณาหรือปิด
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentAdIndex, ads]);
 
     const handleSkipAd = () => {
@@ -59,7 +63,7 @@ export default function Ads() {
 
 
     if (error) return <div>Failed to load</div>;
-    if (isLoading || !ads) return <Loading />;
+    if (isLoading || !ads || loading) return <Loading />;
 
     return (
         <div>
@@ -76,7 +80,7 @@ export default function Ads() {
                 </div>
                 <div className="flex-col w-full h-full flex justify-center items-center">
                     <Image
-                        src={ads.data[currentAdIndex].media.url}
+                        src={ads?.data[currentAdIndex]?.media?.url}
                         width={350}
                         height={350}
                         alt="Ads"
