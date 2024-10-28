@@ -319,7 +319,8 @@ export default function Redeem() {
               {redeems?.map((group, index) => (
                 <div key={index} className="flex flex-col">
                   <span className="font-bold">{group.group}</span>
-                  <div className="flex flex-col gap-2">
+
+                  <div className="flex flex-col gap-2 mt-1">
                   {group?.redeems?.map((redeemItem) => (
                     <div key={redeemItem._id} className="grid grid-cols-3 w-full bg-gray-300 rounded-xl cursor-pointer" 
                       onClick={() => openRedeemModal(redeemItem)}
