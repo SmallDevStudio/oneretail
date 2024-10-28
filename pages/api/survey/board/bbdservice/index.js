@@ -37,7 +37,7 @@ export default async function handler(req, res) {
                 // Map employee data
                 const empMap = emps.reduce((acc, emp) => {
                     if (!emp.teamGrop) {
-                        console.log("Missing teamGrop for emp:", emp.empId);  // Log missing teamGrop for empId
+                        console.log("Missing teamGrop for emp:", emp.empId);
                     }
                     acc[emp.empId] = emp;
                     return acc;
@@ -55,37 +55,41 @@ export default async function handler(req, res) {
                         department: empData?.department || 'Unknown',
                         position: empData?.position || 'Unknown',
                         branch: empData?.branch || 'Unknown',
-                        group: empData?.group || null,  // Set group as null if missing
+                        group: empData?.group || null,
                     };
-                    
                     return acc;
                 }, {});
 
-                // Filter data by teamGrop and skip records without a group
+                // Filter data by teamGrop and allowed positions, skipping records without a group
+                const allowedPositions = ["CSO", "ABM", "BPA"];
                 const filteredData = surveys.filter(survey => {
                     const user = userMap[survey.userId];
-                    return user?.teamGrop?.toLowerCase() === teamGrop.toLowerCase() && user?.group;
+                    return (
+                        user?.teamGrop?.toLowerCase() === teamGrop.toLowerCase() &&
+                        allowedPositions.includes(user?.position) &&
+                        user?.group
+                    );
                 });
-                            
+
                 // Aggregate by group and calculate counts, total, sum, and average
                 const positionData = filteredData.reduce((acc, survey) => {
                     const userPosition = userMap[survey.userId]?.position;
-                    if (!userPosition) return acc;  // Skip if no group
+                    if (!userPosition) return acc;
 
                     if (!acc[userPosition]) {
-                        acc[userPosition] = { 
-                            position: userPosition, 
-                            counts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }, 
-                            total: 0, 
-                            sum: 0, 
+                        acc[userPosition] = {
+                            position: userPosition,
+                            counts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+                            total: 0,
+                            sum: 0,
                             average: 0,
-                            memoCount: 0, // Initialize memoCount to 0
+                            memoCount: 0,
                         };
                     }
 
                     acc[userPosition].counts[survey.value]++;
                     acc[userPosition].total++;
-                    acc[userPosition].sum += survey.value; // Sum up the values for average calculation
+                    acc[userPosition].sum += survey.value;
 
                     // Count memos (non-null and non-empty)
                     if (survey.memo && survey.memo.trim() !== "") {
@@ -94,13 +98,13 @@ export default async function handler(req, res) {
                     return acc;
                 }, {});
 
-                // Calculate the average for each group and convert the object into an array
+                // Calculate the average for each position and convert the object into an array
                 const positionDataArray = Object.values(positionData).map(position => {
                     position.average = position.total > 0 ? Math.round(position.sum / position.total) : 0;
                     return position;
                 });
 
-                // Sort by group name (alphabetically)
+                // Sort by position name (alphabetically)
                 positionDataArray.sort((a, b) => a.position.localeCompare(b.position));
 
                 res.status(200).json({ success: true, data: positionDataArray });

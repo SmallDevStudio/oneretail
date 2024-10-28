@@ -10,21 +10,54 @@ export default async function handler(req, res) {
   switch (method) {
     case 'GET':
       try {
-        const redeems = await Redeem.find({status: true}).sort({ createdAt: -1 });
+        // Find all active redeems and sort them by customOrder and createdAt
+        const redeems = await Redeem.find({ status: true }).sort({ customOrder: 1, createdAt: -1 });
+
+        // Group the redeems by `group` field
+        const groupedRedeems = redeems.reduce((acc, redeem) => {
+          const group = redeem.group || ''; // Default to empty string if no group
+          if (!acc[group]) {
+            acc[group] = [];
+          }
+          acc[group].push(redeem);
+          return acc;
+        }, {});
+
+        // Sort groups to display non-empty groups first and then empty ones
+        const sortedGroups = Object.keys(groupedRedeems).sort((a, b) => {
+          if (a === '') return 1; // Move empty groups ('') to the end
+          if (b === '') return -1;
+          return a.localeCompare(b); // Sort alphabetically for non-empty groups
+        });
+
+        // Map sorted groups into a structure for the response
+        const sortedRedeems = sortedGroups.map(group => ({
+          group,
+          redeems: groupedRedeems[group]
+        }));
+
+        // Fetch creator details for each redeem and enrich the response
         const redeemsWithUser = await Promise.all(
-          redeems.map(async (redeem) => {
-            const user = await Users.findOne({ userId: redeem.creator });
-            return {
-              ...redeem._doc,
-              creator: user ? user.pictureUrl : null, // Assuming user image is stored in the `image` field
-            };
+          sortedRedeems.map(async (groupObj) => {
+            const redeemsWithUser = await Promise.all(
+              groupObj.redeems.map(async (redeem) => {
+                const user = await Users.findOne({ userId: redeem.creator });
+                return {
+                  ...redeem._doc,
+                  creator: user ? user.pictureUrl : null,
+                };
+              })
+            );
+            return { group: groupObj.group, redeems: redeemsWithUser };
           })
         );
+
         res.status(200).json({ success: true, data: redeemsWithUser });
       } catch (error) {
-        res.status(400).json({ success: false });
+        res.status(400).json({ success: false, message: error.message });
       }
       break;
+
     case 'POST':
       // Create a new redeem
       console.log(req.body);

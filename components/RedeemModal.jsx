@@ -56,6 +56,15 @@ const RedeemModal = ({ isOpen, onRequestClose, redeemItem }) => {
                     <span className='ml-2 text-lg text-[#0056FF] font-bold'>{redeemItem.point}</span>
                 </div>) : ''
                 }
+
+                <div>
+                    <button
+                        className='w-full bg-[#F68B1F] text-white font-bold py-2 px-4 rounded-full mt-4'
+                        onClick={handleRedeemClick(redeemItem)}
+                    >
+                        แลกของรางวัล
+                    </button>
+                </div>
                 
             </div>
         </Modal>
