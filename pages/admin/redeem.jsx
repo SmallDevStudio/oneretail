@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { AdminLayout } from "@/themes";
 import Redeems from "@/components/redeem/Redeems";
 import Trans from "@/components/redeem/Trans";
+import Report from "@/components/redeem/Report";
 
 const RedeemPage = () => {
   const [activeTab, setActiveTab] = useState("redeem");
@@ -24,12 +25,20 @@ const RedeemPage = () => {
           >
             ของรางวัลที่แลกแล้ว
           </button>
+          <button
+            className={`px-4 py-2 rounded ${activeTab === "report" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"}`}
+            onClick={() => setActiveTab("report")}
+          >
+            รายงาน CheckIn
+          </button>
         </div>
         {activeTab === "redeem" ? (
           <Redeems />
-        ) : (
-         <Trans />
-        )}
+        ) : activeTab === "redeemTrans" ? (
+          <Trans />
+        ) : activeTab === "report" ? (
+          <Report />
+        ) : null}
       </div>
     </div>
   );

@@ -4,11 +4,9 @@ import axios from "axios";
 import useSWR from "swr";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { AdminLayout } from "@/themes";
 import { DataGrid } from "@mui/x-data-grid";
 import moment from "moment";
 import "moment/locale/th";
-import * as XLSX from 'xlsx';
 import useMedia from "@/lib/hook/useMedia";
 import Swal from "sweetalert2";
 import CircularProgress from '@mui/material/CircularProgress';
@@ -133,83 +131,6 @@ const Redeems = () => {
     } finally {
         setIsUploading(false);
     }
-  };
-
-// Update custom order (Admin functionality, optional)
-  const updateOrder = async (redeemItem, newOrder) => {
-    try {
-      await axios.put(`/api/redeem/${redeemItem._id}`, {
-        customOrder: newOrder
-      });
-      Swal.fire('Updated!', 'Custom order updated successfully.', 'success');
-      mutateRedeem(); // Refresh the list after update
-    } catch (error) {
-      Swal.fire('Error!', 'Failed to update custom order.', 'error');
-    }
-  };
-
-  const handleDeliver = async () => {
-    await Promise.all(
-      selectedRows.map(async (rowId) => {
-        const redeemTran = redeemTrans.find((trans) => trans.id === rowId);
-        await axios.post("/api/delivery", {
-          redeemTransId: rowId,
-          userId: redeemTran.userId,
-          creator: userId,
-        });
-      })
-    );
-    fetchRedeemTrans();
-  };
-
-  const handleDone = async () => {
-    await Promise.all(
-      selectedRows.map(async (rowId) => {
-        const redeemTran = redeemTrans.find((trans) => trans.id === rowId);
-        await axios.put("/api/done", {
-          redeemTransId: rowId,
-          userId: redeemTran.userId,
-          creator: userId,
-        });
-      })
-    );
-    fetchRedeemTrans();
-  };
-
-
-
-  const handlePrint = () => {
-    const selectedData = redeemTrans.filter((trans) => selectedRows.includes(trans.id));
-    
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write('<html><head><title>Print</title></head><body>');
-    printWindow.document.write('<h1>Redeem Transactions</h1>');
-    printWindow.document.write('<table border="1"><tr><th>ลำดับ</th><th>Reward Code</th><th>Name</th><th>EmpId</th><th>Full Name</th><th>Address</th></tr>');
-  
-    selectedData.forEach((trans) => {
-      printWindow.document.write(
-        `<tr>
-          <td>${trans.seq}</td>
-          <td>${trans.rewardCode}</td>
-          <td>${trans.name}</td>
-          <td>${trans.empId}</td>
-          <td>${trans.fullname}</td>
-          <td>${trans.address}</td>
-        </tr>`
-      );
-    });
-  
-    printWindow.document.write('</table></body></html>');
-    printWindow.document.close();
-    printWindow.print();
-  };
-
-  const handleExport = () => {
-    const selectedData = redeemTrans.filter((trans) => selectedRows.includes(trans.id));
-    const ws = XLSX.utils.json_to_sheet(selectedData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Redeem Transactions");
-    XLSX.writeFile(wb, "redeem_transactions.xlsx");
   };
 
   const handleInputChange = (e) => {
@@ -378,11 +299,54 @@ const Redeems = () => {
     }
   };
 
+  const handleCustomOrderChange = (data, value) => {
+    setRedeems((prevRedeems) =>
+      prevRedeems.map((redeem) =>
+        redeem._id === data._id ? { ...redeem, customOrder: value } : redeem
+      )
+    );
+  };
+  
+  const handleCustomOrderKeyDown = async (event, data, value) => {
+    if (event.key === 'Enter') {
+      try {
+        const response = await axios.put(`/api/redeem`, {
+            id: data._id,
+            customOrder: value,
+        });
+        console.log(response.data);
+        mutateRedeem();
+      } catch (error) {
+        console.error('Error updating customOrder:', error);
+      }
+    }
+  };
+
   if (!redeem) return <div>Loading...</div>;
 
   const redeemColumns = [
     { field: "rewardCode", headerName: "Reward Code", width: 100 },
-    { field: "customOrder", headerName: "CustomOrder", width: 80 },
+    {
+        field: "customOrder",
+        headerName: "CustomOrder",
+        width: 100,
+        renderCell: (params) => {
+          return (
+            <div>
+              <input
+                type="number"
+                value={params.value}
+                onChange={(e) =>
+                  handleCustomOrderChange(params.row, e.target.value)
+                }
+                onKeyDown={(e) =>
+                  handleCustomOrderKeyDown(e, params.row, e.target.value)
+                }
+              />
+            </div>
+          );
+        },
+    },
     {
         field: "image",
         headerName: "Image",
@@ -469,41 +433,6 @@ const Redeems = () => {
     },
 ];
 
-  const redeemTransColumns = [
-    { field: "seq", headerName: "ลำดับ", width: 80 },
-    { field: "rewardCode", headerName: "Reward Code", width: 100 },
-    {
-      field: "image",
-      headerName: "Image",
-      width: 100,
-      renderCell: (params) => (
-        <Image src={params.value} width={50} height={50} alt={params.row.name} />
-      ),
-    },
-    { field: "name", headerName: "Name", width: 150 },
-    { field: "status", headerName: "Status", width: 100 },
-    { field: "amount", headerName: "Amount", width: 100 },
-    {
-      field: "fullname",
-      headerName: "Full Name",
-      width: 150,
-    },
-    
-    {
-      field: "pictureUrl",
-      headerName: "Avatar",
-      width: 100,
-      renderCell: (params) => (
-        <Image src={params.value} width={50} height={50} alt={params.row.fullname} className="rounded-full" />
-      ),
-    },
-    {
-      field: "createdAt",
-      headerName: "Created At",
-      width: 150,
-      renderCell: (params) => moment(params.value).locale("th").format("DD/MM/YYYY HH:mm"),
-    },
-  ];
 
   return (
     <div className="p-4 text-sm">
