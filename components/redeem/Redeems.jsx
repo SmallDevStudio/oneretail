@@ -14,6 +14,7 @@ import Modal from "@/components/Modal";
 import DatePicker, { registerLocale } from "react-datepicker"; // Import DatePicker
 import "react-datepicker/dist/react-datepicker.css"; // DatePicker CSS
 import th from "date-fns/locale/th"; // Import Thai locale for DatePicker
+import { Tooltip } from '@mui/material';
 
 // Register Thai locale for the DatePicker
 registerLocale('th', th);
@@ -45,6 +46,7 @@ const Redeems = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [media, setMedia] = useState(null);
   const [open, setOpen] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(null);
 
   const { data: session } = useSession();
   const userId = session?.user?.id;
@@ -306,18 +308,18 @@ const Redeems = () => {
       )
     );
   };
-  
+
   const handleCustomOrderKeyDown = async (event, data, value) => {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       try {
-        const response = await axios.put(`/api/redeem`, {
-            id: data._id,
-            customOrder: value,
+        const response = await axios.put(`/api/redeem/${data._id}`, {
+          customOrder: value,
         });
         console.log(response.data);
         mutateRedeem();
+        setShowTooltip(null); // ซ่อน Tooltip หลังจากอัปเดตข้อมูลสำเร็จ
       } catch (error) {
-        console.error('Error updating customOrder:', error);
+        console.error("Error updating customOrder:", error);
       }
     }
   };
@@ -332,7 +334,12 @@ const Redeems = () => {
         width: 100,
         renderCell: (params) => {
           return (
-            <div>
+            <Tooltip
+              open={showTooltip === params.row._id} // แสดง Tooltip เฉพาะแถวที่ถูกคลิก
+              title="เมื่อแก้ไขแล้วกด Enter เพื่อบันทึกการเปลี่ยนแปลง"
+              arrow
+              placement="top"
+            >
               <input
                 type="number"
                 value={params.value}
@@ -342,11 +349,13 @@ const Redeems = () => {
                 onKeyDown={(e) =>
                   handleCustomOrderKeyDown(e, params.row, e.target.value)
                 }
+                onFocus={() => setShowTooltip(params.row._id)} // แสดง Tooltip เฉพาะแถวที่ถูก focus
+                onBlur={() => setShowTooltip(null)} // ซ่อน Tooltip เมื่อออกจาก input
               />
-            </div>
+            </Tooltip>
           );
         },
-    },
+      },
     {
         field: "image",
         headerName: "Image",
