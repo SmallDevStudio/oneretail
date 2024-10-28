@@ -67,7 +67,7 @@ const MenuPanel = ({ user }) => {
     if (!notifications) return <CircularProgress />;
 
     return (
-        <div className="flex flex-row gap-4 text-gray-400">
+        <div className="flex flex-row gap-4 text-gray-400 pr-4">
             {/* survey report */}
             {(user.user.role === 'manager' || user.user.role === 'admin') && (
                 <button onClick={() => router.push('/survey')}>
@@ -90,10 +90,6 @@ const MenuPanel = ({ user }) => {
                         {notifications.Reading}
                     </div>
                 )}
-            </button>
-
-            <button>
-                <BsThreeDotsVertical size={25}/>
             </button>
 
             <Menu
