@@ -81,7 +81,7 @@ const AdminCheckIn = () => {
                 .replace("image/png", "image/octet-stream");
             let downloadLink = document.createElement("a");
             downloadLink.href = pngUrl
-            downloadLink.download = `OneRetail-Forms.png`;
+            downloadLink.download = `OneRetail-CheckIn.png`;
             document.body.appendChild(downloadLink);
             downloadLink.click();
             document.body.removeChild(downloadLink);
