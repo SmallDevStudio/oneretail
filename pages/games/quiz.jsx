@@ -40,7 +40,7 @@ export default function QuizGame() {
         fetchQuestions();
     }, [user]);
 
-    if (isLoading || !user) return <Loading />;
+    if (isLoading || !user || !allQuestions) return <Loading />;
 
     return (
         <Provider store={store}>

@@ -15,6 +15,7 @@ export default function Ads() {
     const [currentAdIndex, setCurrentAdIndex] = useState(0);
     const [timer, setTimer] = useState(5); // ตั้งเวลาถอยหลังเริ่มต้นที่ 5 วินาที
     const [loading, setLoading] = useState(false);
+    const [isTimeUp, setIsTimeUp] = useState(false); // สถานะเวลาหมด
 
     const router = useRouter();
 
@@ -24,8 +25,9 @@ export default function Ads() {
         if (currentAdIndex + 1 < ads.data.length) {
             setCurrentAdIndex(currentAdIndex + 1);
             setTimer(5); // ตั้งเวลาใหม่เมื่อเปลี่ยนไปยังโฆษณาถัดไป
+            setIsTimeUp(false); // ตั้งสถานะเวลาหมดเป็น false
         } else {
-            router.push('main');; // ปิด modal ถ้าโฆษณาครบแล้ว
+            router.push('/main'); // ปิด modal ถ้าโฆษณาครบแล้ว
         }
     };
 
@@ -46,6 +48,7 @@ export default function Ads() {
             interval = setInterval(() => {
                 setTimer((prev) => {
                     if (prev === 1) {
+                        setIsTimeUp(true); // ตั้งสถานะเวลาหมดเป็น true
                         handleNextAd();
                     }
                     return prev - 1;
@@ -61,7 +64,6 @@ export default function Ads() {
         handleNextAd();
     };
 
-
     if (error) return <div>Failed to load</div>;
     if (isLoading || !ads || loading) return <Loading />;
 
@@ -74,7 +76,7 @@ export default function Ads() {
                         onClick={handleSkipAd}
                     >
                         <span className="text-xs font-bold">
-                            ข้ามโฆษณา ({timer}s)
+                            {isTimeUp ? 'ไปหน้าถัดไป' : `ข้ามโฆษณา (${timer}s)`}
                         </span>
                     </div>
                 </div>
