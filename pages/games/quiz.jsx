@@ -6,6 +6,7 @@ import { Provider } from "react-redux";
 import store from "@/lib/redux/store";
 import { AppLayout } from "@/themes";
 import { useSession } from "next-auth/react";
+import Loading from "@/components/Loading";
 
 const fetcher = url => axios.get(url).then(res => res.data);
 
@@ -15,11 +16,11 @@ export default function QuizGame() {
     const { data: session, status } = useSession();
     const userId = session?.user?.id;
 
-    const { data: userRes, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher, {
+    const { data: userRes, error: userError, isLoading } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher, {
         onSuccess: (data) => {
             setUser(data.user);
         },
-    })
+    });
     // ดึงข้อมูล questions หลังจากได้ข้อมูล user
     useEffect(() => {
         const fetchQuestions = async () => {
@@ -38,6 +39,8 @@ export default function QuizGame() {
         };
         fetchQuestions();
     }, [user]);
+
+    if (isLoading || !user) return <Loading />;
 
     return (
         <Provider store={store}>
