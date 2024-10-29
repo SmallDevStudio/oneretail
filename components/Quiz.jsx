@@ -1,17 +1,11 @@
-// components/Quiz.js
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { setQuestions, answerQuestion, nextQuestion, resetQuiz } from '@/lib/redux/quizSlice';
 import QuizModal from './QuizModal';
-import axios from 'axios';
 import Loading from './Loading';
-import useSWR from 'swr';
-import { CircularProgress } from '@mui/material';
 
-const fetcher = (url) => axios.get(url).then((res) => res.data);
-
-const Quiz = ({ userId }) => {
+const Quiz = ({ userId, user, allQuestions }) => {
   const dispatch = useDispatch();
   const router = useRouter();
   const { questions, currentQuestionIndex, score } = useSelector((state) => state.quiz);
@@ -19,30 +13,17 @@ const Quiz = ({ userId }) => {
   const [showAnswer, setShowAnswer] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [startTime] = useState(new Date().toISOString());
   const [loading, setLoading] = useState(true);
 
-  const { data: adminActions, error: adminActionError } = useSWR('/api/adminActions', fetcher);
-  const { data: allQuestions, error: questionError } = useSWR('/api/questions', fetcher);
-
   useEffect(() => {
-    if (adminActions && adminActions.data && adminActions.data.length > 0 && allQuestions) {
-      const latestAction = adminActions.data[adminActions.data.length - 1];
-      const groupName = latestAction.groupName;
-      const filteredQuestions = groupName === 'ทั้งหมด'
-        ? allQuestions
-        : allQuestions.filter(question => question.group === groupName);
-      dispatch(setQuestions(filteredQuestions));
+    if (allQuestions && allQuestions.length > 0) {
+      dispatch(setQuestions(allQuestions));
       setLoading(false);
     }
-  }, [adminActions, allQuestions, dispatch]);
+  }, [allQuestions, dispatch]);
 
   if (loading) {
-    return <CircularProgress />;
-  }
-
-  if (questionError || adminActionError) {
-    return <div>Failed to load</div>;
+    return <Loading />;
   }
 
   const question = questions[currentQuestionIndex];
@@ -62,7 +43,6 @@ const Quiz = ({ userId }) => {
     dispatch(answerQuestion({ isCorrect }));
     setShowAnswer(true);
 
-    // บันทึกคำตอบของผู้ใช้
     await fetch('/api/answers', {
       method: 'POST',
       headers: {
@@ -80,13 +60,16 @@ const Quiz = ({ userId }) => {
       const finalScore = score;
 
       try {
-        // บันทึกคะแนนผู้ใช้
         await axios.post('/api/points', {
           userId,
           points: finalScore,
         });
       } catch (error) {
-        setErrorMessage(error.response.data.message);
+        setErrorMessage(
+          error.response && error.response.data && error.response.data.message
+            ? error.response.data.message
+            : 'An unexpected error occurred.'
+        );
       }
       
       setIsModalOpen(true);
@@ -113,11 +96,28 @@ const Quiz = ({ userId }) => {
         </h1>
       </div>
     
-      <div className='flex flex-row mb-4 gap-2 w-full items-center justify-center'>
-        <span className='text-lg font-bold'>กลุ่มคำถาม:</span>
-        <div className='bg-[#0056FF] rounded-2xl text-white px-2 py-1 shadow-sm border-1 border-gray-400'>
-          <span>{question.group}</span>
+      <div className='flex flex-row mb-4 gap-4 w-full items-center justify-center'>
+        <div className='flex flex-row items-center gap-1'>
+          <span className='text-sm font-bold'>กลุ่มคำถาม:</span>
+          <div className='bg-[#0056FF] rounded-full text-white px-2 py-0.5'>
+            <span>{question.group}</span>
+          </div>
         </div>
+        {user.position ? (
+          <div className='flex flex-row items-center gap-1'>
+            <span className='text-sm font-bold'>ตําแหน่ง:</span>
+            <span className='bg-[#0056FF] rounded-full text-white px-2 py-0.5'>
+              {user.position}
+            </span>
+          </div>
+        ): (
+          <div className='flex flex-row items-center gap-1'>
+            <span className='text-sm font-bold'>TeamGrop:</span>
+            <span className='bg-[#0056FF] rounded-full text-white px-2 py-0.5'>
+              {user.teamGrop}
+            </span>
+          </div>
+        )}
       </div>
 
       <h1 className='text-lg font-bold mb-4'>

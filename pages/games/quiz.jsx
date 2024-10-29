@@ -1,18 +1,47 @@
+import { useState, useEffect } from "react";
+import axios from "axios";
+import useSWR from "swr";
 import Quiz from "@/components/Quiz";
 import { Provider } from "react-redux";
 import store from "@/lib/redux/store";
 import { AppLayout } from "@/themes";
 import { useSession } from "next-auth/react";
 
+const fetcher = url => axios.get(url).then(res => res.data);
+
 export default function QuizGame() {
+    const [user, setUser] = useState(null);
+    const [allQuestions, setAllQuestions] = useState([]);
     const { data: session, status } = useSession();
     const userId = session?.user?.id;
 
+    const { data: userRes, error: userError } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher, {
+        onSuccess: (data) => {
+            setUser(data.user);
+        },
+    })
+    // ดึงข้อมูล questions หลังจากได้ข้อมูล user
+    useEffect(() => {
+        const fetchQuestions = async () => {
+            if (user) {
+                try {
+                    const { teamGrop, position } = user;
+                    const group = teamGrop === "Retail" ? "BBD" : teamGrop;
+                    const response = await axios.get(`/api/quiz/game`, {
+                        params: { group, subGroup: position }
+                    });
+                    setAllQuestions(response.data.data);
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        };
+        fetchQuestions();
+    }, [user]);
+
     return (
         <Provider store={store}>
-            <div className="flex flex-col items-center text-center justify-center bg-blue-500 pb-20" style={{ 
-                width: "100%"
-                }}>
+            <div className="flex flex-col items-center text-center justify-center bg-blue-500 pb-20" style={{ width: "100%" }}>
                 <div className="flex items-center text-center justify-center p-5 bg-white w-full">
                     <span className="text-[35px] font-black text-[#0056FF]">Games</span>
                 </div>
@@ -21,11 +50,10 @@ export default function QuizGame() {
                     backgroundSize: "cover",
                 }}>
                     <div className="relative bg-white rounded-xl shadow-md border-2 p-3 px-2 min-h-[80vh] w-full mb-5">
-                        <Quiz userId={userId} />
+                        <Quiz userId={userId} user={user} allQuestions={allQuestions} />
                     </div>
                 </div>
             </div>
-
         </Provider>
     );
 }
