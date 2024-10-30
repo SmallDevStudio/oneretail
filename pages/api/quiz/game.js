@@ -8,20 +8,7 @@ export default async function handler(req, res) {
     switch (method) {
         case "GET":
             try {
-                // ตรวจสอบว่า team group อยู่ใน query หรือไม่
-                const teamGroup = req.query.group;
-
-                // ใช้ regex เพื่อดึงข้อมูลที่ขึ้นต้นด้วย teamGroup
-                const quizzes = await Quiz.aggregate([
-                    { 
-                        $match: { 
-                            subgroup: req.query.subgroup,
-                            group: { $regex: `^${teamGroup}(_|$)`, $options: "i" }, 
-                            active: true 
-                        }
-                    },
-                    { $sample: { size: 5 }} // สุ่มคำถามตามจำนวนที่ต้องการ
-                ]);
+                const quizzes = await Quiz.find({ active: true });
 
                 res.status(200).json({ success: true, data: quizzes });
             } catch (error) {
