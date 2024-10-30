@@ -13,6 +13,7 @@ moment.locale('th');
 const fetcher = url => axios.get(url).then(res => res.data);
 
 export default function Ads() {
+    const [ads, setAds] = useState(null);
     const [currentAdIndex, setCurrentAdIndex] = useState(0);
     const [timer, setTimer] = useState(5); // ตั้งเวลาถอยหลังเริ่มต้นที่ 5 วินาที
     const [loading, setLoading] = useState(false);
@@ -21,8 +22,21 @@ export default function Ads() {
 
     const router = useRouter();
 
-    const { data: ads, error, mutate, isLoading } = useSWR('/api/ads/page', fetcher);
-
+    useEffect(() => {
+        if(!ads) {
+            const fetchAds = async () => {
+                try {
+                    const response = await axios.get('/api/ads/page');
+                    setAds(response.data);
+                } catch (error) {
+                    console.error(error);
+                }
+            };
+            fetchAds();
+        }
+    }, [ads]);
+ 
+    console.log(ads);
     const handleNextAd = () => {
         if (currentAdIndex + 1 < ads.data.length) {
             setCurrentAdIndex(currentAdIndex + 1);
@@ -35,13 +49,13 @@ export default function Ads() {
 
     useEffect(() => {
         setLoading(true);
-        if (ads.data.length === 0) {
+        if (ads?.data?.length === 0) {
             setLoading(false);
             router.push('/main');
             return;
         }
         setLoading(false);
-    }, [ads.data.length, router]);
+    }, [ads, router]);
 
     useEffect(() => {
         let interval;
@@ -71,8 +85,7 @@ export default function Ads() {
         router.push('/main');
     };
 
-    if (error) return <div>Failed to load</div>;
-    if (isLoading || !ads || loading) return <Loading />;
+    if (!ads || loading) return <Loading />;
 
     return (
         <div>
