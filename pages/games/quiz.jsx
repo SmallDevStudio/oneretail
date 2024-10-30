@@ -16,11 +16,17 @@ export default function QuizGame() {
     const { data: session, status } = useSession();
     const userId = session?.user?.id;
 
-    const { data: userRes, error: userError, isLoading } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher, {
-        onSuccess: (data) => {
-            setUser(data.user);
-        },
-    });
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const response = await axios.get(`/api/users/${userId}`);
+                setUser(response.data.user);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchUser();
+    }, [userId]);
     // ดึงข้อมูล questions หลังจากได้ข้อมูล user
     useEffect(() => {
         const fetchQuestions = async () => {
@@ -40,7 +46,7 @@ export default function QuizGame() {
         fetchQuestions();
     }, [user]);
 
-    if (isLoading || !user || !allQuestions) return <Loading />;
+    if (!user || !allQuestions) return <Loading />;
 
     return (
         <Provider store={store}>

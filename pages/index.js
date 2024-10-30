@@ -13,7 +13,7 @@ const HomePage = () => {
 
     const { data: user, error: userError, isLoading } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
     const { data: loginReward, error: loginRewardError } = useSWR(() => userId ? `/api/loginreward/${userId}` : null, fetcher);
-    const { data: survey, error: surveyError } = useSWR(() => userId ? `/api/survey/checkSurvey?userId=${userId}` : null, fetcher);
+    const { data: survey, error: surveyError, isLoading: isLoadingSurvey } = useSWR(() => userId ? `/api/survey/checkSurvey?userId=${userId}` : null, fetcher);
     const { data: surveySettings, error: surveySettingsError } = useSWR('/api/survey/settings', fetcher);
     const { data: ads, error: adsError } = useSWR('/api/ads/page', fetcher);
 
@@ -61,7 +61,7 @@ const HomePage = () => {
 
     }, [status, router, session, user, loginReward, surveySettings, survey, ads]);
 
-    if (status === "loading" || isLoading || !user || !loginReward || !survey || !surveySettings || !ads ) return <Loading />;
+    if (status === "loading" || isLoading || !user || !loginReward || !survey || !surveySettings || !ads || isLoadingSurvey ) return <Loading />;
     if (userError || loginRewardError || surveyError || surveySettingsError || adsError ) return <div>Error loading data</div>;
 
     return (
