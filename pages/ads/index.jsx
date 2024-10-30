@@ -16,6 +16,7 @@ export default function Ads() {
     const [timer, setTimer] = useState(5); // ตั้งเวลาถอยหลังเริ่มต้นที่ 5 วินาที
     const [loading, setLoading] = useState(false);
     const [isTimeUp, setIsTimeUp] = useState(false); // สถานะเวลาหมด
+    const [showButton, setShowButton] = useState(false);
 
     const router = useRouter();
 
@@ -27,7 +28,7 @@ export default function Ads() {
             setTimer(5); // ตั้งเวลาใหม่เมื่อเปลี่ยนไปยังโฆษณาถัดไป
             setIsTimeUp(false); // ตั้งสถานะเวลาหมดเป็น false
         } else {
-            router.push('/main'); // ปิด modal ถ้าโฆษณาครบแล้ว
+            setShowButton(true);
         }
     };
 
@@ -64,6 +65,11 @@ export default function Ads() {
         handleNextAd();
     };
 
+    const handleButtonClick = () => {
+        setShowButton(false);
+        router.push('/main');
+    };
+
     if (error) return <div>Failed to load</div>;
     if (isLoading || !ads || loading) return <Loading />;
 
@@ -72,12 +78,21 @@ export default function Ads() {
             <div className="flex-col w-full h-full flex">
                 <div className="flex relative justify-end items-center">
                     <div
-                        className="flex bg-gray-300 rounded-full px-3 py-1 cursor-pointer"
+                        className="absolute top-1 right-1 bg-[#F2871F] rounded-full px-3 py-1 cursor-pointer"
                         onClick={handleSkipAd}
                     >
-                        <span className="text-xs font-bold">
-                            {isTimeUp ? 'ไปหน้าถัดไป' : `ข้ามโฆษณา (${timer}s)`}
-                        </span>
+                        {showButton ? (
+                            <button
+                                className="text-white font-bold text-xs"
+                                onClick={handleButtonClick}
+                            >
+                                กลับสู่หน้าหลัก
+                            </button>
+                        ) : (
+                            <span className="text-xs font-bold">
+                                {isTimeUp ? 'ไปหน้าถัดไป' : `ข้ามโฆษณา (${timer}s)`}
+                            </span>
+                        )}
                     </div>
                 </div>
                 <div className="flex-col w-full h-full flex justify-center items-center">
