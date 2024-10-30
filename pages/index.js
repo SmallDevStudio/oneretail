@@ -19,7 +19,7 @@ const HomePage = () => {
 
     useEffect(() => {
         if (status === "loading" || !user || !loginReward || 
-            !survey || !surveySettings) return;
+            !survey || !surveySettings || !ads) return;
             
         if (status === "unauthenticated") {
             router.push("/login");
