@@ -1,4 +1,5 @@
 import { useSelector, useDispatch } from 'react-redux';
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { setQuestions, answerQuestion, nextQuestion, resetQuiz } from '@/lib/redux/quizSlice';
@@ -14,6 +15,7 @@ const Quiz = ({ userId, user, allQuestions }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  const [finalScore, setFinalScore] = useState(0);
 
   useEffect(() => {
     if (allQuestions && allQuestions.length > 0) {
@@ -21,6 +23,32 @@ const Quiz = ({ userId, user, allQuestions }) => {
       setLoading(false);
     }
   }, [allQuestions, dispatch]);
+
+  useEffect(() => {
+    // Check if it's the last question and update finalScore once score is updated
+    if (currentQuestionIndex >= 4 && showAnswer) {
+      setFinalScore(score);
+      setIsModalOpen(true);
+      
+      const submitFinalScore = async () => {
+        try {
+          await axios.post('/api/points', {
+            userId,
+            points: score,
+          });
+        } catch (error) {
+          setErrorMessage(
+            error.response && error.response.data && error.response.data.message
+              ? error.response.data.message
+              : 'An unexpected error occurred.'
+          );
+        }
+      };
+
+      submitFinalScore();
+    }
+  }, [currentQuestionIndex, score, showAnswer, userId]);
+
 
   if (loading) {
     return <Loading />;
@@ -39,41 +67,16 @@ const Quiz = ({ userId, user, allQuestions }) => {
   };
 
   const handleSubmit = async () => {
-    const isCorrect = selectedAnswer === question.correctAnswer;
+    const isCorrect = selectedAnswer === parseInt(question.correctAnswer);
     dispatch(answerQuestion({ isCorrect }));
     setShowAnswer(true);
 
-    await fetch('/api/answers', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        userId,
-        questionId: question._id,
-        answer: selectedAnswer,
-        isCorrect,
-      }),
+    await axios.post('/api/answers', {
+      userId,
+      questionId: question._id,
+      answer: selectedAnswer,
+      isCorrect,
     });
-
-    if (currentQuestionIndex >= questions.length - 1) {
-      const finalScore = score;
-
-      try {
-        await axios.post('/api/points', {
-          userId,
-          points: finalScore,
-        });
-      } catch (error) {
-        setErrorMessage(
-          error.response && error.response.data && error.response.data.message
-            ? error.response.data.message
-            : 'An unexpected error occurred.'
-        );
-      }
-      
-      setIsModalOpen(true);
-    }
   };
 
   const handleNext = () => {
@@ -83,8 +86,8 @@ const Quiz = ({ userId, user, allQuestions }) => {
   };
 
   const handleCloseModal = () => {
-    setIsModalOpen(false);
     dispatch(resetQuiz());
+    setIsModalOpen(false);
     router.push('/games');
   };
 
@@ -143,8 +146,8 @@ const Quiz = ({ userId, user, allQuestions }) => {
       </ul>
       {showAnswer ? (
         <>
-          <p className={`text-lg font-bold mb-2 ${selectedAnswer === question.correctAnswer ? 'text-green-500' : 'text-red-500'}`}>
-            {selectedAnswer === question.correctAnswer ? 'ถูก!' : 'ผิด!' }
+          <p className={`text-lg font-bold mb-2 ${selectedAnswer === parseInt(question.correctAnswer) ? 'text-green-500' : 'text-red-500'}`}>
+            {selectedAnswer === parseInt(question.correctAnswer) ? 'ถูก!' : 'ผิด!' }
           </p>
           <p className='text-lg font-bold mb-2'>คำตอบที่ถูก: {question.options[question.correctAnswer]}</p>
           <button onClick={handleNext}
@@ -161,7 +164,11 @@ const Quiz = ({ userId, user, allQuestions }) => {
         </button>
       )}
       {errorMessage && <p className='text-red-500'>{errorMessage}</p>}
-      <QuizModal isOpen={isModalOpen} onRequestClose={handleCloseModal} score={score} />
+      <QuizModal 
+        isOpen={isModalOpen} 
+        onRequestClose={handleCloseModal} 
+        score={finalScore} 
+      />
     </div>
   );
 };

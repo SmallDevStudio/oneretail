@@ -10,6 +10,8 @@ export default async function handler(req, res) {
     try {
       const { userId, points } = req.body;
 
+      console.log('Received points:', points);
+
       if (!userId || points === undefined) {
         return res.status(400).json({ success: false, message: 'All fields are required' });
       }
