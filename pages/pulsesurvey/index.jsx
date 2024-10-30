@@ -129,7 +129,7 @@ const PulseSurvey = () => {
                                     </label>
                                     <textarea
                                         name="memo"
-                                        placeholder="เขียนสิ่งที่อยากบอกให้รู้"
+                                        placeholder="เป็นพื้นที่ปลอดภัย ไม่มีการเปิดเผยข้อมูลชื่อของพนักงานให้แก่ผู้บริหารทราบ"
                                         className="w-full h-28 p-2 border border-gray-300 rounded-md"
                                         onChange={handleChange}
                                     />
