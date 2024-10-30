@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import useSWR from "swr";
 import Quiz from "@/components/Quiz";
 import { Provider } from "react-redux";
 import store from "@/lib/redux/store";
@@ -8,53 +7,56 @@ import { AppLayout } from "@/themes";
 import { useSession } from "next-auth/react";
 import Loading from "@/components/Loading";
 
-const fetcher = url => axios.get(url).then(res => res.data);
-
 export default function QuizGame() {
     const [user, setUser] = useState(null);
     const [allQuestions, setAllQuestions] = useState([]);
+    const [loading, setLoading] = useState(true); // ควบคุมสถานะ loading
     const { data: session, status } = useSession();
     const userId = session?.user?.id;
 
+    // ฟังก์ชันดึงข้อมูลผู้ใช้
     useEffect(() => {
+        if (!userId) return; // ตรวจสอบว่ามี userId ก่อนจะดึงข้อมูล
         const fetchUser = async () => {
             try {
                 const response = await axios.get(`/api/users/${userId}`);
                 setUser(response.data.user);
             } catch (error) {
-                console.error(error);
+                console.error("Error fetching user data:", error);
             }
         };
         fetchUser();
     }, [userId]);
-    // ดึงข้อมูล questions หลังจากได้ข้อมูล user
+
+    // ฟังก์ชันดึงข้อมูลคำถามหลังจากได้ข้อมูล user
     useEffect(() => {
+        if (!user) return;
         const fetchQuestions = async () => {
-            if (user) {
-                try {
-                    const { teamGrop, position } = user;
-                    const group = teamGrop === "Retail" ? "BBD" : teamGrop;
-    
-                    const response = await axios.get(`/api/quiz/game`, {
-                        params: { group }
-                    });
-    
-                    // Check if there are any questions with subGroup matching position
-                    const filteredQuestions = response.data.data.filter((quiz) => 
-                        quiz.group === group && (!quiz.subGroup || quiz.subGroup.split('_').includes(position))
-                    );
-    
-                    // If no filtered questions match, fallback to fetching all questions for the group
-                    setAllQuestions(filteredQuestions.length > 0 ? filteredQuestions : response.data.data);
-                } catch (error) {
-                    console.error(error);
-                }
+            try {
+                const { teamGrop, position } = user;
+                const group = teamGrop === "Retail" ? "BBD" : teamGrop;
+
+                const response = await axios.get(`/api/quiz/game`, {
+                    params: { group }
+                });
+
+                // กรองคำถามตาม `subGroup` และ `position`
+                const filteredQuestions = response.data.data.filter(
+                    (quiz) => quiz.group === group && (!quiz.subGroup || quiz.subGroup.split("_").includes(position))
+                );
+
+                setAllQuestions(filteredQuestions.length > 0 ? filteredQuestions : response.data.data);
+                setLoading(false); // โหลดเสร็จแล้ว
+            } catch (error) {
+                console.error("Error fetching questions:", error);
+                setLoading(false);
             }
         };
         fetchQuestions();
     }, [user]);
 
-    if (!user || !allQuestions) return <Loading />;
+    // ใช้สถานะ loading แทนการตรวจสอบ user หรือ allQuestions
+    if (loading) return <Loading />;
 
     return (
         <Provider store={store}>
