@@ -94,34 +94,28 @@ const Quiz = ({ userId, user, allQuestions }) => {
   return (
     <div className='p-4'>
       <div>
-        <h1 className='text-3xl font-bold mb-5 text-[#0056FF]'>
+        <h1 className='text-3xl font-bold mb-2 text-[#0056FF]'>
           เกมส์คำถาม
         </h1>
       </div>
     
-      <div className='flex flex-row mb-4 gap-4 w-full items-center justify-center'>
+      <div className='flex flex-row gap-4 w-full items-center justify-center'>
         <div className='flex flex-row items-center gap-1'>
           <span className='text-sm font-bold'>กลุ่มคำถาม:</span>
-          <div className='bg-[#0056FF] rounded-full text-white px-2 py-0.5'>
+          <div className='text-xs bg-[#0056FF] rounded-full text-white px-2 py-0.5'>
             <span>{question.group}</span>
           </div>
         </div>
-        {user.position ? (
-          <div className='flex flex-row items-center gap-1'>
-            <span className='text-sm font-bold'>ตําแหน่ง:</span>
-            <span className='bg-[#0056FF] rounded-full text-white px-2 py-0.5'>
-              {user.position}
-            </span>
-          </div>
-        ): (
-          <div className='flex flex-row items-center gap-1'>
-            <span className='text-sm font-bold'>TeamGrop:</span>
-            <span className='bg-[#0056FF] rounded-full text-white px-2 py-0.5'>
-              {user.teamGrop}
-            </span>
-          </div>
-        )}
       </div>
+
+      {question.subGroup ? (
+          <div className='flex flex-col items-center gap-1 mb-2'>
+            <span className='text-sm font-bold'>subGroup:</span>
+            <span className='text-xs bg-[#0056FF] rounded-full text-white px-2 py-0.5'>
+              {question.subGroup}
+            </span>
+          </div>
+        ): null}
 
       <h1 className='text-lg font-bold mb-4'>
         {question.question}

@@ -34,10 +34,18 @@ export default function QuizGame() {
                 try {
                     const { teamGrop, position } = user;
                     const group = teamGrop === "Retail" ? "BBD" : teamGrop;
+    
                     const response = await axios.get(`/api/quiz/game`, {
-                        params: { group, subGroup: position }
+                        params: { group }
                     });
-                    setAllQuestions(response.data.data);
+    
+                    // Check if there are any questions with subGroup matching position
+                    const filteredQuestions = response.data.data.filter((quiz) => 
+                        quiz.group === group && (!quiz.subGroup || quiz.subGroup.split('_').includes(position))
+                    );
+    
+                    // If no filtered questions match, fallback to fetching all questions for the group
+                    setAllQuestions(filteredQuestions.length > 0 ? filteredQuestions : response.data.data);
                 } catch (error) {
                     console.error(error);
                 }
@@ -45,6 +53,8 @@ export default function QuizGame() {
         };
         fetchQuestions();
     }, [user]);
+
+    console.log(allQuestions);
 
     if (!user || !allQuestions) return <Loading />;
 
