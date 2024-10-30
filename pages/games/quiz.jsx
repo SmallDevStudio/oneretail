@@ -54,8 +54,6 @@ export default function QuizGame() {
         fetchQuestions();
     }, [user]);
 
-    console.log(allQuestions);
-
     if (!user || !allQuestions) return <Loading />;
 
     return (
