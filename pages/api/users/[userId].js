@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     switch (method) {
         case "GET":
             try {
-                const users = await Users.findOne({ userId });
+                const users = await Users.findOne({ userId: userId });
                 const emp = await Emp.findOne({ empId: users.empId });
                 if (!emp) {
                     const user = {
