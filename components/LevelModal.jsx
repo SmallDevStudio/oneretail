@@ -64,8 +64,8 @@ const LevelModal = ({ isOpen, onRequestClose }) => {
         <div className="flex justify-center items-center mb-2">
           <strong className="text-[#0056FF] font-bold text-xl">ลำดับ Level</strong>
         </div>
-        {currentData.map((level) => (
-          <div key={level.id} className="flex flex-row justify-center items-baseline gap-5">
+        {currentData.map((level, index) => (
+          <div key={index} className="flex flex-row justify-center items-baseline gap-5">
             <span><strong>Level: </strong><span className="text-[#0056FF] font-bold">{level.level}</span></span>
             <span><strong>Point: </strong><span className="text-[#0056FF] font-bold">{level.requiredPoints}</span></span>
           </div>

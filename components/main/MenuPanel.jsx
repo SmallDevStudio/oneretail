@@ -100,17 +100,16 @@ const MenuPanel = ({ user }) => {
                     style: {
                         width: 'auto',
                         maxWidth: '300px',
-                        padding: '10px',
                     },
                 }}
             >
-                <div className="flex flex-col w-full">
-                {notifications.data.slice(0, 10).map((notification, index) => (
-                    <>
-                        <div key={index} className={`flex flex-row items-center p-1 gap-2 ${notification.isReading === false ? 'bg-blue-200/30' : ''}`}
-                            onClick={() => handleClick(notification)}
-                        >
-                                <div>
+                <div className="flex flex-col items-start w-full">
+                    {notifications.data.slice(0, 10).map((notification, index) => (
+                        <React.Fragment key={notification._id}> {/* ใช้ notification._id เป็น key */}
+                            <div className={`flex flex-row items-center px-5 py-0.5 gap-4 ${notification.isReading === false ? 'bg-blue-200/30' : ''}`}
+                                onClick={() => handleClick(notification)}
+                            >
+                                <div className="flex">
                                     <Image
                                         src={notification?.sender?.pictureUrl}
                                         alt="Picture of the author"
@@ -120,13 +119,17 @@ const MenuPanel = ({ user }) => {
                                     />
                                 </div>
                                 <div className="flex flex-col cursor-pointer text-sm">
-                                    <span className={`text-xs text-left text-[#F68B1F] ${notification.isReading === true ? 'font-normal' : 'font-bold'}`}>{notification?.sender?.fullname}</span>
-                                    <span className={`text-xs ${notification.isReading ===  true ? 'font-normal' : 'font-bold'}`}>{notification.description}</span>
+                                    <span className={`text-xs text-left text-[#F68B1F] ${notification.isReading ? 'font-normal' : 'font-bold'}`}>
+                                        {notification?.sender?.fullname}
+                                    </span>
+                                    <span className={`text-xs ${notification.isReading ? 'font-normal' : 'font-bold'}`}>
+                                        {notification.description}
+                                    </span>
                                     <span className="text-[10px] text-gray-500">{moment(notification.createAt).fromNow()}</span>
                                 </div>
-                        </div>
-                        <Divider />
-                        </>
+                            </div>
+                            <Divider key={`divider-${notification._id}`} /> {/* ใช้ key ที่ผสมระหว่าง divider และ _id */}
+                        </React.Fragment>
                     ))}
                     <div onClick={handleShowMore} className="flex flex-col items-center justify-center text-xs mt-2 w-full">
                         <span className="cursor-pointer text-xs font-bold mt-2 text-[#0056FF]">
