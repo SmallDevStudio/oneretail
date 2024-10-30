@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import moment from "moment";
 import "moment/locale/th";
 import Loading from "@/components/Loading";
+import { IoClose } from "react-icons/io5";
 
 moment.locale('th');
 
@@ -78,7 +79,7 @@ export default function Ads() {
             <div className="flex-col w-full h-full flex">
                 <div className="flex relative justify-end items-center">
                     <div
-                        className="absolute top-1 right-1 bg-[#F2871F] rounded-full px-3 py-1 cursor-pointer"
+                        className="absolute top-2 right-2 bg-[#F2871F] items-center rounded-full px-3 py-1 cursor-pointer"
                         onClick={handleSkipAd}
                     >
                         {showButton ? (
@@ -86,7 +87,10 @@ export default function Ads() {
                                 className="text-white font-bold text-xs"
                                 onClick={handleButtonClick}
                             >
-                                กลับสู่หน้าหลัก
+                               <div className="flex-row items-center">
+                                    <IoClose className="inline text-sm mr-1 font-bold"/>
+                                    กลับสู่หน้าหลัก
+                               </div>
                             </button>
                         ) : (
                             <span className="text-xs font-bold">
@@ -98,11 +102,12 @@ export default function Ads() {
                 <div className="flex-col w-full h-full flex justify-center items-center">
                     <Image
                         src={ads?.data[currentAdIndex]?.media?.url}
-                        width={350}
-                        height={350}
+                        width={400}
+                        height={400}
                         alt="Ads"
                         style={{ width: '100%', height: 'auto' }}
                         loading="lazy"
+                        className="object-cover"
                     />
                 </div>
             </div>
