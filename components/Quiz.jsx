@@ -26,7 +26,7 @@ const Quiz = ({ userId, user, allQuestions }) => {
 
   useEffect(() => {
     // Check if it's the last question and update finalScore once score is updated
-    if (currentQuestionIndex >= 4 && showAnswer) {
+    if (currentQuestionIndex >= 2 && showAnswer) {
       setFinalScore(score);
       setIsModalOpen(true);
       

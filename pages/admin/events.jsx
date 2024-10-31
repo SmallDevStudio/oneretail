@@ -14,8 +14,16 @@ import { styled } from '@mui/material/styles';
 import Switch from '@mui/material/Switch';
 import Divider from '@mui/material/Divider';
 import Swal from 'sweetalert2';
+import Dialog from '@mui/material/Dialog';
+import Slide from '@mui/material/Slide';
+import { IoPeopleOutline } from "react-icons/io5";
+import { IoIosArrowBack } from "react-icons/io";
 
 registerLocale('th', th);
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const ManageEvents = () => {
   const [events, setEvents] = useState([]);
@@ -47,6 +55,9 @@ const ManageEvents = () => {
   const [adminId, setAdminId] = useState('');
   const [point, setPoint] = useState(0);
   const [coins, setCoins] = useState(0);
+  const [openJoin, setOpenJoin] = useState(false);
+  const [selectedJoin, setSelectedJoin] = useState(null);
+  const [userJoin, setUserJoin] = useState([]);
   
   const { data: session } = useSession();
   const userId = session?.user.id;
@@ -189,9 +200,6 @@ const ManageEvents = () => {
     setSelectedQR(event);
   };
 
-  console.log('selectedQR', selectedQR);
-  console.log('adminId', adminId);
-
   const getChannelColor = (channel) => {
     switch (channel) {
         case 'AL':
@@ -314,6 +322,23 @@ const ManageEvents = () => {
         }
     };
 
+    const handleOpenJoin = async (data) => {
+        setSelectedJoin(data);
+        setOpenJoin(true);
+
+        try {
+            const res = await axios.get(`/api/events/userJoin?eventId=${data._id}`);
+            setUserJoin(res.data.data);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const handleCloseJoin = () => {
+        setSelectedJoin(null);
+        setOpenJoin(false);
+    };
+
   const columns = [
     { field: 'title', headerName: 'Title', width: 200 },
     { field: 'description', headerName: 'Description', width: 200 },
@@ -338,6 +363,14 @@ const ManageEvents = () => {
         </>
       ),
     },
+    { field: 'join', headerName: 'Join', width: 100 , renderCell: (params) => (
+      <>
+        <IoPeopleOutline 
+          onClick={() => handleOpenJoin(params.row)}
+          size={30}
+        />
+      </>
+    )},
     {
       field: 'actions',
       headerName: 'Actions',
@@ -360,6 +393,20 @@ const ManageEvents = () => {
       ),
     },
   ];
+
+  const handleJoinChange = (data) => {
+  };
+
+  const handleJoin = async() => {
+    const newData = {
+      empId: userJoin,
+      eventId: selectedJoin._id,
+    }
+
+    console.log('newData', newData);
+  }
+
+  console.log('selectedJoin', selectedJoin);
 
   return (
     <React.Fragment>
@@ -395,6 +442,47 @@ const ManageEvents = () => {
             />
           </div>
         </div>
+        <Dialog
+          open={openJoin}
+          onClose={handleCloseJoin}
+          TransitionComponent={Transition}
+          fullScreen
+        >
+          <div className='flex flex-col w-full'>
+              <div className='flex flex-row items-center mb-2 p-2 gap-4'>
+                <IoIosArrowBack onClick={handleCloseJoin} size={30}/>
+                <span className='text-xl font-bold text-[#0056FF]'>จัดการผู้เข้าร่วม</span>
+              </div>
+
+              <Divider />
+
+              <div className='flex flex-col w-full p-2'>
+                <span className='text-xl font-bold'>{selectedJoin?.title}</span>
+                <div className='flex flex-row items-center gap-2'>
+                  <span className='font-bold'>ชื่อผู้เข้าร่วม: </span>
+                </div>
+                
+                <div className='flex flex-col gap-2 w-1/2 mt-4 p-2 border-2 rounded-lg'>
+                    <label htmlFor="userJoin" className="font-bold">ผู้เข้าร่วม</label>
+                    <textarea
+                      id="userJoin"
+                      value={userJoin}
+                      onChange={(e) => handleJoinChange(e.target.value)}
+                      className="w-full p-2 border rounded-lg"
+                      rows={5}
+                    />
+                    <div>
+                      <button
+                        className="bg-[#0056FF] text-white px-4 py-2 rounded-md"
+                        onClick={handleJoin}
+                      >
+                        เพิ่มผู้เข้าร่วม
+                      </button>
+                    </div>
+                </div>
+              </div>
+          </div>
+        </Dialog>
         {open && (
           <Modal
             open={open}

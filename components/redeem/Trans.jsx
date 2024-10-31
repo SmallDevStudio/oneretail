@@ -10,6 +10,7 @@ import "moment/locale/th";
 import * as XLSX from 'xlsx';
 import Swal from "sweetalert2";
 import Divider from '@mui/material/Divider';
+import { IoClose } from "react-icons/io5";
 
 moment.locale('th');
 
@@ -18,7 +19,15 @@ const fetcher = url => axios.get(url).then(res => res.data);
 const Trans = () => {
   const [redeemTrans, setRedeemTrans] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
-
+  const [showButton, setShowButton] = useState(false);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [error, setError] = useState(null);
+  const [filters, setFilters] = useState({
+    Padding: false,
+    Deliver: false,
+    Done: false,
+  });
 
   const { data: session } = useSession();
   const userId = session?.user?.id;
@@ -26,6 +35,15 @@ const Trans = () => {
   useEffect(() => {
     fetchRedeemTrans();
   }, []);
+
+  useEffect(() => {
+    if (selectedRows.length > 0) {
+      setShowButton(true);
+    } else {
+      setShowButton(false);
+    }
+  }, [selectedRows]);
+
 
   const fetchRedeemTrans = async () => {
     const res = await axios.get("/api/redeemtran");
@@ -45,49 +63,87 @@ const Trans = () => {
     );
   };
 
- 
-// Update custom order (Admin functionality, optional)
-  const updateOrder = async (redeemItem, newOrder) => {
-    try {
-      await axios.put(`/api/redeem/${redeemItem._id}`, {
-        customOrder: newOrder
-      });
-      Swal.fire('Updated!', 'Custom order updated successfully.', 'success');
-      mutateRedeem(); // Refresh the list after update
-    } catch (error) {
-      Swal.fire('Error!', 'Failed to update custom order.', 'error');
+  const handlePadding = async () => {
+    const result = await Swal.fire({
+      title: "คุณแน่ใจใช่ไหม?",
+      text: "คุณต้องการเปลี่ยนสถานะ Padding ใช่หรือไม่?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, change it!",
+      cancelButtonText: "No, cancel!",
+    });
+
+    if (result.isConfirmed) {
+      await Promise.all(
+        selectedRows.map(async (rowId) => {
+          const redeemTran = redeemTrans.find((trans) => trans.id === rowId);
+          await axios.post("/api/redeem/padding", {
+            redeemTransId: rowId,
+            userId: redeemTran.userId,
+            creator: userId,
+          });
+        })
+      );
+      fetchRedeemTrans();
     }
   };
 
   const handleDeliver = async () => {
-    await Promise.all(
-      selectedRows.map(async (rowId) => {
-        const redeemTran = redeemTrans.find((trans) => trans.id === rowId);
-        await axios.post("/api/delivery", {
-          redeemTransId: rowId,
-          userId: redeemTran.userId,
-          creator: userId,
-        });
-      })
-    );
-    fetchRedeemTrans();
+    const result = await Swal.fire({
+      title: "คุณแน่ใจใช่ไหม?",
+      text: "คุณต้องการเปลี่ยนสถานะ Deliver ใช่หรือไม่?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, change it!",
+      cancelButtonText: "No, cancel!",
+    });
+
+    if (result.isConfirmed) {
+      await Promise.all(
+        selectedRows.map(async (rowId) => {
+          const redeemTran = redeemTrans.find((trans) => trans.id === rowId);
+          await axios.post("/api/redeem/delivery", {
+            redeemTransId: rowId,
+            userId: redeemTran.userId,
+            creator: userId,
+          });
+        })
+      );
+      fetchRedeemTrans();
+    }
   };
+
 
   const handleDone = async () => {
-    await Promise.all(
-      selectedRows.map(async (rowId) => {
-        const redeemTran = redeemTrans.find((trans) => trans.id === rowId);
-        await axios.put("/api/done", {
-          redeemTransId: rowId,
-          userId: redeemTran.userId,
-          creator: userId,
-        });
-      })
-    );
-    fetchRedeemTrans();
+    const result = await Swal.fire({
+      title: "คุณแน่ใจใช่ไหม?",
+      text: "คุณต้องการเปลี่ยนสถานะ Done ใช่หรือไม่?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, change it!",
+      cancelButtonText: "No, cancel!",
+    });
+
+    if (result.isConfirmed) {
+      await Promise.all(
+        selectedRows.map(async (rowId) => {
+          const redeemTran = redeemTrans.find((trans) => trans.id === rowId);
+          await axios.put("/api/redeem/done", {
+            redeemTransId: rowId,
+            userId: redeemTran.userId,
+            creator: userId,
+          });
+        })
+      );
+      fetchRedeemTrans();
+    }
   };
-
-
 
   const handlePrint = () => {
     const selectedData = redeemTrans.filter((trans) => selectedRows.includes(trans.id));
@@ -116,15 +172,69 @@ const Trans = () => {
   };
 
   const handleExport = () => {
-    const selectedData = redeemTrans.filter((trans) => selectedRows.includes(trans.id));
-    const ws = XLSX.utils.json_to_sheet(selectedData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Redeem Transactions");
-    XLSX.writeFile(wb, "redeem_transactions.xlsx");
+    // ตรวจสอบเงื่อนไขวันที่
+    if (!startDate || !endDate) {
+      setError("กรุณาระบุวันที่เริ่มต้นและวันที่สิ้นสุด");
+      return;
+    }
+    
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+  
+    if (end < start) {
+      setError("วันที่สิ้นสุดต้องไม่น้อยกว่าวันที่เริ่มต้น");
+      return;
+    }
+  
+    // หากเงื่อนไขถูกต้อง ให้เคลียร์ error
+    setError("");
+  
+    // กรองข้อมูลตามวันที่ startDate และ endDate
+    const filteredData = redeemTrans.filter((trans) => {
+      const createdAt = new Date(trans.createdAt);
+      return createdAt >= start && createdAt <= end;
+    });
+  
+    // แปลงข้อมูลให้เป็นรูปแบบที่สามารถ export ได้
+    const exportData = filteredData.map((trans) => ({
+      ลำดับ: trans.seq,
+      'Reward Code': trans.rewardCode,
+      Name: trans.name,
+      EmpId: trans.empId,
+      'Full Name': trans.fullname,
+      Address: trans.address,
+      Status: trans.status,
+      'Created At': moment(trans.createdAt).locale("th").format("DD/MM/YYYY HH:mm"),
+    }));
+  
+    // สร้าง worksheet และ workbook สำหรับ Excel
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Redeem Transactions");
+  
+    // บันทึกเป็นไฟล์ Excel
+    XLSX.writeFile(workbook, "redeem_transactions.xlsx");
   };
 
   
   if (!redeemTrans) return <div>Loading...</div>;
+
+  const toggleFilter = (filter) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [filter]: !prevFilters[filter],
+    }));
+  };
+
+  // ฟิลเตอร์ข้อมูลตามเงื่อนไขที่เลือก
+  const filteredData = redeemTrans.filter((trans) => {
+    const statusMatch = filters.Panding && trans.status === "pending" ||
+                        filters.Deliver && trans.status === "deliver" ||
+                        filters.Done && trans.status === "done";
+    return !Object.values(filters).includes(true) || statusMatch;
+  });
+
+  console.log(redeemTrans);
 
   const redeemTransColumns = [
     { field: "seq", headerName: "ลำดับ", width: 80 },
@@ -165,9 +275,75 @@ const Trans = () => {
   return (
     <div className="p-4 text-sm">
           <>
+            <div className="flex flex-row items-center justify-between mb-2 gap-2">
+              <div className="flex flex-row items-center gap-2">
+                <div className="flex flex-row items-center">
+                  <lable className="font-bold">Start Date:</lable>
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="border border-gray-300 ml-2 rounded-lg p-1"
+                  />
+                </div>
+
+                <div className="flex flex-row items-center">
+                  <lable className="font-bold">End Date:</lable>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="border border-gray-300 ml-2 rounded-lg p-1"
+                  />
+                </div>
+                <button onClick={handleExport} className="bg-red-500 text-white px-4 py-2 rounded">Export</button>
+              </div>
+
+              <div className="flex flex-row items-center gap-2">
+                <div className="flex flex-row items-center w-full gap-1">
+                  <span className="font-bold mr-2">Filter:</span>
+                  {Object.keys(filters).map((filterKey) => (
+                    filters[filterKey] && (
+                      <div 
+                        key={filterKey}
+                        className={`flex flex-row items-center ${filterKey === "Panding" ? "bg-red-500" : filterKey === "Deliver" ? "bg-yellow-500" : "bg-green-500"} text-white px-2 py-0.5 rounded-full gap-1`}
+                      >
+                        {filterKey} <IoClose onClick={() => toggleFilter(filterKey)} className="cursor-pointer" />
+                      </div>
+                    )
+                  ))}
+                </div>
+              
+              {/* ปุ่มฟิลเตอร์ */}
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => toggleFilter("Panding")} 
+                  className="bg-red-500 text-white px-2 py-0.5 rounded-full"
+                >
+                  Panding
+                </button>
+                <button 
+                  onClick={() => toggleFilter("Deliver")} 
+                  className="bg-yellow-500 text-white px-2 py-0.5 rounded-full"
+                >
+                  Deliver
+                </button>
+                <button 
+                  onClick={() => toggleFilter("Done")} 
+                  className="bg-green-500 text-white px-2 py-0.5 rounded-full"
+                >
+                  Done
+                </button>
+              </div>
+              </div>
+
+            </div>
+
+            {error && <p className="bg-red-500 text-white my-2 p-1">{error}</p>}
+        
             <div style={{ height: '70vh', width: "100%" }}>
               <DataGrid
-                rows={redeemTrans}
+                rows={filteredData}
                 columns={redeemTransColumns}
                 pageSize={10}
                 checkboxSelection
@@ -181,20 +357,33 @@ const Trans = () => {
                 }}
               />
             </div>
-            {selectedRows.length > 0 && (
+            {showButton && (
               <div className="flex flex-row items-end mt-4 gap-4">
                 <div className="flex flex-col">
                     <span className="font-bold">Update Status:</span>
                     <div className="flex flex-row items-center"> 
-                        <button onClick={handleDeliver} className="bg-yellow-500 text-white px-4 py-2 rounded mr-2">Deliver</button>
-                        <button onClick={handleDone} className="bg-green-500 text-white px-4 py-2 rounded mr-2">Done</button>
+                        <button 
+                          onClick={handlePadding} 
+                          className="bg-red-500 text-white px-4 py-2 rounded mr-2"
+                        >
+                            Padding
+                        </button>
+                        <button 
+                          onClick={handleDeliver} 
+                          className="bg-yellow-500 text-white px-4 py-2 rounded mr-2"
+                        >
+                          Deliver
+                        </button>
+                        <button 
+                          onClick={handleDone} 
+                          className="bg-green-500 text-white px-4 py-2 rounded mr-2"
+                        >
+                          Done
+                        </button>
+                        <Divider orientation="vertical" flexItem  className="mx-2"/>
+                        <button onClick={handlePrint} className="bg-blue-500 text-white px-4 py-2 rounded ml-2">Print</button>
                     </div>
-                </div>
-                <Divider orientation="vertical" className="mt-4" flexItem/>
-                <div className="flex flex-row">
-                    <button onClick={handlePrint} className="bg-blue-500 text-white px-4 py-2 rounded mr-2">Print</button>
-                    <button onClick={handleExport} className="bg-red-500 text-white px-4 py-2 rounded">Export</button>
-                </div>
+                </div>    
               </div>
             )}
           </>

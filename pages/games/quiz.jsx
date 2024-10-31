@@ -29,56 +29,48 @@ export default function QuizGame() {
     useEffect(() => {
         const fetchQuestions = async () => {
             if (!user) return;
-
+    
             try {
                 setLoading(true);
                 const response = await axios.get(`/api/quiz/game`);
-
-                // ตรวจสอบข้อมูลก่อนกรอง
-                console.log("Fetched data:", response.data.data);
-
+    
                 const { teamGrop, position } = user;
                 const userGroup = user.teamGrop === "Retail" ? "BBD" : user.teamGrop;
-
+    
                 const isGroupMatch = (quizGroup, userGroup) => {
-                    // ตรวจสอบว่าค่าของ userGroup ตรงกับส่วนหนึ่งของ quizGroup หรือไม่
                     return quizGroup.split("_").includes(userGroup);
                 };
-
+    
                 const isSubGroupMatch = (quizSubGroup, userPosition) => {
-                    if (!quizSubGroup) return true; // ไม่มี subGroup ให้ถือว่า match
-                    // ตรวจสอบว่าค่าของ userPosition ตรงกับส่วนหนึ่งของ quizSubGroup หรือไม่
+                    if (!quizSubGroup) return true;
                     return quizSubGroup.split("_").includes(userPosition);
                 };
-
-                // ฟิลเตอร์คำถามด้วยเงื่อนไขที่ปรับปรุงใหม่
+    
                 const filteredQuestions = response.data.data.filter((quiz) => {
                     const groupMatch = isGroupMatch(quiz.group, userGroup);
                     const subGroupMatch = isSubGroupMatch(quiz.subGroup, user.position);
-
-                    console.log(`Quiz Group: ${quiz.group} | Quiz SubGroup: ${quiz.subGroup}`);
-                    console.log(`User TeamGroup: ${user.teamGrop} | User Position: ${user.position}`);
-                    console.log(`Group Match: ${groupMatch} | SubGroup Match: ${subGroupMatch}`);
-
-                    // กรองคำถามที่ตรงกับ group และ subGroup (ถ้ามี) หรือถ้า group ตรงแต่ไม่มี subGroup
+    
                     return groupMatch && (!quiz.subGroup || subGroupMatch);
                 });
-
-                // หากไม่มีคำถามตรงกับทั้ง group และ subGroup ดึงเฉพาะ group ที่ตรง
+    
                 const resultQuestions = filteredQuestions.length > 0 
                     ? filteredQuestions 
                     : response.data.data.filter((quiz) => isGroupMatch(quiz.group, userGroup));
-
+    
                 // หากยังไม่มีคำถามที่ตรงกับ group ใด ๆ ให้ดึงคำถามทั้งหมด
-                setAllQuestions(resultQuestions.length > 0 ? resultQuestions : response.data.data);
-                
+                const finalQuestions = resultQuestions.length > 0 ? resultQuestions : response.data.data;
+    
+                // สุ่มข้อมูลก่อนที่จะตั้งค่า allQuestions
+                const shuffledQuestions = finalQuestions.sort(() => Math.random() - 0.5);
+    
+                setAllQuestions(shuffledQuestions);
                 setLoading(false);
             } catch (error) {
                 console.error("Error fetching questions:", error);
                 setLoading(false);
             }
         };
-
+    
         fetchQuestions();
     }, [user]);
 
