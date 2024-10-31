@@ -13,13 +13,12 @@ export default async function handler(req, res) {
                 const { eventId } = req.query;
 
                 const userJoinEvent = await UserJoinEvent.findOne({ eventId: eventId });
-                
-                const empIds = userJoinEvent.map(userJoinEvent => userJoinEvent.empId);
-                
-                if (empIds.length === 0) {
+
+                if (userJoinEvent === null) {
                     return res.status(200).json({ success: true, data: [] });
                 }
-
+                
+                const empIds = userJoinEvent.map(userJoinEvent => userJoinEvent.empId);
                 const emps = await Users.find({ empId: { $in: empIds } });
 
                 const empMap = emps.reduce((acc, emp) => {

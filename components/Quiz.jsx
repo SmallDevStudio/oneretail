@@ -99,24 +99,6 @@ const Quiz = ({ userId, user, allQuestions }) => {
         </h1>
       </div>
     
-      <div className='flex flex-row gap-4 w-full items-center justify-center'>
-        <div className='flex flex-row items-center gap-1'>
-          <span className='text-sm font-bold'>กลุ่มคำถาม:</span>
-          <div className='text-xs bg-[#0056FF] rounded-full text-white px-2 py-0.5'>
-            <span>{question.group}</span>
-          </div>
-        </div>
-      </div>
-
-      {question.subGroup ? (
-          <div className='flex flex-col items-center gap-1 mb-2'>
-            <span className='text-sm font-bold'>subGroup:</span>
-            <span className='text-xs bg-[#0056FF] rounded-full text-white px-2 py-0.5'>
-              {question.subGroup}
-            </span>
-          </div>
-        ): null}
-
       <h1 className='text-lg font-bold mb-4'>
         {question.question}
       </h1>

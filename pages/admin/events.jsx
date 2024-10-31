@@ -58,6 +58,7 @@ const ManageEvents = () => {
   const [openJoin, setOpenJoin] = useState(false);
   const [selectedJoin, setSelectedJoin] = useState(null);
   const [userJoin, setUserJoin] = useState([]);
+  const [userJoinData, setUserJoinData] = useState([]);
   
   const { data: session } = useSession();
   const userId = session?.user.id;
@@ -328,7 +329,7 @@ const ManageEvents = () => {
 
         try {
             const res = await axios.get(`/api/events/userJoin?eventId=${data._id}`);
-            setUserJoin(res.data.data);
+            setUserJoinData(res.data.data);
         } catch (error) {
             console.log(error);
         }
@@ -336,6 +337,8 @@ const ManageEvents = () => {
 
     const handleCloseJoin = () => {
         setSelectedJoin(null);
+        setUserJoinData([]);
+        setUserJoin([]);
         setOpenJoin(false);
     };
 
@@ -407,6 +410,7 @@ const ManageEvents = () => {
   }
 
   console.log('selectedJoin', selectedJoin);
+  console.log('userJoin', userJoin);
 
   return (
     <React.Fragment>
