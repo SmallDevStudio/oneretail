@@ -13,7 +13,7 @@ const Admin = () => {
                 </div>
                 <div className="flex flex-row justify-evenly gap-4">
                     <div className="flex">
-                        <ContentWidget />
+                        
                     </div>
                 </div>
             </div>
