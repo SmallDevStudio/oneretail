@@ -25,19 +25,11 @@ const RedeemPage = () => {
           >
             ของรางวัลที่แลกแล้ว
           </button>
-          <button
-            className={`px-4 py-2 rounded ${activeTab === "report" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"}`}
-            onClick={() => setActiveTab("report")}
-          >
-            รายงาน CheckIn
-          </button>
         </div>
         {activeTab === "redeem" ? (
           <Redeems />
         ) : activeTab === "redeemTrans" ? (
           <Trans />
-        ) : activeTab === "report" ? (
-          <Report />
         ) : null}
       </div>
     </div>
