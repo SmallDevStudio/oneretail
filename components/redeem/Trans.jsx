@@ -28,6 +28,7 @@ const Trans = () => {
     Deliver: false,
     Done: false,
   });
+  const [search, setSearch] = useState('');
 
   const { data: session } = useSession();
   const userId = session?.user?.id;
@@ -79,7 +80,7 @@ const Trans = () => {
       await Promise.all(
         selectedRows.map(async (rowId) => {
           const redeemTran = redeemTrans.find((trans) => trans.id === rowId);
-          await axios.post("/api/redeem/padding", {
+          await axios.put("/api/redeem/padding", {
             redeemTransId: rowId,
             userId: redeemTran.userId,
             creator: userId,
@@ -144,6 +145,35 @@ const Trans = () => {
       fetchRedeemTrans();
     }
   };
+
+  const handleStatus = async (status) => {
+    const result = await Swal.fire({
+      title: "คุณแน่ใจใช่ไหม?",
+      text: `คุณต้องการเปลี่ยนสถานะ ${status} ใช่หรือไม่?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, change it!",
+      cancelButtonText: "No, cancel!",
+    });
+
+    if (result.isConfirmed) {
+      await Promise.all(
+        selectedRows.map(async (rowId) => {
+          const redeemTran = redeemTrans.find((trans) => trans.id === rowId);
+          await axios.post("/api/redeem/status", {
+            redeemTransId: rowId,
+            userId: redeemTran.userId,
+            status: status,
+            creator: userId,
+          });
+        })
+      );
+      fetchRedeemTrans();
+    }
+  };
+   
 
   const handlePrint = () => {
     const selectedData = redeemTrans.filter((trans) => selectedRows.includes(trans.id));
@@ -226,15 +256,23 @@ const Trans = () => {
     }));
   };
 
+
   // ฟิลเตอร์ข้อมูลตามเงื่อนไขที่เลือก
   const filteredData = redeemTrans.filter((trans) => {
-    const statusMatch = filters.Panding && trans.status === "pending" ||
-                        filters.Deliver && trans.status === "deliver" ||
-                        filters.Done && trans.status === "done";
-    return !Object.values(filters).includes(true) || statusMatch;
+    const empIdMatch = trans.empId && trans.empId.toString().includes(search);
+    const fullnameMatch = trans.fullname && trans.fullname.toLowerCase().normalize('NFC').includes(search.toLowerCase().normalize('NFC'));
+
+    const statusMatch =
+      (!Object.values(filters).includes(true) ||
+        (filters.pending && trans.status === "pending") ||
+        (filters.delivered && trans.status === "delivered") ||
+        (filters.done && trans.status === "done"));
+    
+        
+
+    return statusMatch && (empIdMatch || fullnameMatch);
   });
 
-  console.log(redeemTrans);
 
   const redeemTransColumns = [
     { field: "seq", headerName: "ลำดับ", width: 80 },
@@ -248,7 +286,21 @@ const Trans = () => {
       ),
     },
     { field: "name", headerName: "Name", width: 150 },
-    { field: "status", headerName: "Status", width: 100 },
+    { field: "status", headerName: "Status", width: 100,
+      renderCell: (params) => (
+        <span
+          className={`${
+            params.value === "pending"
+              ? "bg-red-500 text-white"
+              : params.value === "delivered"
+              ? "bg-yellow-500 text-white"
+              : "bg-green-500 text-white"
+          } text-xs font-medium px-2.5 py-0.5 rounded-full`}
+        >
+          {params.value}
+        </span>
+      ),
+     },
     { field: "amount", headerName: "Amount", width: 100 },
     {
       field: "fullname",
@@ -301,42 +353,60 @@ const Trans = () => {
 
               <div className="flex flex-row items-center gap-2">
                 <div className="flex flex-row items-center w-full gap-1">
+                  <div className="flex flex-row items-center mr-2">
+                    <input
+                      type="text"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className="border border-gray-300 rounded-lg p-2 mr-4"
+                      placeholder="ค้นหา empId หรือ fullname"
+                    />
+                  </div>
                   <span className="font-bold mr-2">Filter:</span>
                   {Object.keys(filters).map((filterKey) => (
                     filters[filterKey] && (
                       <div 
                         key={filterKey}
-                        className={`flex flex-row items-center ${filterKey === "Panding" ? "bg-red-500" : filterKey === "Deliver" ? "bg-yellow-500" : "bg-green-500"} text-white px-2 py-0.5 rounded-full gap-1`}
+                        className={`flex flex-row items-center ${filterKey === "pending" ? "bg-red-500" : filterKey === "delivered" ? "bg-yellow-500" : "bg-green-500"} text-white px-2 py-0.5 rounded-full gap-1`}
                       >
                         {filterKey} <IoClose onClick={() => toggleFilter(filterKey)} className="cursor-pointer" />
                       </div>
                     )
                   ))}
+                  
                 </div>
               
               {/* ปุ่มฟิลเตอร์ */}
-              <div className="flex gap-2">
-                <button 
-                  onClick={() => toggleFilter("Panding")} 
-                  className="bg-red-500 text-white px-2 py-0.5 rounded-full"
-                >
-                  Panding
-                </button>
-                <button 
-                  onClick={() => toggleFilter("Deliver")} 
-                  className="bg-yellow-500 text-white px-2 py-0.5 rounded-full"
-                >
-                  Deliver
-                </button>
-                <button 
-                  onClick={() => toggleFilter("Done")} 
-                  className="bg-green-500 text-white px-2 py-0.5 rounded-full"
-                >
-                  Done
-                </button>
-              </div>
-              </div>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => toggleFilter("pending")} 
+                    className="bg-red-500 text-white px-2 py-0.5 rounded-full"
+                  >
+                    Pending
+                  </button>
+                  <button 
+                    onClick={() => toggleFilter("delivered")} 
+                    className="bg-yellow-500 text-white px-2 py-0.5 rounded-full"
+                  >
+                    Delivered
+                  </button>
+                  <button 
+                    onClick={() => toggleFilter("done")} 
+                    className="bg-green-500 text-white px-2 py-0.5 rounded-full"
+                  >
+                    Done
+                  </button>
+                </div>
 
+                <span className="font-bold">Total:</span>
+
+                <div className="flex flex-row items-center gap-1">
+                  <span>{filteredData.length}</span> 
+                  <span>/</span>
+                  <span>{redeemTrans.length}</span>
+                </div>
+
+              </div>
             </div>
 
             {error && <p className="bg-red-500 text-white my-2 p-1">{error}</p>}
@@ -363,19 +433,19 @@ const Trans = () => {
                     <span className="font-bold">Update Status:</span>
                     <div className="flex flex-row items-center"> 
                         <button 
-                          onClick={handlePadding} 
+                          onClick={() => handleStatus('pending')} 
                           className="bg-red-500 text-white px-4 py-2 rounded mr-2"
                         >
-                            Padding
+                            Pending
                         </button>
                         <button 
-                          onClick={handleDeliver} 
+                          onClick={() => handleStatus('delivery')} 
                           className="bg-yellow-500 text-white px-4 py-2 rounded mr-2"
                         >
                           Deliver
                         </button>
                         <button 
-                          onClick={handleDone} 
+                          onClick={() => handleStatus('done')} 
                           className="bg-green-500 text-white px-4 py-2 rounded mr-2"
                         >
                           Done

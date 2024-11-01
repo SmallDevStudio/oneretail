@@ -143,8 +143,6 @@ export default function Redeem() {
     }
 
     if (!level || !coins || !redeem || !redeemtrans) return <Loading />;
-
-    console.log(redeems);
   
     return (
       <main className="flex flex-col bg-white min-w-[100vw]">
