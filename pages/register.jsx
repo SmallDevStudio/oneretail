@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import Image from 'next/image';
 import Alert from '@/components/notification/Alert';
@@ -13,18 +12,14 @@ const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 export default function Register() {
     const { data: session, status } = useSession();
-    const { register, handleSubmit, formState: { errors } } = useForm();
+    const [data, setData] = useState(null);
+    const [errors, setErrors] = useState(null);
     const [loadingForm, setLoadingForm] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
-    const [users, setUsers] = useState([]);
+    const [isEmpIdVerified, setIsEmpIdVerified] = useState(false);
     const router = useRouter();
     const userId = session?.user?.id;
-    
-    const { data, error } = useSWR(`/api/users/${userId}`, fetcher, {
-        onSuccess: (data) => {
-            setUsers(data.user);
-        },
-    });
+
 
     useEffect(() => {
         if (status === "loading") return;
@@ -35,7 +30,7 @@ export default function Register() {
 
     
 
-    const onSubmit = async (data) => {
+    const onSubmit = async () => {
         setLoadingForm(true);
 
         if (!data.agree) {
@@ -53,15 +48,9 @@ export default function Register() {
         };
 
         try {
-            const response = await fetch('/api/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(registerData),
-            });
+            const response = await axios.post('/api/register', registerData);
 
-            if (!response.ok) {
+            if (!response.data.success) {
                 throw new Error('Registration failed');
             }
 
@@ -81,8 +70,42 @@ export default function Register() {
 
     const onRequestClose = () => {
         setIsOpen(false);
-        mutate(`/api/users/${userId}`);
-        router.push('/checkLoginReward');
+        router.push('/loginreward');
+    };
+
+    const handleEmpIdChange = async (empId) => {
+        setData({ ...data, empId });
+
+        if (empId.length < 5) {
+            setErrors(null);
+            setIsEmpIdVerified(false);
+            return;
+        }
+
+        try {
+            // เช็ค empId ใน Users
+            const userCheckRes = await axios.get(`/api/users/checkEmpId?empId=${empId}`);
+            if (userCheckRes.data.exists) {
+                setErrors('รหัสพนักงานนี้ถูกใช้งานแล้ว');
+                setIsEmpIdVerified(false);
+                return;
+            }
+
+            // เช็ค empId ใน emp
+            const empCheckRes = await axios.get(`/api/emp/checkEmpId?empId=${empId}`);
+            if (empCheckRes.data.exists) {
+                setData({ ...data, empId, fullname: empCheckRes.data.name });
+                setErrors(null);
+                setIsEmpIdVerified(true); // ถ้าเจอ empId ใน emp ให้ enable input ทั้งหมด
+            } else {
+                setErrors('รหัสพนักงานนี้ไม่มีในระบบ');
+                setIsEmpIdVerified(false);
+            }
+        } catch (error) {
+            console.error('Error checking empId:', error);
+            setErrors('ไม่สามารถตรวจสอบรหัสพนักงานได้');
+            setIsEmpIdVerified(false);
+        }
     };
 
 
@@ -104,7 +127,6 @@ export default function Register() {
                 </span>
             </div>
             <div className="flex flex-col p-3">
-                <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="flex flex-col justify-center items-center text-center mb-4">
                         <div className="flex flex-col justify-center items-center text-center mb-2" style={{ width: 150, height: 150 }}>
                             <Image
@@ -129,14 +151,17 @@ export default function Register() {
                             </div>
                             <input
                                 className="bg-gray-200 border border-gray-300 text-gray-900 text-lg rounded-3xl focus:ring-blue-500 focus:border-blue-500 block w-full ps-12 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                type="text"
+                                type="number"
                                 placeholder="รหัสพนักงาน"
-                                {...register("empId", { required: true, pattern: /^[0-9]+$/i })}
+                                maxLength={5}
+                                minLength={5}
+                                value={data?.empId || ''}
+                                onChange={(e) => handleEmpIdChange(e.target.value)}
+                                required
                             />
                         </div>
                         <div className="text-red-500 text-sm font-bold text-left ml-10 h-2">
-                            {errors.empId && errors.empId.type === "required" && <span>ช่องนี้จำเป็นต้องกรอกข้อมูล</span>}
-                            {errors.empId && errors.empId.type === "pattern" && <span>ตัวเลขเท่านั้น</span>}
+                            {errors && <div className="text-red-500 text-sm font-bold">{errors}</div>}
                         </div>
                     </div>
                     <div className="block mb-2">
@@ -150,12 +175,11 @@ export default function Register() {
                                 className="bg-gray-200 border border-gray-300 text-gray-900 text-lg rounded-3xl focus:ring-blue-500 focus:border-blue-500 block w-full ps-12 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 type="text"
                                 placeholder="ชื่อ-นามสกุล"
-                                {...register("fullname", { required: true})}
+                                value={data?.fullname || ''}
+                                onChange={(e) => setData({ ...data, fullname: e.target.value })}
+                                disabled={!isEmpIdVerified}
+                                required
                             />
-                        </div>
-                        <div className="text-red-500 text-sm font-bold text-left ml-10 h-2">
-                            {errors.fullname && errors.fullname.type === "required" && <span>ช่องนี้จำเป็นต้องกรอกข้อมูล</span>}
-                            {errors.fullname && errors.fullname.type === "pattern" && <span>ชื่อต้องเป็นภาษาไทย</span>}
                         </div>
                     </div>
                     <div className="block mb-2">
@@ -169,12 +193,11 @@ export default function Register() {
                                 className="bg-gray-200 border border-gray-300 text-gray-900 text-lg rounded-3xl focus:ring-blue-500 focus:border-blue-500 block w-full ps-12 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 type="phone"
                                 placeholder="เบอร์โทรศัพท์"
-                                {...register("phone", { required: true, maxLength: 10 })}
+                                value={data?.phone || ''}
+                                onChange={(e) => setData({ ...data, phone: e.target.value })}
+                                disabled={!isEmpIdVerified}
+                                required
                             />
-                        </div>
-                        <div className="text-red-500 text-sm font-bold text-left ml-10 h-2">
-                            {errors.phone && errors.phone.type === "required" && <span>ช่องนี้จำเป็นต้องกรอกข้อมูล</span>}
-                            {errors.phone && errors.phone.type === "maxLength" && <span>ข้อความยาวเกินไป</span>}
                         </div>
                     </div>
                     <div className="block mb-2">
@@ -185,11 +208,11 @@ export default function Register() {
                                 rows={4}
                                 className="block p-2 w-full text-lg text-gray-900 bg-gray-200 rounded-xl border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="ที่อยู่สาขาหรือฮับที่ท่านประจำอยู่"
-                                {...register("address", { required: true })}
+                                value={data?.address || ''}
+                                disabled={!isEmpIdVerified}
+                                onChange={(e) => setData({ ...data, address: e.target.value })}
+                                required
                             ></textarea>
-                        </div>
-                        <div className="text-red-500 text-sm font-bold text-left mt-1 ml-10">
-                            {errors.address && errors.address.type === "required" && <span>ช่องนี้จำเป็นต้องกรอกข้อมูล</span>}
                         </div>
                     </div>
                     <div className="mt-5">
@@ -198,7 +221,9 @@ export default function Register() {
                                 <input
                                     id="agree"
                                     type="checkbox"
-                                    {...register("agree", { required: true })}
+                                    checked={data?.agree || false}
+                                    disabled={!isEmpIdVerified}
+                                    onChange={(e) => setData({ ...data, agree: e.target.checked })}
                                     className="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                 />
                                 <label htmlFor="agree" className="ml-2 text-sm font-bold text-gray-900 dark:text-white">ฉันยอมรับข้อตกลงและเงื่อนไข</label>
@@ -222,11 +247,12 @@ export default function Register() {
                         <button
                             type="submit"
                             className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-bold rounded-3xl text-lg px-5 py-3 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 w-[80%] h-15"
+                            onClick={onSubmit}
+                            disabled={!isEmpIdVerified || loadingForm}
                         >
                             {loadingForm ? "กําลังบันทึก..." : "ลงทะเบียน"}
                         </button>
                     </div>
-                </form>
                 <RegisterModal isOpen={isOpen} onRequestClose={onRequestClose} />
             </div>
         </div>

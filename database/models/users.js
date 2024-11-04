@@ -6,7 +6,7 @@ const userSchema = new Schema({
     address: { type: String, required: true },
     birthdate: { type: Date, default: null },
     pictureUrl: { type: String, required: true },
-    role: { type: String },
+    role: { type: String, default: 'user' },
     active: { type: Boolean, default: true },
     empId: { type: String, required: true, unique: true },
     userId: { type: String, required: true, unique: true },

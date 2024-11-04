@@ -1,12 +1,27 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import useSWR from 'swr';
 import Header from '@/components/admin/global/Header';
 import { AdminLayout } from '@/themes';
 import Events from '@/components/events/Events';
+import CheckIn from '@/components/events/CheckIn';
 import { Divider } from '@mui/material';
+import Loading from '@/components/Loading';
+
+const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 const ManageEvents = () => {
+  const [events, setEvents] = useState([]);
   const [active, setActive] = useState('events');
+
+  const { data, error, mutate } = useSWR('/api/events', fetcher, {
+    onSuccess: (data) => {
+      setEvents(data.data);
+    }
+  });
+
+  if (error) return <div>failed to load</div>;
+  if (!data) return <Loading />;
 
   return (
     <div>
@@ -29,7 +44,9 @@ const ManageEvents = () => {
         </button>
       </div>
 
-      {active === 'events' && <Events />}
+      {active === 'events' && <Events events={events} mutate={mutate} />}
+
+      {active === 'checkin' && <CheckIn events={events} mutate={mutate} />}
 
     </div>
   );
