@@ -1,7 +1,9 @@
 // pages/admin/campaign.js
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import Image from 'next/image';
+import { handleUpload, upload } from '@vercel/blob/client';
+import { nanoid } from 'nanoid';
 import { AdminLayout } from '@/themes';
 import { ImFilePicture } from "react-icons/im";
 import { RiDeleteBin5Line } from "react-icons/ri";
@@ -10,6 +12,9 @@ import useSWR from 'swr';
 import { useSession } from 'next-auth/react';
 import Swal from 'sweetalert2';
 import { IoMdCloseCircleOutline } from "react-icons/io";
+import useMedia from '@/lib/hook/useMedia';
+import { IoIosCloseCircle } from "react-icons/io";
+import CircularProgress from '@mui/material/CircularProgress'; 
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -22,13 +27,12 @@ const AdminCampaignPage = () => {
   const [banner, setBanner] = useState(null);
   const [smallBanner, setSmallBanner] = useState(null);
   const [url, setUrl] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [bannerPreview, setBannerPreview] = useState(null);
-  const [smallBannerPreview, setSmallBannerPreview] = useState(null);
   const [error, setError] = useState(null);
   const [editId, setEditId] = useState(null); // New state to track editing
 
   const { data: session } = useSession();
+  const userId = session?.user?.id;
+  const { add } = useMedia();
 
   const { data, error: swrError, mutate } = useSWR('/api/campaigns', fetcher, {
     onSuccess: (data) => {
@@ -36,68 +40,84 @@ const AdminCampaignPage = () => {
     },
   });
 
-  const handleUploadImage = () => {
-    setError(null);
-    window.cloudinary.openUploadWidget(
-        {
-            cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-            uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
-            sources: ['local', 'url', 'camera', 'image_search'],
-            multiple: true,
-            resourceType: 'auto', // Automatically determines if it's image or video
-        },
-        (error, result) => {
-            if (result.event === 'success') {
-                setImage(
-                    { url: result.info.secure_url, public_id: result.info.public_id, type: result.info.resource_type }
-                );
-                setImagePreview(result.info.secure_url);
-              }
-          }
-      );
+  const fileImageRef = useRef(null); // สร้าง ref สำหรับ input file
+  const fileBannerRef = useRef(null);
+  const fileSmallBannerRef = useRef(null);
+
+  const handleImageClick = () => {
+    fileImageRef.current.click(); // เมื่อกดปุ่ม ให้เปิด input file
+  };
+
+  const handleBannerClick = () => {
+    fileBannerRef.current.click(); // เมื่อกดปุ่ม ให้เปิด input file
+  };
+
+  const handleSmallBannerClick = () => {
+    fileSmallBannerRef.current.click(); // เมื่อกดปุ่ม ให้เปิด input file
+  };
+
+  const handleUploadImage = async(e) => {
+    const file = e.target.files[0];
+      try {
+        const result = await add(file, userId, 'campaign', 'image');
+        setImage(result);
+        fileImageRef.current.value = null;
+    } catch (error) {
+        console.error(error);
+    }
   };  
 
-  const handleUploadBanner = () => {
-    setError(null);
-    window.cloudinary.openUploadWidget(
-        {
-            cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-            uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
-            sources: ['local', 'url', 'camera', 'image_search'],
-            multiple: true,
-            resourceType: 'auto', // Automatically determines if it's image or video
-        },
-        (error, result) => {
-            if (result.event === 'success') {
-                setBanner(
-                    { url: result.info.secure_url, public_id: result.info.public_id, type: result.info.resource_type }
-                );
-                setBannerPreview(result.info.secure_url);
-              }
-          }
-      );
+  const handleUploadBanner = async (e) => {
+    const file = e.target.files[0];
+      try {
+        const result = await add(file, userId, 'campaign', 'banner');
+        setBanner(result);
+        fileBannerRef.current.value = null;
+    } catch (error) {
+        console.error(error);
+    }
   };  
 
-  const handleUploadSmallBanner = () => {
-    setError(null);
-    window.cloudinary.openUploadWidget(
-        {
-            cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-            uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
-            sources: ['local', 'url', 'camera', 'image_search'],
-            multiple: true,
-            resourceType: 'auto', // Automatically determines if it's image or video
-        },
-        (error, result) => {
-            if (result.event === 'success') {
-                setSmallBanner(
-                    { url: result.info.secure_url, public_id: result.info.public_id, type: result.info.resource_type }
-                );
-                setSmallBannerPreview(result.info.secure_url);
-              }
-          }
-      );
+  const handleUploadSmallBanner = async (e) => {
+    const file = e.target.files[0];
+      try {
+        const result = await add(file, userId, 'campaign', 'smallbanner');
+        setSmallBanner(result);
+        fileSmallBannerRef.current.value = null;
+    } catch (error) {
+        console.error(error);
+    }
   };  
+
+  const handleBannerRemove = async (url) => {
+    try {
+      await axios.delete(`/api/blob/delete?url=${url}`);
+      setBanner(null);
+      fileBannerRef.current.value = null;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleSmallBannerRemove = async (url) => {
+    try {
+      await axios.delete(`/api/blob/delete?url=${url}`);
+      setSmallBanner(null);
+      fileSmallBannerRef.current.value = null;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleImageRemove = async (url) => {
+    try {
+      await axios.delete(`/api/blob/delete?url=${url}`);
+      setImage(null);
+      fileImageRef.current.value = null;
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
 
   const handleEditorChange = (data) => {
@@ -132,9 +152,6 @@ const AdminCampaignPage = () => {
       setImage(null);
       setBanner(null);
       setSmallBanner(null);
-      setImagePreview(null);
-      setBannerPreview(null);
-      setSmallBannerPreview(null);
       setEditId(null); // Reset editId
       mutate();
     } catch (error) {
@@ -171,13 +188,13 @@ const AdminCampaignPage = () => {
     setImage(campaign.image || null);
     setBanner(campaign.banner || null);
     setSmallBanner(campaign.smallbanner || null);
-    setImagePreview(campaign.image ? campaign.image.url : null);
-    setBannerPreview(campaign.banner ? campaign.banner.url : null);
-    setSmallBannerPreview(campaign.smallbanner ? campaign.smallbanner.url : null);
     setEditId(campaign._id); // Set editId to the campaign being edited
     setShowForm(true);
   };
   
+  console.log('banner:', banner);
+  console.log('smallBanner:', smallBanner);
+  console.log('image:', image);
 
   return (
     <div className="flex flex-col w-full p-5">
@@ -274,15 +291,28 @@ const AdminCampaignPage = () => {
                 className='border-2 rounded-3xl p-2'
             />
            
-            <div className='flex w-full justify-center items-center'>
-                {bannerPreview && <Image src={bannerPreview} alt="Banner Preview" width={200} height={200} style={{ width: '200px', height: 'auto' }} />}
-            </div>
+            {banner && (
+              <div className="relative flex flex-col p-2 border-2 rounded-xl w-[80px]">
+                  <IoIosCloseCircle
+                  className="absolute top-0 right-0 text-xl cursor-pointer"
+                  onClick={() => handleBannerRemove(banner.url)}
+              />
+                  <Image
+                      src={banner.url}
+                      alt="Banner"
+                      width={50}
+                      height={50}
+                      className='object-cover'
+                      style={{ width: '50px', height: '50px' }}
+                  />
+              </div>
+              )}
 
             <div className='flex flex-row w-full items-center gap-2'>
               <span className="text-sm font-bold">Banner:</span>
               <div className='border rounded-xl shadow'>
               <button
-                      onClick={handleUploadBanner}
+                      onClick={handleBannerClick}
                       className="flex flex-row items-center gap-2 p-2 cursor-pointer"
                   >
                       <ImFilePicture className="text-xl text-[#0056FF]" />
@@ -292,17 +322,39 @@ const AdminCampaignPage = () => {
                           <span className="text-[10px] text-red-500 ">* สามารถอัพโหลดได้ไม่เกิน 100MB</span>
                       </div>
               </button>
+                <input
+                  type="file"
+                  name="banner"
+                  id="banner"
+                  ref={fileBannerRef}
+                  accept="image/*"
+                  onChange={handleUploadBanner}
+                  className='hidden'
+                />
               </div>
             </div>
 
-            <div className='flex w-full justify-center items-center'>
-                {smallBannerPreview && <Image src={smallBannerPreview} alt="Small Banner Preview" width={200} height={200} style={{ width: '200px', height: 'auto' }} />}
-            </div>
+            {smallBanner && (
+              <div className="relative flex flex-col p-2 border-2 rounded-xl w-[80px]">
+                  <IoIosCloseCircle
+                  className="absolute top-0 right-0 text-xl cursor-pointer"
+                  onClick={() => handleSmallBannerRemove(smallBanner.url)}
+              />
+                  <Image
+                      src={smallBanner.url}
+                      alt="smallBanner"
+                      width={50}
+                      height={50}
+                      className='object-cover'
+                      style={{ width: '50px', height: '50px' }}
+                  />
+              </div>
+              )}
             <div className='flex flex-row w-full items-center gap-2'>
               <span className="text-sm font-bold">SmallBanner:</span>
               <div className='border rounded-xl shadow'>
               <button
-                      onClick={handleUploadSmallBanner}
+                      onClick={handleSmallBannerClick}
                       className="flex flex-row items-center gap-2 p-2 cursor-pointer"
                   >
                       <ImFilePicture className="text-xl text-[#0056FF]" />
@@ -312,18 +364,40 @@ const AdminCampaignPage = () => {
                           <span className="text-[10px] text-red-500 ">* สามารถอัพโหลดได้ไม่เกิน 100MB</span>
                       </div>
               </button>
+              <input
+                  type="file"
+                  name="smallbanner"
+                  id="smallbanner"
+                  ref={fileSmallBannerRef}
+                  accept="image/*"
+                  onChange={handleUploadSmallBanner}
+                  className='hidden'
+                />
               </div>
             </div>
 
-            <div className='flex w-full justify-center items-center'>
-                {imagePreview && <Image src={imagePreview} alt="Image Preview" width={200} height={200} style={{ width: '200px', height: 'auto' }}/>}
-            </div>
+            {image && (
+              <div className="relative flex flex-col p-2 border-2 rounded-xl w-[80px]">
+                  <IoIosCloseCircle
+                  className="absolute top-0 right-0 text-xl cursor-pointer"
+                  onClick={() => handleImageRemove(image.url)}
+              />
+                  <Image
+                      src={image.url}
+                      alt="Image"
+                      width={50}
+                      height={50}
+                      className='object-cover'
+                      style={{ width: '50px', height: '50px' }}
+                  />
+              </div>
+              )}
 
             <div className='flex flex-row w-full items-center gap-2'>
               <span className="text-sm font-bold">Image:</span>
               <div className='border rounded-xl shadow'>
               <button
-                      onClick={handleUploadImage}
+                      onClick={handleImageClick}
                       className="flex flex-row items-center gap-2 p-2 cursor-pointer"
                   >
                       <ImFilePicture className="text-xl text-[#0056FF]" />
@@ -333,6 +407,15 @@ const AdminCampaignPage = () => {
                           <span className="text-[10px] text-red-500 ">* สามารถอัพโหลดได้ไม่เกิน 100MB</span>
                       </div>
               </button>
+                <input
+                    type="file"
+                    name="image"
+                    id="image"
+                    ref={fileImageRef}
+                    accept="image/*"
+                    onChange={handleUploadImage}
+                    className='hidden'
+                  />
               </div>
             </div>
                 <textarea

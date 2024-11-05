@@ -27,8 +27,6 @@ const StickerForm = ({ isEditing, selectedData, handleClose, mutateStickers }) =
     const fileIconRef = useRef(null);
     const fileStickerRef = useRef(null);
 
-    console.log('selectedData:', selectedData);
-
     // Initialize form fields with selectedData when editing
     useEffect(() => {
         if (isEditing && selectedData) {

@@ -16,6 +16,7 @@ import Slide from '@mui/material/Slide';
 import { IoPeopleOutline } from "react-icons/io5";
 import { IoIosArrowBack } from "react-icons/io";
 import { IoClose } from "react-icons/io5";
+import { TbReportAnalytics } from "react-icons/tb";
 
 moment.locale('th');
 
@@ -37,6 +38,8 @@ export default function CheckIn({events}) {
     const [selectedJoin, setSelectedJoin] = useState(null);
     const [userJoin, setUserJoin] = useState([]);
     const [editJoin, setEditJoin] = useState(false);
+    const [openReport, setOpenReport] = useState(false);
+    const [report, setReport] = useState(null);
 
     const { data: session } = useSession();
     const userId = session?.user.id;
@@ -303,9 +306,18 @@ export default function CheckIn({events}) {
             handleCloseJoin();
         }
 
-        console.log('userJoin', userJoin);
-        console.log('EditJoin', editJoin);
+        const handleOpenReport = async (data) => {
+          setSelectedJoin(data);
+          setOpenReport(true);
+        };
 
+        const handleCloseReport = () => {
+          setSelectedJoin(null);
+          setReport(null);
+          setOpenReport(false);
+        }
+
+       
         const columns = [
             { field: 'title', headerName: 'Title', width: 200 },
             { field: 'description', headerName: 'Description', width: 200 },
@@ -329,10 +341,18 @@ export default function CheckIn({events}) {
                 </>
               ),
             },
-            { field: 'join', headerName: 'Join', width: 100 , renderCell: (params) => (
+            { field: 'join', headerName: 'AddJoin', width: 100 , renderCell: (params) => (
               <>
                 <IoPeopleOutline 
                   onClick={() => handleOpenJoin(params.row)}
+                  size={30}
+                />
+              </>
+            )},
+            { field: 'Report', headerName: 'Report', width: 100 , renderCell: (params) => (
+              <>
+                <TbReportAnalytics 
+                  onClick={() => handleOpenReport(params.row)}
                   size={30}
                 />
               </>
@@ -525,7 +545,27 @@ export default function CheckIn({events}) {
               </div>
           </div>
         </Dialog>
-        </div>
+
+        <Dialog
+          open={openReport}
+          onClose={handleCloseReport}
+          TransitionComponent={Transition}
+          fullScreen
+        >
+          <div className='flex flex-col w-full'>
+              <div className='flex flex-row items-center mb-2 p-2 gap-4'>
+                <IoIosArrowBack onClick={handleCloseJoin} size={30}/>
+                <span className='text-xl font-bold text-[#0056FF]'>Report</span>
+              </div>
+
+              <Divider />
+
+              <div className='flex flex-col w-full p-2'>
+                <span className='text-xl font-bold'>{selectedJoin?.title}</span>
+              </div>
+          </div>
+        </Dialog>
+      </div>
     );
 };
 
