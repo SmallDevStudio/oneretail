@@ -37,7 +37,7 @@ const Survey = () => {
             const chief_th = user.user.chief_th;
             router.push("/survey/algroup?chief_th=" + chief_th);
         }else if (bbdservices === user.user.empId) {
-            router.push("/survey/bbdservices");
+            router.push("/survey/BBDSERVICE");
         } else {
             router.push("/survey/team");
             return;
