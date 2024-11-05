@@ -191,10 +191,6 @@ const AdminCampaignPage = () => {
     setEditId(campaign._id); // Set editId to the campaign being edited
     setShowForm(true);
   };
-  
-  console.log('banner:', banner);
-  console.log('smallBanner:', smallBanner);
-  console.log('image:', image);
 
   return (
     <div className="flex flex-col w-full p-5">
