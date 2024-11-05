@@ -25,6 +25,8 @@ const Survey = () => {
         '81195', '81200'
     ]
 
+    const bbdservices = 25140
+
     useEffect(() => {
         if (status === "loading" || !user) return;
 
@@ -34,7 +36,9 @@ const Survey = () => {
         } else if (managerAL.includes(user.user.empId)) {
             const chief_th = user.user.chief_th;
             router.push("/survey/algroup?chief_th=" + chief_th);
-        }else {
+        }else if (bbdservices === user.user.empId) {
+            router.push("/survey/bbdservices");
+        } else {
             router.push("/survey/team");
             return;
         }
