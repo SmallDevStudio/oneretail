@@ -21,6 +21,7 @@ const CheckIn = () => {
     const [adminEvent, setAdminEvent] = useState({});
     const [isOff, setIsOff] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [hasCheckIn, setHasCheckIn] = useState(false);
 
     const { data: session } = useSession();
     const router = useRouter();
@@ -32,16 +33,10 @@ const CheckIn = () => {
             setLoading(true);
             const fetchCheckIn = async () => {
                 try {
-                    const res = await axios.get(`/api/checkin/${userId}`);
+                    const res = await axios.get(`/api/checkin/${userId}?eventId=${id}`);
                     console.log(res.data.data);
                     if (res.data.data.length > 0) {
-                       Swal.fire({
-                            icon: 'warning',
-                            title: 'คุณได้ทำการเข้าร่วมกิจกรรมแล้ว',
-                            text: 'กรุณาตรวจสอบอีกครั้ง',
-                            showConfirmButton: true,
-                        });
-                        router.push('/');
+                      setHasCheckIn(true);
                     }
                 } catch (error) {
                     console.log(error);
@@ -51,7 +46,7 @@ const CheckIn = () => {
             };
             fetchCheckIn();
             }
-    }, [router, userId]);
+    }, [id, router, userId]);
 
     useEffect(() => {
         if (id && userId) {
@@ -93,6 +88,11 @@ const CheckIn = () => {
 
     const handleClose = () => {
         setIsOff(false);
+        router.push('/');
+    };
+
+    const handleHasCheckInClose = () => {
+        setHasCheckIn(false);
         router.push('/');
     };
 
@@ -179,6 +179,7 @@ const CheckIn = () => {
                 <button
                     className="text-white bg-[#0056FF] w-full p-2.5 rounded-lg"
                     onClick={handleCheckIn}
+                    disabled={isOff || hasCheckIn}
                 >
                     Check-In
                 </button>
@@ -209,6 +210,30 @@ const CheckIn = () => {
                 </Modal>
             )}
 
+            {hasCheckIn && (
+                <Modal
+                    open={hasCheckIn}
+                    onClose={handleHasCheckInClose}
+                    title="เข้าร่วมกิจกรรม"
+                    description="คุณได้เข้าร่วมกิจกรรมแล้ว"
+                >
+                    <div className="flex flex-col items-center p-2 mt-4 w-full">
+                        <p className="text-md font-bold">คุณได้เข้าร่วมกิจกรรมแล้ว</p>
+                        <div className="flex flex-col text-sm items-center p-2 w-full">
+                            <p>กรุณาติดต่อผู้ดูแลระบบ</p>
+                            <p>หรือ</p>
+                            <p>ติดต่อเจ้าหน้าที่</p>
+                        </div>
+
+                        <button
+                            className="text-white bg-[#0056FF] w-full p-2.5 rounded-lg mt-4"
+                            onClick={handleHasCheckInClose}
+                        >
+                            ตกลง
+                        </button>
+                    </div>
+                </Modal>
+            )}
         </div>
     );
 };

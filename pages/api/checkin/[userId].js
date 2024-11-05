@@ -8,9 +8,9 @@ export default async function handler(req, res) {
 
     switch (method) {
         case "GET":
-            const { userId } = req.query;
+            const { userId, eventId } = req.query;
             try {
-                const checkin = await Checkins.find({ userId: userId });
+                const checkin = await Checkins.find({ eventId: eventId, userId: userId });
                 res.status(200).json({ success: true, data: checkin });
             } catch (error) {
                 res.status(400).json({ success: false });
