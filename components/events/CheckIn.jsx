@@ -15,6 +15,7 @@ import Dialog from '@mui/material/Dialog';
 import Slide from '@mui/material/Slide';
 import { IoPeopleOutline } from "react-icons/io5";
 import { IoIosArrowBack } from "react-icons/io";
+import { IoClose } from "react-icons/io5";
 
 moment.locale('th');
 
@@ -35,7 +36,7 @@ export default function CheckIn({events}) {
     const [openJoin, setOpenJoin] = useState(false);
     const [selectedJoin, setSelectedJoin] = useState(null);
     const [userJoin, setUserJoin] = useState([]);
-    const [userJoinData, setUserJoinData] = useState([]);
+    const [editJoin, setEditJoin] = useState(false);
 
     const { data: session } = useSession();
     const userId = session?.user.id;
@@ -224,35 +225,86 @@ export default function CheckIn({events}) {
         };
     
         const handleOpenJoin = async (data) => {
-            setSelectedJoin(data);
-            setOpenJoin(true);
-    
-            try {
-                const res = await axios.get(`/api/events/userJoin?eventId=${data._id}`);
-                setUserJoinData(res.data.data);
-            } catch (error) {
-                console.log(error);
-            }
-        };
-    
-        const handleCloseJoin = () => {
-            setSelectedJoin(null);
-            setUserJoinData([]);
-            setUserJoin([]);
-            setOpenJoin(false);
-        };
-
-        const handleJoinChange = (data) => {
-        };
+          setSelectedJoin(data);
+          setOpenJoin(true);
       
-        const handleJoin = async() => {
-          const newData = {
+          try {
+              const res = await axios.get(`/api/events/userJoin?eventId=${data._id}`);
+              if (res.data.data.empId === null || res.data.data.empId === undefined) {
+                  setUserJoin([]); // ตั้งค่าเป็น [] ถ้าไม่มีข้อมูล empId
+                  setEditJoin(false);
+              } else {
+                  setUserJoin(res.data.data.empId);
+                  setEditJoin(true);
+              }
+              
+          } catch (error) {
+              console.log('Error fetching userJoin data:', error);
+          }
+      };
+    
+      const handleCloseJoin = () => {
+        setSelectedJoin(null);
+        setUserJoin([]);
+        setEditJoin(false);
+        setOpenJoin(false);
+      };
+
+      const handleJoinChange = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const empIds = e.target.value.split(',').map(id => id.trim()).filter(id => id);
+            const uniqueEmpIds = empIds.filter(id => !userJoin.includes(id));
+    
+            if (uniqueEmpIds.length > 0) {
+                setUserJoin([...userJoin, ...uniqueEmpIds]);
+            }
+    
+            e.target.value = ''; // ล้างค่าหลังจากเพิ่มเสร็จ
+        }
+    };
+
+      const handleJoinRemove = (empId) => {
+          setUserJoin(userJoin.filter(id => id !== empId));
+      };
+      
+      const handleJoin = async () => {
+        if (!userJoin.length) {
+            alert("กรุณาเพิ่ม empId อย่างน้อยหนึ่งรายการก่อนบันทึก");
+            return;
+        }
+    
+        const newData = {
             empId: userJoin,
             eventId: selectedJoin._id,
-          }
-      
-          console.log('newData', newData);
+        };
+    
+        try {
+            if (editJoin) {
+                // Update userJoin เมื่อ editJoin เป็น true
+                await axios.put(`/api/events/userJoin`, newData, {
+                    params: { eventId: selectedJoin._id },
+                });
+                alert("อัปเดตข้อมูลเรียบร้อย");
+            } else {
+                // Add new userJoin เมื่อเป็นการเพิ่มใหม่
+                await axios.post(`/api/events/userJoin`, newData);
+                alert("บันทึกข้อมูลเรียบร้อย");
+            }
+        } catch (error) {
+            console.error("Error saving data:", error);
+            alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
         }
+    
+        handleCloseJoin();
+    };
+
+        const handleJoinClear = () => {
+            handleCloseJoin();
+        }
+
+        console.log('userJoin', userJoin);
+        console.log('EditJoin', editJoin);
 
         const columns = [
             { field: 'title', headerName: 'Title', width: 200 },
@@ -430,25 +482,45 @@ export default function CheckIn({events}) {
                 <span className='text-xl font-bold'>{selectedJoin?.title}</span>
                 <div className='flex flex-row items-center gap-2'>
                   <span className='font-bold'>ชื่อผู้เข้าร่วม: </span>
+                  {userJoin && userJoin.map((user, index) => (
+                    <div 
+                      key={index}
+                      className="flex flex-row items-center px-1 bg-[#F2871F] text-white text-sm rounded-lg"
+                    >
+                      <span>{user} |</span>
+                      <IoClose 
+                        key={index}
+                        onClick={() => handleJoinRemove(user)}
+                      />
+                    </div>
+                  ))}
                 </div>
                 
                 <div className='flex flex-col gap-2 w-1/2 mt-4 p-2 border-2 rounded-lg'>
                     <label htmlFor="userJoin" className="font-bold">ผู้เข้าร่วม</label>
                     <textarea
                       id="userJoin"
-                      value={userJoin}
-                      onChange={(e) => handleJoinChange(e.target.value)}
+                      onKeyDown={handleJoinChange} // ใช้ onKeyDown เพื่อตรวจจับ Enter
+                      placeholder="เพิ่ม empId แล้วกด Enter เพื่อเพิ่มผู้เข้าร่วม"
                       className="w-full p-2 border rounded-lg"
                       rows={5}
                     />
-                    <div>
-                      <button
-                        className="bg-[#0056FF] text-white px-4 py-2 rounded-md"
-                        onClick={handleJoin}
-                      >
-                        เพิ่มผู้เข้าร่วม
-                      </button>
-                    </div>
+                    
+                </div>
+                <div className='flex flex-row gap-2 mt-4'>
+                  <button
+                    className="bg-[#0056FF] font-bold text-white px-4 py-2 rounded-md"
+                    onClick={handleJoin}
+                  >
+                      {editJoin ? 'แก้ไข' : 'เพิ่ม'}
+                  </button>
+
+                  <button
+                    className="bg-[#F2871F] font-bold text-white px-4 py-2 rounded-md"
+                    onClick={handleJoinClear}
+                  >
+                      ยกเลิก
+                  </button>
                 </div>
               </div>
           </div>

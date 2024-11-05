@@ -23,9 +23,9 @@ const Survey = () => {
 
     const managerAL = [
         '81195', '81200'
-    ]
+    ];
 
-    const bbdservices = 25140
+    const bbdservices = 25140;
 
     useEffect(() => {
         if (status === "loading" || !user) return;

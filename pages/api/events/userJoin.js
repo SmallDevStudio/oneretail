@@ -17,21 +17,8 @@ export default async function handler(req, res) {
                 if (userJoinEvent === null) {
                     return res.status(200).json({ success: true, data: [] });
                 }
-                
-                const empIds = userJoinEvent.map(userJoinEvent => userJoinEvent.empId);
-                const emps = await Users.find({ empId: { $in: empIds } });
 
-                const empMap = emps.reduce((acc, emp) => {
-                    acc[emp.empId] = emp;
-                    return acc;
-                }, {});
-
-                const enrichedUserJoinEvent = userJoinEvent.map(userJoinEvent => ({
-                    ...userJoinEvent._doc,
-                    emp: empMap[userJoinEvent.empId] || null
-                }));
-
-                res.status(200).json({ success: true, data: enrichedUserJoinEvent });
+                res.status(200).json({ success: true, data: userJoinEvent });
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });
             }
@@ -48,12 +35,16 @@ export default async function handler(req, res) {
 
         case 'PUT':
             try {
-                const { id, ...data } = req.body;
-                const userJoinEvent = await UserJoinEvent.findByIdAndUpdate(id, data, { new: true, runValidators: true });
-                if (!userJoinEvent) {
-                    return res.status(400).json({ success: false });
-                }
-                res.status(200).json({ success: true, data: userJoinEvent });
+                const { eventId } = req.query;
+                const { empId } = req.body; // empId เป็นอาร์เรย์ที่ต้องการอัปเดตทั้งหมด
+            
+                const update = await UserJoinEvent.updateOne(
+                    { eventId: eventId }, 
+                    { $set: { empId: empId } }, // ใช้ $set เพื่อแทนที่ค่าเดิมทั้งหมด
+                    { upsert: true } // ถ้าไม่มีเอกสารที่ตรงกัน ให้สร้างเอกสารใหม่
+                );
+            
+                res.status(200).json({ success: true, data: update });
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });
             }

@@ -7,8 +7,6 @@ import th from 'date-fns/locale/th';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useSession } from 'next-auth/react';
 import Modal from '@/components/Modal';
-import { IoQrCodeOutline } from "react-icons/io5";
-import { IoPeopleOutline } from "react-icons/io5";
 
 registerLocale('th', th);
 
@@ -40,8 +38,6 @@ export default function Events({ events, mutate }) {
   
   const { data: session } = useSession();
   const userId = session?.user.id;
-
-  console.log('filteredEvents', filteredEvents);
 
   useEffect(() => {
     if (!events) return;
