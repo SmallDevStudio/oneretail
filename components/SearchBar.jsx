@@ -4,24 +4,26 @@ import axios from 'axios';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 
-const SearchBar = () => {
+const SearchBar = ({ page }) => {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
+    const [showDropdown, setShowDropdown] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
         if (query.length > 0) {
-            axios.get(`/api/contents/search?search=${query}`)
+            axios.get(`/api/contents/search?search=${query}&page=${page}`)
                 .then(response => {
                     if (response.data.success) {
                         setResults(response.data.data);
+                        setShowDropdown(true);
                     }
                 })
                 .catch(error => console.error('Error fetching search results:', error));
         } else {
             setResults([]);
         }
-    }, [query]);
+    }, [page, query]);
 
     const handleChange = (e) => {
         setQuery(e.target.value);
@@ -56,7 +58,7 @@ const SearchBar = () => {
                         className="w-full text-xs px-4 focus:outline-none bg-gray-50"
                     />
                     <IoSearch className="text-gray-400" size={20}/>
-                    {results.length > 0 && (
+                    {showDropdown && (
                         <div className="absolute top-full left-0 w-full bg-white shadow-md rounded-b-xl z-10">
                             {results.map(result => (
                                 <div 

@@ -66,7 +66,7 @@ export default function Learning() {
                 </div>
             </div>
             {/* Search */}
-            <SearchBar />
+            <SearchBar page={category}/>
         
 
             {/* Tabs */}

@@ -11,6 +11,7 @@ import Loading from "@/components/Loading";
 import Divider from '@mui/material/Divider';
 import Modal from "@/components/Modal";
 import Swal from "sweetalert2";
+import { RiErrorWarningLine } from "react-icons/ri";
 
 moment.locale('th');
 
@@ -22,6 +23,7 @@ const CheckIn = () => {
     const [isOff, setIsOff] = useState(false);
     const [loading, setLoading] = useState(false);
     const [hasCheckIn, setHasCheckIn] = useState(false);
+    const [hasUserJoin, setHasUserJoin] = useState(false);
 
     const { data: session } = useSession();
     const router = useRouter();
@@ -34,7 +36,6 @@ const CheckIn = () => {
             const fetchCheckIn = async () => {
                 try {
                     const res = await axios.get(`/api/checkin/${userId}?eventId=${id}`);
-                    console.log(res.data.data);
                     if (res.data.data.length > 0) {
                       setHasCheckIn(true);
                     }
@@ -56,10 +57,18 @@ const CheckIn = () => {
                     const res = await axios.get(`/api/checkin/admin?eventId=${id}`);
                     if (!res.data.data.on) {
                         setIsOff(true);
-                    } else {
-                        setAdminEvent(res.data.data);
-                    }
+                    } 
 
+                    setAdminEvent(res.data.data);
+                    const userJoinRes = await axios.get(`/api/events/userJoin?eventId=${id}`);
+                    const userJoin = userJoinRes.data.data;
+
+                    // ตรวจสอบว่ามี empDetails และ userId ตรงกันหรือไม่
+                    if (userJoin && userJoin.empDetails) {
+                        const hasUser = userJoin.empDetails.some((emp) => emp.userId === userId);
+                        setHasUserJoin(hasUser);
+                    }
+                    
                     const resEvent = await axios.get(`/api/events/${id}`);
                     setEvent(resEvent.data.data);
 
@@ -74,6 +83,8 @@ const CheckIn = () => {
     }, [id, userId]);
 
     if (loading) return <Loading />;
+
+    console.log('hasUserJoin:', hasUserJoin);
 
     const getChannelColor = (channel) => {
         switch (channel) {
@@ -93,6 +104,11 @@ const CheckIn = () => {
 
     const handleHasCheckInClose = () => {
         setHasCheckIn(false);
+        router.push('/');
+    };
+
+    const handleHasUserJoinClose = () => {
+        setHasUserJoin(false);
         router.push('/');
     };
 
@@ -179,7 +195,7 @@ const CheckIn = () => {
                 <button
                     className="text-white bg-[#0056FF] w-full p-2.5 rounded-lg"
                     onClick={handleCheckIn}
-                    disabled={isOff || hasCheckIn}
+                    disabled={isOff || hasCheckIn || !hasUserJoin}
                 >
                     Check-In
                 </button>
@@ -193,6 +209,10 @@ const CheckIn = () => {
                     description="หมดเวลาจากการเข้าร่วมกิจกรรม"
                 >
                     <div className="flex flex-col items-center p-2 mt-4 w-full">
+                        <RiErrorWarningLine 
+                            size={80} 
+                            className="text-red-500 mb-4"
+                        />
                         <p className="text-md font-bold">หมดเวลาจากการเข้าร่วมกิจกรรม</p>
                         <div className="flex flex-col text-sm items-center p-2 w-full">
                             <p>กรุณาติดต่อผู้ดูแลระบบ</p>
@@ -218,6 +238,10 @@ const CheckIn = () => {
                     description="คุณได้เข้าร่วมกิจกรรมแล้ว"
                 >
                     <div className="flex flex-col items-center p-2 mt-4 w-full">
+                        <RiErrorWarningLine 
+                            size={80} 
+                            className="text-red-500 mb-4"
+                        />
                         <p className="text-md font-bold">คุณได้เข้าร่วมกิจกรรมแล้ว</p>
                         <div className="flex flex-col text-sm items-center p-2 w-full">
                             <p>กรุณาติดต่อผู้ดูแลระบบ</p>
@@ -228,6 +252,35 @@ const CheckIn = () => {
                         <button
                             className="text-white bg-[#0056FF] w-full p-2.5 rounded-lg mt-4"
                             onClick={handleHasCheckInClose}
+                        >
+                            ตกลง
+                        </button>
+                    </div>
+                </Modal>
+            )}
+
+            {!hasUserJoin && (
+                <Modal
+                    open={hasUserJoin}
+                    onClose={handleHasUserJoinClose}
+                    title="เข้าร่วมกิจกรรม"
+                    description="คุณได้เข้าร่วมกิจกรรมแล้ว"
+                >
+                    <div className="flex flex-col items-center p-2 mt-4 w-full">
+                        <RiErrorWarningLine 
+                            size={80} 
+                            className="text-red-500 mb-4"
+                        />
+                        <p className="text-md font-bold">คุณได้ไม่มีสิทธิ์เข้าร่วมกิจกรรม</p>
+                        <div className="flex flex-col text-sm items-center p-2 w-full">
+                            <p>กรุณาติดต่อผู้ดูแลระบบ</p>
+                            <p>หรือ</p>
+                            <p>ติดต่อเจ้าหน้าที่</p>
+                        </div>
+
+                        <button
+                            className="text-white bg-[#0056FF] w-full p-2.5 rounded-lg mt-4"
+                            onClick={handleHasUserJoinClose}
                         >
                             ตกลง
                         </button>

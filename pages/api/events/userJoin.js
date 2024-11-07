@@ -18,7 +18,16 @@ export default async function handler(req, res) {
                     return res.status(200).json({ success: true, data: [] });
                 }
 
-                res.status(200).json({ success: true, data: userJoinEvent });
+                const empIds = userJoinEvent ? userJoinEvent.empId.map((empId) => empId) : [];
+
+                const users = await Users.find({ empId: { $in: empIds } }).select('userId');
+
+                const populatedUserJoinEvent = userJoinEvent ? {
+                    ...userJoinEvent.toObject(),
+                    empDetails: users, // เติมข้อมูล empId ที่เกี่ยวข้อง
+                } : null;
+
+                res.status(200).json({ success: true, data: populatedUserJoinEvent });
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });
             }

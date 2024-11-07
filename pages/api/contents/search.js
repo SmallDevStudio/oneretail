@@ -8,8 +8,21 @@ export default async function handler(req, res) {
     switch (method) {
         case "GET":
             try {
-                const { search } = req.query; // รับค่า query parameter
-                const query = search ? { title: { $regex: search, $options: 'i' } } : {};
+                const { search, page } = req.query; // รับค่า query parameter
+
+                // สร้าง query object
+                const query = {};
+
+                // ถ้ามี search parameter ให้เพิ่มเงื่อนไขค้นหา title ที่ตรงกับ search
+                if (search) {
+                    query.title = { $regex: search, $options: 'i' };
+                }
+
+                // ถ้ามี page parameter ให้เพิ่มเงื่อนไขแสดงเฉพาะ categories ที่มาจาก page
+                if (page) {
+                    query.categories = { $in: [page] };
+                }
+    
     
                 const contents = await Content.find(query)
                     .populate('categories')

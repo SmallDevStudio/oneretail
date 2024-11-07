@@ -245,6 +245,8 @@ export default function CheckIn({events}) {
               console.log('Error fetching userJoin data:', error);
           }
       };
+
+  
     
       const handleCloseJoin = () => {
         setSelectedJoin(null);
@@ -309,7 +311,16 @@ export default function CheckIn({events}) {
         const handleOpenReport = async (data) => {
           setSelectedJoin(data);
           setOpenReport(true);
+
+          try {
+              const res = await axios.get(`/api/checkin/report?eventId=${data._id}`);
+              setReport(res.data);
+          } catch (error) {
+              console.log('Error fetching report data:', error);
+          }
         };
+
+        console.log(report);
 
         const handleCloseReport = () => {
           setSelectedJoin(null);
@@ -554,7 +565,7 @@ export default function CheckIn({events}) {
         >
           <div className='flex flex-col w-full'>
               <div className='flex flex-row items-center mb-2 p-2 gap-4'>
-                <IoIosArrowBack onClick={handleCloseJoin} size={30}/>
+                <IoIosArrowBack onClick={handleCloseReport} size={30}/>
                 <span className='text-xl font-bold text-[#0056FF]'>Report</span>
               </div>
 

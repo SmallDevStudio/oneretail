@@ -14,12 +14,11 @@ const HomePage = () => {
     const { data: user, error: userError, isLoading } = useSWR(() => userId ? `/api/users/${userId}` : null, fetcher);
     const { data: loginReward, error: loginRewardError } = useSWR(() => userId ? `/api/loginreward/${userId}` : null, fetcher);
     const { data: survey, error: surveyError, isLoading: isLoadingSurvey } = useSWR(`/api/survey/checkSurvey?userId=${userId}`, fetcher);
-    const { data: surveySettings, error: surveySettingsError } = useSWR('/api/survey/settings', fetcher);
     const { data: ads, error: adsError } = useSWR('/api/ads/page', fetcher);
 
     useEffect(() => {
         if (status === "loading" || !user || !loginReward || 
-            !survey || !surveySettings || !ads) return;
+            !survey || !ads) return;
             
         if (status === "unauthenticated") {
             router.push("/login");
@@ -43,10 +42,7 @@ const HomePage = () => {
             router.push('/loginreward');
             return;
         }
-        if (surveySettings && !surveySettings.isSurveyEnabled) {
-            router.push('/ads');
-            return;
-        }
+
         if (survey && !survey.completed) {
             router.push('/pulsesurvey');
             return;
@@ -59,10 +55,10 @@ const HomePage = () => {
 
         router.push("/main");
 
-    }, [status, router, session, user, loginReward, surveySettings, survey, ads]);
+    }, [status, router, session, user, loginReward, survey, ads]);
 
-    if (status === "loading" || isLoading || !user || !loginReward || !survey || !surveySettings || !ads || isLoadingSurvey ) return <Loading />;
-    if (userError || loginRewardError || surveyError || surveySettingsError || adsError ) return <div>Error loading data</div>;
+    if (status === "loading" || isLoading || !user || !loginReward || !survey  || !ads || isLoadingSurvey ) return <Loading />;
+    if (userError || loginRewardError || surveyError  || adsError ) return <div>Error loading data</div>;
 
     return (
         <React.Fragment>

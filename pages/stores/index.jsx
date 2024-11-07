@@ -61,14 +61,12 @@ export default function Stores() {
                 </div>
             </div>
 
-            <SearchBar />
-
             {/* Tabs */}
             <div className="flex justify-center mb-4 text-sm">
                 <ul className="flex flex-wrap -mb-px">
                     <li className="me-2">
                         <a
-                            href="#secret-sauce"
+                            href=""
                             className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'secret-sauce' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
                             onClick={() => handleTabClick('secret-sauce')}
                         >
@@ -77,7 +75,7 @@ export default function Stores() {
                     </li>
                     <li className="me-2">
                         <a
-                            href="#share-your-story"
+                            href=""
                             className={`inline-block p-2 border-b-2 rounded-t-lg ml-5 font-bold ${activeTab === 'share-your-story' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
                             onClick={() => handleTabClick('share-your-story')}
                         >
@@ -86,6 +84,11 @@ export default function Stores() {
                     </li>
                 </ul>
             </div>
+
+            {/* Search Bar */}
+            {activeTab === 'secret-sauce' && (
+                <SearchBar page={category}/>
+            )}
 
             {/* Tabs Content */}
             <div className="flex flex-col items-center w-full">

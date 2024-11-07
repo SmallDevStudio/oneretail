@@ -15,6 +15,7 @@ import Swal from "sweetalert2";
 import moment from "moment";
 import "moment/locale/th";
 import { BsPinAngleFill } from "react-icons/bs";
+import { IoSearch } from "react-icons/io5";
 moment.locale('th');
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
@@ -26,6 +27,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 const ShareYourStory = () => {
     const { data: session } = useSession();
     const [posts, setPosts] = useState([]);
+    const [filteredPosts, setFilteredPosts] = useState([]); // เก็บโพสต์ที่กรองแล้ว
     const [showComments, setShowComments] = useState({});
     const [showReply, setShowReply] = useState({});
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -35,6 +37,7 @@ const ShareYourStory = () => {
     const [currentOption, setCurrentOption] = useState(null);
     const [likes, setLikes] = useState({});
     const [checkError, setCheckError] = useState(null);
+    const [query, setQuery] = useState('');
 
     const { data, error, mutate } = useSWR('/api/posts', fetcher, {
         onSuccess: (data) => {
@@ -45,6 +48,17 @@ const ShareYourStory = () => {
     const folder = 'share-your-story';
 
     const { data: user, mutate: mutateUser } = useSWR(`/api/users/${session?.user?.id}`, fetcher);
+
+    useEffect(() => {
+        if (query.trim() !== '') {
+            const result = posts.filter(post =>
+                post.user.fullname.toLowerCase().includes(query.toLowerCase())
+            );
+            setFilteredPosts(result);
+        } else {
+            setFilteredPosts(posts); // แสดงโพสต์ทั้งหมดเมื่อ query ว่างเปล่า
+        }
+    }, [query, posts]);
 
     useEffect(() => {
         if (posts.length) {
@@ -423,6 +437,10 @@ const ShareYourStory = () => {
         }
     };
 
+    const handleSearchChange = (e) => {
+        setQuery(e.target.value); // อัปเดต query เมื่อผู้ใช้พิมพ์ในช่องค้นหา
+    };
+
     if (error) return <div>failed to load</div>;
     if (!data) return (
         <div className="flex justify-center items-center w-full h-full p-10">
@@ -432,6 +450,21 @@ const ShareYourStory = () => {
 
     return (
         <div className="flex flex-col text-white text-sm">
+            <div className="flex flex-col w-full px-5 py-2">
+                <div className="flex flex-row bg-gray-50 border rounded-xl px-2 py-1 relative w-full">
+                    <input
+                        type="text"
+                        id="search"
+                        name="search"
+                        value={query}
+                        onChange={handleSearchChange}
+                        placeholder="ค้นหา"
+                        className="w-full text-xs text-black px-4 focus:outline-none bg-gray-50"
+                    />
+                    <IoSearch className="text-gray-400" size={20}/>
+                </div>
+            </div>
+           
             <div className="flex flex-col w-full px-5 py-2  mb-2">
                 <div className=" text-gray-500 text-left text-xs px-2 py-1">
                 <strong className="text-[#0056FF]">Share Your Story</strong> คือ การแบ่งปันเรื่องราว ความรู้ ทักษะ เทคนิคหรือกระบวนการต่างๆ ที่ทำให้เข้าใจลูกค้ามากขึ้น แบบง่ายๆ ตรงประเด็น เพื่อให้เพื่อนๆ ได้ศึกษา และร่วมสร้าง Financial Well-Being ให้กับลูกค้าของเราไปด้วยกัน
@@ -464,8 +497,12 @@ const ShareYourStory = () => {
 
             {/* Post Container */}
             <div className="flex flex-col w-full align-top mt-2 bg-gray-300 min-h-[100vh] text-gray-700 mb-20">
-                {Array.isArray(posts) && posts.map((post, index) => (
-                    <div key={index} className="flex flex-col px-2 w-full gap-2 bg-gray-100 py-2 rounded mb-2" id={post?._id}>
+                {Array.isArray(filteredPosts) && filteredPosts.map((post, index) => (
+                    <div 
+                        key={index} 
+                        id={post?._id} 
+                        className="flex flex-col px-2 w-full gap-2 bg-gray-100 py-2 rounded mb-2"
+                    >
                         <div className="flex flex-row align-top items-start">
                             <div className="flex items-start align-top w-[35px] h-[auto] pt-1">
                                 <Image
