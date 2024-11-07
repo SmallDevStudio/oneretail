@@ -78,19 +78,22 @@ export default function Redeem() {
   
   
     const handleRedeemClick = async (redeemItem) => {
-        setSelectedRedeem(redeemItem);
+      setSelectedRedeem(redeemItem);
+       if (redeemItem.stock <= 0) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'สิทธิ์ของคุณหมดแล้ว.',
+        });
+       }
+
        if (userCoins < redeemItem.coins) {
         Swal.fire({
           icon: 'error',
           title: 'Oops...',
           text: 'ยอด coins ของคุณไม่เพียงพอ.',
-        })
-       } else if (redeemItem.stock === 0) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: 'สิทธิ์ของคุณหมดแล้ว.',
-        })
+        });
+
        } else {
         const result = await Swal.fire({
           title: 'ยืนยันการแลกสินค้า',
