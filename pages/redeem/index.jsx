@@ -283,6 +283,17 @@ export default function Redeem() {
                 />
                 <h2 className='text-xl font-bold text-[#0056FF]'>{selectedRedeem.name}</h2>
                 <p className='text-sm text-gray-600'>{selectedRedeem.description}</p>
+                <div className='flex flex-row justify-center items-center gap-2'>
+                  <span className="text-sm font-bold">
+                      คงเหลือ
+                  </span>
+                  <span className="text-md font-bold text-red-500">
+                    {selectedRedeem.stock}
+                  </span>
+                  <span className="text-sm">
+                      ชิ้น
+                  </span>
+                </div>
                 <div className='flex justify-center items-center mt-4'>
                     <span className='text-sm font-bold'>Coins:</span>
                     <span className='ml-2 text-lg text-[#0056FF] font-bold'>{selectedRedeem.coins}</span>
@@ -304,9 +315,10 @@ export default function Redeem() {
                 <div>
                     <button
                         className='w-full bg-[#F68B1F] text-white font-bold py-2 px-4 rounded-full mt-4'
-                        onClick={() => handleRedeemClick(selectedRedeem)}
+                        onClick={selectedRedeem.stock <= 0 ? closeRedeemModal : () => handleRedeemClick(selectedRedeem)}
+                        desable={selectedRedeem.stock <= 0 ? true : false}
                     >
-                        แลกของรางวัล
+                        {selectedRedeem.stock <= 0 ? 'สินค้าหมดแล้ว' : 'แลกของรางวัล'}
                     </button>
                 </div>
                 
