@@ -19,6 +19,7 @@ export default async function handler(req, res) {
         res.status(500).json({ success: false, message: error.message });
       }
       break;
+
     case 'POST':
       try {
         const { adminUserId, empId, point, coins, ref, remark } = req.body;
@@ -42,24 +43,29 @@ export default async function handler(req, res) {
         if (point > 0) {
           const newPoint = new Point({
             userId: user.userId,
-            description: `รับ point และ coins จาก ${ref}`,
+            description: `${ref}`,
             type: 'earn',
-            contentId: null,
+            contentId: transaction._id,
+            path: 'sentpointcoins',
+            subpath: 'point',
             point: point,
           });
           await newPoint.save();
-          await sendLineMessage(user.userId, `คุณได้รับ ${point} Point`);
+          await sendLineMessage(user.userId, `คุณได้รับ point จาก ${ref} จำนวน ${point} Point`);
         }
 
         if (coins > 0) {
           const newCoins = new Coins({
             userId: user.userId,
-            description: `รับ point และ coins จาก ${ref}`,
+            description: `${ref}`,
+            referId: transaction._id,
+            path: 'sentpointcoins',
+            subpath: 'coins',
             type: 'earn',
             coins: coins,
           });
           await newCoins.save();
-          await sendLineMessage(user.userId, `คุณได้รับ ${coins} Coins`);
+          await sendLineMessage(user.userId, `คุณได้รับ coins จาก ${ref} จำนวน ${coins} Coins`);
         }
 
         res.status(201).json({ success: true, data: transaction });

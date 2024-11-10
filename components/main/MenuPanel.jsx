@@ -115,7 +115,8 @@ const MenuPanel = ({ user }) => {
                                         alt="Picture of the author"
                                         width={40}
                                         height={40}
-                                        className="rounded-full"
+                                        className="rounded-full object-cover"
+                                        style={{ width: '40px', height: '40px'}}
                                     />
                                 </div>
                                 <div className="flex flex-col cursor-pointer text-sm">

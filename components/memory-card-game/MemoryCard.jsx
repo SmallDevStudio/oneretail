@@ -94,12 +94,14 @@ const GameBoard = ({ images }) => {
 
             checkIfPlayedToday();
 
+            const newScore = 1;
+
             const userId = session.user.id;
             if (!alreadyPlayedToday) {
                 const gameData = {
                     userId,
                     moves,
-                    score,
+                    score: newScore,
                     timeLeft
                 };
     
@@ -178,7 +180,11 @@ const GameBoard = ({ images }) => {
                 </div>
             </div>
             
-            <MemoryModal isOpen={isModalOpen} onRequestClose={closeModal} score={1} />
+            <MemoryModal 
+                isOpen={isModalOpen} 
+                onRequestClose={closeModal} 
+                score={score} 
+            />
             <MemoryNotiModal 
                 isOpen={notiModalOpen} 
                 onRequestClose={closeNotiModal} 

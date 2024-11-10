@@ -83,7 +83,7 @@ const NotificationsDialog = ({ open, onClose, userId, notifications, mutate }) =
                             <div key={index} className={`${notification.isReading ? '' : 'font-bold text-[#0056FF]'} mb-1`}
                             >
                                 <div className='flex flex-row items-center justify-between w-full gap-2'>
-                                    <div className='' onClick={() => handleClick(notification)}>
+                                    <div className='w-[50px] h-[50px]' onClick={() => handleClick(notification)}>
                                         <Image
                                             src={notification?.sender?.pictureUrl}
                                             alt="avatar"
