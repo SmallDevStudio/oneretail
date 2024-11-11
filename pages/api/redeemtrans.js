@@ -39,6 +39,14 @@ export default async function handler(req, res) {
           return res.status(404).json({ success: false, message: 'Redeem not found' });
         }
 
+        if (redeem.stock === 0) {
+          return res.status(400).json({ success: false, message: 'Stock is empty' });
+        }
+
+        if (redeem.status === false) {
+          return res.status(400).json({ success: false, message: 'Redeem is not active' });
+        }
+
         const newRedeemTrans = {
           redeemId,
           userId,
@@ -56,7 +64,7 @@ export default async function handler(req, res) {
         );
 
         if (redeem.coins !== 0 || redeem.coins !== null) {
-          const coinsPayData = await Coins.create({
+          const coinPayData = await Coins.create({
             userId,
             description: `Redeem`,
             path: 'redeem',

@@ -58,33 +58,7 @@ export default function LeaderBoard() {
                     Leaderboard
                 </h1>
             </div>
-             {/* Tabs */}
-             <div className="flex justify-center mb-4 text-sm">
-                <ul className="flex flex-wrap gap-6">
-                
-                    <li className="me-2">
-                        <Link
-                            href="#leaderboard"
-                            className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'leaderboard' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
-                            onClick={() => handleTabClick('leaderboard')}
-                        >
-                            Leaderboard
-                        </Link>
-                    </li>
-                    <li className="me-2">
-                        <Link
-                            href="#leaderboard2"
-                            className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'leaderboard2' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
-                            onClick={() => handleTabClick('leaderboard2')}
-                        >
-                            ภารกิจพิชิตหัวตาราง
-                        </Link>
-                    </li>
-                </ul>
-            </div>
 
-            {activeTab === 'leaderboard' && (
-                <>
             <div className="relative bg-[#0056FF] min-h-[30vh] rounded-b-2xl p-2 shadow-lg">
                 <div className="flex justify-center bg-[#0056FF]">
                     {["All", "Retail", "AL", "TCON", "PB"].map(team => (
@@ -197,16 +171,23 @@ export default function LeaderBoard() {
                                 <span className="font-bold">{loggedInUserRank + 1}</span>
                             </td>
                             <td className="w-20 h-15 ml-2">
+                                
                                 {loggedInUser.pictureUrl ? (
+                                <div className='flex' style={{ width: '50px', height: '50px' }}>
                                     <Image 
                                         src={loggedInUser.pictureUrl} 
                                         alt={loggedInUser.fullname} 
                                         width="50" 
                                         height="50"
-                                        className="rounded-full border-3 border-[#0056FF] dark:border-white"
+                                        className="rounded-full border-3 border-[#0056FF] object-cover"
+                                        style={{ width: '50px', height: '50px' }}
                                     />
+                                </div>
                                 ) : (
-                                    <div className="rounded-full border-3 border-[#0056FF] dark:border-white bg-gray-300" style={{ width: '50px', height: '50px' }} />
+                                    <div 
+                                        className="rounded-full border-3 border-[#0056FF] dark:border-white bg-gray-300" 
+                                        style={{ width: '50px', height: '50px' }} 
+                                    />
                                 )}
                             </td>
                             <td className="w-full ml-2">
@@ -230,13 +211,15 @@ export default function LeaderBoard() {
                                 </td>
                                 <td className="w-20 h-15 ml-2">
                                     {user.pictureUrl ? (
-                                        <Image 
-                                            src={user.pictureUrl} 
-                                            alt={user.fullname} 
-                                            width="50" 
-                                            height="50"
-                                            className="rounded-full border-3 border-[#0056FF] dark:border-white"
-                                        />
+                                        <div className='flex' style={{ width: '50px', height: '50px' }}>
+                                            <Image 
+                                                src={user.pictureUrl} 
+                                                alt={user.fullname} 
+                                                width="50" 
+                                                height="50"
+                                                className="rounded-full border-3 border-[#0056FF] dark:border-white object-cover"
+                                            />
+                                        </div>
                                     ) : (
                                         <div className="rounded-full border-3 border-[#0056FF] dark:border-white bg-gray-300" style={{ width: '50px', height: '50px' }} />
                                     )}
@@ -255,13 +238,7 @@ export default function LeaderBoard() {
                     })}
                 </div>
             </table>
-            </>
-            )}
-            {activeTab === 'leaderboard2' && (
-                <LeaderBoard2 
-                    loggedInUserId={loggedInUserId}
-                />
-            )}
+
         </div>
     );
 }

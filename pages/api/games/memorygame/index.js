@@ -17,6 +17,7 @@ export default async function handler(req, res) {
                 res.status(400).json({ success: false });
             }
             break;
+            
         case "POST":
             try {
                 const memoryGame = await MemoryGame.create(req.body);
@@ -41,6 +42,7 @@ export default async function handler(req, res) {
                 res.status(400).json({ success: false });
             }
             break;
+
         case "PUT":
             try {
                 const { id, ...data } = req.body;
