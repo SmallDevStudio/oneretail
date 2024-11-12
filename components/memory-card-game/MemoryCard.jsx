@@ -94,27 +94,8 @@ const GameBoard = ({ images }) => {
 
             checkIfPlayedToday();
 
-            const newScore = 1;
+            console.log(score);
 
-            const userId = session.user.id;
-            if (!alreadyPlayedToday) {
-                const gameData = {
-                    userId,
-                    moves,
-                    score: newScore,
-                    timeLeft
-                };
-    
-                try {
-                    const response = await axios.post('/api/games/memorygame', gameData);
-                    console.log(response.data);
-                } catch (error) {
-                    console.error('Error saving game play:', error);
-                }
-            } else {
-                setNotiModalOpen(true);
-                console.log('You have already played today.');
-            }
         }
     };
 
@@ -183,7 +164,7 @@ const GameBoard = ({ images }) => {
             <MemoryModal 
                 isOpen={isModalOpen} 
                 onRequestClose={closeModal} 
-                score={score} 
+                score={1} 
             />
             <MemoryNotiModal 
                 isOpen={notiModalOpen} 

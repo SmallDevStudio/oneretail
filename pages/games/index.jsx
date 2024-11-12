@@ -1,9 +1,20 @@
-import React, { useEffect} from "react";
+import React, { useState, useEffect} from "react";
 import { AppLayout } from "@/themes";
 import Image from "next/image";
 import Link from "next/link";
+import Modal from "@/components/Modal";
 
 export default function Games() {
+    const [open, setOpen] = useState(false);
+
+    const handleOpen = () => {
+        setOpen(true);
+    }
+
+    const handleClose = () => {
+        setOpen(false);
+    }
+
     return (
         <>
             <div className="relative p-3 mb-20 max-h-[100vh]">
@@ -43,8 +54,10 @@ export default function Games() {
                             </div>
                         </Link>
                     </div>
-                    <div className="flex items-center text-center justify-center p-2 px-1 pz-1">
-                        <Link href="/games/memory-card-game">
+                    <div className="flex items-center text-center justify-center p-2 px-1 pz-1"
+                        onClick={handleOpen}
+                    >
+                        <Link href="#">
                             <Image 
                                 src={'/images/gamecenter/Asset24.png'}
                                 alt="games" 
@@ -102,6 +115,26 @@ export default function Games() {
                         </Link>
                     </div>
                 </div>
+
+                {open && (
+                    <Modal
+                        open={open}
+                        onClose={handleClose}
+                    >
+                        <div className="flex flex-col items-center text-center justify-center p-2 px-1 pz-1">
+                            <span className="text-[35px] font-black text-[#0056FF] dark:text-white">ขออภัย</span>
+                            <span className="text-[25px] font-black text-black dark:text-white">เกมส์นี้อยู่ในระหว่างปรับปรุง</span>
+                            <div className="flex items-center text-center justify-center mt-5">
+                                <button
+                                    className="flex items-center text-center justify-center px-4 pz-2 bg-[#F2871F] rounded-3xl"
+                                    onClick={handleClose}
+                                >
+                                    <span className="text-md font-black text-white">ตกลง</span>
+                                </button>
+                            </div>
+                        </div>
+                    </Modal>
+                )}
             </div>
         </>  
     );
