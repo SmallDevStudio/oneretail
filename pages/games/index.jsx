@@ -54,10 +54,11 @@ export default function Games() {
                             </div>
                         </Link>
                     </div>
-                    <div className="flex items-center text-center justify-center p-2 px-1 pz-1"
+                    <div 
+                        className="flex items-center text-center justify-center p-2 px-1 pz-1"
                         onClick={handleOpen}
                     >
-                        <Link href="#">
+                        <Link href="">
                             <Image 
                                 src={'/images/gamecenter/Asset24.png'}
                                 alt="games" 

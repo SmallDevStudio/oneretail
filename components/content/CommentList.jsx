@@ -62,8 +62,6 @@ const CommentList = ({ content, comments, user, contentMutate, commentMutate }) 
         }
     }, [comments, session]);
 
-    console.log('comments', comments);
-
     const handleCommentSubmit = async (contentId, data) => {
 
         if (!data.sticker && !data.post && (!data.media || data.media.length === 0)) {

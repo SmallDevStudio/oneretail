@@ -96,6 +96,10 @@ const GameBoard = ({ images }) => {
 
             console.log(score);
 
+            if (score < 6) {
+                
+            }
+
         }
     };
 
@@ -110,7 +114,7 @@ const GameBoard = ({ images }) => {
                 if (matchedIndices.length + 2 === cards.length) {
                     clearInterval(timerRef.current);
                     saveGamePlay();
-                    setIsModalOpen(true);
+                    
                 }
             }
             setFlippedIndices([...flippedIndices, index]);
