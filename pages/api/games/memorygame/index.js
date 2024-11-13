@@ -1,7 +1,5 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
 import MemoryGame from "@/database/models/MemoryGame";
-import Point from "@/database/models/Point";
-import sendLineMessage from "@/lib/sendLineMessage";
 
 export default async function handler(req, res) {
     const { method } = req;
