@@ -1,10 +1,7 @@
 import connectMongoDB from "@/lib/services/database/mongodb";
 import RedeemTrans from "@/database/models/RedeemTrans";
-import Redeem from "@/database/models/Redeem";
-import Point from "@/database/models/Point";
-import Coins from "@/database/models/Coins";
 import Users from "@/database/models/users";
-import Notification from "@/database/models/Notification";
+import Emp from "@/database/models/emp";
 
 export default async function handler(req, res) {
   const { method } = req;
@@ -14,13 +11,18 @@ export default async function handler(req, res) {
   switch (method) {
     case 'GET':
       try {
-        const redeemTrans = await RedeemTrans.find({}).populate('redeemId').sort({ createdAt: -1 });
+        const redeemTrans = await RedeemTrans.find({})
+          .populate('redeemId')
+          .sort({ createdAt: -1 });
+
         const redeemTransWithUser = await Promise.all(
           redeemTrans.map(async (trans, index) => {
             const user = await Users.findOne({ userId: trans.userId });
+            const emp = await Emp.findOne({ empId: user.empId });
             return {
               ...trans._doc,
               user,
+              emp,
               seq: index + 1,
             };
           })
@@ -30,6 +32,7 @@ export default async function handler(req, res) {
         res.status(400).json({ success: false });
       }
       break;
+      
     case 'PUT':
       try {
         const { status } = req.body;

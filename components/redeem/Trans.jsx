@@ -64,87 +64,6 @@ const Trans = () => {
     );
   };
 
-  const handlePadding = async () => {
-    const result = await Swal.fire({
-      title: "คุณแน่ใจใช่ไหม?",
-      text: "คุณต้องการเปลี่ยนสถานะ Padding ใช่หรือไม่?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, change it!",
-      cancelButtonText: "No, cancel!",
-    });
-
-    if (result.isConfirmed) {
-      await Promise.all(
-        selectedRows.map(async (rowId) => {
-          const redeemTran = redeemTrans.find((trans) => trans.id === rowId);
-          await axios.put("/api/redeem/padding", {
-            redeemTransId: rowId,
-            userId: redeemTran.userId,
-            creator: userId,
-          });
-        })
-      );
-      fetchRedeemTrans();
-    }
-  };
-
-  const handleDeliver = async () => {
-    const result = await Swal.fire({
-      title: "คุณแน่ใจใช่ไหม?",
-      text: "คุณต้องการเปลี่ยนสถานะ Deliver ใช่หรือไม่?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, change it!",
-      cancelButtonText: "No, cancel!",
-    });
-
-    if (result.isConfirmed) {
-      await Promise.all(
-        selectedRows.map(async (rowId) => {
-          const redeemTran = redeemTrans.find((trans) => trans.id === rowId);
-          await axios.post("/api/redeem/delivery", {
-            redeemTransId: rowId,
-            userId: redeemTran.userId,
-            creator: userId,
-          });
-        })
-      );
-      fetchRedeemTrans();
-    }
-  };
-
-
-  const handleDone = async () => {
-    const result = await Swal.fire({
-      title: "คุณแน่ใจใช่ไหม?",
-      text: "คุณต้องการเปลี่ยนสถานะ Done ใช่หรือไม่?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, change it!",
-      cancelButtonText: "No, cancel!",
-    });
-
-    if (result.isConfirmed) {
-      await Promise.all(
-        selectedRows.map(async (rowId) => {
-          const redeemTran = redeemTrans.find((trans) => trans.id === rowId);
-          await axios.put("/api/redeem/done", {
-            redeemTransId: rowId,
-            userId: redeemTran.userId,
-            creator: userId,
-          });
-        })
-      );
-      fetchRedeemTrans();
-    }
-  };
 
   const handleStatus = async (status) => {
     const result = await Swal.fire({
@@ -348,7 +267,12 @@ const Trans = () => {
                     className="border border-gray-300 ml-2 rounded-lg p-1"
                   />
                 </div>
-                <button onClick={handleExport} className="bg-red-500 text-white px-4 py-2 rounded">Export</button>
+                <button 
+                  onClick={handleExport} 
+                  className="bg-red-500 text-white px-4 py-2 rounded"
+                >
+                  Export
+                </button>
               </div>
 
               <div className="flex flex-row items-center gap-2">
