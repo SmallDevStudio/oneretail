@@ -43,6 +43,7 @@ const GameBoard = ({ images }) => {
 
     useEffect(() => {
         checkIfPlayedToday();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
