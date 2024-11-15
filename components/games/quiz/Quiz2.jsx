@@ -35,6 +35,7 @@ const Quiz2 = () => {
     // เรียก fetchQuestions ใหม่เมื่อ page หรือ limit เปลี่ยนแปลง
     useEffect(() => {
         fetchQuestions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [page, limit]);
 
 

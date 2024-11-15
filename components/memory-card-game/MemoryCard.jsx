@@ -67,6 +67,7 @@ const GameBoard = ({ images }) => {
         }, 1000);
 
         return () => clearInterval(timerRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [score]);
 
     const checkIfPlayedToday = async () => {

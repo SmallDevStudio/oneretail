@@ -85,6 +85,7 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
     
             return () => clearInterval(interval); // เคลียร์ interval เมื่อเปลี่ยนโฆษณาหรือปิด
         
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [openAds, currentAdIndex, ads]);
         
         const onRequestClose = () => {
