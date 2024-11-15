@@ -6,6 +6,11 @@ export const authOptions = {
         LineProvider({
             clientId: process.env.LINE_CHANNEL_ID,
             clientSecret: process.env.LIFF_CHANNEL_SECRET,
+            authorization: {
+                params: { 
+                    bot_prompt: "aggressive"
+                },
+            },
         }),
     ],
     pages: {
@@ -21,6 +26,10 @@ export const authOptions = {
         secret: process.env.NEXTAUTH_SECRET,
     },
     callbacks: {
+        async redirect({ url, baseUrl }) {
+            // Ensure the redirect is always using NEXTAUTH_URL
+            return process.env.NEXTAUTH_URL || baseUrl;
+        },
         async jwt({ token, user, account, profile, isNewUser }) {
             if (user) {
                 token.user = user;
@@ -30,9 +39,6 @@ export const authOptions = {
         async session({ session, token, user }) {
             session.user = token.user;
             return session;
-        },
-        async redirect({ url, baseUrl }) {
-            return baseUrl;
         },
     },
 };
