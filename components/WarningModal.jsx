@@ -1,5 +1,4 @@
 // components/WarningModal.jsx
-import { Background } from '@cloudinary/url-gen/qualifiers';
 import React from 'react';
 import Modal from 'react-modal';
 import { FiInfo } from "react-icons/fi";

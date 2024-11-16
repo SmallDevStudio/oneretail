@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { AdminLayout } from '@/themes';
-import { CldUploadWidget, CldImage } from "next-cloudinary";
 import { FaEdit } from "react-icons/fa";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { GrView } from "react-icons/gr";
@@ -165,25 +164,7 @@ const Votes = () => {
                                     </select>
                                     {option.type === 'image' ? (
                                         <div className="ml-2">
-                                            {option.value && (
-                                                <div className="mb-4">
-                                                    <CldImage src={option.value} width={100} height={100} alt="Option Image" />
-                                                </div>
-                                            )}
-                                            <CldUploadWidget
-                                                uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
-                                                onUpload={(result) => handleUpload(result, index)}
-                                            >
-                                                {({ open }) => (
-                                                    <button
-                                                        type="button"
-                                                        onClick={open}
-                                                        className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg"
-                                                    >
-                                                        Upload Image
-                                                    </button>
-                                                )}
-                                            </CldUploadWidget>
+                                            
                                         </div>
                                     ) : (
                                         <input type="text" name="optionValue" value={option.value} onChange={(e) => updateOptionValue(index, e.target.value)} required className='border-2 border-gray-300 rounded p-2 ml-2' />
