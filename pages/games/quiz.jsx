@@ -87,7 +87,11 @@ export default function QuizGame() {
                     backgroundSize: "cover",
                 }}>
                     <div className="relative bg-white rounded-xl shadow-md border-2 p-3 px-2 min-h-[80vh] w-full mb-5">
-                        <Quiz userId={userId} user={user} allQuestions={allQuestions} />
+                        <Quiz 
+                            userId={userId} 
+                            user={user} 
+                            allQuestions={allQuestions} 
+                        />
                     </div>
                 </div>
             </div>

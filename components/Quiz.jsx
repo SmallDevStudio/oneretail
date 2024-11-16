@@ -32,9 +32,14 @@ const Quiz = ({ userId, user, allQuestions }) => {
       
       const submitFinalScore = async () => {
         try {
-          await axios.post('/api/points', {
+          await axios.post('/api/points/point', {
             userId,
-            points: score,
+            description: 'Quiz Game',
+            type: 'earn',
+            contentId: null,
+            path: 'game',
+            subpath: 'quiz',
+            points: finalScore,
           });
         } catch (error) {
           setErrorMessage(
@@ -47,7 +52,7 @@ const Quiz = ({ userId, user, allQuestions }) => {
 
       submitFinalScore();
     }
-  }, [currentQuestionIndex, score, showAnswer, userId]);
+  }, [currentQuestionIndex, finalScore, score, showAnswer, userId]);
 
 
   if (loading) {
