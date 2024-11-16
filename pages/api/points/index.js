@@ -43,8 +43,8 @@ export default async function handler(req, res) {
             type: 'earn',
             contentId: null,
             point: points,
-            path: 'quiz',
-            subpath: null,
+            path: 'game',
+            subpath: 'quiz',
           });
           await pointEntry.save();
 
