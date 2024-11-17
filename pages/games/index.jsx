@@ -24,9 +24,13 @@ export default function Games() {
                             <span className="text-[35px] font-black text-[#0056FF] dark:text-white">Games Center</span>
                         </div>
                     </div>
-                    <div className="flex items-center text-center justify-center" style={{
+                    <div 
+                        className="flex items-center text-center justify-center" 
+                        style={{
                         width: "100%",
-                    }}>
+                        }}
+                        onClick={handleOpen}
+                    >
                         <Link href="#">
                             <Image 
                                 src={'/images/gamecenter/Asset25.png' }
