@@ -27,7 +27,7 @@ export default function Games() {
                     <div className="flex items-center text-center justify-center" style={{
                         width: "100%",
                     }}>
-                        <Link href="/games/quiz">
+                        <Link href="#">
                             <Image 
                                 src={'/images/gamecenter/Asset25.png' }
                                 alt="games" 
