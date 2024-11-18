@@ -23,7 +23,7 @@ const Quiz = ({ userId, user, allQuestions }) => {
   useEffect(() => {
     const checkIfPlayedToday = async () => {
       try {
-        const response = await axios.get('/api/games/userQuiz', {
+        const response = await axios.get('/api/quiz/userQuiz', {
           params: { userId },
         });
         if (response.data.hasPlayedToday) {
