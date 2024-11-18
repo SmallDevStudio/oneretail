@@ -23,7 +23,7 @@ const Quiz = ({ userId, user, allQuestions }) => {
   useEffect(() => {
     const checkIfPlayedToday = async () => {
       try {
-        const response = await axios.get('/api/userQuiz', {
+        const response = await axios.get('/api/games/userQuiz', {
           params: { userId },
         });
         if (response.data.hasPlayedToday) {
@@ -59,7 +59,7 @@ const Quiz = ({ userId, user, allQuestions }) => {
         try {
           // Submit score only once
           if (!hasPlayedToday) {
-            await axios.post('/api/userQuiz', {
+            await axios.post('/api/games/userQuiz', {
               userId,
               score,
             });
