@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { setQuestions, answerQuestion, nextQuestion, resetQuiz } from '@/lib/redux/quizSlice';
 import QuizModal from './QuizModal';
 import Loading from './Loading';
+import Modal from './Modal';
 
 const Quiz = ({ userId, user, allQuestions }) => {
   const dispatch = useDispatch();
@@ -13,34 +14,68 @@ const Quiz = ({ userId, user, allQuestions }) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showAnswer, setShowAnswer] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [finalScore, setFinalScore] = useState(0);
+  const [hasPlayedToday, setHasPlayedToday] = useState(false);
 
   useEffect(() => {
-    if (allQuestions && allQuestions.length > 0) {
-      dispatch(setQuestions(allQuestions));
-      setLoading(false);
+    const checkIfPlayedToday = async () => {
+      try {
+        const response = await axios.get('/api/userQuiz', {
+          params: { userId },
+        });
+        if (response.data.hasPlayedToday) {
+          setHasPlayedToday(true);
+          router.push('/games');
+        } else {
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error(error);
+        setErrorMessage('An error occurred while checking game status.');
+        setLoading(false);
+      }
+    };
+  
+    checkIfPlayedToday();
+  }, [userId, router]);
+
+  useEffect(() => {
+    if (!loading) {
+      if (allQuestions && allQuestions.length > 0) {
+        dispatch(setQuestions(allQuestions));
+      }
     }
-  }, [allQuestions, dispatch]);
+  }, [allQuestions, dispatch, loading]);
 
   useEffect(() => {
-    // Check if it's the last question and update finalScore once score is updated
     if (currentQuestionIndex >= 2 && showAnswer) {
       setFinalScore(score);
       setIsModalOpen(true);
-      
+  
       const submitFinalScore = async () => {
         try {
-          await axios.post('/api/points/point', {
-            userId,
-            description: 'Quiz Game',
-            type: 'earn',
-            contentId: null,
-            path: 'game',
-            subpath: 'quiz',
-            points: finalScore,
-          });
+          // Submit score only once
+          if (!hasPlayedToday) {
+            await axios.post('/api/userQuiz', {
+              userId,
+              score,
+            });
+  
+            if (score > 0) {
+              await axios.post('/api/points/point', {
+                userId,
+                description: 'Quiz Game',
+                type: 'earn',
+                contentId: null,
+                path: 'game',
+                subpath: 'quiz',
+                points: finalScore,
+              });
+            }
+          }
         } catch (error) {
           setErrorMessage(
             error.response && error.response.data && error.response.data.message
@@ -49,21 +84,18 @@ const Quiz = ({ userId, user, allQuestions }) => {
           );
         }
       };
-
+  
       submitFinalScore();
     }
-  }, [currentQuestionIndex, finalScore, score, showAnswer, userId]);
+  }, [currentQuestionIndex, finalScore, score, showAnswer, userId, hasPlayedToday]);
 
 
-  if (loading) {
-    return <Loading />;
-  }
+  if (loading) return <Loading />;
 
   const question = questions[currentQuestionIndex];
 
-  if (!question) {
-    return <div>No questions available</div>;
-  }
+  if (!question) return <div>No questions available</div>;
+  
 
   const handleAnswer = (index) => {
     if (!showAnswer) {
@@ -94,6 +126,14 @@ const Quiz = ({ userId, user, allQuestions }) => {
     dispatch(resetQuiz());
     setIsModalOpen(false);
     router.push('/games');
+  };
+
+  const handleOpen = () => {
+    setShowModal(true);
+  };
+
+  const handleClose = () => {
+    setShowModal(false);
   };
 
   return (
@@ -145,11 +185,21 @@ const Quiz = ({ userId, user, allQuestions }) => {
         </button>
       )}
       {errorMessage && <p className='text-red-500'>{errorMessage}</p>}
-      <QuizModal 
-        isOpen={isModalOpen} 
-        onRequestClose={handleCloseModal} 
-        score={finalScore} 
-      />
+        <QuizModal 
+          isOpen={isModalOpen} 
+          onRequestClose={handleCloseModal} 
+          score={finalScore} 
+        />
+
+        {showModal && (
+          <Modal
+            isOpen={showModal}
+            onClose={handleClose}
+          >
+            <div className='flex flex-col justify-center items-center'>
+            </div>
+          </Modal>
+          )}
     </div>
   );
 };
