@@ -33,29 +33,14 @@ export default async function handler(req, res) {
       const { userId, score } = req.body;
   
       try {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-  
-        // ตรวจสอบว่า record วันนี้มีอยู่แล้วหรือไม่
-        const userQuiz = await UserQuiz.findOneAndUpdate(
+        
+        await UserQuiz.findOneAndUpdate(
+          { userId },
           {
-            userId,
-            'scores.date': { $gte: today },
+            $push: { scores: { date: new Date(), score } }, // เพิ่มข้อมูลทุกครั้ง
           },
-          { $set: { 'scores.$.score': score } }, // อัปเดตคะแนนหากมี record
-          { upsert: false, new: true }
+          { upsert: true, new: true }
         );
-  
-        if (!userQuiz) {
-          // หากไม่มี record สำหรับวันนี้ ให้เพิ่มใหม่
-          await UserQuiz.findOneAndUpdate(
-            { userId },
-            {
-              $push: { scores: { date: new Date(), score } },
-            },
-            { upsert: true, new: true }
-          );
-        }
   
         res.status(200).json({ message: 'Score saved successfully' });
       } catch (error) {
