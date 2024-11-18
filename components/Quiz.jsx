@@ -29,14 +29,9 @@ const Quiz = ({ userId, user, allQuestions }) => {
         });
         if (response.data.hasPlayedToday) {
           setHasPlayedToday(true);
-          router.push('/games');
-        } else {
-          setLoading(false);
         }
       } catch (error) {
-        console.error(error);
-        setErrorMessage('An error occurred while checking game status.');
-        setLoading(false);
+        console.error('Error checking if played today:', error);
       }
     };
   
@@ -44,30 +39,37 @@ const Quiz = ({ userId, user, allQuestions }) => {
   }, [userId, router]);
 
   useEffect(() => {
-    if (!loading) {
+    if (loading) {
       if (allQuestions && allQuestions.length > 0) {
         dispatch(setQuestions(allQuestions));
       }
+      setLoading(false);
     }
   }, [allQuestions, dispatch, loading]);
 
   useEffect(() => {
-    
-    if (currentQuestionIndex >= 2 && showAnswer) {
-      setFinalScore(score);
-      setIsModalOpen(true);
-  
+    if (currentQuestionIndex >= 2 && showAnswer && !isRecording) {
+      setFinalScore(score); // ตั้งค่า finalScore ก่อน
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentQuestionIndex, showAnswer, score]);
+
+
+  useEffect(() => {
+    if (finalScore && currentQuestionIndex >= 2 && showAnswer && !isRecording) {
       const submitFinalScore = async () => {
-        
-        try {
-          // Submit score only once
-          if (finalScore && !hasPlayedToday) {
-            await axios.post('/api/quiz/userQuiz', {
-              userId,
-              score,
-            });
+        setIsRecording(true); // ป้องกันการเรียกซ้ำ
   
-            if (finalScore && finalScore !== 0) {
+        try {
+          // Submit user quiz record
+          await axios.post('/api/quiz/userQuiz', {
+            userId,
+            score: finalScore,
+          });
+  
+          // Add points if conditions met
+          if (!hasPlayedToday) {
+            if (finalScore > 0) {
               await axios.post('/api/points/point', {
                 userId,
                 description: 'Quiz Game',
@@ -75,25 +77,29 @@ const Quiz = ({ userId, user, allQuestions }) => {
                 contentId: null,
                 path: 'game',
                 subpath: 'quiz',
-                points: score,
+                points: finalScore,
               });
             }
+            setIsModalOpen(true); // แสดง modal สำหรับผลลัพธ์
+          } else {
+            setShowModal(true); // แสดง modal แจ้งเตือนว่าผู้ใช้เล่นแล้ว
           }
         } catch (error) {
           setErrorMessage(
-            error.response && error.response.data && error.response.data.message
-              ? error.response.data.message
-              : 'An unexpected error occurred.'
+            error.response?.data?.message || 'An unexpected error occurred.'
           );
         } finally {
-          setIsRecording(false);
+          setIsRecording(false); // ปิดสถานะ recording
         }
       };
   
       submitFinalScore();
     }
-  }, [currentQuestionIndex, finalScore, score, showAnswer, userId, hasPlayedToday, isRecording]);
+  }, [finalScore, currentQuestionIndex, showAnswer, userId, hasPlayedToday, isRecording]);
 
+  console.log('hasPlayedToday:', hasPlayedToday);
+  console.log('score:', score);
+  console.log('currentQuestionIndex:', currentQuestionIndex);
 
   if (loading) return <Loading />;
 
@@ -202,6 +208,8 @@ const Quiz = ({ userId, user, allQuestions }) => {
             onClose={handleClose}
           >
             <div className='flex flex-col justify-center items-center'>
+              <span>คุณได้ {finalScore} คะแนน</span>
+              <span>คุณได้รับ Point แล้วในวันนี้</span>
             </div>
           </Modal>
           )}
