@@ -44,27 +44,21 @@ export default function QuizGame() {
           fontFamily: 'ttb',
         }}>
           <Tab label="จัดการคำถามใหม่" />
-          <Tab label="จัดการคำถาม" />
-          <Tab label="รายงานคำตอบ" />
-          <Tab label="เลือกGroup" />
-          <Tab label="User Scores" />
+          <Tab label="AnswersByUser" />
+          <Tab label="AnswersByQuestion" />
+          
           
         </Tabs>
-        <TabPanel value={tabIndex} index={1}>
-          <QuestionTable />
+        <TabPanel value={tabIndex} index={0}>
+          <Quiz2 />
         </TabPanel>
         <TabPanel value={tabIndex} index={2}>
           <AnswersTable />
         </TabPanel>
-        <TabPanel value={tabIndex} index={3}>
-          <QuizAdmin />
-        </TabPanel>
-        <TabPanel value={tabIndex} index={4}>
+        <TabPanel value={tabIndex} index={1}>
           <UserQuizTable />
         </TabPanel>
-        <TabPanel value={tabIndex} index={0}>
-          <Quiz2 />
-        </TabPanel>
+        
       </div>
     </Provider>
   );

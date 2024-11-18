@@ -29,9 +29,13 @@ const Quiz = ({ userId, user, allQuestions }) => {
         });
         if (response.data.hasPlayedToday) {
           setHasPlayedToday(true);
+        } else {
+          setLoading(false);
         }
       } catch (error) {
-        console.error('Error checking if played today:', error);
+        console.error(error);
+        setErrorMessage('An error occurred while checking game status.');
+        setLoading(false);
       }
     };
   
@@ -48,58 +52,51 @@ const Quiz = ({ userId, user, allQuestions }) => {
   }, [allQuestions, dispatch, loading]);
 
   useEffect(() => {
-    if (currentQuestionIndex >= 2 && showAnswer && !isRecording) {
-      setFinalScore(score); // ตั้งค่า finalScore ก่อน
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentQuestionIndex, showAnswer, score]);
-
-
-  useEffect(() => {
-    if (finalScore && currentQuestionIndex >= 2 && showAnswer && !isRecording) {
+    
+    if (currentQuestionIndex >= 2 && showAnswer) {
+      setFinalScore(score);
+  
       const submitFinalScore = async () => {
-        setIsRecording(true); // ป้องกันการเรียกซ้ำ
-  
+        
         try {
-          // Submit user quiz record
-          await axios.post('/api/quiz/userQuiz', {
-            userId,
-            score: finalScore,
-          });
-  
-          // Add points if conditions met
-          if (!hasPlayedToday) {
-            if (finalScore > 0) {
-              await axios.post('/api/points/point', {
-                userId,
-                description: 'Quiz Game',
-                type: 'earn',
-                contentId: null,
-                path: 'game',
-                subpath: 'quiz',
-                points: finalScore,
-              });
+          // Submit score only once
+            await axios.post('/api/quiz/userQuiz', {
+              userId,
+              score,
+            });
+
+            if (!hasPlayedToday) {
+              if (score > 0) {
+                await axios.post('/api/points/point', {
+                  userId,
+                  description: 'Quiz Game',
+                  type: 'earn',
+                  contentId: null,
+                  path: 'game',
+                  subpath: 'quiz',
+                  points: score,
+                });
+                setIsModalOpen(true);
+              }
+            }else{
+              setShowModal(true);
+              return;
             }
-            setIsModalOpen(true); // แสดง modal สำหรับผลลัพธ์
-          } else {
-            setShowModal(true); // แสดง modal แจ้งเตือนว่าผู้ใช้เล่นแล้ว
-          }
         } catch (error) {
           setErrorMessage(
-            error.response?.data?.message || 'An unexpected error occurred.'
+            error.response && error.response.data && error.response.data.message
+              ? error.response.data.message
+              : 'An unexpected error occurred.'
           );
         } finally {
-          setIsRecording(false); // ปิดสถานะ recording
+          setIsRecording(false);
         }
       };
   
       submitFinalScore();
     }
-  }, [finalScore, currentQuestionIndex, showAnswer, userId, hasPlayedToday, isRecording]);
+  }, [currentQuestionIndex, finalScore, score, showAnswer, userId, hasPlayedToday, isRecording]);
 
-  console.log('hasPlayedToday:', hasPlayedToday);
-  console.log('score:', score);
-  console.log('currentQuestionIndex:', currentQuestionIndex);
 
   if (loading) return <Loading />;
 
@@ -145,6 +142,7 @@ const Quiz = ({ userId, user, allQuestions }) => {
 
   const handleClose = () => {
     setShowModal(false);
+    router.push('/games');
   };
 
   return (
@@ -208,8 +206,16 @@ const Quiz = ({ userId, user, allQuestions }) => {
             onClose={handleClose}
           >
             <div className='flex flex-col justify-center items-center'>
-              <span>คุณได้ {finalScore} คะแนน</span>
-              <span>คุณได้รับ Point แล้วในวันนี้</span>
+              <span className='text-2xl font-bold mt-5'>คะแนน : {finalScore}</span>
+              <span className='text-lg font-bold text-red-500 mt-2'>คุณได้รับ Point ในวันนี้แล้ว</span>
+              <span className='text-lg font-bold text-red-500'>ลองใหม่ในวันพรุ่งนี้</span>
+
+              <button
+                className='bg-[#0056FF] text-white rounded-2xl px-4 py-2 border-2 mb-4 mt-5'
+                onClick={handleClose}
+              >
+                ตกลง
+              </button>
             </div>
           </Modal>
           )}
