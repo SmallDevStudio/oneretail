@@ -138,7 +138,7 @@ const RedeemReportTable = () => {
          </button>
        </div>
      <table className="table-auto border-collapse border border-gray-200 w-full text-sm">
-        <thead>
+        <thead className="bg-gray-100">
             <tr>
             <th rowSpan="2" className="border border-gray-300 px-2 py-1">Reward Code</th>
             {Object.keys(teamGroups).map((teamGroup) => (
