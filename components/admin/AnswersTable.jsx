@@ -44,30 +44,29 @@ const AnswersTable = () => {
         setProgress(0);
       
         try {
-          let allData = [];
-          let currentPage = 1;
-          let hasMore = true;
+            let allData = [];
+            let currentPage = 1;
+            let hasMore = true;
       
-          const start = startDate
-            ? new Date(startDate.format('YYYY-MM-DD')).toISOString() // ใช้ ISO
-            : null;
+            const start = startDate
+                ? new Date(startDate.format('YYYY-MM-DD')).toISOString() 
+                : null;
             const end = endDate
-            ? new Date(endDate.format('YYYY-MM-DD')).toISOString() // ใช้ ISO
-            : null;
+                ? new Date(endDate.format('YYYY-MM-DD')).toISOString() 
+                : null;
           
-          while (hasMore) {
-            const response = await axios.get("/api/answers", {
-              params: {
-                startDate: start,
-                endDate: end,
-                page: currentPage,
-                pageSize: 100,
-              },
+            while (hasMore) {
+                const response = await axios.get("/api/answers", {
+                params: {
+                    startDate: start,
+                    endDate: end,
+                    page: currentPage,
+                    pageSize: 100,
+                },
             });
       
-            console.log(response.data);
-      
             const fetchedData = response.data.data;
+            
             if (fetchedData.length > 0) {
               allData = allData.concat(fetchedData);
               setProgress(Math.min(100, (allData.length / response.data.total) * 100));
@@ -75,36 +74,38 @@ const AnswersTable = () => {
             } else {
               hasMore = false;
             }
-          }
+        }
       
-          const dataToExport = allData.map((item) => ({
+        const dataToExport = allData.map((item) => ({
             id: item._id,
             fullname: item.user?.fullname || "N/A",
             empId: item.user?.empId || "N/A",
             question: item.additionalDetails?.question || "N/A",
-            answerText: item.additionalDetails?.options?.[item.answer] || "N/A",
-            isCorrectText: item.isCorrect ? "ถูก" : "ผิด",
+            answer: item.additionalDetails?.options?.[item.answer] || "N/A",
+            isCorrect: item.isCorrect ? "ถูก" : "ผิด",
             CreatedAt: moment(item.timestamp).format("lll"),
-          }));
+        }));
       
-          if (dataToExport.length === 0) {
+        if (dataToExport.length === 0) {
             console.error("No data available to export");
             return;
-          }
+            }
       
-          const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-          const workbook = XLSX.utils.book_new();
-          XLSX.utils.book_append_sheet(workbook, worksheet, "Answers");
-          const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-          const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
-          saveAs(blob, "answers.xlsx");
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Answers");
+            const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+            const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+            saveAs(blob, "answers.xlsx");
+
         } catch (error) {
           console.error("Error exporting data:", error);
         }
       
         setProgress(100);
         setExporting(false);
-      };
+
+    };
 
     const totalPages = Math.ceil(total / pageSize);
 
