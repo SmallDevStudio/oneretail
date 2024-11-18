@@ -33,14 +33,26 @@ export default async function handler(req, res) {
       const { userId, score } = req.body;
   
       try {
-        
-        await UserQuiz.findOneAndUpdate(
-          { userId },
-          {
-            $push: { scores: { date: new Date(), score } }, // เพิ่มข้อมูลทุกครั้ง
-          },
-          { upsert: true, new: true }
-        );
+        const now = new Date();
+
+      // ตรวจสอบว่ามี record ล่าสุดในช่วงเวลา 1 นาทีหรือไม่
+      const userQuiz = await UserQuiz.findOne({
+        userId,
+        'scores.date': { $gte: new Date(now.getTime() - 60 * 1000) }, // ตรวจสอบ record ในช่วง 1 นาทีที่ผ่านมา
+      });
+
+      if (userQuiz) {
+        return res.status(200).json({ message: 'Duplicate submission prevented' });
+      }
+
+      // บันทึก record ใหม่
+      await UserQuiz.findOneAndUpdate(
+        { userId },
+        {
+          $push: { scores: { date: now, score } },
+        },
+        { upsert: true, new: true }
+      );
   
         res.status(200).json({ message: 'Score saved successfully' });
       } catch (error) {

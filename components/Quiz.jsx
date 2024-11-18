@@ -19,6 +19,7 @@ const Quiz = ({ userId, user, allQuestions }) => {
   const [loading, setLoading] = useState(true);
   const [finalScore, setFinalScore] = useState(0);
   const [hasPlayedToday, setHasPlayedToday] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
 
   useEffect(() => {
     const checkIfPlayedToday = async () => {
@@ -51,20 +52,22 @@ const Quiz = ({ userId, user, allQuestions }) => {
   }, [allQuestions, dispatch, loading]);
 
   useEffect(() => {
+    
     if (currentQuestionIndex >= 2 && showAnswer) {
       setFinalScore(score);
       setIsModalOpen(true);
   
       const submitFinalScore = async () => {
+        
         try {
           // Submit score only once
-          if (!hasPlayedToday) {
-            await axios.post('/api/games/userQuiz', {
+          if (finalScore && !hasPlayedToday) {
+            await axios.post('/api/quiz/userQuiz', {
               userId,
               score,
             });
   
-            if (score > 0) {
+            if (finalScore && finalScore !== 0) {
               await axios.post('/api/points/point', {
                 userId,
                 description: 'Quiz Game',
@@ -72,7 +75,7 @@ const Quiz = ({ userId, user, allQuestions }) => {
                 contentId: null,
                 path: 'game',
                 subpath: 'quiz',
-                points: finalScore,
+                points: score,
               });
             }
           }
@@ -82,12 +85,14 @@ const Quiz = ({ userId, user, allQuestions }) => {
               ? error.response.data.message
               : 'An unexpected error occurred.'
           );
+        } finally {
+          setIsRecording(false);
         }
       };
   
       submitFinalScore();
     }
-  }, [currentQuestionIndex, finalScore, score, showAnswer, userId, hasPlayedToday]);
+  }, [currentQuestionIndex, finalScore, score, showAnswer, userId, hasPlayedToday, isRecording]);
 
 
   if (loading) return <Loading />;
