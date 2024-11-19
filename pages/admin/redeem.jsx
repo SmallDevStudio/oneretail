@@ -5,6 +5,7 @@ import Redeems from "@/components/redeem/Redeems";
 import Trans from "@/components/redeem/Trans";
 import Report from "@/components/redeem/Report";
 import RedeemReportTable from "@/components/redeem/RedeemReportTable";
+import FindUserReport from "@/components/redeem/FindUserReport";
 
 const RedeemPage = () => {
   const [activeTab, setActiveTab] = useState("redeem");
@@ -32,6 +33,12 @@ const RedeemPage = () => {
           >
             รายงาน
           </button>
+          <button
+            className={`px-4 py-2 rounded ${activeTab === "find" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"}`}
+            onClick={() => setActiveTab("find")}
+          >
+            ค้นหาที่อยู่
+          </button>
         </div>
         {activeTab === "redeem" ? (
           <Redeems />
@@ -39,6 +46,8 @@ const RedeemPage = () => {
           <Trans />
         ) : activeTab === "report" ? (
           <RedeemReportTable />
+        ) : activeTab === "find" ? (
+          <FindUserReport />
         ) : null}
       </div>
     </div>
