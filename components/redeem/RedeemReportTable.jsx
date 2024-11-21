@@ -2,11 +2,14 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import Modal from '../Modal';
 
 const RedeemReportTable = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalByPosition, setTotalByPosition] = useState({});
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -123,9 +126,47 @@ const RedeemReportTable = () => {
     saveAs(blob, "redeem-report.xlsx");
   };
 
+  const handleOpenModal = async (row, teamGroup, position, count) => {
+    if (count === 0) {
+      return; // ห้ามเปิด Modal หากจำนวนเป็น 0
+    }
+
+    console.log('row', row);
+  
+    try {
+      const response = await axios.get('/api/redeem/report/filter', {
+        params: {
+          rewardCode,
+          teamGroup,
+          position,
+        },
+      });
+  
+      setSelectedRow({
+        rewardCode,
+        teamGroup,
+        position,
+        users: response.data.data, // เก็บข้อมูล user ในตำแหน่งนี้
+      });
+  
+      setOpenModal(true);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    setSelectedRow(null);
+  };
+
+  console.log('selectedRow', selectedRow);
+
   if (loading) {
     return <div>Loading...</div>;
   }
+
+  console.log('selectedRow', selectedRow);
 
   return (
     <div style={{ overflowX: 'auto', width: '100%' }}>
@@ -166,15 +207,21 @@ const RedeemReportTable = () => {
             {data.map((row, index) => (
                 <tr key={index}>
                 {/* Reward Code และ Reward Name รวมกัน */}
-                <td className="border border-gray-300 px-2 py-1">
-                    {row.rewardCode}
-                </td>
+                <td className="border border-gray-300 px-2 py-1">{row.rewardCode}</td>
                 {Object.keys(teamGroups).map((teamGroup) =>
-                    Array.from(teamGroups[teamGroup]).map((position) => (
-                    <td key={`${teamGroup}-${position}`} className="border border-gray-300 px-2 py-1">
-                        {row[teamGroup]?.[position] || 0}
-                    </td>
-                    ))
+                    Array.from(teamGroups[teamGroup]).map((position) => {
+                    const count = row[teamGroup]?.[position] || 0;
+                    return (
+                        <td key={`${teamGroup}-${position}`} className="border border-gray-300 px-2 py-1">
+                        <div
+                            onClick={() => handleOpenModal(row.rewardCode, teamGroup, position, count)}
+                            className={count === 0 ? 'cursor-not-allowed text-gray-400' : 'cursor-pointer text-blue-500'}
+                        >
+                            {count}
+                        </div>
+                        </td>
+                    );
+                    })
                 )}
                 <td className="border border-gray-300 px-2 py-1 font-bold">{row.total}</td>
                 </tr>
@@ -194,7 +241,41 @@ const RedeemReportTable = () => {
             </tr>
         </tbody>
     </table>
-     
+    {openModal && (
+        <Modal open={openModal} onClose={handleCloseModal}>
+            <div className="p-4">
+            <h2 className="text-xl font-bold mb-4">
+                รายละเอียดการแลก - {selectedRow?.rewardCode}
+            </h2>
+            <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">empId</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TeamGroup</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Group</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branch</th>
+                </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                {selectedRow?.users?.map((user, index) => (
+                    <tr key={index}>
+                    <td className="px-6 whitespace-nowrap">{user?.emp?.empId}</td>
+                    <td className="px-6 whitespace-nowrap">{user.user.fullname}</td>
+                    <td className="px-6 whitespace-nowrap">{user?.emp?.teamGrop? user?.emp?.teamGrop : '-'}</td>
+                    <td className="px-6 whitespace-nowrap">{user?.emp?.position? user?.emp?.position : '-'}</td>
+                    <td className="px-6 whitespace-nowrap">{user?.emp?.group? user?.emp?.group : '-'}</td>
+                    <td className="px-6 whitespace-nowrap">{user?.emp?.department? user?.emp?.department : '-'}</td>
+                    <td className="px-6 whitespace-nowrap">{user?.emp?.branch? user?.emp?.branch : '-'}</td>
+                    </tr>
+                ))}
+                </tbody>
+            </table>
+            </div>
+        </Modal>
+    )}
     </div>
   );
 };

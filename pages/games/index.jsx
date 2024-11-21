@@ -29,8 +29,9 @@ export default function Games() {
                         style={{
                         width: "100%",
                         }}
+                        onClick={handleOpen}
                     >
-                        <Link href="/games/quiz">
+                        <Link href="#">
                             <Image 
                                 src={'/images/gamecenter/Asset25.png' }
                                 alt="games" 
