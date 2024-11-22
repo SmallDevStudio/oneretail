@@ -120,6 +120,7 @@ const Trans = () => {
     printWindow.print();
   };
 
+  console.log(redeemTrans);
   const handleExport = () => {
     // ตรวจสอบเงื่อนไขวันที่
     if (!startDate || !endDate) {
@@ -144,9 +145,9 @@ const Trans = () => {
       return createdAt >= start && createdAt <= end;
     });
   
-    // แปลงข้อมูลให้เป็นรูปแบบที่สามารถ export ได้
-    const exportData = filteredData.map((trans, index) => ({
-      ลำดับ: index + 1,
+    // **Sheet 1: Redeem Transactions**
+    const exportData = filteredData.map((trans) => ({
+      ลำดับ: trans.seq,
       'Reward Code': trans.rewardCode,
       Name: trans.name,
       EmpId: trans.empId,
@@ -156,7 +157,7 @@ const Trans = () => {
       'Created At': moment(trans.createdAt).locale("th").format("DD/MM/YYYY HH:mm"),
     }));
   
-    // **Count by Reward Code**
+    // **Sheet 2: Reward Code Counts**
     const rewardCounts = filteredData.reduce((acc, trans) => {
       const rewardCode = trans.rewardCode;
       if (!acc[rewardCode]) {
@@ -172,18 +173,74 @@ const Trans = () => {
       จำนวน: item.count,
     }));
   
+    // **Sheet 3: Count by EmpId**
+    const empCounts = filteredData.reduce((acc, trans) => {
+      const empId = trans.empId;
+      if (!acc[empId]) {
+        acc[empId] = {
+          empId,
+          fullname: trans.fullname,
+          teamGroup: trans.emp.teamGrop,
+          position: trans.emp.position,
+          group: trans.emp.group,
+          department: trans.emp.department,
+          branch: trans.emp.branch,
+          total: 0,
+        };
+      }
+      acc[empId].total += 1;
+      return acc;
+    }, {});
+  
+    const empCountData = Object.values(empCounts)
+      .sort((a, b) => b.total - a.total) // เรียงจากมากไปน้อย
+      .map((item, index) => ({
+      ลำดับ: index + 1,
+      EmpId: item.empId,
+      'Full Name': item.fullname,
+      TeamGroup: item.teamGroup,
+      Position: item.position,
+      Group: item.group,
+      Department: item.department,
+      Branch: item.branch,
+      จำนวน: item.total,
+    }));
+  
+    // **Sheet 4: Count by Group**
+    const groupCounts = filteredData.reduce((acc, trans) => {
+      const group = trans.emp.group || "Unknown"; // ใช้ "Unknown" หากไม่มีข้อมูล group
+      if (!acc[group]) {
+        acc[group] = { group, count: 0 };
+      }
+      acc[group].count += 1;
+      return acc;
+    }, {});
+  
+    const groupCountData = Object.values(groupCounts)
+      .sort((a, b) => b.count - a.count) // เรียงจากมากไปน้อย
+      .map((item, index) => ({
+      ลำดับ: index + 1,
+      Group: item.group,
+      จำนวน: item.count,
+    }));
+  
     // สร้าง worksheets
     const worksheet1 = XLSX.utils.json_to_sheet(exportData);
     const worksheet2 = XLSX.utils.json_to_sheet(countData);
+    const worksheet3 = XLSX.utils.json_to_sheet(empCountData);
+    const worksheet4 = XLSX.utils.json_to_sheet(groupCountData);
   
     // สร้าง workbook
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet1, "Redeem Transactions");
     XLSX.utils.book_append_sheet(workbook, worksheet2, "Reward Code Counts");
+    XLSX.utils.book_append_sheet(workbook, worksheet3, "EmpId Counts");
+    XLSX.utils.book_append_sheet(workbook, worksheet4, "Group Counts");
   
     // บันทึกเป็นไฟล์ Excel
-    XLSX.writeFile(workbook, "redeem_transactions.xlsx");
+    XLSX.writeFile(workbook, "redeem_report.xlsx");
   };
+  
 
   
   if (!redeemTrans) return <div>Loading...</div>;
