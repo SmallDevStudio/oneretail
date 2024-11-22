@@ -126,7 +126,7 @@ const Trans = () => {
       setError("กรุณาระบุวันที่เริ่มต้นและวันที่สิ้นสุด");
       return;
     }
-    
+  
     const start = new Date(startDate);
     const end = new Date(endDate);
   
@@ -145,8 +145,8 @@ const Trans = () => {
     });
   
     // แปลงข้อมูลให้เป็นรูปแบบที่สามารถ export ได้
-    const exportData = filteredData.map((trans) => ({
-      ลำดับ: trans.seq,
+    const exportData = filteredData.map((trans, index) => ({
+      ลำดับ: index + 1,
       'Reward Code': trans.rewardCode,
       Name: trans.name,
       EmpId: trans.empId,
@@ -156,10 +156,30 @@ const Trans = () => {
       'Created At': moment(trans.createdAt).locale("th").format("DD/MM/YYYY HH:mm"),
     }));
   
-    // สร้าง worksheet และ workbook สำหรับ Excel
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    // **Count by Reward Code**
+    const rewardCounts = filteredData.reduce((acc, trans) => {
+      const rewardCode = trans.rewardCode;
+      if (!acc[rewardCode]) {
+        acc[rewardCode] = { rewardCode, count: 0 };
+      }
+      acc[rewardCode].count += 1;
+      return acc;
+    }, {});
+  
+    const countData = Object.values(rewardCounts).map((item, index) => ({
+      ลำดับ: index + 1,
+      'Reward Code': item.rewardCode,
+      จำนวน: item.count,
+    }));
+  
+    // สร้าง worksheets
+    const worksheet1 = XLSX.utils.json_to_sheet(exportData);
+    const worksheet2 = XLSX.utils.json_to_sheet(countData);
+  
+    // สร้าง workbook
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Redeem Transactions");
+    XLSX.utils.book_append_sheet(workbook, worksheet1, "Redeem Transactions");
+    XLSX.utils.book_append_sheet(workbook, worksheet2, "Reward Code Counts");
   
     // บันทึกเป็นไฟล์ Excel
     XLSX.writeFile(workbook, "redeem_transactions.xlsx");

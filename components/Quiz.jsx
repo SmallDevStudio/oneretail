@@ -19,7 +19,7 @@ const Quiz = ({ userId, user, allQuestions }) => {
   const [loading, setLoading] = useState(true);
   const [finalScore, setFinalScore] = useState(0);
   const [hasPlayedToday, setHasPlayedToday] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
+  const [isLastQuestionAnswered, setIsLastQuestionAnswered] = useState(false);
 
   useEffect(() => {
     const checkIfPlayedToday = async () => {
@@ -27,20 +27,23 @@ const Quiz = ({ userId, user, allQuestions }) => {
         const response = await axios.get('/api/quiz/userQuiz', {
           params: { userId },
         });
+  
+        setHasPlayedToday(response.data.hasPlayedToday || false);
+  
         if (response.data.hasPlayedToday) {
-          setHasPlayedToday(true);
+          setLoading(false); // หากเล่นแล้วก็ยังให้เล่นใหม่ได้
         } else {
-          setLoading(false);
+          setLoading(false); // หากยังไม่เคยเล่นในวันนี้
         }
       } catch (error) {
-        console.error(error);
-        setErrorMessage('An error occurred while checking game status.');
+        console.error("Error checking play status:", error);
+        setErrorMessage("An error occurred while checking game status.");
         setLoading(false);
       }
     };
   
     checkIfPlayedToday();
-  }, [userId, router]);
+  }, [userId]);
 
   useEffect(() => {
     if (loading) {
@@ -52,57 +55,56 @@ const Quiz = ({ userId, user, allQuestions }) => {
   }, [allQuestions, dispatch, loading]);
 
   useEffect(() => {
-    
-    if (currentQuestionIndex >= 2 && showAnswer) {
-      setFinalScore(score);
+    const submitFinalScore = async () => {
+      if (isLastQuestionAnswered) {
+        setFinalScore(score); // อัปเดตคะแนนสุดท้าย
   
-      const submitFinalScore = async () => {
-        
         try {
-          // Submit score only once
-            await axios.post('/api/quiz/userQuiz', {
-              userId,
-              score,
-            });
-
-            if (!hasPlayedToday) {
-              if (score > 0) {
-                await axios.post('/api/points/point', {
-                  userId,
-                  description: 'Quiz Game',
-                  type: 'earn',
-                  contentId: null,
-                  path: 'game',
-                  subpath: 'quiz',
-                  points: score,
-                });
-                setIsModalOpen(true);
-              }
-            }else{
-              setShowModal(true);
-              return;
-            }
-        } catch (error) {
-          setErrorMessage(
-            error.response && error.response.data && error.response.data.message
-              ? error.response.data.message
-              : 'An unexpected error occurred.'
-          );
-        } finally {
-          setIsRecording(false);
-        }
-      };
+          // บันทึกคะแนนลงใน /api/quiz/userQuiz
+          await axios.post('/api/quiz/userQuiz', {
+            userId,
+            score,
+          });
   
-      submitFinalScore();
-    }
-  }, [currentQuestionIndex, finalScore, score, showAnswer, userId, hasPlayedToday, isRecording]);
+          if (!hasPlayedToday) {
+            // หากผู้ใช้ยังไม่ได้ Point วันนี้
+            if (score > 0) {
+              await axios.post('/api/points/point', {
+                userId,
+                description: 'Quiz Game',
+                type: 'earn',
+                contentId: null,
+                path: 'game',
+                subpath: 'quiz',
+                points: score,
+              });
+            } 
 
+            setIsModalOpen(true); // แสดง Modal แสดงคะแนน
+            
+          } else {
+            // กรณีผู้ใช้เล่นแล้วในวันนี้
+            setShowModal(true);
+          }
+        } catch (error) {
+          console.error("Error submitting final score:", error);
+          setErrorMessage("An error occurred while submitting your score.");
+        } finally {
+          setIsLastQuestionAnswered(false); // รีเซ็ตสถานะ
+        }
+      }
+    };
+  
+    submitFinalScore();
+  }, [isLastQuestionAnswered, score, hasPlayedToday, userId]);
+  
 
   if (loading) return <Loading />;
 
   const question = questions[currentQuestionIndex];
 
   if (!question) return <div>No questions available</div>;
+  
   
 
   const handleAnswer = (index) => {
@@ -115,13 +117,24 @@ const Quiz = ({ userId, user, allQuestions }) => {
     const isCorrect = selectedAnswer === parseInt(question.correctAnswer);
     dispatch(answerQuestion({ isCorrect }));
     setShowAnswer(true);
-
-    await axios.post('/api/answers', {
-      userId,
-      questionId: question._id,
-      answer: selectedAnswer,
-      isCorrect,
-    });
+  
+    // เก็บคำตอบใน /api/answers
+    try {
+      await axios.post('/api/answers', {
+        userId,
+        questionId: question._id,
+        answer: selectedAnswer,
+        isCorrect,
+      });
+  
+      // หากเป็นคำถามสุดท้าย
+      if (currentQuestionIndex === 2) {
+        setIsLastQuestionAnswered(true); // ตั้งสถานะว่าตอบคำถามสุดท้ายแล้ว
+      }
+    } catch (error) {
+      console.error("Error saving answer:", error);
+      setErrorMessage("An error occurred while saving your answer.");
+    }
   };
 
   const handleNext = () => {
@@ -141,6 +154,7 @@ const Quiz = ({ userId, user, allQuestions }) => {
   };
 
   const handleClose = () => {
+    dispatch(resetQuiz());
     setShowModal(false);
     router.push('/games');
   };
