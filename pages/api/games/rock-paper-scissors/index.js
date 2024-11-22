@@ -1,5 +1,5 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
-import RockPaperScissors from "@/database/models/RockPaperScissors";
+import RockPaperScissorsGame from "@/database/models/RockPaperScissorsGame";
 
 export default async function handler(req, res) {
     const { method, query, body } = req;
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
           const today = new Date();
           today.setHours(0, 0, 0, 0);
   
-          const playedToday = await RockPaperScissors.findOne({
+          const playedToday = await RockPaperScissorsGame.findOne({
             userId,
             createdAt: { $gte: today },
           });
@@ -42,7 +42,7 @@ export default async function handler(req, res) {
             return res.status(400).json({ success: false, message: "Invalid input data" });
           }
   
-          const newGamePlay = new RockPaperScissors({ userId, score, isWin });
+          const newGamePlay = new RockPaperScissorsGame({ userId, score, isWin });
           await newGamePlay.save();
   
           res.status(201).json({ success: true, data: newGamePlay });
