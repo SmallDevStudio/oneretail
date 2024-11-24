@@ -105,8 +105,6 @@ const SurveyTeam = () => {
                         margin={{ top: 10, right: 20, left: -10, bottom: 5 }}
                     >
                         <XAxis dataKey="group" />
-                        <YAxis />
-                        <XAxis dataKey="group" />
                             <YAxis />
                             <Tooltip
                                 cursor={{ fill: "transparent" }}

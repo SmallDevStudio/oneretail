@@ -17,8 +17,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 const Memo = ({ memoData }) => {
     
     const router = useRouter();
-    const { cheif_th, position, group, department, branch } = router.query;
-    const teamGrop = 'Retail';
+    const { teamGrop, chief_th, position, group, department, branch } = router.query;
 
     const handleClick = (surveyId) => {
         router.push(`/survey/panel?surveyId=${surveyId}`);
@@ -39,7 +38,7 @@ const Memo = ({ memoData }) => {
             </div>
 
             <div className="flex flex-col justify-center items-center gap-1 mt-2 w-full">
-                <span className="font-bold text-lg text-[#F2871F]">{branch || department || group || position || cheif_th || teamGrop}</span>
+                <span className="font-bold text-lg text-[#F2871F]">{branch || department || position || group || chief_th || teamGrop}</span>
             </div>
 
             <div className="flex flex-col mt-5 w-full">

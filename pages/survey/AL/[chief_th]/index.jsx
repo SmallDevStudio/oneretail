@@ -87,19 +87,48 @@ const SurveyTeam = () => {
                         <XAxis dataKey="group" />
                         <YAxis />
                         <Tooltip
-                            cursor={{ fill: 'transparent' }}
-                            contentStyle={{ 
-                                display: 'flex',
-                                flexDirection: 'column',
-                            }}
-                            formatter={(value, name, props) => {
-                                const { payload } = props;  // payload contains the data of the hovered branch
-                                return [
-                                    `Total: ${value}`,  // Total number of people (or whatever 'total' represents)
-                                    `Verbatim: ${payload.memoCount}`  // Show memo count
-                                ];
-                            }}
-                        />
+                                cursor={{ fill: "transparent" }}
+                                content={({ active, payload, label }) => {
+                                    if (active && payload && payload.length) {
+                                        const data = payload[0].payload; // Access the data for the hovered group
+                                        const counts = data.counts || {}; // Counts for each value
+                                        const memoCount = data.memoCount || {}; // Memo count for each value
+
+                                        return (
+                                            <div
+                                                style={{
+                                                    backgroundColor: "white",
+                                                    padding: "10px",
+                                                    borderRadius: "5px",
+                                                    boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
+                                                }}
+                                            >
+                                                <p style={{ fontWeight: "bold", margin: 0 }}>
+                                                    {`${data.group}`}
+                                                </p>
+                                                <p style={{ fontWeight: "bold", margin: 0, marginBottom: 5 }}>
+                                                    {`Total: ${data.total}`}
+                                                </p>
+                                                {surveyDetails.map((detail) => (
+                                                    <p
+                                                        key={detail.value}
+                                                        style={{
+                                                            margin: 0,
+                                                            color: detail.color,
+                                                            fontWeight: "bold",
+                                                        }}
+                                                    >
+                                                        {`Verbatim: ${memoCount[detail.value] || 0}  Total: ${
+                                                            counts[detail.value] || 0
+                                                        }`}
+                                                    </p>
+                                                ))}
+                                            </div>
+                                        );
+                                    }
+                                    return null; // Return nothing when not hovering
+                                }}
+                            />
                         <Legend
                             {...{
                                 payload: surveyDetails.map(detail => ({
@@ -109,11 +138,15 @@ const SurveyTeam = () => {
                                 }))
                             }}
                         />
-                        <Bar dataKey="total" fill="#8884d8">
-                            {groupData.map((group, index) => (
-                                <Cell key={`cell-${index}`} fill={colors[group.average]} />
+                        {surveyDetails.map(detail => (
+                                <Bar
+                                    key={detail.value}
+                                    dataKey={`counts.${detail.value}`}
+                                    stackId="a"
+                                    fill={detail.color}
+                                    onClick={(data) => handleBarClick(data.payload.group)}
+                                />
                             ))}
-                        </Bar>
                     </BarChart>
                 </ResponsiveContainer>
             )}
@@ -123,18 +156,52 @@ const SurveyTeam = () => {
             {selectedGroup && (
                 <div 
                     className="mt-4 px-4 py-2 bg-white shadow-md"
-                    onClick={() => router.push(`/survey/AL/${chief_th}/${selectedGroup}?startDate=${startDate}&endDate=${endDate}`)}
                 >
-                    <h3 className="text-lg font-bold">รายละเอียดสำหรับกลุ่ม: {selectedGroup}</h3>
-                    <span className="text-sm text-[#0056FF]">(คลิกเพื่อดูรายละเอียด)</span>
+                    <h3 
+                        className="text-lg font-bold"
+                        onClick={() => router.push(`/survey/AL/${chief_th}/${selectedGroup}?startDate=${startDate}&endDate=${endDate}`)}
+                    >
+                        รายละเอียดสำหรับกลุ่ม: {selectedGroup}
+                    </h3>
+                    <span 
+                        className="text-sm text-[#0056FF]"
+                        onClick={() => router.push(`/survey/AL/${chief_th}/${selectedGroup}?startDate=${startDate}&endDate=${endDate}`)}
+                    >
+                        (คลิกเพื่อดูรายละเอียด)
+                    </span>
                     <ul className="text-sm mt-1">
-                        {surveyDetails
+                    {surveyDetails
                             .sort((a, b) => b.value - a.value) // Sort from 5 to 1
-                            .map(detail => (
-                                <li key={detail.value} style={{ color: detail.color }}>
-                                    <span className="font-bold">{detail.label} ({detail.value}): {groupData.find(group => group.group === selectedGroup)?.counts[detail.value] || 0} คน</span>
-                                </li>
-                            ))}
+                            .filter(detail => {
+                                const group = groupData.find(group => group.group === selectedGroup);
+                                const total = group?.counts[detail.value] || 0;
+                                return total > 0; // Only include items with total > 0
+                            })
+                            .map(detail => {
+                                const group = groupData.find(group => group.group === selectedGroup);
+                                const total = group?.counts[detail.value] || 0;
+                                const verbatim = group?.memoCount[detail.value] || 0;
+
+                                return (
+                                    <li key={detail.value} style={{ color: detail.color }}>
+                                        <div className="flex flex-row gap-4">
+                                            <span className="font-bold">
+                                                ({detail.value}) {detail.label}: {total} คน
+                                            </span>
+                                            <span
+                                                className="text-sm font-normal text-gray-600 cursor-pointer"
+                                                onClick={() => 
+                                                    router.push(
+                                                        `/survey/verbatim?teamGrop=${teamGrop}&group=${selectedGroup}&startDate=${startDate}&endDate=${endDate}&value=${detail.value}`
+                                                    )
+                                                }
+                                            >
+                                                <strong>Verbatim:</strong> {verbatim} รายการ
+                                            </span>
+                                        </div>
+                                    </li>
+                                );
+                            })}
                     </ul>
                     <span 
                         className="flex font-bold mt-2">

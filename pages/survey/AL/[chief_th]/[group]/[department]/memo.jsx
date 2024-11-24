@@ -21,7 +21,7 @@ const SurveyMemo = () => {
         try {
             // Fetch memo data
             const memoResponse = await axios.get(`/api/survey/board/al/memo`, {
-                params: { startDate, endDate, teamGrop, chief_th, group, department},
+                params: { startDate, endDate, teamGrop, chief_th, group},
             });
             const memoData = memoResponse.data.data;
     

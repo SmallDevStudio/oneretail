@@ -19,6 +19,12 @@ export default async function handler(req, res) {
                 });
             }
 
+            // Decode URL-encoded fields
+            const decodedChiefTh = chief_th ? decodeURIComponent(chief_th) : null;
+
+            console.log("decodedChiefTh:", decodedChiefTh);
+            
+
             try {
                 // Build the query object dynamically
                 const query = {
@@ -60,6 +66,7 @@ export default async function handler(req, res) {
                         position: empData?.position || "Unknown",
                         branch: empData?.branch || "Unknown",
                         group: empData?.group || "Unknown",
+                        chief_th: empData?.chief_th || "Unknown",
                     };
                     return acc;
                 }, {});
@@ -71,7 +78,7 @@ export default async function handler(req, res) {
                     // Check if the survey matches the filters
                     const matchesFilters =
                         user?.teamGrop?.toLowerCase() === teamGrop.toLowerCase() &&
-                        (!chief_th || user?.chief_th?.toLowerCase() === chief_th.toLowerCase()) &&
+                        (!decodedChiefTh || user?.chief_th?.toLowerCase() === decodedChiefTh.toLowerCase()) &&
                         (!position || user?.position?.toLowerCase() === position.toLowerCase()) &&
                         (!group || user?.group?.toLowerCase() === group.toLowerCase()) &&
                         (!department || user?.department?.toLowerCase() === department.toLowerCase()) &&

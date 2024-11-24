@@ -9,9 +9,9 @@ export default async function handler(req, res) {
 
     switch (method) {
         case "GET":
-            const { startDate, endDate, teamGrop, chief_th, group, department } = req.query;
+            const { startDate, endDate, teamGrop, chief_th, group } = req.query;
 
-            if (!startDate || !endDate || !teamGrop || !chief_th || !group || !department) {
+            if (!startDate || !endDate || !teamGrop || !chief_th || !group ) {
                 return res.status(400).json({
                     success: false,
                     message: "Missing required query parameters: startDate, endDate, teamGrop, department"
@@ -64,8 +64,7 @@ export default async function handler(req, res) {
                     return (
                         user?.teamGrop?.toLowerCase() === teamGrop.toLowerCase() &&
                         user?.chief_th?.toLowerCase() === chief_th?.toLowerCase() &&
-                        user?.group?.toLowerCase() === group?.toLowerCase() &&
-                        user?.department?.toLowerCase() === department?.toLowerCase()
+                        user?.group?.toLowerCase() === group?.toLowerCase()
                     );
                 });
 

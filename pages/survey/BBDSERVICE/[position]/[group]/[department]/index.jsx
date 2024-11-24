@@ -100,21 +100,49 @@ const SurveyBranch = () => {
                         />
                         
                         {/* Custom Tooltip */}
-                        <Tooltip 
-                            cursor={{ fill: 'transparent' }}
-                            contentStyle={{ 
-                                display: 'flex',
-                                flexDirection: 'column',
-                            }}
-                            formatter={(value, name, props) => {
-                                const { payload } = props;  // payload contains the data of the hovered branch
-                                return [
-                                    `Total: ${value}`,  // Total number of people (or whatever 'total' represents)
-                                    `Verbatim: ${payload.memoCount}`  // Show memo count
-                                ];
-                            }}
-                            
-                        />
+                        <Tooltip
+                                cursor={{ fill: "transparent" }}
+                                content={({ active, payload, label }) => {
+                                    if (active && payload && payload.length) {
+                                        const data = payload[0].payload; // Access the data for the hovered group
+                                        const counts = data.counts || {}; // Counts for each value
+                                        const memoCount = data.memoCount || {}; // Memo count for each value
+
+                                        return (
+                                            <div
+                                                style={{
+                                                    backgroundColor: "white",
+                                                    padding: "10px",
+                                                    borderRadius: "5px",
+                                                    boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
+                                                }}
+                                            >
+                                                <p style={{ fontWeight: "bold", margin: 0 }}>
+                                                    {`${data.branch}`}
+                                                </p>
+                                                <p style={{ fontWeight: "bold", margin: 0, marginBottom: 5 }}>
+                                                    {`Total: ${data.total}`}
+                                                </p>
+                                                {surveyDetails.map((detail) => (
+                                                    <p
+                                                        key={detail.value}
+                                                        style={{
+                                                            margin: 0,
+                                                            color: detail.color,
+                                                            fontWeight: "bold",
+                                                        }}
+                                                    >
+                                                        {`Verbatim: ${memoCount[detail.value] || 0}  Total: ${
+                                                            counts[detail.value] || 0
+                                                        }`}
+                                                    </p>
+                                                ))}
+                                            </div>
+                                        );
+                                    }
+                                    return null; // Return nothing when not hovering
+                                }}
+                            />
 
                         {/* ปรับ Legend ให้เป็นสองแถว */}
                         <Legend
@@ -128,11 +156,15 @@ const SurveyBranch = () => {
                         />
                     
                         {/* Bar ที่ถูกเปลี่ยนให้เป็นแนวแกน Y */}
-                        <Bar dataKey="total" fill="#8884d8">
-                            {branchData.map((branch, index) => (
-                                <Cell key={`cell-${index}`} fill={colors[branch.average]} />
+                        {surveyDetails.map(detail => (
+                                <Bar
+                                    key={detail.value}
+                                    dataKey={`counts.${detail.value}`}
+                                    stackId="a"
+                                    fill={detail.color}
+                                    onClick={(data) => handleBarClick(data.payload.group)}
+                                />
                             ))}
-                        </Bar>
                     </BarChart>
                 </ResponsiveContainer>
             )}
@@ -142,18 +174,52 @@ const SurveyBranch = () => {
             {selectedBranch && (
                 <div 
                     className="mt-4 px-4 py-2 bg-white shadow-md"
-                    onClick={() => router.push(`/survey/BBDSERVICE/${position}/${group}/${department}/memo?branch=${selectedBranch}&startDate=${startDate}&endDate=${endDate}`)}
                 >
-                    <h3 className="text-lg font-bold">รายละเอียดสำหรับสาขา: {selectedBranch}</h3>
-                    <span className="text-sm text-[#0056FF]">(คลิกเพื่อดูรายละเอียด)</span>
+                    <h3 
+                        className="text-lg font-bold"
+                        onClick={() => router.push(`/survey/BBDSERVICE/${position}/${group}/${department}/memo?branch=${selectedBranch}&startDate=${startDate}&endDate=${endDate}`)}
+                    >
+                        รายละเอียดสำหรับสาขา: {selectedBranch}
+                    </h3>
+                    <span 
+                        className="text-sm text-[#0056FF]"
+                        onClick={() => router.push(`/survey/BBDSERVICE/${position}/${group}/${department}/memo?branch=${selectedBranch}&startDate=${startDate}&endDate=${endDate}`)}
+                    >
+                        (คลิกเพื่อดูรายละเอียด)
+                    </span>
                     <ul className="text-sm mt-1">
-                        {surveyDetails
+                    {surveyDetails
                             .sort((a, b) => b.value - a.value) // Sort from 5 to 1
-                            .map(detail => (
-                                <li key={detail.value} style={{ color: detail.color }}>
-                                    <span className="font-bold">{detail.label} ({detail.value}): {branchData.find(branch => branch.branch === selectedBranch)?.counts[detail.value] || 0} คน</span>
-                                </li>
-                            ))}
+                            .filter(detail => {
+                                const branch = branchData.find(branch => branch.branch === selectedBranch);
+                                const total = branch?.counts[detail.value] || 0;
+                                return total > 0; // Only include items with total > 0
+                            })
+                            .map(detail => {
+                                const branch = branchData.find(branch => branch.branch === selectedBranch);
+                                const total = branch?.counts[detail.value] || 0;
+                                const verbatim = branch?.memoCount[detail.value] || 0;
+
+                                return (
+                                    <li key={detail.value} style={{ color: detail.color }}>
+                                        <div className="flex flex-row gap-4">
+                                            <span className="font-bold">
+                                                ({detail.value}) {detail.label}: {total} คน
+                                            </span>
+                                            <span
+                                                className="text-sm font-normal text-gray-600 cursor-pointer"
+                                                onClick={() => 
+                                                    router.push(
+                                                        `/survey/verbatim?teamGrop=${teamGrop}&position=${position}&group=${group}&department=${department}&branch=${selectedBranch}&startDate=${startDate}&endDate=${endDate}&value=${detail.value}`
+                                                    )
+                                                }
+                                            >
+                                                <strong>Verbatim:</strong> {verbatim} รายการ
+                                            </span>
+                                        </div>
+                                    </li>
+                                );
+                            })}
                     </ul>
                     <span 
                         className="flex font-bold mt-2">
