@@ -77,7 +77,7 @@ export default async function handler(req, res) {
                             counts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }, 
                             total: 0, 
                             sum: 0,
-                            memoCount: 0
+                            memoCount: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
                         };
                     }
 
@@ -85,9 +85,9 @@ export default async function handler(req, res) {
                     acc[userDepartment].total++;
                     acc[userDepartment].sum += survey.value;
 
-                    // Count memos (non-null and non-empty)
+                    // Update memoCount
                     if (survey.memo && survey.memo.trim() !== "") {
-                        acc[userDepartment].memoCount++;
+                        acc[userDepartment].memoCount[survey.value]++;
                     }
                     return acc;
                 }, {});

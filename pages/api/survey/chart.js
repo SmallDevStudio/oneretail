@@ -9,28 +9,36 @@ export default async function handler(req, res) {
 
     switch (method) {
         case "GET":
-            const { startDate, endDate, teamGrop } = req.query;
+            const { startDate, endDate, teamGrop, chief_th, position, group, department, branch, value } = req.query;
 
             if (!startDate || !endDate || !teamGrop) {
                 return res.status(400).json({
                     success: false,
-                    message: "Missing required query parameters: startDate, endDate, teamGrop"
+                    message: "Missing required query parameters: startDate, endDate, teamGrop",
                 });
             }
 
             try {
-                // Find surveys within the date range
-                const surveys = await Survey.find({
+                // Build the query object dynamically
+                const query = {
                     createdAt: {
                         $gte: new Date(startDate),
                         $lte: new Date(new Date(endDate).setHours(23, 59, 59)),
-                    }
-                });
+                    },
+                };
 
-                // Find users and their corresponding employee data
+                // Add value filter if provided
+                if (value) {
+                    query.value = parseInt(value, 10); // Ensure value is treated as a number
+                }
+
+                const surveys = await Survey.find(query);
+
+                // Map user IDs
                 const userIds = surveys.map(survey => survey.userId);
-                const users = await Users.find({ userId: { $in: userIds } }).select('userId empId');
+                const users = await Users.find({ userId: { $in: userIds } }).select("userId empId");
 
+                // Map employee IDs
                 const empIds = users.map(user => user.empId);
                 const emps = await Emp.find({ empId: { $in: empIds } }).lean();
 
@@ -40,7 +48,7 @@ export default async function handler(req, res) {
                     return acc;
                 }, {});
 
-                // Map user data including the group
+                // Map user data including employee details
                 const userMap = users.reduce((acc, user) => {
                     const empData = empMap[user.empId];
                     acc[user.userId] = {
@@ -48,26 +56,34 @@ export default async function handler(req, res) {
                         empId: user.empId,
                         fullname: user.fullname,
                         pictureUrl: user.pictureUrl,
-                        teamGrop: empData?.teamGrop || 'Unknown',
-                        department: empData?.department || 'Unknown',
-                        position: empData?.position || 'Unknown',
-                        branch: empData?.branch || 'Unknown',
-                        group: empData?.group || null, // Set group as null if missing
+                        teamGrop: empData?.teamGrop || "Unknown",
+                        department: empData?.department || "Unknown",
+                        position: empData?.position || "Unknown",
+                        branch: empData?.branch || "Unknown",
+                        group: empData?.group || null,
+                        chief_th: empData?.chief_th || "Unknown",
                     };
                     return acc;
                 }, {});
 
-                // Filter data by teamGrop and skip records without a group
+                // Dynamically filter data based on optional query parameters
                 const filteredData = surveys.filter(survey => {
                     const user = userMap[survey.userId];
-                    return user?.teamGrop?.toLowerCase() === teamGrop.toLowerCase() && user?.group;
+                    if (!user || user.teamGrop?.toLowerCase() !== teamGrop.toLowerCase()) return false;
+
+                    // Apply optional filters
+                    if (chief_th && user.chief_th?.toLowerCase() !== chief_th.toLowerCase()) return false;
+                    if (position && user.position?.toLowerCase() !== position.toLowerCase()) return false;
+                    if (group && user.group?.toLowerCase() !== group.toLowerCase()) return false;
+                    if (department && user.department?.toLowerCase() !== department.toLowerCase()) return false;
+                    if (branch && user.branch?.toLowerCase() !== branch.toLowerCase()) return false;
+
+                    return true;
                 });
 
-                // Aggregate by group and calculate counts, total, sum, average, and memoCount
+                // Aggregate by group and calculate counts, totals, and averages
                 const groupData = filteredData.reduce((acc, survey) => {
-                    const userGroup = userMap[survey.userId]?.group;
-                    if (!userGroup) return acc; // Skip if no group
-
+                    const userGroup = userMap[survey.userId]?.group || "Unknown";
                     if (!acc[userGroup]) {
                         acc[userGroup] = {
                             group: userGroup,
@@ -75,30 +91,26 @@ export default async function handler(req, res) {
                             memoCount: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
                             total: 0,
                             sum: 0,
-                            average: 0,
                         };
                     }
 
-                    // Update counts
                     acc[userGroup].counts[survey.value]++;
                     acc[userGroup].total++;
                     acc[userGroup].sum += survey.value;
 
-                    // Update memoCount
-                    if (survey.memo && survey.memo.trim() !== "") {
+                    if (survey.memo?.trim()) {
                         acc[userGroup].memoCount[survey.value]++;
                     }
 
                     return acc;
                 }, {});
 
-                // Calculate the average for each group and convert the object into an array
+                // Calculate average and sort results
                 const groupDataArray = Object.values(groupData).map(group => {
                     group.average = group.total > 0 ? Math.round(group.sum / group.total) : 0;
                     return group;
                 });
 
-                // Sort by group name (alphabetically)
                 groupDataArray.sort((a, b) => a.group.localeCompare(b.group));
 
                 res.status(200).json({ success: true, data: groupDataArray });
@@ -107,6 +119,7 @@ export default async function handler(req, res) {
                 res.status(400).json({ success: false, error: error.message });
             }
             break;
+
         default:
             res.status(405).json({ success: false, error: "Method not allowed" });
             break;

@@ -17,7 +17,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 const Memo = ({ memoData }) => {
     
     const router = useRouter();
-    const { position, group, department, branch } = router.query;
+    const { cheif_th, position, group, department, branch } = router.query;
     const teamGrop = 'Retail';
 
     const handleClick = (surveyId) => {
@@ -33,13 +33,13 @@ const Memo = ({ memoData }) => {
                     size={25}
                 />
                 <h2 className="text-3xl font-bold text-[#0056FF]">
-                    Verbatim
+                    Verbatim ({memoData.length})
                 </h2>
                 <div></div>
             </div>
 
             <div className="flex flex-col justify-center items-center gap-1 mt-2 w-full">
-                <span className="font-bold text-lg text-[#F2871F]">{branch}</span>
+                <span className="font-bold text-lg text-[#F2871F]">{branch || department || group || position || cheif_th || teamGrop}</span>
             </div>
 
             <div className="flex flex-col mt-5 w-full">
@@ -76,7 +76,7 @@ const Memo = ({ memoData }) => {
                                     <LuMessageSquarePlus className="text-gray-700" size={15}/>
                                     <div className="flex flex-row gap-1 items-center">
                                         <span>ความคิดเห็น</span>
-                                        <span>{memo?.comment?.length ? memo.comment.length : 0}</span>
+                                        <span>{memo?.comments?.length ? memo.comments.length : 0}</span>
                                     </div>
                                 </div>
                                 
