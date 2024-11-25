@@ -427,7 +427,7 @@ const SurveyPanel = () => {
                         <div className="flex flex-row  w-full">
                             <div className="flex flex-col">
                                 <Image
-                                    src={comment.user.pictureUrl}
+                                    src={survey?.data?.userId === userId ? '/images/survey/3.svg' : comment.user.pictureUrl}
                                     alt="Profile"
                                     width={50}
                                     height={50}
