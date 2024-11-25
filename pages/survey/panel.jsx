@@ -48,12 +48,7 @@ const SurveyPanel = () => {
     const [openSticker, setOpenSticker] = useState(false);
     const [menuAnchorEl, setMenuAnchorEl] = useState(null);  // Menu anchor state
     const [user, setUser] = useState(null);
-
-    console.log('selectedData', selectedData);
-    console.log('selectedComment', selectedComment);
-    console.log('isEdit', isEdit);
     
-
     const router = useRouter();
     const { data: session } = useSession();
     const userId = session?.user?.id;
@@ -69,6 +64,8 @@ const SurveyPanel = () => {
 
     if (surveyError) return <div>Error loading Survey</div>;
     if (!survey) return <CircularProgress />;
+
+    console.log('survey', survey);
 
     const handleCommentSubmit = async () => {
         if (!sticker && !textareaValue ) {
@@ -344,7 +341,44 @@ const SurveyPanel = () => {
                 <div></div>
             </div>
 
-            <div className="flex flex-col mt-5 w-full">
+            <div className="flex flex-wrap flex-row mt-1 gap-2 text-sm w-full">
+                <span>
+                    <strong>TeamGroup:</strong> 
+                    {survey?.data?.emp?.teamGrop === 'Retail' ? 'BBD' : survey?.data?.emp?.teamGrop}
+                </span>
+                {survey?.data?.emp?.chief_th && (
+                    <div className="flex flex-row gap-2">
+                        <span>{'>'}</span>
+                         <span><strong>Chief:</strong> {survey?.data?.emp?.chief_th}</span>
+                    </div>
+                )}
+               {survey?.data?.emp?.position && (
+                   <div className="flex flex-row gap-2">
+                       <span>{'>'}</span>
+                        <span><strong>Position:</strong> {survey?.data?.emp?.position}</span>
+                   </div>
+               )}
+                {survey?.data?.emp?.group && (
+                    <div className="flex flex-row gap-2">
+                        <span>{'>'}</span>
+                        <span><strong>Group:</strong> {survey?.data?.emp?.group}</span>
+                    </div>
+                )}
+                {survey?.data?.emp?.deparment && (
+                    <div className="flex flex-row gap-2">
+                        <span>{'>'}</span>
+                        <span><strong>Department:</strong> {survey?.data?.emp?.deparment}</span>
+                    </div>
+                )}
+                {survey?.data?.emp?.branch && (
+                    <div className="flex flex-row gap-2">
+                        <span>{'>'}</span>
+                        <span><strong>Branch:</strong> {survey?.data?.emp?.branch}</span>
+                    </div>
+                )}
+            </div>
+
+            <div className="flex flex-col mt-2 w-full">
                 <div className="flex flex-col px-2 py-1 w-full">
                     <div className="flex flex-col p-2 bg-gray-300 rounded-3xl text-sm w-full mb-2">
                         <div className="flex flex-row gap-4 mb-2 w-full ">

@@ -15,6 +15,7 @@ const PostSchema = new mongoose.Schema({
   likes: [{ userId: { type: String, ref: 'Users' }, createAt: { type: Date, default: Date.now } }],
   comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
   pinned: { type: Boolean, default: false },
+  userPinned: { type: Boolean, default: false },
   page: { type: String, default: 'share-your-story' },
 }, { timestamps: true });
 

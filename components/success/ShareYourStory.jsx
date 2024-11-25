@@ -116,7 +116,8 @@ const ShareYourStory = () => {
                 files: data.files,
                 tagusers: data.selectedUsers,
                 pinned: false,
-                userId
+                userId,
+                page: 'share-your-story'
             });
 
             const post = response.data.data;
@@ -741,9 +742,9 @@ const ShareYourStory = () => {
                                             <div className="flex flex-row items-center gap-2 justify-between pl-5 py-1 mt-1 w-full">
                                                 <div className="flex flex-row items-center gap-2">
                                                     {likes[reply._id] ? (
-                                                        <AiFillHeart className="w-3 h-3 text-red-500" onClick={() => handleReplyLike(reply._id, comment.experienceId)} />
+                                                        <AiFillHeart className="w-3 h-3 text-red-500" onClick={() => handleReplyLike(reply._id, comment.postId)} />
                                                     ) : (
-                                                        <AiOutlineHeart className="w-3 h-3" onClick={() => handleReplyLike(reply._id, comment.experienceId)} />
+                                                        <AiOutlineHeart className="w-3 h-3" onClick={() => handleReplyLike(reply._id, comment.postId)} />
                                                     )}
                                                     <span className="text-sm">
                                                         {Array.isArray(reply?.likes)? reply?.likes?.length : 0}
