@@ -58,9 +58,12 @@ export default async function handler(req, res) {
                 }, {});
 
                 // Filter data by teamGrop and skip records without a group
+                const allowedGroups = ["RH1", "RH2", "RH3", "RH4", "RH5"];
                 const filteredData = surveys.filter(survey => {
                     const user = userMap[survey.userId];
-                    return user?.teamGrop?.toLowerCase() === teamGrop.toLowerCase() && user?.group;
+                    return user?.teamGrop?.toLowerCase() === teamGrop.toLowerCase() &&
+                        allowedGroups.includes(user?.group) &&
+                        user?.group;
                 });
 
                 // Aggregate by group and calculate counts, total, sum, average, and memoCount

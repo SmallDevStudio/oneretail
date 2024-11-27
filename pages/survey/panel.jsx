@@ -65,8 +65,6 @@ const SurveyPanel = () => {
     if (surveyError) return <div>Error loading Survey</div>;
     if (!survey) return <CircularProgress />;
 
-    console.log('survey', survey);
-
     const handleCommentSubmit = async () => {
         if (!sticker && !textareaValue ) {
             setError('กรุณาใส่ความคิดเห็นหรือสติกเกอร์');

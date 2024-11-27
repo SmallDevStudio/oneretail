@@ -48,6 +48,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'e8p8e6g1rockgoc5.public.blob.vercel-storage.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'drive.google.com',
+      },
     ],
   },
   env: {

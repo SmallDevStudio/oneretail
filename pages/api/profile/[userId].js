@@ -49,6 +49,15 @@ export default async function handler(req, res) {
                     }
                 }
 
+                const levelPoint = pointData.totalPoints - requiredPoints;
+
+                const levelData = {
+                    level: userLevel,
+                    requiredPoints: requiredPoints,
+                    nextLevelRequiredPoints: nextLevelRequiredPoints,
+                    levelPoint: levelPoint,
+                }
+
                 const pointResult = {
                     point: pointData.point,
                     totalPoints: pointData.totalPoints,
@@ -107,7 +116,7 @@ export default async function handler(req, res) {
                     data: {
                         user,
                         emp,
-                        level: userLevel,
+                        level: levelData,
                         points: pointResult,
                         coins: coinsData,
                         posts: populatedPosts,

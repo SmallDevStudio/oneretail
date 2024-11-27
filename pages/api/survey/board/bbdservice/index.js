@@ -71,6 +71,7 @@ export default async function handler(req, res) {
                     );
                 });
 
+                
                 // Aggregate by group and calculate counts, total, sum, and average
                 const positionData = filteredData.reduce((acc, survey) => {
                     const userPosition = userMap[survey.userId]?.position;

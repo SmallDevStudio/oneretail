@@ -9,12 +9,12 @@ const ProfileLineProgressBar = ({ percent }) => {
 
         if (progressBarRef.current) {
             bar = new ProgressBar.Line(progressBarRef.current, {
-                strokeWidth: 10,
+                strokeWidth: 5,
                 easing: 'easeInOut',
                 duration: 1400,
                 color: '#F68B1F',
                 trailColor: '#eee',
-                trailWidth: 10,
+                trailWidth: 5,
                 svgStyle: { width: '100%', height: '100%' },
                 text: {
                     style: {
@@ -26,7 +26,8 @@ const ProfileLineProgressBar = ({ percent }) => {
                         margin: 0,
                         transform: 'translate(-50%, -50%)', // Center the text
                         fontSize: '12px',
-                        lineHeight: '12px', // Add this line to ensure Safari handles the text size correctly
+                        lineHeight: '8px', // Add this line to ensure Safari handles the text size correctly
+                        marginTop: '2px'
                     },
                     autoStyleContainer: false
                 },
@@ -59,7 +60,11 @@ const ProfileLineProgressBar = ({ percent }) => {
     }, [percent]);
 
     return (
-        <div ref={progressBarRef} style={{ position: 'relative', width: '100%', height: '10px' }}></div>
+        <div 
+            ref={progressBarRef} 
+            style={{ position: 'flex', width: '100%', height: '5px' }}
+        >
+        </div>
     );
 };
 
