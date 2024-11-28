@@ -62,9 +62,9 @@ const Memo = ({ memoData }) => {
                                         style={{ width: '40px', height: '40px' }}
                                     />
                                 </div>
-                                <div className="flex flex-row justify-between px-1 w-full">
-                                    <span className="text-sm">{memo.memo}</span>
-                                    <span className="text-xs">{moment(memo.createdAt).locale("th").format("lll")}</span>
+                                <div className="grid grid-cols-4 px-1 w-full">
+                                    <span className="col-span-3 text-sm">{memo.memo}</span>
+                                    <span className="col-span-1 text-xs">{moment(memo.createdAt).locale("th").format("lll")}</span>
                                 </div>
                             </div>
 

@@ -380,7 +380,7 @@ const SurveyPanel = () => {
                 <div className="flex flex-col px-2 py-1 w-full">
                     <div className="flex flex-col p-2 bg-gray-300 rounded-3xl text-sm w-full mb-2">
                         <div className="flex flex-row gap-4 mb-2 w-full ">
-                            <div className="flex flex-col w-[40px]">
+                            <div className="flex flex-row justify-center items-center w-[40px]">
                                 <Image
                                     src="/images/survey/3.svg"
                                     alt="Profile"
@@ -391,9 +391,9 @@ const SurveyPanel = () => {
                                 />
                             </div>
                             
-                            <div className="flex flex-row justify-between px-1 w-full">
-                                <p className="text-sm">{survey?.data?.memo}</p>
-                                <p className="text-xs">{moment(survey?.data?.createdAt).locale("th").format("lll")}</p>
+                            <div className="grid grid-cols-4 px-1 gap-1 w-full">
+                                <p className="col-span-3 text-sm">{survey?.data?.memo}</p>
+                                <p className="col-span-1 text-xs">{moment(survey?.data?.createdAt).locale("th").format("lll")}</p>
                             </div>
                         </div>
 

@@ -36,7 +36,7 @@ export default function FooterContant() {
                     วีดีโอแนะนำ
                 </span>
                 <Divider className="w-full mb-1"/>
-                <div className="flex flex-row flex-wrap justify-around gap-2">
+                <div className="grid grid-cols-2 justify-around gap-2">
                     {Array.isArray(data.data) && data.data.map((content, index) => (
                         <div 
                             key={index} 
@@ -88,11 +88,11 @@ export default function FooterContant() {
                         บทความแนะนำ
                     </span>
                     <Divider className="w-full mb-1"/>
-                    <div className="flex flex-row flex-wrap justify-between gap-2 px-1">
+                    <div className="grid grid-cols-2 justify-between gap-2">
                     {Array.isArray(articles.data) && articles.data.map((article, index) => (
                         <div 
                         key={index} 
-                        className="flex flex-col bg-gray-200 rounded-lg p-2 mt-2 max-w-[180px]"
+                        className="flex flex-col bg-gray-200 rounded-lg p-2 mt-2 max-w-[180px] min-w-[150px]"
                         onClick={() => router.push(`/articles/${article._id}`)}
                     >
                         {article.thumbnail ? (
@@ -104,7 +104,7 @@ export default function FooterContant() {
                             loading="lazy"
                             className="rounded-xl"
                             style={{
-                                width: "160px",
+                                width: "155px",
                                 height: "90px",
                                 objectFit: "cover",
                                 objectPosition: "center",
