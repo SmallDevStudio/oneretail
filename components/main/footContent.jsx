@@ -91,7 +91,7 @@ export default function FooterContant() {
                     </span>
                     <Divider className="w-full mb-1"/>
                     <div className="flex items-center justify-center w-full">
-                        <div className="grid grid-cols-2 justify-between gap-2">
+                        <div className="grid grid-cols-2 justify-between px-4 gap-2">
                         {Array.isArray(articles.data) && articles.data.map((article, index) => (
                             <div 
                             key={index} 
