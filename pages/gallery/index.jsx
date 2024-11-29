@@ -15,7 +15,7 @@ const Gallery = () => {
     const [modalLoading, setModalLoading] = useState(false);
   
     const folderId = "1txY4MczD4YcomdEtHJM5P5tCuagDDmRM";
-    const apiKey = "AIzaSyDJbDHr-81v1w6hQEJf23q0YnfDv_rUsOE";
+    const apiKey = process.env.GOOGLE_API_KEY;
   
     useEffect(() => {
       const fetchFiles = async () => {
