@@ -15,12 +15,12 @@ const Gallery = () => {
     const [modalLoading, setModalLoading] = useState(false);
   
     const folderId = "1txY4MczD4YcomdEtHJM5P5tCuagDDmRM";
-    const apiKey = process.env.GOOGLE_API_KEY;
+    const apiKey = process.env.YOUTUBE_API_KEY;
   
     useEffect(() => {
       const fetchFiles = async () => {
         setLoading(true);
-        const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=${apiKey}&fields=files(id,name,mimeType)`;
+        const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=${process.env.YOUTUBE_API_KEY}&fields=files(id,name,mimeType)`;
         try {
           const response = await fetch(url);
           const data = await response.json();
