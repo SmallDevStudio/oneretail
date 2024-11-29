@@ -73,7 +73,7 @@ const Gallery = () => {
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {files.map((file, index) => (
+          {files?.map((file, index) => (
             <div
               key={file.id}
               className="cursor-pointer"
@@ -113,7 +113,7 @@ const Gallery = () => {
                     />
                 </div>
                 <div className="relative">
-                    {files[currentIndex]?.mimeType.startsWith("image/") && (
+                    {files && files[currentIndex]?.mimeType.startsWith("image/") && (
                         <Image
                         src={`https://drive.google.com/uc?id=${files[currentIndex].id}`}
                         alt={files[currentIndex].name}
@@ -122,7 +122,7 @@ const Gallery = () => {
                         onLoad={() => setModalLoading(false)}
                         />
                     )}
-                    {files[currentIndex]?.mimeType.startsWith("video/") && (
+                    {files && files[currentIndex]?.mimeType.startsWith("video/") && (
                         <video
                         controls
                         autoPlay
@@ -144,7 +144,7 @@ const Gallery = () => {
                         <IoChevronForwardCircleSharp
                         size={30}
                         className={`text-white cursor-pointer ${
-                            currentIndex === files.length - 1 &&
+                            currentIndex === files?.length - 1 &&
                             "opacity-50 pointer-events-none"
                         }`}
                         onClick={handleNext}
@@ -153,8 +153,8 @@ const Gallery = () => {
                 </div>
                 <div className="flex flex-row items-center mt-2 p-2">
                     <a
-                        href={`https://drive.google.com/uc?id=${files[currentIndex]?.id}&export=download`}
-                        download={files[currentIndex]?.name}
+                        href={`https://drive.google.com/uc?id=${files ? files[currentIndex]?.id : ""}&export=download`}
+                        download={files ? files[currentIndex]?.name : ""}
                         className="text-white flex items-center cursor-pointer"
                     >
                         <IoIosDownload size={30} />
