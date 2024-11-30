@@ -22,7 +22,7 @@ export default function AppMenu() {
                         <span className={`text-[10px] font-bold group-hover:text-[#ED1C24] text-nowrap ${isActive('/learning') ? "text-[#ED1C24] font-bold" : ""}`}>Learning</span>
                     </button>
 
-                    <button type="button" className={`mt-0.5 inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 group ${isActive('/stores') ? "text-blue-600" : ""}`} 
+                    <button type="button" className={`mt-0.5 inline-flex flex-col items-center justify-center px-5 group ${isActive('/stores') ? "text-blue-600" : ""}`} 
                         onClick={() => router.push('/stores')}>
                         <Image
                             src="/images/christmas/successstory.png"
