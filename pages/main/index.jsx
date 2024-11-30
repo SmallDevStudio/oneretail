@@ -129,7 +129,7 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
                         <div className="flex justify-end mt-2 mr-3 w-full">
                             <MenuPanel user={user} />
                         </div>
-                        <div className="w-full p-5 mt-[-10px]">
+                        <div className="w-full px-5 py-5">
                             <UserPanel 
                                 user={user} 
                                 level={level} 

@@ -12,7 +12,7 @@ const ProfileLineProgressBar = ({ percent }) => {
                 strokeWidth: 5,
                 easing: 'easeInOut',
                 duration: 1400,
-                color: '#F68B1F',
+                color: '#ED1C24',
                 trailColor: '#eee',
                 trailWidth: 5,
                 svgStyle: { width: '100%', height: '100%' },
@@ -31,8 +31,8 @@ const ProfileLineProgressBar = ({ percent }) => {
                     },
                     autoStyleContainer: false
                 },
-                from: { color: '#F68B1F' },
-                to: { color: '#F68B1F' },
+                from: { color: '#ED1C24' },
+                to: { color: '#ED1C24' },
                 step: (state, bar) => {
                     bar.path.setAttribute('stroke-linecap', 'round');
                     bar.setText(Math.round(bar.value() * 100) + ' %');
