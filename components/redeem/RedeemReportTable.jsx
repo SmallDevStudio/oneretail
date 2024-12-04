@@ -130,8 +130,6 @@ const RedeemReportTable = () => {
     if (count === 0) {
       return; // ห้ามเปิด Modal หากจำนวนเป็น 0
     }
-
-    console.log('row', row);
   
     try {
       const response = await axios.get('/api/redeem/report/filter', {

@@ -33,6 +33,8 @@ const Trans = () => {
   const { data: session } = useSession();
   const userId = session?.user?.id;
 
+  console.log(redeemTrans);
+
   useEffect(() => {
     fetchRedeemTrans();
   }, []);
@@ -150,6 +152,7 @@ const Trans = () => {
       ลำดับ: trans.seq,
       'Reward Code': trans.rewardCode,
       Name: trans.name,
+      Group: trans.redeemId?.group || "",
       EmpId: trans.empId,
       'Full Name': trans.fullname,
       Address: trans.address,
@@ -160,16 +163,23 @@ const Trans = () => {
     // **Sheet 2: Reward Code Counts**
     const rewardCounts = filteredData.reduce((acc, trans) => {
       const rewardCode = trans.rewardCode;
+      const name = trans.name;
+      const group = trans.redeemId?.group || "";
+
       if (!acc[rewardCode]) {
-        acc[rewardCode] = { rewardCode, count: 0 };
+        acc[rewardCode] = { rewardCode, name, group, count: 0 };
       }
       acc[rewardCode].count += 1;
       return acc;
     }, {});
   
-    const countData = Object.values(rewardCounts).map((item, index) => ({
+    const countData = Object.values(rewardCounts)
+    .sort((a, b) => b.count - a.count) // เรียงจากมากไปน้อย
+    .map((item, index) => ({
       ลำดับ: index + 1,
       'Reward Code': item.rewardCode,
+      Name: item.name,
+      Group: item.group || "",
       จำนวน: item.count,
     }));
   
@@ -223,12 +233,34 @@ const Trans = () => {
       Group: item.group,
       จำนวน: item.count,
     }));
+
+    const groupRedeem = filteredData.reduce((acc, trans) => {
+      const group = trans.redeemId.group || "Unknown"; // ใช้ "Unknown" หากไม่มีข้อมูล group
+      const rewardCode = trans.rewardCode;
+      const name = trans.name;
+      if (!acc[group]) {
+        acc[group] = { group, rewardCode, name, count: 0 };
+      }
+      acc[group].count += 1;
+      return acc;
+    }, {});
+
+    const groupRedeemData = Object.values(groupRedeem)
+      .sort((a, b) => b.count - a.count) // เรียงจากมากไปน้อย
+      .map((item, index) => ({
+      ลำดับ: index + 1,
+      'Reward Code': item.rewardCode,
+      Name: item.name,
+      Group: item.group,
+      จำนวน: item.count,
+    }));
   
     // สร้าง worksheets
     const worksheet1 = XLSX.utils.json_to_sheet(exportData);
     const worksheet2 = XLSX.utils.json_to_sheet(countData);
     const worksheet3 = XLSX.utils.json_to_sheet(empCountData);
     const worksheet4 = XLSX.utils.json_to_sheet(groupCountData);
+    const worksheet5 = XLSX.utils.json_to_sheet(groupRedeemData);
   
     // สร้าง workbook
     const workbook = XLSX.utils.book_new();
@@ -236,6 +268,7 @@ const Trans = () => {
     XLSX.utils.book_append_sheet(workbook, worksheet2, "Reward Code Counts");
     XLSX.utils.book_append_sheet(workbook, worksheet3, "EmpId Counts");
     XLSX.utils.book_append_sheet(workbook, worksheet4, "Group Counts");
+    XLSX.utils.book_append_sheet(workbook, worksheet5, "Group Redeem");
   
     // บันทึกเป็นไฟล์ Excel
     XLSX.writeFile(workbook, "redeem_report.xlsx");
