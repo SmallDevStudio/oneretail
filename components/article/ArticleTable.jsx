@@ -11,7 +11,7 @@ import { useRouter } from "next/router";
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 
-const ArticleTable = ({ articles, onDelete, onStatusChange, onPublishedChange, onSearch, setLoading }) => {
+const ArticleTable = ({ articles, onDelete, onStatusChange, onPublishedChange, onSearch, setLoading, onRecommend }) => {
     const [selectedArticle, setSelectedArticle] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -57,6 +57,21 @@ const ArticleTable = ({ articles, onDelete, onStatusChange, onPublishedChange, o
         });
     };
 
+    const handleRecommendChange = (article) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Do you want to change the recommend status of this article?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, change it!",
+            cancelButtonText: "No, cancel!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                onRecommend(article);
+            }
+        });
+    };
+
     const handleSearchChange = (event, value) => {
         setSearchTerm(value);
         onSearch(value);
@@ -98,6 +113,7 @@ const ArticleTable = ({ articles, onDelete, onStatusChange, onPublishedChange, o
                         <th>หัวเรื่อง</th>
                         <th>Author</th>
                         <th>Published</th>
+                        <th>แนะนำ</th>
                         <th>วันที่</th>
                         <th>Action</th>
                     </tr>
@@ -125,11 +141,22 @@ const ArticleTable = ({ articles, onDelete, onStatusChange, onPublishedChange, o
                                     {article.user.empId}: {article.user.fullname}
                                 </div>
                             </td>
-                            <td
-                                className={`cursor-pointer ${article.published ? "bg-green-500" : "bg-red-500"} font-bold text-white rounded-full`}
-                                onClick={() => handlePublishedChange(article)}
-                            >
-                                {article.published ? "Yes" : "No"}
+                            <td>
+                                <div
+                                    className={`cursor-pointer ${article.published ? "bg-green-500" : "bg-red-500"} font-bold text-white rounded-full`}
+                                    onClick={() => handlePublishedChange(article)}
+                                >
+                                    {article.published ? "Yes" : "No"}
+                                </div>
+                                
+                            </td>
+                            <td>
+                                <div
+                                    className={`cursor-pointer ${article.recommend ? "bg-green-500" : "bg-red-500"} font-bold text-white rounded-full`}
+                                    onClick={() => handleRecommendChange(article)}
+                                >
+                                    {article.recommend ? "Yes" : "No"}
+                                </div>
                             </td>
                             <td>{moment(article.createdAt).fromNow()}</td>
                             <td className="flex justify-center text-center items-center">

@@ -20,6 +20,7 @@ export default async function handler(req, res) {
   
           const playedToday = await RockPaperScissorsGame.findOne({
             userId,
+            isWin: true,
             createdAt: { $gte: today },
           });
   
@@ -36,13 +37,13 @@ export default async function handler(req, res) {
   
       case "POST": // บันทึกข้อมูลการเล่น
         try {
-          const { userId, score, isWin } = body;
+          const { userId, score, isWin, round, cpu } = body;
   
-          if (!userId || typeof score !== "number" || typeof isWin !== "boolean") {
+          if (!userId || typeof score !== "number" || typeof isWin !== "boolean" || typeof round !== "number" || typeof cpu !== "number") {
             return res.status(400).json({ success: false, message: "Invalid input data" });
           }
   
-          const newGamePlay = new RockPaperScissorsGame({ userId, score, isWin });
+          const newGamePlay = new RockPaperScissorsGame({ userId, score, isWin, round, cpu });
           await newGamePlay.save();
   
           res.status(201).json({ success: true, data: newGamePlay });

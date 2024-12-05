@@ -21,6 +21,7 @@ const ArticleSchema = new mongoose.Schema({
   subgroup: { type: String},
   rating: { type: Number },
   comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
+  published: { type: Boolean, default: true },
 }, { timestamps: true });
 
 export default mongoose.models.Article || mongoose.model('Article', ArticleSchema);

@@ -41,6 +41,14 @@ const Articles = () => {
         setLoading(false);
     };
 
+    const onRecommend = async (article) => {
+        setLoading(true);
+        const newRecommend = !article.recommend;
+        await axios.put(`/api/articles?id=${article._id}`, { ...article, recommend: newRecommend });
+        mutate();
+        setLoading(false);
+    };
+
     const handlePageChange = (event, value) => {
         setPage(value);
     };
@@ -70,6 +78,7 @@ const Articles = () => {
                 onPublishedChange={onPublishedChange} 
                 onSearch={handleSearch}
                 setLoading={setLoading}
+                onRecommend={onRecommend}
             />
             <div className="flex items-center w-full">
                 <div className="flex mt-4 text-sm text-gray-500 justify-start w-1/2">Total Records: {totalRecords}</div>
