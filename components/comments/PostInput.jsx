@@ -12,8 +12,17 @@ import Link from "next/link";
 import { IoIosArrowBack } from "react-icons/io";
 import axios from "axios";
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
+import { RiEmojiStickerLine } from "react-icons/ri";
 import CircularProgress from '@mui/material/CircularProgress';
+import StickerPanel from "../stickers/StickerPanel";
 import 'react-circular-progressbar/dist/styles.css';
+
+import Dialog from '@mui/material/Dialog';
+import Slide from '@mui/material/Slide';
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const PostInput = ({ handleSubmit, userId, handleClose, checkError, folder }) => {
     const [post, setPost] = useState("");
@@ -21,6 +30,8 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError, folder }) =>
     const [files, setFiles] = useState([]); // สำหรับการอัพโหลดเอกสารครั้งละ 1 ไฟล์
     const [link, setLink] = useState("");
     const [linkPreview, setLinkPreview] = useState(null);
+    const [sticker, setSticker] = useState(null);
+    const [openSticker, setOpenSticker] = useState(false);
     const [inputKey, setInputKey] = useState(Date.now());
     const [selectedUsers, setSelectedUser] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
@@ -169,6 +180,14 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError, folder }) =>
         return null;
     };
 
+    const handleOpenSticker = () => {
+        setOpenSticker(true);
+    };
+
+    const handleCloseSticker = () => {
+        setOpenSticker(false);
+    };
+
     return (
         <div>
             <div className="flex flex-row items-center mb-4 gap-4">
@@ -196,6 +215,17 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError, folder }) =>
                 />
                 {error && (
                     <span className="text-red-500 text-sm">{error}</span>
+                )}
+                {sticker && (
+                    <div className="flex justify-center">
+                        <Image
+                            src={sticker.url}
+                            alt="Sticker"
+                            width={150}
+                            height={150}
+                            className="object-cover"
+                        />
+                    </div>
                 )}
                 {isUploading && (
                     <div className="flex justify-center">
@@ -263,6 +293,16 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError, folder }) =>
                         </div>
                     )}
                 </div>
+                {/** sticker **/}
+                <div className="flex flex-row gap-2 justify-end mb-2">
+                    <div>
+                        <RiEmojiStickerLine 
+                            className="text-gray-500" 
+                            size={20}
+                            onClick={handleOpenSticker}
+                        />
+                    </div>
+                </div>
             </div>
             <div className="flex flex-col w-full mb-5">
                 <Divider />
@@ -307,6 +347,19 @@ const PostInput = ({ handleSubmit, userId, handleClose, checkError, folder }) =>
 
             {/* Modal */}
             <TagUsers isOpen={isOpen} handleCloseModal={handleCloseModal} setSelectedUser={setSelectedUser} />
+
+            {openSticker && (
+                <Dialog
+                    open={openSticker}
+                    onClose={handleCloseSticker}
+                    TransitionComponent={Transition}
+                >
+                    <StickerPanel
+                        setSticker={setSticker}
+                        onClose={handleCloseSticker}
+                    />
+                </Dialog>
+            )}
         </div>
     );
 };

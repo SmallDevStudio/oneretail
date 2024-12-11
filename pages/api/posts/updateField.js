@@ -11,7 +11,7 @@ export default async function handler(req, res) {
         await connetMongoDB();
 
         // Update all posts by adding the `page` field with value 'share-your-story'
-        const result = await Post.updateMany({}, { $set: { page: 'share-your-story' } });
+        const result = await Post.updateMany({}, { $set: { status: 'published' } });
 
         // Respond with the number of updated documents
         res.status(200).json({

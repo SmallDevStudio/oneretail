@@ -17,6 +17,7 @@ const PostSchema = new mongoose.Schema({
   pinned: { type: Boolean, default: false },
   userPinned: { type: Boolean, default: false },
   page: { type: String, default: 'share-your-story' },
+  status: { type: String, enum: ['published', 'friend', 'private'], default: 'published' },
 }, { timestamps: true });
 
 export default mongoose.models.Post || mongoose.model('Post', PostSchema);

@@ -4,20 +4,17 @@ import { useRouter } from "next/router";
 import useSWR from "swr";
 import axios from "axios";
 import Loading from "@/components/Loading";
-import MainIconMenu from "@/components/MainIconMenu";
+import MainIconMenu from "@/components/main/MainIconMenu";
 import FooterContant from "@/components/main/footContent";
 import AppLayout from "@/themes/Layout/AppLayout";
 import dynamic from "next/dynamic";
 import RecheckUser from "@/components/RecheckUser";
-import ManagerModal from "@/components/ManagerModal";
 import UserPanel from "@/components/main/UserPanel";
 import MenuPanel from "@/components/main/MenuPanel";
 import LinkModal from "@/components/LinkModal";
 import Image from "next/image";
 import BirthDayModal from "@/components/BirthDayModal";
 import AdsModal from "@/components/AdsModal";
-import RandomModal from "@/components/RandomModal";
-import Swal from "sweetalert2";
 
 const Carousel = dynamic(() => import("@/components/Carousel"), {
     ssr: false,
@@ -37,8 +34,6 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
         const [currentAdIndex, setCurrentAdIndex] = useState(0);
         const [timer, setTimer] = useState(5); // ตั้งเวลาถอยหลังเริ่มต้นที่ 5 วินาที
         const [loading, setLoading] = useState(false);
-        const [hasRandom, setHasRandom] = useState(false);
-        const [showRandom, setShowRandom] = useState(false);
         const router = useRouter();
         const userId = session?.user?.id;
     
@@ -90,17 +85,6 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
         
         // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [openAds, currentAdIndex, ads]);
-
-        useEffect(() => {
-            const fetchRandom = async () => {
-                await axios.get(`/api/randoms/${userId}`).then((res) => {
-                    if (res.data.data.length > 0) {
-                        setHasRandom(true);
-                    }
-                });
-            };
-            fetchRandom();
-        }, [userId]);
         
         const onRequestClose = () => {
             setShowModal(false);
@@ -130,23 +114,6 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
     
         const handleCloseAds = () => {
             setOpenAds(false); // ปิด modal เมื่อกดปิด
-        };
-
-        const handleRandom = async() => {
-            // สุ่มค่าในช่วง 1-100
-            const point = Math.floor(Math.random() * 100) + 1;
-    
-            const res = await axios.post(`/api/randoms`, { userId, point });
-            if (res.data) {
-                setHasRandom(true);
-                setShowRandom(false);
-                await Swal.fire({
-                    title: 'สุ่มเรียบร้อย',
-                    icon: 'success',
-                    text: `คะแนนที่สุ่มได้ ${point} คะแนน`,
-                    confirmButtonText: 'ตกลง'
-                });
-            }
         };
     
     
@@ -198,33 +165,26 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
                             <div className="text-center text-xs text-gray-300 mb-10">
                                 <p>Copyright © 2024. All Rights Reserved.</p>
                                 <span className=""> Powered by <span className="text-[#0056FF]/50 font-bold">One Retail</span></span>
-                                <span className="ml-2">v.1.5.0</span>
+                                <span className="ml-2">v.1.6.0</span>
                             </div>
 
-                            {/* Sticky */}
-                           {hasRandom  === false && (
-                                <div 
-                                    className="fixed top-[80%] right-0 left-[78%] w-full"
-                                    onClick={() => setShowRandom(true)}
-                                >
-                                    <div className="flex flex-col bg-[#ED1C24] w-[80px] h-[80px] rounded-full shadow-xl items-center justify-center absolute">
-                                        <div className="flex items-center justify-center bg-white rounded-full w-[70px] h-[70px]">
-                                            <Image
-                                                src="/images/1212/12.12.gif"
-                                                width={100}
-                                                height={100}
-                                                alt="Link"
-                                                style={{ width: '80px', height: 'auto' }}
-                                            />
-                                        </div>
+                            <div className="fixed top-[80%] right-0 left-[65%] w-full">
+                                <div className="flex flex-row bg-[#ED1C24] w-[150px] h-[50px] rounded-s-full shadow-xl items-center gap-2">
+                                    <div className="flex items-center justify-center ml-2 bg-yellow-400 rounded-full w-[40px] h-[40px]">
+                                        <Image
+                                            src="/images/cd/siamsee.gif"
+                                            width={50}
+                                            height={50}
+                                            alt="Link"
+                                            style={{ width: '30px', height: 'auto' }}
+                                        />
                                     </div>
+                                    <span className="text-white font-bold text-sm">คลิกลุ้นคะแนน</span>
                                 </div>
-                           )}
+                            </div>
+
                         </div>
-
-                       
-
-                        <ManagerModal isOpen={showModal} onRequestClose={onRequestClose} score={100} />
+                        
                         <LinkModal isOpen={linkModal} onRequestClose={() => setLinkModal(false)} />
                         <BirthDayModal isOpen={openModal} onRequestClose={() => setOpenModal(false)} name={user.user.fullname} />
                         {openAds && ads?.data?.[currentAdIndex] && (
@@ -252,26 +212,6 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
                                 </div>
                             </AdsModal>
                         )}
-                        {showRandom && 
-                            <RandomModal isOpen={showRandom} onClose={() => setShowRandom(false)}>
-                                <div className="flex flex-col items-center justify-center">
-                                    <Image
-                                        src="/images/1212/12.12.gif"
-                                        width={300}
-                                        height={300}
-                                        alt="Link"
-                                        style={{ width: '350px', height: 'auto' }}
-                                    />
-
-                                    <button
-                                        className="bg-[#ED1C24] text-white font-bold py-2 px-4 rounded-full mt-[-40px] border-2 border-white"
-                                        onClick={() => handleRandom()}
-                                    >
-                                        กดลุ้นรับรางวัล
-                                    </button>
-                                </div>
-                            </RandomModal>
-                        }
                     </main>
                 </RecheckUser>
             </React.Fragment>

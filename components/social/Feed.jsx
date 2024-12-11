@@ -1,40 +1,42 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import useSWR from "swr";
-import dynamic from "next/dynamic";
-import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
-import moment from "moment";
-import "moment/locale/th";
+import { useRouter } from "next/router";
+import useSWR from "swr";
+import axios from "axios";
 import { Dialog, Slide, CircularProgress, Menu, MenuItem } from "@mui/material";
+import Image from "next/image";
+import { BsThreeDotsVertical } from "react-icons/bs";
+import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import CommentInput from "@/components/comments/CommentInput";
 import PostInput from "@/components/comments/PostInput";
 import ReplyInput from "@/components/comments/ReplyInput";
+import { PiUserCircleDuotone } from "react-icons/pi";
 import ImageGallery from "@/components/club/ImageGallery";
 import Swal from "sweetalert2";
-import { MdOutlineMail, MdOutlinePostAdd } from "react-icons/md";
+import moment from "moment";
+import "moment/locale/th";
 import { BsPinAngleFill } from "react-icons/bs";
 import { IoSearch } from "react-icons/io5";
-import { FaUserPlus, FaUserTimes, FaCoins } from "react-icons/fa";
-import { BsThreeDotsVertical } from "react-icons/bs";
-import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { IoIosArrowBack } from "react-icons/io";
-import { AppLayout } from "@/themes";
+import { Divider } from "@mui/material";
 import Loading from "@/components/Loading";
+import Link from "next/link";
+import { GoHomeFill } from "react-icons/go";
+import { FaRegImage } from "react-icons/fa";
+import { MdOndemandVideo } from "react-icons/md";
+import { PiUsersThreeBold } from "react-icons/pi";
 
-moment.locale("th");
+moment.locale('th');
+import { AppLayout } from "@/themes";
 
-const LineProgressBar = dynamic(() => import("@/components/ProfileLineProgressBar"), { ssr: false });
+const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const fetcher = (url) => axios.get(url).then((res) => res.data);
-
-const ProfilePage = () => {
-    const [userData, setUserData] = useState(null);
+const Feed = ({ user, posts }) => {
+    const { data: session } = useSession();
     const [showComments, setShowComments] = useState({});
     const [showReply, setShowReply] = useState({});
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -45,30 +47,25 @@ const ProfilePage = () => {
     const [likes, setLikes] = useState({});
     const [checkError, setCheckError] = useState(null);
 
-    const { data: session } = useSession();
     const router = useRouter();
-    const { userId } = router.query;
 
     const folder = 'share-your-story';
 
-    const { data: user, mutate: mutateUser } = useSWR(`/api/users/${session?.user?.id}`, fetcher);
-
     useEffect(() => {
-        const fetchUserData = async () => {
-            setLoading(true);
-            try {
-                const response = await axios.get(`/api/profile/${userId}`);
-                setUserData(response.data.data);
-                setLoading(false);
-            } catch (error) {
-                console.error("Error fetching user data:", error);
-            }
-        };
-
-        fetchUserData();
-    }, [userId]);
-
-    console.log("userData:", userData);
+        if (posts.length) {
+            const initialLikes = posts.reduce((acc, post) => {
+                acc[post._id] = post.likes.some(like => like.userId === session?.user?.id);
+                post.comments.forEach(comment => {
+                    acc[comment._id] = comment.likes.some(like => like.userId === session?.user?.id);
+                    comment.reply.forEach(reply => {
+                        acc[reply._id] = reply.likes.some(like => like.userId === session?.user?.id);
+                    });
+                });
+                return acc;
+            }, {});
+            setLikes(initialLikes);
+        }
+    }, [posts, session]);
 
     const handleOptionClick = (event, type, id) => {
         setAnchorEl(event.currentTarget);
@@ -380,6 +377,40 @@ const ProfilePage = () => {
         }
     };
 
+    const handlePoints = async (post) => {
+        const result = await Swal.fire({
+            title: 'คุณแน่ใจ?',
+            text: `ที่จะให้ 500 Points กับ ${post.user.fullname} หรือไม่`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes!',
+            cancelButtonText: 'Cancel',
+        });
+    
+        if (result.isConfirmed) {
+            setLoading(true);
+            try {
+                await axios.post('/api/points/point', {
+                    userId: post.user._id,
+                    description: `ได้ Point จากโพส Share Your Story`,
+                    contentId: post._id,
+                    path: 'share your story',
+                    subpath: 'post',
+                    points: 500,
+                    type: 'earn',
+                });
+                mutate();
+            } catch (error) {
+                console.error(error);
+                Swal.fire('Error!', 'There was an issue deleting the post.', 'error');
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
+
     const handlePinned = async (postId, pinned) => {
         if (!pinned || pinned === false || pinned === null) {
             pinned = true;
@@ -398,189 +429,44 @@ const ProfilePage = () => {
         }
     };
 
-    const percent = userData?.level?.nextLevelRequiredPoints
-        ? parseFloat((userData?.points?.totalPoints / userData?.level?.nextLevelRequiredPoints ) * 100)
-        : 0;
-
-    if(loading || !userData) return <Loading />;
+    if (!posts) return <Loading />;
 
     return (
-        <div className="flex flex-col bg-gray-50 w-full min-h-screen">
-            <div>
-                <div className="flex bg-[#0056FF] w-full min-h-[120px]">
-                    <div className="flex items-start w-full mt-2">
-                        <div className="flex items-center">
-                            <IoIosArrowBack 
-                                size={20}
-                                className="text-white"
-                                onClick={() => router.back()}
-                            />
-                            <span className="text-white font-bold text-md ml-2">{userData?.user.fullname}</span>
-                        </div>
-                    </div>
-                </div>
-                {/* Header */}
-                <div className="flex flex-col justify-center w-full">
-                    <div className="relative flex flex-col justify-center items-center top-[-50px] w-full">
+        <div className="flex flex-col w-full">
+            {/* Input Post */}
+            <div className="flex flex-col bg-white py-2 w-full">
+                <div className="flex flex-row items-center justify-center px-2 w-full gap-2">
+                    <div>
                         <Image
-                            src={userData?.user.pictureUrl ? userData?.user.pictureUrl : "/images/placeholder.png"}
-                            alt="Profile"
-                            width={200}
-                            height={200}
-                            className="inline rounded-full"
-                            priority
-                            style={{
-                                width: "90px",
-                                height: "90px",
-                            }}
+                            src={user?.user?.pictureUrl}
+                            alt="user"
+                            width={40}
+                            height={40}
+                            className="w-[32px] h-[32px] rounded-full"
+                            onClick={() => router.push(`/p/${user?.user?.userId}`)}
                         />
-                        <div className="flex flex-col items-center mt-2">
-                            <span className="font-bold">{userData?.user.fullname}</span>
-                            <div className="flex flex-row gap-2 justify-center items-center mb-1">
-                                <span className="text-xs text-gray-400">เพื่อน: 0</span>
-                            </div>  
-                        </div>
-
-                        <div className="flex flex-row gap-2 justify-center items-center">
-                            <div className="bg-[#0056FF] text-white text-xs rounded-full px-2 py-0.5">
-                                <span><strong>EmpId:</strong> {userData?.user.empId}</span>
-                            </div>
-                            <div className="flex flex-row items-center gap-2 text-xs">
-                                <div className="flex flex-row gap-1 items-center bg-[#F68B1F] text-white rounded-xl px-2 py-0.5">
-                                    <span className="font-bold">Level:</span>
-                                    <span>{userData?.level?.level +1 }</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* badge */}
-                        <div className="flex flex-row gap-2 justify-center items-center mt-2 w-full">
-
-                        </div>
-
-                        <div className="flex flex-row items-center gap-4 text-xs mt-2"> 
-                            <div className="flex-row gap-1 items-center bg-gray-100 rounded-lg px-2 py-1">
-                                <FaUserPlus size={15}/>
-                            </div>
-                            <div className="flex-row gap-1 items-center bg-gray-100 rounded-lg px-2 py-1">
-                                <FaCoins size={15}/>
-                            </div>
-                            <div className="flex-row gap-1 items-center bg-gray-100 rounded-lg px-2 py-1">
-                                <MdOutlineMail size={15}/>
-                            </div>
-                            {(userData?.user.role === "admin" || userData?.user.role === "manager") && (
-                                <div className="flex-row gap-1 items-center bg-gray-100 rounded-lg px-2 py-1">
-                                    <MdOutlinePostAdd size={15} />
-                                </div>
-                            )}
-                        </div>
-                        
-                        {/* Point & Coins */}
-                        {userData?.user?.userId === session?.user?.id ? (
-                            <div className="flex flex-row items-center gap-2 text-xs mt-2">
-                                <div className="flex flex-row gap-1 items-center bg-[#F68B1F] text-white rounded-xl px-2 py-1">
-                                    <span className="font-bold">Point:</span>
-                                    <span>{userData?.points.point}</span>
-                                </div>
-                                <div className="flex flex-row gap-1 items-center bg-[#F68B1F] text-white rounded-xl px-2 py-1">
-                                    <span className="font-bold">Coins:</span>
-                                    <span>{userData?.coins.coins}</span>
-                                </div>
-                            </div>
-                        ): null}
-
-                        {userData?.user?.userId === session?.user?.id && (
-                            <div className="flex-1 flex-row items-center justify-center w-5/6 mt-3">
-                                <div className="flex flex-row">
-                                    <div className="relative top-[-6px] left-3 z-0">
-                                        <Image
-                                            src="/images/profile/Point.svg"
-                                            alt="Coin"
-                                            width={30}
-                                            height={30}
-                                            style={{ 
-                                                objectFit: "contain", 
-                                                objectPosition: "center", 
-                                                width: "25px", 
-                                                height: "25px" 
-                                            }}
-                                        />
-                                    </div>
-                                    <LineProgressBar percent={percent} />
-                                </div>
-                                <span className="flex text-sm font-semibold text-[#0056FF] justify-end mt-[-10px]">
-                                    {userData?.points?.totalPoints} / {userData?.level?.nextLevelRequiredPoints}
-                                </span>
-                            </div>
-                        )}
-
-                        {userData?.emp && (
-                            <div className="flex flex-col bg-gray-100 w-full px-2 mt-2 py-2">
-                                <span className="font-bold text-sm">รายละเอียด</span>
-                                <div className="flex flex-col px-2 text-xs">
-                                    {userData?.emp?.teamGrop && (
-                                        <span><strong>TeamGroup:</strong> {userData?.emp?.teamGrop}</span>
-                                    )}
-                                    {userData?.emp?.chief_th && (
-                                        <span><strong>Chief_th:</strong> {userData?.emp?.chief_th}</span>
-                                    )}
-                                    {userData?.emp?.position && (
-                                        <span><strong>Position:</strong> {userData?.emp?.position}</span>
-                                    )}
-                                    {userData?.emp?.group && (
-                                        <span><strong>Group:</strong> {userData?.emp?.group}</span>
-                                    )}
-                                    {userData?.emp?.department && (
-                                        <span><strong>Department:</strong> {userData?.emp?.department}</span>
-                                    )}
-                                    {userData?.emp?.branch && (
-                                        <span><strong>Branch:</strong> {userData?.emp?.branch}</span>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="flex flex-row items-center gap-2 px-2 w-full mt-2">
-                            <div className="flex items-center">
-                                <Image
-                                    src={user?.user?.pictureUrl}
-                                    alt="Profile"
-                                    width={60}
-                                    height={60}
-                                    className="rounded-full"
-                                    style={{ 
-                                        objectFit: "cover", 
-                                        objectPosition: "center", 
-                                        width: "40px", 
-                                        height: "40px" 
-                                    }}
-                                />
-                            </div>
-            
-                            <div 
-                                className="flex bg-gray-300/40 h-8 w-full items-center text-xs px-2 rounded-full"
-                                onClick={() => handleClickOpen('post')}
-                            >
-                                <span>คุณคิดอะไรอยู่?</span>
-                            </div>
-                        
-                        </div>
-
+                    </div>
+                    <div className="relative w-5/6 p-2 text-xs border border-gray-200 outline-none rounded-full h-8">
+                        <input
+                            type="text"
+                            placeholder="คุณคิดอะไรอยู่..?"
+                            className="w-full bg-transparent focus:outline-none"
+                            onClick={() => handleClickOpen('post')}
+                        />
                     </div>
                 </div>
-                    
-                
-                 {/* Post */}
-                 <div className="flex flex-col w-full align-top mt-[-40px] bg-gray-300 min-h-[100vh] text-gray-700 mb-20">
-                    {userData?.posts?.length > 0 ? (
-                        userData?.posts?.map((post, index) => (
+            </div>
+
+            {/* Post Container */}
+            <div className="flex flex-col w-full bg-gray-300 text-gray-700 mt-2">
+                {posts.map((post, index) => (
                     <div 
                         key={index} 
                         id={post?._id} 
                         className="flex flex-col px-2 w-full gap-2 bg-gray-100 py-2 rounded mb-2"
                     >
                         <div className="flex flex-row align-top items-start">
-                            <div className="flex items-start align-top w-[35px] h-[auto] pt-1">
+                            <div className="flex items-start align-top w-[35px] h-[35px] pt-1">
                                 <Image
                                     src={post?.user?.pictureUrl}
                                     alt="user"
@@ -588,49 +474,60 @@ const ProfilePage = () => {
                                     height={30}
                                     className="rounded-full"
                                     style={{ width: '30px', height: '30px' }}
+                                    onClick={() => router.push(`/p/${post?.user?.userId}`)}
                                 />
                             </div>
                             <div className="flex flex-col w-full ml-2">
                                 <div className="flex flex-row justify-between items-center">
-                                    <p className="text-xs font-bold text-[#0056FF]">
-                                        {post?.page === 'share-your-story' ? 
-                                          <div className="flex flex-row gap-1">
-                                            <span>{post?.user?.fullname}</span>
-                                            <span>{'>'}</span>
-                                            <span 
-                                                className="text-[#F68B1F]"
-                                                onClick={() => router.push(`/stores?tab=share-your-story#${post?._id}`)}
-                                            > 
-                                                Share your story
-                                            </span>
-                                          </div> 
-                                        : post?.user?.fullname}
-                                    </p>
+                                    <div className="flex flex-row gap-2">
+                                        <p className="text-xs font-bold text-[#0056FF]">
+                                            {post?.page === 'share-your-story' ? 
+                                            <div className="flex flex-row gap-1">
+                                                <span
+                                                    onClick={() => router.push(`/p/${post?.user?.userId}`)}
+                                                >
+                                                    {post?.user?.fullname}
+                                                </span>
+                                                <span>{'>'}</span>
+                                                <span 
+                                                    className="text-[#F68B1F]"
+                                                    onClick={() => router.push(`/stores?tab=share-your-story#${post?._id}`)}
+                                                > 
+                                                    Share your story
+                                                </span>
+                                            </div> 
+                                            : post?.user?.fullname}
+                                        </p>
+                                    </div>
+
                                     <div className="flex flex-row gap-2">
                                         {post?._id && post?.pinned ? (
                                             <BsPinAngleFill className="text-[#F68B1F]" />
                                         ) : (
                                             ''
                                         )}
-                                        {(user?.user?.role === 'admin' || user?.user?.role === 'manager' || post?.userId === session?.user?.id) && (
+                                        {(user?.user?.role === 'admin' || user?.user?.role === 'manager') && (
                                             <div className="relative">
                                                 <BsThreeDotsVertical onClick={(e) => handleOptionClick(e, 'post', post._id)} />
                                                 <Menu
                                                     anchorEl={anchorEl}
                                                     open={Boolean(anchorEl) && currentOption?.id === post._id}
                                                     onClose={handleOptionClose}
-                                                    classes={{ paper: "text-xs" }}
+                                                    classes={{ 
+                                                        paper: "text-xs",
+                                                    }}
                                                 >
                                                     <MenuItem onClick={() => { handlePinned(post?._id, post?.pinned); handleOptionClose(); }}>
                                                         {post?.pinned ? 'Unpin' : 'Pin'}
                                                     </MenuItem>
+                                                    <MenuItem onClick={() => { handlePoints(post); handleOptionClose(); }}>Point</MenuItem>
                                                     <MenuItem onClick={() => { handleDelete(currentOption.id); handleOptionClose(); }}>Delete</MenuItem>
                                                 </Menu>
                                             </div>
                                         )}
                                     </div>
                                 </div>
-                                <p className=" text-left text-[10px]">{moment(post?.createdAt).fromNow()}</p>
+                                <p className=" text-left text-[8px]">{moment(post?.createdAt).fromNow()}</p>
                                 <div className="inline flex-wrap flex-row text-left gap-1 items-center w-full mt-[-5px]">
                                     {post?.tagusers.length > 0 && post?.tagusers.map((taguser, index) => (
                                     <span key={index} className="inline-block text-[10px] text-[#F2871F]">{taguser?.fullname}</span>
@@ -640,7 +537,7 @@ const ProfilePage = () => {
                         </div>
                         <div className="flex flex-col w-full text-left">
                             {post?.post && (
-                                <p className="text-xs ml-2 mb-2">{post?.post}</p>
+                                <p className="text-xs ml-2">{post?.post}</p>
                             )}
                             {post?.medias.length > 0 && (
                                 <ImageGallery medias={post.medias} userId={session?.user?.id} />
@@ -690,11 +587,20 @@ const ProfilePage = () => {
                                                 height={20}
                                                 className="rounded-full"
                                                 style={{ width: '20px', height: '20px' }}
+                                                loading="lazy"
+                                                onClick={() => router.push(`/p/${comment?.user?.userId}`)}
                                             />
                                         </div>
                                         <div className="flex flex-col w-full">
                                             <div className="flex flex-row justify-between items-center">
-                                                <p className="text-xs font-bold text-[#0056FF]">{comment?.user?.fullname}</p>
+
+                                                <p 
+                                                    className="text-xs font-bold text-[#0056FF]"
+                                                    onClick={() => router.push(`/p/${comment?.user?.userId}`)}
+                                                >
+                                                    {comment?.user?.fullname}
+                                                </p>
+
                                                 {(comment.userId === session?.user?.id || user?.user?.role === 'admin' || user?.user?.role === 'manager') && (
                                                     <div className="relative">
                                                         <BsThreeDotsVertical onClick={(e) => handleOptionClick(e, 'comment', comment._id)} />
@@ -781,12 +687,21 @@ const ProfilePage = () => {
                                                         height={20}
                                                         className="rounded-full"
                                                         style={{ width: '20px', height: '20px' }}
+                                                        loading="lazy"
+                                                        onClick={() => router.push(`/p/${reply?.user?.userId}`)}
                                                     />
                                                 </div>
 
                                                 <div className="flex flex-col w-full">
                                                     <div className="flex flex-row justify-between items-center">
-                                                        <p className="text-xs font-bold text-[#0056FF]">{reply?.user?.fullname}</p>
+
+                                                        <p 
+                                                            className="text-xs font-bold text-[#0056FF]"
+                                                            onClick={() => router.push(`/p/${reply?.user?.userId}`)}
+                                                        >
+                                                            {reply?.user?.fullname}
+                                                        </p>
+
                                                         {(reply.userId === session?.user?.id || user?.user?.role === 'admin' || user?.user?.role === 'manager') && (
                                                             <div className="relative">
                                                                 <BsThreeDotsVertical onClick={(e) => handleOptionClick(e, 'reply', reply._id)} />
@@ -848,17 +763,16 @@ const ProfilePage = () => {
                             ))}
                         </div>
                     </div>
-                        ))
-                    ): null}
-                </div>
+                ))}
             </div>
+
             <Dialog 
                 fullScreen
                 open={isDialogOpen}
                 onClose={handleClose}
                 TransitionComponent={Transition}
             >
-                <div className="flex flex-col mt-2 p-2">
+                <div className="flex flex-col mt-2 p-2 max-h-screen">
                     {currentDialog?.type === 'post' && <PostInput handleSubmit={handlePostSubmit} userId={session?.user?.id} handleClose={handleClose} checkError={checkError} folder={folder} />}
                     {currentDialog?.type === 'comment' && <CommentInput handleSubmit={(data) => handleCommentSubmit(currentDialog.id, data)} userId={session?.user?.id} handleClose={handleClose} checkError={checkError} folder={folder}/>}
                     {currentDialog?.type === 'reply' && <ReplyInput handleSubmit={(data) => handleReplySubmit(currentDialog.id, data)} userId={session?.user?.id} handleClose={handleClose} checkError={checkError} folder={folder}/>}
@@ -869,12 +783,9 @@ const ProfilePage = () => {
                     <CircularProgress />
                 </div>
             </Dialog>
+
         </div>
-        
     );
 };
 
-export default ProfilePage;
-
-ProfilePage.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-ProfilePage.auth = true;
+export default Feed;
