@@ -204,19 +204,17 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
                             {/* Sticky */}
                            {hasRandom  === false && (
                                 <div 
-                                    className="fixed top-[80%] right-0 left-[78%] w-full"
+                                    className="fixed right-0 top-[72%] left-[60%] w-full z-10"
                                     onClick={() => setShowRandom(true)}
                                 >
-                                    <div className="flex flex-col bg-[#ED1C24] w-[80px] h-[80px] rounded-full shadow-xl items-center justify-center absolute">
-                                        <div className="flex items-center justify-center bg-white rounded-full w-[70px] h-[70px]">
+                                    <div className="flex flex-col items-center justify-center absolute">
                                             <Image
                                                 src="/images/1212/12.12.gif"
                                                 width={100}
                                                 height={100}
                                                 alt="Link"
-                                                style={{ width: '80px', height: 'auto' }}
+                                                style={{ width: '150px', height: 'auto' }}
                                             />
-                                        </div>
                                     </div>
                                 </div>
                            )}
