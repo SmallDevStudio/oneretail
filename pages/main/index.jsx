@@ -37,8 +37,6 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
         const [currentAdIndex, setCurrentAdIndex] = useState(0);
         const [timer, setTimer] = useState(5); // ตั้งเวลาถอยหลังเริ่มต้นที่ 5 วินาที
         const [loading, setLoading] = useState(false);
-        const [hasRandom, setHasRandom] = useState(false);
-        const [showRandom, setShowRandom] = useState(false);
         const router = useRouter();
         const userId = session?.user?.id;
     
@@ -90,17 +88,6 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
         
         // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [openAds, currentAdIndex, ads]);
-
-        useEffect(() => {
-            const fetchRandom = async () => {
-                await axios.get(`/api/randoms/${userId}`).then((res) => {
-                    if (res.data.data.length > 0) {
-                        setHasRandom(true);
-                    }
-                });
-            };
-            fetchRandom();
-        }, [userId]);
         
         const onRequestClose = () => {
             setShowModal(false);
@@ -132,23 +119,7 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
             setOpenAds(false); // ปิด modal เมื่อกดปิด
         };
 
-        const handleRandom = async() => {
-            // สุ่มค่าในช่วง 1-100
-            const point = Math.floor(Math.random() * 100) + 1;
-    
-            const res = await axios.post(`/api/randoms`, { userId, point });
-            if (res.data) {
-                setHasRandom(true);
-                setShowRandom(false);
-                await Swal.fire({
-                    title: 'สุ่มเรียบร้อย',
-                    icon: 'success',
-                    text: `คะแนนที่สุ่มได้ ${point} คะแนน`,
-                    confirmButtonText: 'ตกลง'
-                });
-            }
-        };
-    
+        
     
         if (status === "loading" || !user || !level || loading ) return <Loading />;
         if (userError) return <div>Error loading data</div>;
@@ -201,23 +172,6 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
                                 <span className="ml-2">v.1.5.0</span>
                             </div>
 
-                            {/* Sticky */}
-                           {hasRandom  === false && (
-                                <div 
-                                    className="fixed right-0 top-[72%] left-[60%] w-full z-10"
-                                    onClick={() => setShowRandom(true)}
-                                >
-                                    <div className="flex flex-col items-center justify-center absolute">
-                                            <Image
-                                                src="/images/1212/12.12.gif"
-                                                width={100}
-                                                height={100}
-                                                alt="Link"
-                                                style={{ width: '150px', height: 'auto' }}
-                                            />
-                                    </div>
-                                </div>
-                           )}
                         </div>
 
                        
@@ -250,26 +204,7 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
                                 </div>
                             </AdsModal>
                         )}
-                        {showRandom && 
-                            <RandomModal isOpen={showRandom} onClose={() => setShowRandom(false)}>
-                                <div className="flex flex-col items-center justify-center">
-                                    <Image
-                                        src="/images/1212/12.12.gif"
-                                        width={300}
-                                        height={300}
-                                        alt="Link"
-                                        style={{ width: '350px', height: 'auto' }}
-                                    />
-
-                                    <button
-                                        className="bg-[#ED1C24] text-white font-bold py-2 px-4 rounded-full mt-[-40px] border-2 border-white"
-                                        onClick={() => handleRandom()}
-                                    >
-                                        กดลุ้นรับรางวัล
-                                    </button>
-                                </div>
-                            </RandomModal>
-                        }
+                        
                     </main>
                 </RecheckUser>
             </React.Fragment>

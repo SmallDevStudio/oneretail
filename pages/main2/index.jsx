@@ -27,7 +27,6 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
     const MainPage = () => {
         const { data: session, status } = useSession();
         const [showModal, setShowModal] = useState(false);
-        const [pilotModal, setPilotModal] = useState(false);
         const [linkModal, setLinkModal] = useState(false);
         const [openModal, setOpenModal] = useState(false);
         const [openAds, setOpenAds] = useState(false);
@@ -166,21 +165,6 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
                                 <p>Copyright © 2024. All Rights Reserved.</p>
                                 <span className=""> Powered by <span className="text-[#0056FF]/50 font-bold">One Retail</span></span>
                                 <span className="ml-2">v.1.6.0</span>
-                            </div>
-
-                            <div className="fixed top-[80%] right-0 left-[65%] w-full">
-                                <div className="flex flex-row bg-[#ED1C24] w-[150px] h-[50px] rounded-s-full shadow-xl items-center gap-2">
-                                    <div className="flex items-center justify-center ml-2 bg-yellow-400 rounded-full w-[40px] h-[40px]">
-                                        <Image
-                                            src="/images/cd/siamsee.gif"
-                                            width={50}
-                                            height={50}
-                                            alt="Link"
-                                            style={{ width: '30px', height: 'auto' }}
-                                        />
-                                    </div>
-                                    <span className="text-white font-bold text-sm">คลิกลุ้นคะแนน</span>
-                                </div>
                             </div>
 
                         </div>
