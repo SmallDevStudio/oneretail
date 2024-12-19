@@ -27,6 +27,11 @@ const RockPaperScissors = ({ userId }) => {
     paper: "/images/game3/paper.png",
     scissors: "/images/game3/scissors.png",
   }
+  const imageIconChoices = {
+    rock: "/images/game3/rock_b.png",
+    paper: "/images/game3/paper_b.png",
+    scissors: "/images/game3/scissors_b.png",
+  }
 
   useEffect(() => {
     const fetchHasPlayedToday = async () => {
@@ -71,12 +76,12 @@ const RockPaperScissors = ({ userId }) => {
       (userPick === "paper" && cpuPick === "rock")
     ) {
       setUserScore(userScore + 1);
-      setResult("คุณชนะรอบนี้!");
+      setResult("คุณชนะ!");
     } else if (userPick === cpuPick) {
-      setResult("เสมอ!");
+      setResult("คุณเสมอ!");
     } else {
       setCpuScore(cpuScore + 1);
-      setResult("คุณแพ้รอบนี้!");
+      setResult("คุณแพ้!");
     }
 
   };
@@ -155,131 +160,118 @@ const RockPaperScissors = ({ userId }) => {
           <span></span>
         </div>
 
-        <div className="flex flex-col mb-2 px-2">
-          <span className="text-sm text-gray-200">
-            เกมเป่ายิ้งฉุบ ให้คุณเลือก ค้อน กรรไกร กระดาษ เพื่อเอาชนะคู่แข่ง 
-            ถ้าใครได้ 3 คะแนนก่อน จะเป็นผู้ชนะเกม
+        <div className="flex flex-row items-center justify-center mb-2">
+          <span className="text-3xl text-white font-black">
+            รอบที่ {round}
           </span>
         </div>
 
-      <div className="flex flex-col justify-between bg-white rounded-2xl min-h-[75vh] p-4 ">
-        <div className="flex flex-col">
-          <div className="flex flex-row justify-evenly text-sm bg-gray-300 rounded-2xl">
-            <div className="flex flex-col items-center px-4 py-2">
-              <span className="text-md font-bold">คะแนน</span>
-              <span className="text-3xl font-bold text-red-600">{userScore}</span>
-            </div>
-
-            <Divider orientation="vertical" flexItem />
-
-            <div className="flex flex-col items-center px-4 py-2">
-              <span className="text-md font-bold">คู่แข่ง</span>
-              <span className="text-3xl font-bold text-red-600">{cpuScore}</span>
-            </div>
-
-            <Divider orientation="vertical" flexItem />
-
-            <div className="flex flex-col items-center px-4 py-2">
-              <span className="text-md font-bold">เวลา</span>
-              <span className="text-3xl font-bold">{timer}</span>
-            </div>
-
-            <Divider orientation="vertical" flexItem />
-
-            <div className="flex flex-col items-center px-4 py-2">
-              <span className="text-md font-bold">รอบที่</span>
-              <span className="text-3xl font-bold text-[#F2871F]">{round}</span>
-            </div>
-          </div>
+      <div className="flex flex-col justify-between bg-white rounded-2xl min-h-[75vh] p-2 ">
+        <div className="flex flex-row items-center justify-center gap-4 w-full">
+          <span className="text-xl font-bold text-[#0056FF]">คุณ</span>
+          <span className="font-bold text-[3em] text-[#F2871F]">{userScore}</span>
+          <span className="text-3xl font-bold text-black">:</span>
+          <span className="font-bold text-[3em] text-[#0056FF]">{cpuScore}</span>
+          <span className="text-xl font-bold text-[#F2871F]">คอม</span>
         </div>
       
-      <div className="flex flex-col mt-2">
-        {userChoice && cpuChoice && (
-          <div className="flex flex-row gap-4 items-center justify-evenly bg-gray-300 p-4 rounded-2xl min-h-[80%]">
-            <div className="flex flex-col items-center gap-2">
-              <Image
-                src={imageChoices[userChoice]}
-                alt={userChoice}
-                width={100}
-                height={100}
-              />
-              <span className="font-bold bg-[#F2871F] px-4 py-1 rounded-full text-white">คุณเลือก</span>
-            </div>
+        <div className="flex flex-col mt-2">
+        <div className="flex flex-col gap-7 items-center justify-evenly p-4 min-h-[80%]">
+          {userChoice && (
+              <div className="flex flex-col items-center gap-2">
+                <Image
+                  src={imageChoices[userChoice]}
+                  alt={userChoice}
+                  width={100}
+                  height={100}
+                  className="text-[#0056FF]"
+                />
+              </div>
+            )}
 
-            <div className="flex flex-col items-center gap-2">
-              <Image
-                src={imageChoices[cpuChoice]}
-                alt={cpuChoice}
-                width={100}
-                height={100}
-              />
-              <span className="font-bold bg-[#0056FF] px-4 py-1 rounded-full text-white">คู่ต่อสู้เลือก</span>
-            </div>
-          
-          </div>
-        )}
-
-        {result && (
-          <div className="flex flex-col items-center mt-2">
-            <span 
-              className={`text-3xl font-bold ${result === "คุณชนะรอบนี้!" ? "text-green-500" : result === "คุณแพ้รอบนี้!" ? "text-red-500" : "text-blue-600"}`}>
-                {result}
-            </span>
-            <button
-              className="bg-[#F2871F] text-white px-4 py-2 rounded-full mt-4"
-              onClick={handleNextRound}
-            >
-              รอบถัดไป
-            </button>
-          </div>
-        )}
-        </div>
-
-        <div className="flex flex-row justify-center mt-4 gap-4 w-full bg-gray-200 p-4 rounded-2xl">
-          {choices.map((choice) => (
-            <div
-              key={choice}
-            >
-              <Image
-                src={imageChoices[choice]}
-                alt={choice}
-                width={100}
-                height={100}
-                className="cursor-pointer"
-                onClick={() => handleChoiceClick(choice)}
-              />
-            </div>
-          ))}
-        </div>
-        {showModal && (
-          <Modal 
-            isOpen={showModal} 
-            onClose={handleModalClose}
-          >
-            <div className="flex flex-col justify-center items-center">
-              
-              <span className={`text-2xl font-bold mb-4 ${userScore === 3 ? "text-green-500" : "text-red-500"}`}>
-                {userScore === 3 ? "คุณชนะเกม!" : "คุณแพ้เกม!"}
-              </span>
-              {!hasTodayPlayed && userScore === 3 && (
-                <span className="text-3xl font-bold mb-4">
-                  คุณได้รับ 5 Point
-                </span>
-              )}
-              {hasTodayPlayed && (
-                <span className="text-2xl font-bold mb-4">
-                  วันนี้คุณได้เล่นเกมแล้ว
-                </span>
-              )}
-              <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                onClick={handleModalClose}
+              <div
+                className="inline-block px-9 py-4 text-[2.5em] font-bold text-white bg-[#0056FF] rounded-full"
               >
-                ตกลง
-              </button>
+                {timer}
+              </div>
+
+              {cpuChoice && (
+                <div className="flex flex-col items-center gap-2">
+                  <Image
+                    src={imageChoices[cpuChoice]}
+                    alt={cpuChoice}
+                    width={100}
+                    height={100}
+                    className="text-[#F2871F]"
+                  />
+                </div>
+              )}
+              
             </div>
-          </Modal>
-        )}
+         
+          </div>
+
+          <div className="flex flex-col items-center">
+            <div className="flex flex-row justify-evenly mt-4 gap-4 w-full">
+              {choices.map((choice) => (
+                <div
+                  key={choice}
+                >
+                  <Image
+                    src={imageIconChoices[choice]}
+                    alt={choice}
+                    width={70}
+                    height={70}
+                    className="cursor-pointer"
+                    onClick={() => handleChoiceClick(choice)}
+                  />
+                </div>
+              ))}
+            </div>
+            
+            <div className="flex flex-col items-center w-full min-h-[80px]">
+              {result && (
+                <div className="flex flex-col items-center mt-4 bg-[#0056FF] py-2 px-4 rounded-full w-5/6 mb-2">
+                  <span 
+                    className={`text-3xl font-bold text-white`}
+                    onClick={handleNextRound}
+                  >
+                      {result}
+                  </span>
+                </div>
+              )}
+            </div>
+
+          </div>
+          {showModal && (
+            <Modal 
+              isOpen={showModal} 
+              onClose={handleModalClose}
+            >
+              <div className="flex flex-col justify-center items-center">
+                
+                <span className={`text-2xl font-bold mb-4 ${userScore === 3 ? "text-green-500" : "text-red-500"}`}>
+                  {userScore === 3 ? "คุณชนะเกม!" : "คุณแพ้เกม!"}
+                </span>
+                {!hasTodayPlayed && userScore === 3 && (
+                  <span className="text-3xl font-bold mb-4">
+                    คุณได้รับ 5 Point
+                  </span>
+                )}
+                {hasTodayPlayed && (
+                  <span className="text-2xl font-bold mb-4">
+                    วันนี้คุณได้เล่นเกมแล้ว
+                  </span>
+                )}
+                <button
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                  onClick={handleModalClose}
+                >
+                  ตกลง
+                </button>
+              </div>
+            </Modal>
+          )}
       </div>
     </div>
   );

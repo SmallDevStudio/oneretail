@@ -7,36 +7,45 @@ const ProfileLineProgressBar = ({ percent }) => {
     useEffect(() => {
         let bar = null;
 
+        const getColor = (percentage) => {
+            if (percentage <= 20) {
+              return '#ff0000'; // แดง
+            } else if (percentage <= 40) {
+              return '#ff8000'; // ส้ม
+            } else if (percentage <= 60) {
+              return '#ffbf00'; // ส้มอมเหลือง
+            } else if (percentage <= 80) {
+              return '#80ff00'; // เหลืองอมเขียว
+            } else {
+              return '#00ff00'; // เขียว
+            }
+          };
+
         if (progressBarRef.current) {
             bar = new ProgressBar.Line(progressBarRef.current, {
-                strokeWidth: 5,
+                strokeWidth: 7,
                 easing: 'easeInOut',
                 duration: 1400,
                 color: '#ED1C24',
                 trailColor: '#eee',
-                trailWidth: 5,
-                svgStyle: { width: '100%', height: '100%' },
-                text: {
-                    style: {
-                        color: 'black',
-                        position: 'absolute',
-                        left: '50%',
-                        top: '100%',
-                        padding: 0,
-                        margin: 0,
-                        transform: 'translate(-50%, -50%)', // Center the text
-                        fontSize: '12px',
-                        lineHeight: '8px', // Add this line to ensure Safari handles the text size correctly
-                        marginTop: '2px'
-                    },
-                    autoStyleContainer: false
-                },
-                from: { color: '#ED1C24' },
-                to: { color: '#ED1C24' },
+                trailWidth: 7,
+                from: { color: getColor(0) },
+                to: { color: getColor(percent) },
                 step: (state, bar) => {
+                    bar.path.setAttribute('stroke', getColor(Math.round(bar.value() * 100)));
                     bar.path.setAttribute('stroke-linecap', 'round');
-                    bar.setText(Math.round(bar.value() * 100) + ' %');
-                },
+                    const value = Math.round(bar.value() * 100);
+                    if (value === 0) {
+                      bar.setText('');
+                    } else {
+                      bar.setText(value + '%');
+                    }
+                    bar.text.style.color = '#000'; // สีข้อความเป็นสีดำ
+                    bar.text.style.fontWeight = 'bold'; // ตัวหนา
+                    bar.text.style.top = '50%';
+                    bar.text.style.marginTop = '5px';
+                    bar.text.style.weight = '25%';
+                  },
                 svgStyle: {
                     borderRadius: '15px' // Add this line to make the trail rounded
                 },

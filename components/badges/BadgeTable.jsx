@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { upload } from '@vercel/blob/client';
+import { nanoid } from "nanoid";
 import axios from "axios";
 import useSWR from "swr";
 import { useSession } from "next-auth/react";
@@ -28,7 +29,7 @@ const BadgeTable = () => {
 
     const { data: badgesData, mutate } = useSWR("/api/badges", fetcher, {
         onSuccess: (data) => {
-            setBadges(data);
+            setBadges(data.data);
         },
     });
 
@@ -108,6 +109,8 @@ const BadgeTable = () => {
 
           // รีเซ็ตค่า input เพื่อให้สามารถเลือกไฟล์ใหม่ได้หลังการบันทึกเสร็จ
           fileInputRef.current.value = '';
+
+          mutate();
     };
 
     const handleDelete = async(id) => {
@@ -171,6 +174,8 @@ const BadgeTable = () => {
         setShowForm(false);
     };
 
+    console.log(badges);
+
     return (
         <div className="flex flex-col p-2">
             {/* Tools */}
@@ -207,7 +212,7 @@ const BadgeTable = () => {
                                     <td>{badge.description}</td>
                                     <td>
                                         <Image
-                                            src={badge.image}
+                                            src={badge.image[0].url}
                                             alt={badge.name}
                                             width={50}
                                             height={50}

@@ -59,7 +59,7 @@ const ProfileContent = ({ session }) => {
         <main className="flex-1 flex-col mb-20">
             <div style={{ position: "fixed", top: 0, left: '38%', zIndex: 10, cursor: "pointer", minWidth: "100%", justifyItems: "end" }}>
                 <div className="flex p-2 flex-row items-center justify-center gap-1">
-                    {users?.user?.role === "admin" || users?.user?.role === "manager" && (
+                    {(users?.user?.role === "admin" || users?.user?.role === "manager") && (
                         <div className="flex items-center justify-center rounded-full p-1">
                             <Link href="/send">
                                 <MdOutlinePostAdd size={22} className="text-gray-400 cursor-pointer" />

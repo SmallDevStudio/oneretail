@@ -10,21 +10,14 @@ import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import CommentInput from "@/components/comments/CommentInput";
 import PostInput from "@/components/comments/PostInput";
 import ReplyInput from "@/components/comments/ReplyInput";
-import { PiUserCircleDuotone } from "react-icons/pi";
-import ImageGallery from "@/components/club/ImageGallery";
+import ImageGallery from "@/components/main/ImageGallery";
 import Swal from "sweetalert2";
 import moment from "moment";
 import "moment/locale/th";
 import { BsPinAngleFill } from "react-icons/bs";
-import { IoSearch } from "react-icons/io5";
-import { IoIosArrowBack } from "react-icons/io";
-import { Divider } from "@mui/material";
 import Loading from "@/components/Loading";
-import Link from "next/link";
-import { GoHomeFill } from "react-icons/go";
-import { FaRegImage } from "react-icons/fa";
-import { MdOndemandVideo } from "react-icons/md";
-import { PiUsersThreeBold } from "react-icons/pi";
+import Post from "./Post";
+
 
 moment.locale('th');
 import { AppLayout } from "@/themes";
@@ -765,6 +758,7 @@ const Feed = ({ user, posts }) => {
                     </div>
                 ))}
             </div>
+            
 
             <Dialog 
                 fullScreen
