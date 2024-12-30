@@ -19,17 +19,18 @@ export default async function handler(req, res) {
             break;
 
         case "POST":
-            const { userId, point } = req.body;
+            const { userId, point, campaign } = req.body;
             try {
                 const random = await Ramdoms.create({
                     userId: userId,
-                    point: point
+                    point: point,
+                    campaign: campaign
                 });
 
                 if (random) {
                     const createPoint = await Point.create({
                         userId: userId,
-                        description: `กิจกรรม 12.12`,
+                        description: `New Year 2025`,
                         contentId: random._id,
                         path: 'randoms',
                         type: 'earn',

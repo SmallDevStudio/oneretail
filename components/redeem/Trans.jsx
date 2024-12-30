@@ -190,11 +190,11 @@ const Trans = () => {
         acc[empId] = {
           empId,
           fullname: trans.fullname,
-          teamGroup: trans.emp.teamGrop,
-          position: trans.emp.position,
-          group: trans.emp.group,
-          department: trans.emp.department,
-          branch: trans.emp.branch,
+          teamGroup: trans?.emp?.teamGrop || "",
+          position: trans?.emp?.position || "",
+          group: trans?.emp?.group || "",
+          department: trans?.emp?.department || "",
+          branch: trans?.emp?.branch || "",
           total: 0,
         };
       }
@@ -218,7 +218,7 @@ const Trans = () => {
   
     // **Sheet 4: Count by Group**
     const groupCounts = filteredData.reduce((acc, trans) => {
-      const group = trans.emp.group || "Unknown"; // ใช้ "Unknown" หากไม่มีข้อมูล group
+      const group = trans?.emp?.group || "Unknown"; // ใช้ "Unknown" หากไม่มีข้อมูล group
       if (!acc[group]) {
         acc[group] = { group, count: 0 };
       }

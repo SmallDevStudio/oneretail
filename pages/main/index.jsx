@@ -30,13 +30,15 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
     const MainPage = () => {
         const { data: session, status } = useSession();
         const [showModal, setShowModal] = useState(false);
-        const [pilotModal, setPilotModal] = useState(false);
         const [linkModal, setLinkModal] = useState(false);
         const [openModal, setOpenModal] = useState(false);
+        const [hasRandom, setHasRandom] = useState(false);
+        const [showRandom, setShowRandom] = useState(false);
         const [openAds, setOpenAds] = useState(false);
         const [currentAdIndex, setCurrentAdIndex] = useState(0);
         const [timer, setTimer] = useState(5); // ตั้งเวลาถอยหลังเริ่มต้นที่ 5 วินาที
         const [loading, setLoading] = useState(false);
+        const [showSticky, setShowSticky] = useState(false);
         const router = useRouter();
         const userId = session?.user?.id;
     
@@ -88,6 +90,60 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
         
         // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [openAds, currentAdIndex, ads]);
+
+
+        useEffect(() => {
+            const fetchRandom = async () => {
+                await axios.get(`/api/randoms/${userId}?campaign=newyear`).then((res) => {
+                    if (res.data.data.length > 0) {
+                        setHasRandom(true);
+                    }
+                });
+            };
+            fetchRandom();
+        }, [userId]);
+
+        useEffect(() => {
+            const checkDate = () => {
+                const currentDate = new Date();
+                const startDate = new Date("2025-01-01T00:00:00");
+                const endDate = new Date("2025-01-01T23:59:59");
+    
+                if (currentDate >= startDate && currentDate <= endDate) {
+                    setShowSticky(true);
+                } else {
+                    setShowSticky(false);
+                }
+            };
+    
+            checkDate();
+            const interval = setInterval(checkDate, 60000); // ตรวจสอบทุก 1 นาที
+            return () => clearInterval(interval); // ล้าง interval เมื่อ component ถูก unmount
+        }, []);
+
+        const handleRandom = async() => {
+            // สุ่มค่าในช่วง 1-100
+            const point = 25;
+    
+            const res = await axios.post(`/api/randoms`, 
+                { 
+                    userId, 
+                    point,
+                    campaign: 'newyear'
+                });
+            if (res.data) {
+                setHasRandom(true);
+                setShowRandom(false);
+                await Swal.fire({
+                    title: 'สุ่มเรียบร้อย',
+                    icon: 'success',
+                    text: `คุณได้รับ ${point} คะแนน`,
+                    confirmButtonText: 'ตกลง'
+                });
+            }
+        };
+
+
         
         const onRequestClose = () => {
             setShowModal(false);
@@ -172,6 +228,25 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
                                 <span className="ml-2">v.1.5.0</span>
                             </div>
 
+                            {/* Sticky */}
+                           {showSticky && hasRandom  === false && !showRandom && (
+                                <div 
+                                    className="fixed right-0 top-[72%] left-[60%] w-full z-10"
+                                    onClick={() => setShowRandom(true)}
+                                >
+                                    <div className="flex flex-col items-center justify-center absolute">
+                                            <Image
+                                                src="/images/1212/HNY-25-Points.gif"
+                                                width={100}
+                                                height={100}
+                                                alt="Link"
+                                                style={{ width: '150px', height: 'auto' }}
+                                            />
+                                    </div>
+                                </div>
+                           )}
+
+
                         </div>
 
                        
@@ -204,6 +279,28 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
                                 </div>
                             </AdsModal>
                         )}
+
+                        {showRandom && 
+                            <RandomModal isOpen={showRandom} onClose={() => setShowRandom(false)}>
+                                <div className="flex flex-col items-center justify-center">
+                                    <Image
+                                        src="/images/1212/HNY-25-Points.gif"
+                                        width={300}
+                                        height={300}
+                                        alt="Link"
+                                        style={{ width: '350px', height: 'auto' }}
+                                    />
+
+                                    <button
+                                        className="bg-[#ED1C24] text-white font-bold py-2 px-4 rounded-full mt-[-10px] border-2 border-white"
+                                        onClick={() => handleRandom()}
+                                    >
+                                        กดรับรางวัล
+                                    </button>
+                                </div>
+                            </RandomModal>
+                        }
+
                         
                     </main>
                 </RecheckUser>

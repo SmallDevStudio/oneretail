@@ -11,8 +11,9 @@ export default async function handler(req, res) {
 
     switch (method) {
         case "GET":
+            const { campaign } = req.query;
             try {
-                const ramdoms = await Ramdoms.find({ userId: userId });
+                const ramdoms = await Ramdoms.find({ userId: userId, campaign: campaign }).sort({ createdAt: -1 });
                 res.status(200).json({ success: true, data: ramdoms });
             } catch (error) {
                 res.status(400).json({ success: false });

@@ -20,6 +20,7 @@ import { LuSticker } from "react-icons/lu";
 import { LuBaby } from "react-icons/lu";
 import { TbSpeakerphone } from "react-icons/tb";
 import { FaWpforms } from "react-icons/fa";
+import { BiCalendarStar } from "react-icons/bi";
 import Image from "next/image";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
@@ -193,6 +194,13 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                 title="จัดการ Events"
                 to="/admin/events"
                 icon={<FaCalendarAlt />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+              <Item
+                title="จัดการหลักสูตร"
+                to="/admin/courses"
+                icon={<BiCalendarStar />}
                 selected={selected}
                 setSelected={setSelected}
               />
