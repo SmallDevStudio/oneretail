@@ -35,7 +35,7 @@ const UserPanel = ({user, level, onExchangeAdd, setLoading, loading, coins, onUp
 
 
     return (
-        <div className="flex flex-row bg-[#003654] text-white items-start justify-between rounded-xl px-2 shadow-lg">
+        <div className="flex flex-row bg-[#0056FF] text-white items-start justify-between rounded-xl px-2 shadow-lg">
             <div className="flex flex-col w-2/3">
                 <div className="flex flex-row gap-4">
                     <div className="flex flex-col" style={{ width: "auto", height: "auto" }} onClick={() => setIsModalOpen(true)}>
@@ -92,7 +92,7 @@ const UserPanel = ({user, level, onExchangeAdd, setLoading, loading, coins, onUp
                             คะแนน
                         </span>
                     </div>
-                    <span className="flex font-bold text-[#ED1C24]">{coins?.coins} คอยน์ </span>
+                    <span className="flex font-bold text-[#F2871F]">{coins?.coins} คอยน์ </span>
 
                     <div className="flex flex-col items-center mt-3">
                         <span className="text-[10px]">
@@ -124,28 +124,15 @@ const UserPanel = ({user, level, onExchangeAdd, setLoading, loading, coins, onUp
                             }}
                         />
                             <button
-                                className="text-[#ED1C24] font-bold text-lg"
+                                className="text-[#F2871F] font-bold text-lg"
                                 onClick={openModal}
                             >
                                 คลิก
                             </button>
                         </div>
                     </div>
-                    <div className="absolute top-8 right-4">
-                        <Image
-                            src="/images/christmas/asset.png"
-                            alt="point"
-                            width={30}
-                            height={30}
-                            priority
-                            style={{ objectFit: "cover", 
-                                objectPosition: "center", 
-                                width: "42px", 
-                                height: "42px" 
-                            }}
-                        />
-                    </div>
                 </div>
+                
             </div>
             <ExchangeModal
                 isOpen={modalIsOpen}
