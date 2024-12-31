@@ -13,6 +13,8 @@ const Gallery = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [modalLoading, setModalLoading] = useState(false);
+
+    const router = useRouter();
   
     const folderId = "1txY4MczD4YcomdEtHJM5P5tCuagDDmRM";
     const apiKey = process.env.YOUTUBE_API_KEY;

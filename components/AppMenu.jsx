@@ -9,7 +9,7 @@ export default function AppMenu() {
 
 
     return (
-        <nav className="fixed bottom-0 left-0 z-50 w-full h-16 bg-[#003654] shadow-lg text-white" style={{ fontFamily: "ttb" }}>
+        <nav className="flex bg-[#003654] text-white" style={{ fontFamily: "ttb" }}>
                 <div className="grid h-full max-w-lg grid-cols-5 mx-auto font-medium">
                     <button type="button" className={`inline-flex flex-col items-center justify-center px-5 ${isActive('/learning') ? "text-blue-600" : ""}`} 
                         onClick={() => router.push('/learning')}>

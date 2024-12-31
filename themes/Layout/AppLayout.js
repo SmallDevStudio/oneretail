@@ -5,10 +5,10 @@ const AppLayout = ({ children }) => {
     return (
         <>
             <div className="flex flex-col min-h-screen">
-                <div className="flex-1">
+                <main className="flex-1">
                     {children}
-                </div>
-                <nav className="nav">
+                </main>
+                <nav className="fixed bottom-0 w-full z-50">
                     <AppMenu />
                 </nav>
             </div>

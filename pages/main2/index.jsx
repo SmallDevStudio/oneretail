@@ -122,8 +122,8 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
         return (
             <React.Fragment>
                 <RecheckUser>
-                    <main className="flex flex-col bg-gray-10 justify-between items-center text-center min-h-screen">
-                        <div className="flex justify-end mt-2 mr-3 w-full">
+                <div className="flex flex-col bg-gray-10 justify-between items-center text-center">
+                        <div className="relative flex justify-end mt-2 mr-3 w-full">
                             <MenuPanel user={user} />
                         </div>
                         <div className="w-full px-5 py-5">
@@ -137,11 +137,12 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
                                 onUplad={onUplad}
                             />
                         </div>
-                        <div className="w-full">
+                        
+                        <div className="relative w-full max-h-[30vh]">
                             <MainIconMenu />
                         </div>
                         
-                        <div className="w-full">
+                        <div className="relative w-full">
                             <Carousel />
                         </div>
                         <div className="relative w-full footer-content">
@@ -181,7 +182,7 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
                                 </div>
                             </AdsModal>
                         )}
-                    </main>
+                    </div>
                 </RecheckUser>
             </React.Fragment>
         );
