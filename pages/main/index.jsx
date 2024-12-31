@@ -135,7 +135,7 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
                 setHasRandom(true);
                 setShowRandom(false);
                 await Swal.fire({
-                    title: 'สุ่มเรียบร้อย',
+                    title: 'ได้รับเรียบร้อย',
                     icon: 'success',
                     text: `คุณได้รับ ${point} คะแนน`,
                     confirmButtonText: 'ตกลง'
