@@ -29,9 +29,7 @@ const Courses = () => {
         setShowForm(!showForm);
     };
 
-    console.log('selectedCourse:', selectedCourse);
     console.log('courses:', courses);
-    console.log('isEditing:', isEditing);
 
     if (isLoading) return <Loading />;
     if (error) return <div>Failed to load</div>;

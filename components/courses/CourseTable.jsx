@@ -86,8 +86,8 @@ export default function CourseTable({ courses, mutate, setIsEditing, setSelected
                     {courses.map((course, index) => (
                         <tr key={index}>
                             <td className="border px-4 py-2">{index + 1}</td>
-                            <td className="border px-4 py-2">{course.title}</td>
-                            <td className="border px-4 py-2">{course.description}</td>
+                            <td className="border px-4 py-2">{course?.course?.title}</td>
+                            <td className="border px-4 py-2">{course?.course?.description}</td>
                             <td className="border px-4 py-2">
                                 <div 
                                     className="flex items-center justify-center w-full cursor-pointer"
@@ -103,25 +103,25 @@ export default function CourseTable({ courses, mutate, setIsEditing, setSelected
                                     className="flex items-center justify-center w-full cursor-pointer"
                                     onClick={() => handleUpdateActive(course._id, !course.active)}
                                 >
-                                {course.active ? 
+                                {course?.course?.active ? 
                                 <span className="bg-green-500 font-bold text-white px-4 py-0.5 rounded-full">เปิดใช้งาน</span> 
                                 : 
                                 <span className="bg-red-500 font-bold text-white px-4 py-0.5 rounded-full">ปิดใช้งาน</span>
                                 }
                                 </div>
                             </td>
-                            <td className="border px-4 py-2">{moment(course.createdAt).format('lll')}</td>
+                            <td className="border px-4 py-2">{moment(course?.course?.createdAt).format('lll')}</td>
                             <td className="border px-4 py-2">
                                 <div className="flex items-center space-x-2">
                                     <button className="text-blue-500 hover:text-blue-700">
                                         <FaEdit 
-                                            onClick={() => handleEdit(course)} 
+                                            onClick={() => handleEdit(course?.course)} 
                                             size={25}
                                         />
                                     </button>
                                     <button className="text-red-500 hover:text-red-700">
                                         <FaSquareMinus 
-                                            onClick={() => handleDelete(course._id)} 
+                                            onClick={() => handleDelete(course?.course?._id)} 
                                             size={25}
                                         />
                                     </button>
