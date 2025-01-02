@@ -9,15 +9,19 @@ export default function AdminLayout({ children }) {
     return (
         <>
             <NextAuthProvider>
-                <div className="app">
+                <main className="flex flex-col min-h-screen">
+                
                     <div className="flex flex-row">
-                        <SideBar isSidebar={isSidebar} />
-                        <main className="flex flex-col w-full">
+                        <div>
+                            <SideBar />
+                        </div>
+                        <div className="flex flex-col w-full">
                             <Topbar setIsSidebar={setIsSidebar}/>
                             {children}
-                        </main>
+                        </div>
+                        
                     </div>
-                </div>
+                </main>
             </NextAuthProvider>
         </>
     )

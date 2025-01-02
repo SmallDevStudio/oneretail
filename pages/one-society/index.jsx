@@ -7,14 +7,9 @@ import Image from "next/image";
 import moment from "moment";
 import "moment/locale/th";
 import { IoSearch } from "react-icons/io5";
-import { IoIosArrowBack } from "react-icons/io";
 import { Divider } from "@mui/material";
 import Loading from "@/components/Loading";
 import Link from "next/link";
-import { GoHomeFill } from "react-icons/go";
-import { FaRegImage } from "react-icons/fa";
-import { MdOndemandVideo } from "react-icons/md";
-import { PiUsersThreeBold } from "react-icons/pi";
 import { GoHome } from "react-icons/go";
 import { HiOutlineUsers } from "react-icons/hi2";
 import { IoImagesOutline } from "react-icons/io5";
@@ -87,7 +82,7 @@ const FeedPage = () => {
     console.log('videos', videos);
 
     return (
-        <div className="flex flex-col w-full min-h-screen mb-20">
+        <div className="flex flex-col w-full min-h-screen max-w-[100vw]">
             <div className="flex flex-row items-center justify-between gap-4 w-full mt-2 px-2">
                 <div className="flex flex-row items-center gap-2">
                     <h1 

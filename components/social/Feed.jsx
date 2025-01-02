@@ -16,13 +16,8 @@ import moment from "moment";
 import "moment/locale/th";
 import { BsPinAngleFill } from "react-icons/bs";
 import Loading from "@/components/Loading";
-import Post from "./Post";
-
 
 moment.locale('th');
-import { AppLayout } from "@/themes";
-
-const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -427,7 +422,7 @@ const Feed = ({ user, posts }) => {
     return (
         <div className="flex flex-col w-full">
             {/* Input Post */}
-            <div className="flex flex-col bg-white py-2 w-full">
+            <div className="flex flex-col bg-white py-2">
                 <div className="flex flex-row items-center justify-center px-2 w-full gap-2">
                     <div>
                         <Image
@@ -451,7 +446,7 @@ const Feed = ({ user, posts }) => {
             </div>
 
             {/* Post Container */}
-            <div className="flex flex-col w-full bg-gray-300 text-gray-700 mt-2">
+            <div className="flex flex-col bg-gray-300 text-gray-700 mt-2 max-w-[100vw]">
                 {posts.map((post, index) => (
                     <div 
                         key={index} 
@@ -669,7 +664,7 @@ const Feed = ({ user, posts }) => {
                                     </div>
 
                                     {showReply === comment._id && Array.isArray(comment.reply) && comment.reply.map((reply, replyIndex) => (
-                                        <div key={replyIndex} className="flex flex-col w-full pl-5 mt-1 ml-2">
+                                        <div key={replyIndex} className="flex flex-col w-full mt-1">
                                         <div  className="flex flex-col bg-gray-200 rounded-lg  w-full ">
                                             <div className="flex flex-row w-full  p-2 gap-2">
                                                 <div className="flex w-[25px]">

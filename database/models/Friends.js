@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 
 const friendsSchema = new mongoose.Schema({
-        userId: { type: String, required: true },
-        friendId: { type: String, required: true },
-        status: { type: String, required: true, default: 'null' },
+        requester: { type: String, ref: 'Users', required: true },
+        recipient: { type: String, ref: 'Users', required: true },
+        status: { type: String, enum: ['pending', 'accepted'], default: 'pending' },
     });
     
-    export default mongoose.models.Friends || mongoose.model('Friends', friendsSchema);
+export default mongoose.models.Friends || mongoose.model('Friends', friendsSchema);

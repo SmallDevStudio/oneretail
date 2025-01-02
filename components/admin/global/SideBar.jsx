@@ -47,7 +47,8 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
     const [selected, setSelected] = useState("Dashboard");
   
     return (
-      <Box
+      <div className="relative">
+              <Box
         sx={{
           "& .pro-sidebar": {
             zIndex: "50",
@@ -77,7 +78,6 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
             fontWeight: "500 !important",
           }
         }}
-        className="basic-1/4"
       >
         <ProSidebar collapsed={isCollapsed}>
           <Menu iconShape="square">
@@ -380,6 +380,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
           </Menu>
         </ProSidebar>
       </Box>
+      </div>
     );
   };
   
