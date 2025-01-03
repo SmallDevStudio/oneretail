@@ -115,7 +115,7 @@ export default function CourseTable({ courses, mutate, setIsEditing, setSelected
                                 <div className="flex items-center space-x-2">
                                     <button className="text-blue-500 hover:text-blue-700">
                                         <FaEdit 
-                                            onClick={() => handleEdit(course?.course)} 
+                                            onClick={() => handleEdit(course)} 
                                             size={25}
                                         />
                                     </button>

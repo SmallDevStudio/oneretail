@@ -15,14 +15,17 @@ const CourseForm = ({ userId, mutate, isEditing, editData, setIsEditing, handleS
     const [showQuestions, setShowQuestions] = useState(false);
     const [editIndex, setEditIndex] = useState(null);
 
+    console.log(courses);
+
     useEffect(() => {
         if (isEditing && editData) {
             setCourses({
-                title: editData.title,
-                description: editData.description,
-                category: editData.category,
-                group: editData.group,
-                active: editData.active ? true : false
+                title: editData?.course?.title,
+                description: editData?.course?.description,
+                category: editData?.course?.category,
+                group: editData?.course?.group,
+                active: editData?.course?.active ? true : false,
+                driveUrl: editData?.course?.driveUrl
             });
             setQuestions(editData.questions);
         }
@@ -102,8 +105,6 @@ const CourseForm = ({ userId, mutate, isEditing, editData, setIsEditing, handleS
         setQuestions(updatedQuestions);
     };
 
-    console.log('isEditing:', isEditing);
-
     const handleAddCourse = async () => {
         if (courses.title.trim() === "") {
             alert("กรุณากรอกชื่อหลักสูตร");
@@ -124,8 +125,10 @@ const CourseForm = ({ userId, mutate, isEditing, editData, setIsEditing, handleS
                         description: q.description,
                         options: q.options,
                     })),
+                    driveUrl: courses.driveUrl, // Ensure this matches back-end naming
+                    creator: userId
                 };
-                await axios.put(`/api/courses/${editData._id}`, UpdateCourseData);
+                await axios.put(`/api/courses/${editData?.course?._id}`, UpdateCourseData);
                 Swal.fire({
                     icon: "success",
                     title: "แก้ไขหลักสูตรสำเร็จ",
@@ -140,10 +143,9 @@ const CourseForm = ({ userId, mutate, isEditing, editData, setIsEditing, handleS
                     group: courses.group,
                     active: courses.active,
                     questions: questions,
+                    driveUrl: courses.driveUrl,
                     creator: userId
                 };
-
-                console.log('courseData:', courseData);
 
                 await axios.post("/api/courses", courseData);
                 Swal.fire({
@@ -259,6 +261,19 @@ const CourseForm = ({ userId, mutate, isEditing, editData, setIsEditing, handleS
                             <option value="false">Inactive</option>
                         </select>
                     </div>
+                </div>
+
+                <div className='flex flex-row items-center gap-2 w-full'>
+                    <span className='text-sm font-bold'>googleDrive:</span>
+                    <input
+                        className='w-1/2 h-10 rounded-xl bg-slate-200 px-2'
+                        type="text"
+                        id="driveUrl"
+                        name="driveUrl"
+                        placeholder='กรอกลิ้ง Google Drive'
+                        value={courses.driveUrl || ''}
+                        onChange={(e) => setCourses({ ...courses, driveUrl: e.target.value })}
+                    />
                 </div>
 
                 <Divider

@@ -8,7 +8,7 @@ export default function AppMenu() {
 
 
     return (
-        <nav className="fixed bottom-0 left-0 z-50 w-full h-16 bg-white border-t border-gray-200 shadow-lg" style={{ boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)", fontFamily: "ttb" }}>
+        <div className="flex w-full h-16 bg-white border-t border-gray-200 shadow-lg" style={{ boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)", fontFamily: "ttb" }}>
                 <div className="grid h-full max-w-lg grid-cols-5 mx-auto font-medium">
                     <button type="button" className={`inline-flex flex-col items-center justify-center px-5 ${isActive('/learning') ? "text-blue-600" : ""}`} 
                         onClick={() => router.push('/learning')}>
@@ -72,7 +72,7 @@ export default function AppMenu() {
                         <span className={`text-[10px] font-bold group-hover:text-[#F68B1F] text-nowrap ${isActive('/profile') ? "text-[#F68B1F]" : ""}`}>Profile</span>
                     </button>
                 </div>
-            </nav>
+            </div>
     )
 }
 

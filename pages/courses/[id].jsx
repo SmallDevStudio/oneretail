@@ -42,6 +42,7 @@ const Review = () => {
     const [isEditComment, setIsEditComment] = useState(false);
     const [openSuggestion, setOpenSuggestion] = useState(false);
     const [suggestion, setSuggestion] = useState('');
+    const [hasGallery, setHasGallery] = useState(false);
 
     const router = useRouter();
     const { id } = router.query;
@@ -56,6 +57,8 @@ const Review = () => {
         },
     });
 
+    console.log(courses);
+
     const { data: user } = useSWR(`/api/users/${session.user.id}`, fetcher);
 
     useEffect(() => {
@@ -64,6 +67,12 @@ const Review = () => {
             setHasQuestionnaire(hasQuestionnaire);
         }
     }, [questionnaires, session.user.id] );
+
+    useEffect(() => {
+        if (courses.galleyId !== null || courses.galleyId !== undefined) {
+            setHasGallery(true);
+        }
+    }, [courses.galleyId]);
 
     const handleOpenForm = () => {
         setOpenForm(true);
@@ -405,10 +414,15 @@ const Review = () => {
                         <span className="font-bold">ทำแบบสอบถาม</span>
                     </div>
                    }
-                    <div className="flex flex-row items-center text-sm text-[#0056FF] gap-2 w-full">
-                        <BsImages size={25}/>
-                        <span className="font-bold">Link แกลอรี่หลักสูตรนี้</span>
-                    </div>
+                    {hasGallery && (
+                        <div 
+                            className="flex flex-row items-center text-sm text-[#0056FF] gap-2 w-full"
+                            onClick={() => router.push(`/gallery/${courses?.galleryId}`)}
+                        >
+                            <BsImages size={25}/>
+                            <span className="font-bold">Link แกลอรี่หลักสูตรนี้</span>
+                        </div>
+                    )}
                 </div>
             </div>
             <Dialog

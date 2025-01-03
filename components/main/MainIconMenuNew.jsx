@@ -114,11 +114,14 @@ export default function MainIconMenu() {
 
     // Slider settings
     const settings = {
-        dots: false,
+        dots: true,
         infinite: false,
         speed: 500,
         slidesToShow: 1,
         slidesToScroll: 1,
+        adaptiveHeight: false,
+        variableWidth: false,
+        centerPadding: 0
     };
 
     // Chunk the menu into pages of 6 items (3 columns x 2 rows)

@@ -1,6 +1,7 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
 import Courses from "@/database/models/Courses";
 import ReviewQuiz from "@/database/models/ReviewQuiz";
+import Gallery from "@/database/models/Gallery";
 
 export default async function handler(req, res) {
     const { method } = req;
@@ -29,39 +30,90 @@ export default async function handler(req, res) {
             }
             break;
 
-        case "PUT":
-            try {
-                const { title, description, category, group, active, questions } = req.body;
+            case "PUT":
+                try {
+                    const { title, description, category, group, active, questions, driveUrl, creator } = req.body;
 
-                // Update course details
-                const course = await Courses.findByIdAndUpdate(
-                    id,
-                    { title, description, category, group, active },
-                    { new: true, runValidators: true }
-                );
-                if (!course) {
-                    return res.status(404).json({ success: false, message: "Course not found" });
-                }
-
-                // Update or create questions
-                if (Array.isArray(questions)) {
-                    for (const question of questions) {
-                        if (question._id) {
-                            await ReviewQuiz.findByIdAndUpdate(question._id, question, { new: true });
+                    console.log('driveUrl:', driveUrl);
+            
+                    // อัปเดตข้อมูลใน Gallery ถ้ามี driveUrl
+                    let galleryId = null;
+                    if (driveUrl) {
+                        const existingGallery = await Gallery.findOne({ driveUrl });
+            
+                        if (existingGallery) {
+                            // อัปเดต Gallery ที่มีอยู่
+                            existingGallery.title = title;
+                            existingGallery.description = description;
+                            await existingGallery.save();
+                            galleryId = existingGallery._id;
                         } else {
-                            const newQuestion = new ReviewQuiz({ ...question, courseId: id });
-                            await newQuestion.save();
-                            course.questions.push(newQuestion._id);
+                            // สร้าง Gallery ใหม่
+                            const newGallery = await Gallery.create({
+                                title,
+                                description,
+                                driveUrl,
+                                creator,
+                            });
+                            galleryId = newGallery._id;
                         }
                     }
-                    await course.save();
+            
+                    // อัปเดตข้อมูลใน Courses
+                    const course = await Courses.findByIdAndUpdate(
+                        id,
+                        {
+                            title,
+                            description,
+                            category,
+                            group,
+                            active,
+                            driveUrl,
+                            galleryId, // อัปเดต galleryId ถ้ามี
+                        },
+                        { new: true, runValidators: true }
+                    );
+            
+                    if (!course) {
+                        return res.status(404).json({ success: false, message: "Course not found" });
+                    }
+            
+                    // อัปเดตหรือสร้างคำถาม (questions)
+                    if (Array.isArray(questions)) {
+                        const updatedQuestions = [];
+            
+                        for (const question of questions) {
+                            if (question._id) {
+                                // อัปเดตคำถามที่มีอยู่
+                                const updatedQuestion = await ReviewQuiz.findByIdAndUpdate(
+                                    question._id,
+                                    question,
+                                    { new: true }
+                                );
+                                if (updatedQuestion) {
+                                    updatedQuestions.push(updatedQuestion._id);
+                                }
+                            } else {
+                                // สร้างคำถามใหม่
+                                const newQuestion = await ReviewQuiz.create({
+                                    ...question,
+                                    courseId: id,
+                                });
+                                updatedQuestions.push(newQuestion._id);
+                            }
+                        }
+            
+                        // อัปเดต `questions` ใน Course
+                        course.questions = updatedQuestions;
+                        await course.save();
+                    }
+            
+                    res.status(200).json({ success: true, data: course });
+                } catch (error) {
+                    console.error(error);
+                    res.status(400).json({ success: false, error: error.message });
                 }
-
-                res.status(200).json({ success: true, data: course });
-            } catch (error) {
-                res.status(400).json({ success: false, error: error.message });
-            }
-            break;
+                break;
 
         case "DELETE":
             try {

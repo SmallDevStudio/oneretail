@@ -2,6 +2,7 @@ import connetMongoDB from "@/lib/services/database/mongodb";
 import Courses from "@/database/models/Courses";
 import ReviewQuiz from "@/database/models/ReviewQuiz";
 import Questionnaires from "@/database/models/Questionnaires";
+import Gallery from "@/database/models/Gallery";
 
 export default async function handler(req, res) {
     const { method } = req;
@@ -51,9 +52,25 @@ export default async function handler(req, res) {
             break;
 
         case "POST":
-            const { title, description, category, group, active, questions, creator } = req.body;
-
+            const { title, description, category, group, active, questions, creator, driveUrl } = req.body;
+            
             try {
+                let galleryId = null;
+            
+                // ตรวจสอบว่า driveUrl มีข้อมูลหรือไม่
+                if (driveUrl) {
+                    // สร้างเอกสารใน Gallery
+                    const gallery = await Gallery.create({
+                        title,
+                        description,
+                        driveUrl,
+                        creator,
+                    });
+            
+                    // เก็บ galleryId เพื่อนำไปใช้ใน Courses
+                    galleryId = gallery._id;
+                }
+            
                 // สร้างเอกสารใน Courses
                 const course = await Courses.create({
                     title,
@@ -61,23 +78,28 @@ export default async function handler(req, res) {
                     category,
                     group,
                     active,
+                    driveUrl,
+                    galleryId, // เพิ่ม galleryId หากมี
                     creator,
                 });
-
+            
                 // ตรวจสอบว่ามี questions และวนลูปเพื่อสร้างใน ReviewQuiz
-                const quizPromises = questions.map(async (q) => {
-                    return await ReviewQuiz.create({
-                        courseId: course._id,
-                        question: q.question,
-                        description: q.description,
-                        options: q.options,
+                if (questions && Array.isArray(questions)) {
+                    const quizPromises = questions.map(async (q) => {
+                        return await ReviewQuiz.create({
+                            courseId: course._id,
+                            question: q.question,
+                            description: q.description,
+                            options: q.options,
+                        });
                     });
-                });
-
-                // รอให้คำถามทั้งหมดถูกบันทึก
-                const quizzes = await Promise.all(quizPromises);
-
-                res.status(201).json({ success: true, data: course, quizzes });
+            
+                    // รอให้คำถามทั้งหมดถูกบันทึก
+                    const quizzes = await Promise.all(quizPromises);
+                    res.status(201).json({ success: true, data: course, quizzes });
+                } else {
+                    res.status(201).json({ success: true, data: course });
+                }
             } catch (error) {
                 console.error(error);
                 res.status(400).json({ success: false, error: error.message });

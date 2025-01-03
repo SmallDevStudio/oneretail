@@ -6,6 +6,8 @@ const coursesSchema = new mongoose.Schema({
     category: { type: String },
     group: { type: String },
     active: { type: Boolean, default: true },
+    driveUrl: { type: String },
+    galleryId: { type: String, ref: 'Gallery' },
     creator: { type: String, ref: 'Users', required: true },
 }, { timestamps: true });
 

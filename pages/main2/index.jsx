@@ -138,7 +138,7 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
                             />
                         </div>
                         
-                        <div className="relative w-full max-h-[30vh]">
+                        <div className="relative w-full">
                             <MainIconMenu />
                         </div>
                         
