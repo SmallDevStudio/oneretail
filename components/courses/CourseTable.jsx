@@ -5,6 +5,8 @@ import "moment/locale/th";
 import { BsPlusSquareFill } from "react-icons/bs";
 import { FaPlusSquare, FaEdit } from "react-icons/fa";
 import { FaSquareMinus } from "react-icons/fa6";
+import { IoQrCodeSharp } from "react-icons/io5";
+import Qrcode from "../forms/Qrcode";
 import { Divider } from '@mui/material';
 import Swal from 'sweetalert2';
 import Modal from "./Modal";
@@ -14,6 +16,10 @@ moment.locale('th');
 export default function CourseTable({ courses, mutate, setIsEditing, setSelectedCourse, selectedCourse, handleShowForm }) {
     const [selectedQuestions, setSelectedQuestions] = useState([]);
     const [openModal, setOpenModal] = useState(false);
+    const [openQrModal, setOpenQrModal] = useState(false);
+    const [selectedCourseId, setSelectedCourseId] = useState(null);
+    const [url, setUrl] = useState('');
+    const [text, setText] = useState('');
 
     console.log('selectedQuestions:', selectedQuestions);
 
@@ -66,6 +72,21 @@ export default function CourseTable({ courses, mutate, setIsEditing, setSelected
     const handleCloseModal = () => {
         setSelectedQuestions([]);
         setOpenModal(false);
+    };
+
+    const handleOpenQrModal = (course) => {
+        const url = `${window.location.origin}/courses/suggestions/${course._id}`;
+        setSelectedCourseId(course._id);
+        setText(course?.title);
+        setUrl(url);
+        setOpenQrModal(true);
+    };
+
+    const handleCloseQrModal = () => {
+        setSelectedCourseId(null);
+        setText('');
+        setUrl('');
+        setOpenQrModal(false);
     };
 
     return (
@@ -125,6 +146,7 @@ export default function CourseTable({ courses, mutate, setIsEditing, setSelected
                                             size={25}
                                         />
                                     </button>
+                                    <IoQrCodeSharp size={25} onClick={() => handleOpenQrModal(course?.course)}/>
                                 </div>
                             </td>
                         </tr>
@@ -154,6 +176,14 @@ export default function CourseTable({ courses, mutate, setIsEditing, setSelected
                         ))}
                     </div>
                 </Modal>
+            )}
+            {openQrModal && (
+                <Qrcode
+                    url={url}
+                    open={openQrModal}
+                    onClose={handleCloseQrModal}
+                    text={text}
+                />
             )}
         </div>
     );

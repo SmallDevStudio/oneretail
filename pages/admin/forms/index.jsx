@@ -249,6 +249,7 @@ const FormsAdmin = () => {
                     url={urlQr}
                     open={openQr}
                     onClose={handleCloseQr}
+                    text="OneRetail Forms"
                 />
             )}
            

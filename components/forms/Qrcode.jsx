@@ -23,7 +23,7 @@ const customStyles = {
     },
   };
 
-export default function Qrcode({ url, open, onClose }) {
+export default function Qrcode({ url, open, onClose, text }) {
 
     const handleDownload = () => {
         const canvas = document.getElementById("qr-code-download");
@@ -75,7 +75,7 @@ export default function Qrcode({ url, open, onClose }) {
                 style={{ marginTop: '10px' }} 
                 className='font-bold text-[#0056FF]'
             >
-                    OneRetial Forms
+                    {text}
             </p>
             <div>
                 <button

@@ -57,8 +57,6 @@ const Review = () => {
         },
     });
 
-    console.log(courses);
-
     const { data: user } = useSWR(`/api/users/${session.user.id}`, fetcher);
 
     useEffect(() => {
@@ -144,8 +142,6 @@ const Review = () => {
             console.error(error);
         }
     }
-
-    console.log(selectedSuggestions);
 
     const handleDeleteSuggestion = async() => {
         const clearSuggestion = '';
@@ -265,7 +261,7 @@ const Review = () => {
         setCommentAnchorEl(null);
     };
 
-    if (isLoading) return <Loading />;
+    if (isLoading || !courses || !questionnaires || !suggestions || !rating) return <Loading />;
     if (error) return <div>Failed to load</div>;
 
     return (

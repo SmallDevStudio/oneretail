@@ -112,7 +112,7 @@ export default function Form({ course, handleCloseForm }) {
 
                 {/* Body */}
                 <div className="flex flex-col w-full px-4 mt-2">
-                    {course?.questions.map((question, index) => (
+                    {course?.questions?.map((question, index) => (
                         <div key={index} className="flex flex-col w-full mt-2">
                             <span className="text-lg font-bold">{index + 1}. {question.question}</span>
                             <div>
