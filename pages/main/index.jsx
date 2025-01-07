@@ -4,7 +4,8 @@ import { useRouter } from "next/router";
 import useSWR from "swr";
 import axios from "axios";
 import Loading from "@/components/Loading";
-import MainIconMenu from "@/components/MainIconMenu";
+/*import MainIconMenu from "@/components/MainIconMenu";*/
+import MainIconMenu from "@/components/main/MainIconMenuNew";
 import FooterContant from "@/components/main/footContent";
 import AppLayout from "@/themes/Layout/AppLayout";
 import dynamic from "next/dynamic";
@@ -198,26 +199,13 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
                                 onUplad={onUplad}
                             />
                         </div>
-                        <div className="flex-grow flex items-center justify-center">
-                            <MainIconMenu />
+                        <div className="flex items-center justify-center w-full px-6 pb-2 max-w-[100vw]">
+                            <MainIconMenu 
+                                setLinkModal={setLinkModal}
+                            />
                         </div>
-                        <div className="flex w-full mb-10 px-5">
-                            <div className="flex flex-row justify-center w-full border-4 p-4 border-[#0056FF] rounded-xl gap-2"
-                                onClick={() => setLinkModal(true)}
-                            >
-                                <Image
-                                    src="/images/Link-01.svg"
-                                    width={40}
-                                    height={40}
-                                    alt="Link"
-                                    style={{ width: '30px', height: 'auto' }}
-                                />
-                                <span className="text-[#0056FF] font-bold">
-                                    รวม Link
-                                </span>
-                            </div>
-                        </div>
-                        <div className="w-full">
+                        
+                        <div className="w-full mt-4">
                             <Carousel />
                         </div>
                         <div className="relative w-full footer-content">

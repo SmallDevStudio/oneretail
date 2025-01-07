@@ -7,8 +7,10 @@ import { useRouter } from "next/router";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
+import Image from "next/image";
+import styles from '@/styles/icon.module.css';
 
-export default function MainIconMenu() {
+export default function MainIconMenu({ setLinkModal }) {
     const router = useRouter();
 
     const menu = [
@@ -55,9 +57,14 @@ export default function MainIconMenu() {
             link: "/redeem"
         },
         {
-            lable: "One Society",
-            icon: <PiUsersThree className="w-10 h-10" />,
-            link: "/one-society"
+            lable: "Learn มันส์",
+            icon: 
+                <svg className="w-10 h-10 " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 374.19 308.55">
+                    <path fill="currentColor" d="M299.67,257.79H70.69c-20.29-.02-32.27-.28-42.68-5.59-9.71-4.94-17.46-12.7-22.41-22.43-5.59-10.97-5.59-22.86-5.59-46.55v-108.63c0-23.71,0-35.6,5.59-46.58,4.95-9.71,12.7-17.46,22.41-22.41C38.98,0,50.88,0,74.58,0h225.03c23.69,0,35.58,0,46.55,5.59,9.73,4.96,17.49,12.71,22.43,22.42,5.59,10.96,5.59,22.84,5.59,46.51v108.76c0,23.66,0,35.53-5.59,46.5-4.88,9.58-12.85,17.55-22.43,22.43-10.96,5.59-22.84,5.59-46.5,5.59ZM70.71,232.79h228.96c19.04,0,29.53,0,35.15-2.86,4.92-2.5,9-6.59,11.51-11.51,2.86-5.62,2.86-16.11,2.86-35.15v-108.76c0-19.05,0-29.54-2.86-35.16-2.53-4.97-6.51-8.94-11.51-11.49-5.63-2.87-16.13-2.87-35.2-2.87H74.58c-19.09,0-29.6,0-35.22,2.87-4.98,2.54-8.95,6.51-11.49,11.49-2.87,5.63-2.87,16.14-2.87,35.23v108.63c0,19.07,0,29.58,2.87,35.2,2.55,5,6.52,8.98,11.49,11.51,5.05,2.57,13.43,2.85,31.35,2.86Z"/>
+                    <path fill="currentColor" d="M142.64,160.64v-63.49c0-3.4.91-6.74,2.63-9.67,1.73-2.93,4.2-5.35,7.18-6.99,2.97-1.65,6.34-2.47,9.74-2.38,3.4.09,6.71,1.09,9.6,2.89l50.79,31.75c2.74,1.71,5,4.09,6.57,6.92,1.57,2.83,2.39,6.01,2.39,9.24s-.82,6.41-2.39,9.24c-1.57,2.83-3.83,5.21-6.57,6.92l-50.79,31.75c-2.88,1.8-6.2,2.8-9.6,2.89-3.4.09-6.76-.73-9.74-2.38-2.97-1.65-5.45-4.06-7.18-6.99-1.73-2.93-2.63-6.27-2.63-9.67Z"/>
+                    <path fill="currentColor" d="M361.11,308.55H13.08c-6.9,0-12.5-5.6-12.5-12.5s5.6-12.5,12.5-12.5h348.03c6.9,0,12.5,5.6,12.5,12.5s-5.6,12.5-12.5,12.5Z"/>
+                </svg>,
+            link: "/learning"
         },
         {
             lable: "ตารางอันดับ",
@@ -91,11 +98,6 @@ export default function MainIconMenu() {
             link: "/campaign",
         },
         {
-            lable: "Personailzed Learning",
-            icon: <PiBookOpenUserLight className="h-10 w-10"/>,
-            link: "/personalized",
-        },
-        {
             lable: "รีวิว หลักสูตร",
             icon: <SlBookOpen className="h-8 w-8"/>,
             link: "/courses",
@@ -103,18 +105,29 @@ export default function MainIconMenu() {
         {
             lable: "แกลอรี่",
             icon: <ImImages className="h-8 w-8"/>,
-            link: "/gallery",
+            link: "#",
         },
         {
             lable: "รวมลิงค์",
-            icon: <BsFolderSymlink className="h-8 w-8"/>,
-            link: "/links",
+            icon: 
+            <svg className="w-10 h-10" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 287 320.2">
+                <path fill="currentColor" d="M256.7,60.6h-123.5c-5.9-6.6-14.3-10.3-23.1-10.3H30.3c-17.1,0-30.9,13.8-30.9,30.9v164.7c0,17.1,13.8,30.9,30.9,30.9h226.5c17.1,0,30.9-13.8,30.9-30.9V91.5c0-17.1-13.8-30.9-30.9-30.9ZM263,133.7v106.8c0,7-5.7,12.7-12.7,12.7H36.7c-7,0-12.7-5.7-12.7-12.7V86.6c0-7,5.7-12.7,12.7-12.7h74.6c3.8,0,7.3,2.1,9,5.5l8.9,17.8c5.1,10.2,15.4,16.6,26.8,16.5h94.5c7,0,12.7,5.7,12.7,12.7v7.2ZM263,95.6c-3.2-1.2-6.6-1.8-10-1.8h-97.2c-3.8,0-7.3-2.1-9-5.5l-4.1-9.7h106.2c8.8,0,14,8.5,14,15.2v1.8Z"/>
+                <g>
+                    <path fill="currentColor" d="M137.6,193.1c-1.9,0-3.7-.7-5-2.1-10.6-10.6-10.6-28,0-38.6l14.3-14.3c5.1-5.1,12-8,19.3-8s14.2,2.8,19.3,8c10.6,10.6,10.6,28,0,38.6l-9.5,9.5c-1.3,1.3-3.1,2.1-5,2.1-1.9,0-3.7-.7-5-2.1-1.3-1.3-2.1-3.1-2.1-5s.7-3.7,2.1-5l9.5-9.5c5.1-5.1,5.1-13.4,0-18.5-2.5-2.5-5.7-3.8-9.2-3.8s-6.8,1.4-9.2,3.8l-14.3,14.3c-5.1,5.1-5.1,13.4,0,18.5,2.8,2.8,2.8,7.3,0,10.1-1.3,1.3-3.1,2.1-5,2.1h0Z"/>
+                    <path fill="currentColor" d="M120.9,230.2c-7.3,0-14.2-2.8-19.3-8-10.6-10.6-10.6-28,0-38.6l7.1-7.1c1.3-1.3,3.1-2.1,5-2.1s3.7.7,5,2.1c1.3,1.3,2.1,3.1,2.1,5s-.7,3.7-2.1,5l-7.1,7.1c-5.1,5.1-5.1,13.4,0,18.5,2.5,2.5,5.7,3.8,9.2,3.8s6.8-1.4,9.2-3.8l14.3-14.3c5.1-5.1,5.1-13.4,0-18.5-1.3-1.3-2.1-3.1-2.1-5s.7-3.7,2.1-5c1.3-1.3,3.1-2.1,5-2.1s3.7.7,5,2.1c10.6,10.6,10.6,28,0,38.6l-14.3,14.3c-5.1,5.1-12,8-19.3,8h0Z"/>
+                </g>
+            </svg>,
+            link: "link",
         }
     ];
 
+    const handleLinkClick = () => {
+        setLinkModal(true);
+    };
+
     // Slider settings
     const settings = {
-        dots: true,
+        dots: false,
         infinite: false,
         speed: 500,
         slidesToShow: 1,
@@ -131,16 +144,16 @@ export default function MainIconMenu() {
     }
 
     return (
-        <div className="w-full px-2 pb-6">
-            <Slider {...settings}>
+        <div className="flex flex-col w-full" >
+            <Slider {...settings} className={styles.slider}>
                 {chunkedMenu.map((menuPage, pageIndex) => (
                     <div key={pageIndex} >
-                        <div className="grid grid-cols-3 gap-2 px-4">
+                        <div className="grid grid-cols-3 gap-6 px-4">
                             {menuPage.map((item, index) => (
                                 <div
                                     key={index}
                                     className="flex flex-col items-center justify-evenly p-1 border-[5px] border-[#0056FF] rounded-xl cursor-pointer w-[100px] h-[100px]"
-                                    onClick={() => router.push(item.link)}
+                                    onClick={item.link === 'link' ? () => handleLinkClick(item.link) : () => router.push(item.link)}
                                 >
                                     <div className=" text-[#F68B1F]">{item.icon}</div>
                                     <span className="text-xs font-bold text-center text-[#0056FF] mt-1">{item.lable}</span>
