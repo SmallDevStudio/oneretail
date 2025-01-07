@@ -261,7 +261,7 @@ const Review = () => {
         setCommentAnchorEl(null);
     };
 
-    if (isLoading || !courses || !questionnaires || !suggestions || !rating) return <Loading />;
+    if (isLoading || !courses || !questionnaires ) return <Loading />;
     if (error) return <div>Failed to load</div>;
 
     return (
