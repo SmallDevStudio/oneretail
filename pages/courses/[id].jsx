@@ -57,6 +57,8 @@ const Review = () => {
         },
     });
 
+    console.log(courses);
+
     const { data: user } = useSWR(`/api/users/${session.user.id}`, fetcher);
 
     useEffect(() => {
@@ -67,10 +69,10 @@ const Review = () => {
     }, [questionnaires, session.user.id] );
 
     useEffect(() => {
-        if (courses.galleyId !== null || courses.galleyId !== undefined) {
+        if (courses.galleryId !== null || courses.galleryId !== undefined || courses.galleryId !== '') {
             setHasGallery(true);
         }
-    }, [courses.galleyId]);
+    }, [courses.galleryId]);
 
     const handleOpenForm = () => {
         setOpenForm(true);
@@ -410,7 +412,7 @@ const Review = () => {
                         <span className="font-bold">ทำแบบสอบถาม</span>
                     </div>
                    }
-                    {hasGallery && (
+                    {courses?.galleryId && hasGallery && (
                         <div 
                             className="flex flex-row items-center text-sm text-[#0056FF] gap-2 w-full"
                             onClick={() => router.push(`/gallery/${courses?.galleryId}`)}
