@@ -98,9 +98,9 @@ export default function MainIconMenu({ setLinkModal }) {
             link: "/campaign",
         },
         {
-            lable: "รีวิว หลักสูตร",
+            lable: "Learn & Reflect 2025",
             icon: 
-            <svg className="w-10 h-10" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 24 24">
+            <svg className="w-11 h-11" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M11.9,13.4c-.3,0-.5.2-.5.5s.2.5.5.5.5-.2.5-.5-.2-.5-.5-.5ZM10.3,13.9c0-.9.7-1.6,1.6-1.6s1.6.7,1.6,1.6-.7,1.6-1.6,1.6-1.6-.7-1.6-1.6Z"/>
                 <path fill="currentColor" d="M6.5,13.4c-.3,0-.5.2-.5.5s.2.5.5.5.5-.2.5-.5-.2-.5-.5-.5ZM4.9,13.9c0-.9.7-1.6,1.6-1.6s1.6.7,1.6,1.6-.7,1.6-1.6,1.6-1.6-.7-1.6-1.6Z"/>
                 <path fill="currentColor" d="M7.6,4.7c-.5,0-.9.4-.9.9s.4.9.9.9.9-.4.9-.9-.4-.9-.9-.9ZM5.6,5.6c0-1.1.9-2,2-2s2,.9,2,2-.9,2-2,2-2-.9-2-2Z"/>
@@ -166,7 +166,7 @@ export default function MainIconMenu({ setLinkModal }) {
     }
 
     return (
-        <div className="flex flex-col w-full pb-2 ml-[-12px]" >
+        <div className="flex flex-col w-full pb-2" >
             <Slider {...settings} className={styles.slider}>
                 {chunkedMenu.map((menuPage, pageIndex) => (
                     <div key={pageIndex} >
