@@ -33,8 +33,6 @@ export default async function handler(req, res) {
             case "PUT":
                 try {
                     const { title, description, category, group, active, questions, driveUrl, creator } = req.body;
-
-                    console.log('driveUrl:', driveUrl);
             
                     // อัปเดตข้อมูลใน Gallery ถ้ามี driveUrl
                     let galleryId = null;
@@ -81,10 +79,10 @@ export default async function handler(req, res) {
                     // อัปเดตหรือสร้างคำถาม (questions)
                     if (Array.isArray(questions)) {
                         const updatedQuestions = [];
-            
+                    
                         for (const question of questions) {
                             if (question._id) {
-                                // อัปเดตคำถามที่มีอยู่
+                                // Update existing question
                                 const updatedQuestion = await ReviewQuiz.findByIdAndUpdate(
                                     question._id,
                                     question,
@@ -94,7 +92,7 @@ export default async function handler(req, res) {
                                     updatedQuestions.push(updatedQuestion._id);
                                 }
                             } else {
-                                // สร้างคำถามใหม่
+                                // Create new question
                                 const newQuestion = await ReviewQuiz.create({
                                     ...question,
                                     courseId: id,
@@ -102,8 +100,8 @@ export default async function handler(req, res) {
                                 updatedQuestions.push(newQuestion._id);
                             }
                         }
-            
-                        // อัปเดต `questions` ใน Course
+                    
+                        // Update `questions` field in Course
                         course.questions = updatedQuestions;
                         await course.save();
                     }

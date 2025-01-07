@@ -15,8 +15,6 @@ const CourseForm = ({ userId, mutate, isEditing, editData, setIsEditing, handleS
     const [showQuestions, setShowQuestions] = useState(false);
     const [editIndex, setEditIndex] = useState(null);
 
-    console.log(courses);
-
     useEffect(() => {
         if (isEditing && editData) {
             setCourses({
@@ -30,8 +28,6 @@ const CourseForm = ({ userId, mutate, isEditing, editData, setIsEditing, handleS
             setQuestions(editData.questions);
         }
     }, [isEditing, editData]);
-
-   
 
     const handleOpenQuestions = () => {
         setShowQuestions(!showQuestions);
@@ -52,7 +48,7 @@ const CourseForm = ({ userId, mutate, isEditing, editData, setIsEditing, handleS
         setOptions(newOptions);
     };
 
-    const handleSaveQuestion = () => {
+    const handleSaveQuestion = async () => {
         if (!question.trim()) {
             alert("กรุณากรอกคำถาม");
             return;
@@ -61,24 +57,34 @@ const CourseForm = ({ userId, mutate, isEditing, editData, setIsEditing, handleS
             alert("กรุณากรอกตัวเลือกทั้งหมด");
             return;
         }
-
+    
         const newQuestion = {
             question,
             description,
             options,
         };
-
+    
         if (editIndex !== null) {
             // Update existing question
-            const updatedQuestions = [...questions];
-            updatedQuestions[editIndex] = newQuestion;
-            setQuestions(updatedQuestions);
-            setEditIndex(null);
+            setQuestions(prevQuestions => {
+                const updatedQuestions = [...prevQuestions];
+                updatedQuestions[editIndex] = newQuestion;
+                return updatedQuestions;
+            });
+            await axios.put(`/api/courses/questions/${questions[editIndex]._id}`, newQuestion);
+            setEditIndex(null); // Reset edit index
+            mutate();
         } else {
             // Add new question
-            setQuestions([...questions, newQuestion]);
+            setQuestions(prevQuestions => [...prevQuestions, newQuestion]);
+            try {
+                const response = await axios.post('/api/courses/questions', newQuestion);
+                mutate();
+            } catch (error) {
+                console.error('Error adding question:', error);
+            }
         }
-
+    
         handleClearQuestion();
         setShowQuestions(false);
     };
@@ -87,22 +93,23 @@ const CourseForm = ({ userId, mutate, isEditing, editData, setIsEditing, handleS
         setQuestion('');
         setDescription('');
         setOptions(['', '', '', '']);
-        setEditIndex(null);
+        setEditIndex(null); // Clear edit index
         setShowQuestions(false);
     };
-
+    
     const handleEditQuestion = (index) => {
         const questionToEdit = questions[index];
         setQuestion(questionToEdit.question);
         setDescription(questionToEdit.description);
         setOptions(questionToEdit.options);
-        setEditIndex(index);
+        setEditIndex(index); // Set edit index
         setShowQuestions(true);
     };
 
-    const handleRemoveQuestion = (questionIndex) => {
-        const updatedQuestions = questions.filter((_, index) => index !== questionIndex);
-        setQuestions(updatedQuestions);
+    const handleRemoveQuestion = async(questionIndex) => {
+        setQuestions(prevQuestions => prevQuestions.filter((_, index) => index !== questionIndex));
+        await axios.delete(`/api/courses/questions/${questions[questionIndex]._id}`);
+        mutate();
     };
 
     const handleAddCourse = async () => {
@@ -128,6 +135,9 @@ const CourseForm = ({ userId, mutate, isEditing, editData, setIsEditing, handleS
                     driveUrl: courses.driveUrl, // Ensure this matches back-end naming
                     creator: userId
                 };
+
+                console.log('UpdateCourseData:', UpdateCourseData);
+
                 await axios.put(`/api/courses/${editData?.course?._id}`, UpdateCourseData);
                 Swal.fire({
                     icon: "success",
