@@ -149,7 +149,7 @@ export default function MainIconMenu({ setLinkModal }) {
 
     // Slider settings
     const settings = {
-        dots: false,
+        dots: true,
         infinite: false,
         speed: 500,
         slidesToShow: 1,
@@ -166,7 +166,7 @@ export default function MainIconMenu({ setLinkModal }) {
     }
 
     return (
-        <div className="flex flex-col w-full" >
+        <div className="flex flex-col w-full pb-2" >
             <Slider {...settings} className={styles.slider}>
                 {chunkedMenu.map((menuPage, pageIndex) => (
                     <div key={pageIndex} >
