@@ -89,6 +89,8 @@ export default function CourseTable({ courses, mutate, setIsEditing, setSelected
         setOpenQrModal(false);
     };
 
+    console.log('courses:', courses);
+
     return (
         <div>
             <table className="table-auto w-full">
@@ -122,7 +124,7 @@ export default function CourseTable({ courses, mutate, setIsEditing, setSelected
                             <td className="border px-4 py-2 w-32">
                                 <div 
                                     className="flex items-center justify-center w-full cursor-pointer"
-                                    onClick={() => handleUpdateActive(course._id, !course.active)}
+                                    onClick={() => handleUpdateActive(course?.course?._id, !course?.course?.active)}
                                 >
                                 {course?.course?.active ? 
                                 <span className="bg-green-500 font-bold text-white px-4 py-0.5 rounded-full">เปิดใช้งาน</span> 

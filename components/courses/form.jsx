@@ -18,9 +18,6 @@ export default function Form({ course, handleCloseForm }) {
     const [suggestions, setSuggestions] = useState('');
     const [points, setPoints] = useState([]);
     const [rating, setRating] = useState(0);
-    
-    console.log('points:', points);
-    console.log('rating:', rating);
 
     const router = useRouter();
     const { data: session } = useSession();

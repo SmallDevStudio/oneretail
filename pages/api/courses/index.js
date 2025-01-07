@@ -13,7 +13,7 @@ export default async function handler(req, res) {
         case "GET":
             try {
                 // ดึงข้อมูล Courses ทั้งหมด
-                const courses = await Courses.find().sort({ createdAt: -1 });
+                const courses = await Courses.find({active: true}).sort({ createdAt: -1});
 
                 // ใช้ Promise.all เพื่อดึงข้อมูลที่เกี่ยวข้องในแต่ละ Course
                 const courseData = await Promise.all(
