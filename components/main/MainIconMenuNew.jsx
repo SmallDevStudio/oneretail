@@ -166,7 +166,7 @@ export default function MainIconMenu({ setLinkModal }) {
     }
 
     return (
-        <div className="flex flex-col w-full pb-2" >
+        <div className="flex flex-col w-full pb-2 ml-[-12px]" >
             <Slider {...settings} className={styles.slider}>
                 {chunkedMenu.map((menuPage, pageIndex) => (
                     <div key={pageIndex} >
