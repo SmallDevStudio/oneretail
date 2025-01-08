@@ -44,7 +44,8 @@ export default function Form({ course, handleCloseForm }) {
         
             // คำนวณคะแนนเฉลี่ยและเก็บไว้ใน `rating` (เป็นเลขจำนวนเต็ม)
             const totalPoints = points.reduce((sum, point) => sum + point, 0);
-            const calculatedRating = Math.round(totalPoints / course.questions.length); // ปัดเป็นจำนวนเต็ม
+            const maxPoints = course.questions.length * 5; // คะแนนสูงสุดที่เป็นไปได้
+            const calculatedRating = parseFloat(((totalPoints / maxPoints) * 5).toFixed(2)); // แปลงคะแนนให้เป็นค่าเต็ม 5 และปัดเป็นทศนิยม 2 ตำแหน่ง
             setRating(calculatedRating);
         
             // สร้างข้อมูลรีวิว
