@@ -19,7 +19,7 @@ const Courses = () => {
     const { data: session } = useSession();
     const router = useRouter();
 
-    const { data, error, mutate, isLoading } = useSWR("/api/courses", fetcher, {
+    const { data, error, mutate, isLoading } = useSWR("/api/courses/admin", fetcher, {
         onSuccess: (data) => {
             setCourses(data.data);
         },
