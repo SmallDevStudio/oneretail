@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     await connectMongoDB();
 
     if (req.method === "GET") {
-        const { limit = 100, skip = 0 } = req.query;
+        const { limit = 1000, skip = 0 } = req.query;
 
         try {
             const users = await Users.find({})
@@ -38,12 +38,6 @@ export default async function handler(req, res) {
             // Retrieve points and coins for each user
             const points = await Point.find({ userId: { $in: userIds } });
             const coins = await Coins.find({ userId: { $in: userIds } });
-
-            // Retrieve levels for calculating user level
-            const levels = await Level.find().sort({ level: 1 });
-            if (!levels || levels.length === 0) {
-                return res.status(404).json({ success: false, message: 'No levels found' });
-            }
 
             const populatedUsers = users.map(user => {
                 user = user.toObject();
@@ -73,40 +67,20 @@ export default async function handler(req, res) {
                     return acc;
                 }, { coins: 0, totalCoins: 0 });
 
-                // Calculate level for this user
-                let userLevel = 1;
-                let requiredPoints = 0;
-                let nextLevelRequiredPoints = 0;
-
-                for (const level of levels) {
-                    if (pointData.totalPoints >= level.requiredPoints) {
-                        userLevel = level.level;
-                        requiredPoints = level.requiredPoints;
-                    } else {
-                        nextLevelRequiredPoints = level.requiredPoints;
-                        break;
-                    }
-                }
-
-                const levelPoint = pointData.totalPoints - requiredPoints;
-
                 return {
                     ...user,
-                    teamGrop: emp.teamGrop,
-                    sex: emp.sex,
-                    branch: emp.branch,
-                    department: emp.department,
-                    group: emp.group,
-                    chief_th: emp.chief_th,
-                    chief_eng: emp.chief_eng,
-                    position: emp.position,
+                    teamGrop: emp.teamGrop || '',
+                    sex: emp.sex || '',
+                    branch: emp.branch || '',
+                    department: emp.department || '',
+                    group: emp.group || '',
+                    chief_th: emp.chief_th || '',
+                    chief_eng: emp.chief_eng || '',
+                    position: emp.position || '',
                     point: pointData.point,
                     totalPoints: pointData.totalPoints,
                     coins: coinsData.coins,
                     totalCoins: coinsData.totalCoins,
-                    level: userLevel,
-                    levelPoint,
-                    nextLevelRequiredPoints
                 };
             });
 

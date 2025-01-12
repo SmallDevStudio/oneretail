@@ -20,26 +20,14 @@ const UsersReport = () => {
         let allData = [];
         let hasMore = true;
         let skip = 0;
-        const limit = 100; // จำกัดจำนวนการโหลดในแต่ละครั้ง
+        const limit = 500; // จำกัดจำนวนการโหลดในแต่ละครั้ง
 
         try {
-            while (hasMore) {
-                const { data } = await axios.get(`/api/reports/users`, {
-                    params: { limit, skip },
-                    onDownloadProgress: (progressEvent) => {
-                        const total = progressEvent.total || 0;
-                        if (total) {
-                            setProgress(Math.round((progressEvent.loaded * 100) / total));
-                        }
-                    },
-                });
+            const res = await axios.get(`/api/reports/users`, {
+                params: { limit, skip },
+            });
 
-                allData = [...allData, ...data.data];
-
-                // Check if there's more data to load
-                hasMore = data.data.length === limit;
-                skip += limit;
-            }
+            const allData = res.data.data;
 
             // Format dates using moment before exporting
             const formattedData = allData.map(item => ({
