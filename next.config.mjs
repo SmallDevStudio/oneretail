@@ -54,14 +54,7 @@ const nextConfig = {
       },
     ],
   },
-  env: {
-    LINE_LIFF_ID: process.env.LINE_LIFF_ID,
-    NEXT_PUBLIC_MONGODB_URL: process.env.NEXT_PUBLIC_MONGODB_URL,
-    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
-    YOUTUBE_API_KEY: process.env.YOUTUBE_API_KEY,
-    GOOGLE_API_KEY: process.env.GOOGLE_API_KEY,
-  },
+
   sassOptions: {
     includePaths: ['./styles'],
   },

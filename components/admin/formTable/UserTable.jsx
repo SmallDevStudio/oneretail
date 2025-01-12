@@ -6,7 +6,6 @@ import useSWR from 'swr';
 import moment from 'moment';
 import 'moment/locale/th';
 import * as XLSX from 'xlsx';
-import { SiMicrosoftexcel } from "react-icons/si";
 import { FaRegEye } from "react-icons/fa";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { Autocomplete, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
@@ -181,7 +180,6 @@ const UsersTable = () => {
             />
 
             <button className="flex flex-row justify-center items-center gap-1 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2" onClick={exportToExcel}>
-                <SiMicrosoftexcel />
                 <span>Export</span>
             </button>
             </div>

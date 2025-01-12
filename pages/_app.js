@@ -7,64 +7,63 @@ import { useEffect } from "react";
 import "@/styles/globals.css";
 import { initGA, logPageView } from "@/utils/analytics";
 import Head from "next/head";
-import '@/styles/editor.scss';
+import "@/styles/editor.scss";
 import useUserActivity from "@/lib/hook/useUserActivity";
+import useNetworkStatus from "@/lib/hook/useNetworkStatus";
 
 function App({ Component, pageProps: { session, ...pageProps } }) {
   const getLayout = Component.getLayout || ((page) => page);
   const router = useRouter();
 
   useEffect(() => {
-    initGA(process.env.NEXT_PUBLIC_GOOGLE_ID); // แทนที่ด้วยรหัสติดตาม Google Analytics ของคุณ
+    initGA(process.env.NEXT_PUBLIC_GOOGLE_ID);
 
     const handleRouteChange = (url) => {
-        logPageView(url);
+      logPageView(url);
     };
 
-    router.events.on('routeChangeComplete', handleRouteChange);
+    router.events.on("routeChangeComplete", handleRouteChange);
     return () => {
-        router.events.off('routeChangeComplete', handleRouteChange);
+      router.events.off("routeChangeComplete", handleRouteChange);
     };
-}, [router.events]);
-
+  }, [router.events]);
 
   return getLayout(
     <SessionProvider session={session}>
       <UserActivityWrapper>
         {Component.auth ? (
           <>
-                <RequireAuth>
-                      <Head>
-                        <title>One Retail</title>
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                      </Head>
-                      <Component {...pageProps} />
-                      <SpeedInsights />
-                      <Analytics />
- 
-                </RequireAuth>
-                </>
-            ) : (
-                <>
-                <Head>
-                  <title>One Retail</title>
-                  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                </Head>
-                <Component {...pageProps} />
-                <SpeedInsights />
-                <Analytics />
-                </>
-            )}
-          </UserActivityWrapper>
+            <RequireAuth>
+              <Head>
+                <title>One Retail</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+              </Head>
+              <Component {...pageProps} />
+              <SpeedInsights />
+              <Analytics />
+            </RequireAuth>
+          </>
+        ) : (
+          <>
+            <Head>
+              <title>One Retail</title>
+              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            </Head>
+            <Component {...pageProps} />
+            <SpeedInsights />
+            <Analytics />
+          </>
+        )}
+      </UserActivityWrapper>
     </SessionProvider>
   );
 }
 
 function UserActivityWrapper({ children }) {
   useUserActivity(); // ใช้ custom hook เพื่อบันทึก user activity
+  useNetworkStatus(); // เรียกใช้ useNetworkStatus หลัง SessionProvider
   return <>{children}</>;
 }
-
 
 export default App;
 

@@ -1,3 +1,4 @@
+import admin from "@/lib/firebaseAdmin";
 import connetMongoDB from "@/lib/services/database/mongodb";
 import Users from "@/database/models/users";
 import Emp from "@/database/models/emp";
@@ -10,28 +11,41 @@ export default async function handler(req, res) {
     switch (method) {
         case "GET":
             try {
-                const users = await Users.findOne({ userId: userId });
+                const users = await Users.findOne({ userId });
                 const emp = await Emp.findOne({ empId: users.empId });
+
+                // อัปเดตสถานะออนไลน์ใน Firebase
+                const userStatusRef = admin.database().ref(`users/${userId}`);
+                const isOnline = {
+                online: true,
+                lastSeen: new Date().toISOString(),
+                };
+
+                // อัปเดตเมื่อเชื่อมต่อ
+                await userStatusRef.set(isOnline);
+
+                // กำหนดให้สถานะ offline เมื่อ disconnect
+                userStatusRef.onDisconnect().set({
+                online: false,
+                lastSeen: new Date().toISOString(),
+                });
+
                 if (!emp) {
-                    const user = {
-                        ...users._doc,
-                        emp: null,
-                        teamGrop: null
-                    };
-                    return res.status(200).json({ user });
-                }else{
-                    const user = {
-                        ...users._doc,
-                        teamGrop: emp.teamGrop? emp.teamGrop : null,
-                        position: emp.position? emp.position : null,
-                        branch: emp.branch? emp.branch : null,
-                        department: emp.department? emp.department : null,
-                        group: emp.group? emp.group : null,
-                        chief_th: emp.chief_th? emp.chief_th : null,
-                        chief_eng: emp.chief_eng? emp.chief_eng : null,
-                        name: emp.name? emp.name : null
-                    };
-                    res.status(200).json({ user });
+                const user = { ...users._doc, emp: null, teamGrop: null };
+                return res.status(200).json({ user });
+                } else {
+                const user = {
+                    ...users._doc,
+                    teamGrop: emp.teamGrop || null,
+                    position: emp.position || null,
+                    branch: emp.branch || null,
+                    department: emp.department || null,
+                    group: emp.group || null,
+                    chief_th: emp.chief_th || null,
+                    chief_eng: emp.chief_eng || null,
+                    name: emp.name || null,
+                };
+                res.status(200).json({ user });
                 }
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });
