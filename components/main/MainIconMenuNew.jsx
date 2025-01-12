@@ -100,7 +100,7 @@ export default function MainIconMenu({ setLinkModal }) {
         {
             lable: "Learn & Reflect 2025",
             icon: 
-            <svg className="w-11 h-11" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 24 24">
+            <svg className="w-14 h-14 mb-[-6px]" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M11.9,13.4c-.3,0-.5.2-.5.5s.2.5.5.5.5-.2.5-.5-.2-.5-.5-.5ZM10.3,13.9c0-.9.7-1.6,1.6-1.6s1.6.7,1.6,1.6-.7,1.6-1.6,1.6-1.6-.7-1.6-1.6Z"/>
                 <path fill="currentColor" d="M6.5,13.4c-.3,0-.5.2-.5.5s.2.5.5.5.5-.2.5-.5-.2-.5-.5-.5ZM4.9,13.9c0-.9.7-1.6,1.6-1.6s1.6.7,1.6,1.6-.7,1.6-1.6,1.6-1.6-.7-1.6-1.6Z"/>
                 <path fill="currentColor" d="M7.6,4.7c-.5,0-.9.4-.9.9s.4.9.9.9.9-.4.9-.9-.4-.9-.9-.9ZM5.6,5.6c0-1.1.9-2,2-2s2,.9,2,2-.9,2-2,2-2-.9-2-2Z"/>
@@ -118,7 +118,7 @@ export default function MainIconMenu({ setLinkModal }) {
         {
             lable: "แกลอรี่",
             icon: 
-            <svg className="w-10 h-10" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 287 320.2">
+            <svg className="w-12 h-12" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 287 320.2">
                 <path fill="currentColor" d="M252.2,106.2v105.1c5.3-1.4,9.2-6.2,9.2-11.9V64.1c0-6.8-5.6-12.3-12.3-12.3H73.6c-6.8,0-12.3,5.6-12.3,12.3v3.8h152.7c21.1,0,38.3,17.2,38.3,38.3Z"/>
                 <path fill="currentColor" d="M249.1,25.8H73.6c-21.1,0-38.3,17.2-38.3,38.3v3.9c1,0,2.1-.1,3.1-.1h22.9v-3.8c0-6.8,5.6-12.3,12.3-12.3h175.6c6.8,0,12.3,5.6,12.3,12.3v135.2c0,5.7-3.9,10.5-9.2,11.9v26.3c19.7-1.6,35.2-18.1,35.2-38.2V64.1c0-21.1-17.2-38.3-38.3-38.3Z"/>
                 <g>
@@ -132,7 +132,7 @@ export default function MainIconMenu({ setLinkModal }) {
         {
             lable: "รวมลิงค์",
             icon: 
-            <svg className="w-10 h-10" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 287 320.2">
+            <svg className="w-12 h-12" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 287 320.2">
                 <path fill="currentColor" d="M256.7,60.6h-123.5c-5.9-6.6-14.3-10.3-23.1-10.3H30.3c-17.1,0-30.9,13.8-30.9,30.9v164.7c0,17.1,13.8,30.9,30.9,30.9h226.5c17.1,0,30.9-13.8,30.9-30.9V91.5c0-17.1-13.8-30.9-30.9-30.9ZM263,133.7v106.8c0,7-5.7,12.7-12.7,12.7H36.7c-7,0-12.7-5.7-12.7-12.7V86.6c0-7,5.7-12.7,12.7-12.7h74.6c3.8,0,7.3,2.1,9,5.5l8.9,17.8c5.1,10.2,15.4,16.6,26.8,16.5h94.5c7,0,12.7,5.7,12.7,12.7v7.2ZM263,95.6c-3.2-1.2-6.6-1.8-10-1.8h-97.2c-3.8,0-7.3-2.1-9-5.5l-4.1-9.7h106.2c8.8,0,14,8.5,14,15.2v1.8Z"/>
                 <g>
                     <path fill="currentColor" d="M137.6,193.1c-1.9,0-3.7-.7-5-2.1-10.6-10.6-10.6-28,0-38.6l14.3-14.3c5.1-5.1,12-8,19.3-8s14.2,2.8,19.3,8c10.6,10.6,10.6,28,0,38.6l-9.5,9.5c-1.3,1.3-3.1,2.1-5,2.1-1.9,0-3.7-.7-5-2.1-1.3-1.3-2.1-3.1-2.1-5s.7-3.7,2.1-5l9.5-9.5c5.1-5.1,5.1-13.4,0-18.5-2.5-2.5-5.7-3.8-9.2-3.8s-6.8,1.4-9.2,3.8l-14.3,14.3c-5.1,5.1-5.1,13.4,0,18.5,2.8,2.8,2.8,7.3,0,10.1-1.3,1.3-3.1,2.1-5,2.1h0Z"/>
@@ -150,13 +150,19 @@ export default function MainIconMenu({ setLinkModal }) {
     // Slider settings
     const settings = {
         dots: true,
-        infinite: false,
+        infinite: true,
         speed: 500,
         slidesToShow: 1,
         slidesToScroll: 1,
         adaptiveHeight: false,
         variableWidth: false,
-        centerPadding: 0
+        centerPadding: 0,
+        accessibility: true,
+        autoplay: true,
+        autoplaySpeed: 8000,
+        arrows: false,
+        dots: true,
+        lazyLoad: 'ondemand',
     };
 
     // Chunk the menu into pages of 6 items (3 columns x 2 rows)
@@ -174,7 +180,7 @@ export default function MainIconMenu({ setLinkModal }) {
                             {menuPage.map((item, index) => (
                                 <div
                                     key={index}
-                                    className="flex flex-col items-center justify-evenly p-1 border-[5px] border-[#0056FF] rounded-xl cursor-pointer w-[100px] h-[100px]"
+                                    className="flex flex-col items-center justify-evenly p-1 border-[4px] border-[#0056FF] rounded-xl cursor-pointer w-[100px] h-[100px]"
                                     onClick={item.link === 'link' ? () => handleLinkClick(item.link) : () => router.push(item.link)}
                                 >
                                     <div className=" text-[#F68B1F]">{item.icon}</div>
