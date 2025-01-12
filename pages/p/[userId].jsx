@@ -431,7 +431,13 @@ const ProfilePage = () => {
                         </div>
                         <div className="flex items-center gap-2 text-gray-500 ml-auto">
                             <IoSearch size={20} />
-                            {userData?.user?.userId === session?.user?.id && <AiOutlineMessage size={20}/>}
+                            {userData?.user?.userId === session?.user?.id && 
+                                <AiOutlineMessage 
+                                    size={20}
+                                    className="cursor-pointer"
+                                    onClick={() => router.push("/messager")}
+                                />
+                            }
                         </div>
                     </div>
 
@@ -500,9 +506,12 @@ const ProfilePage = () => {
                                     <>
                                     <div className="flex flex-row px-2 py-1 bg-gray-200 text-[10px] rounded-full items-center gap-1 ">
                                         <BsPersonFillAdd size={15} />
-                                        <span>ส่งคำขอเป็นเพื่อน</span>
+                                        <span>ติดตาม</span>
                                     </div>
-                                    <div className="flex flex-row px-2 py-1 bg-gray-200 text-[10px] rounded-full items-center gap-1">
+                                    <div 
+                                        className="flex flex-row px-2 py-1 bg-gray-200 text-[10px] rounded-full items-center gap-1"
+                                        onClick={() => router.push("/messager?receiverId=" + userData?.user?.userId)}
+                                    >
                                         <AiOutlineMessage size={15} />
                                         <span>ส่งข้อความ</span>
                                     </div>

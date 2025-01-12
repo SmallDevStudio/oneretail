@@ -15,6 +15,7 @@ import { AppLayout } from '@/themes';
 import { useSwipeable } from 'react-swipeable';
 import { RiDeleteBinLine } from "react-icons/ri";
 import Modal from '@/components/Modal';
+import Swal from 'sweetalert2';
 
 moment.locale('th');
 
@@ -111,13 +112,34 @@ export default function Messages() {
   const handleClose = () => {
     setSelectedChat(null);
     setOpenDialog(false);
+    router.push('/messager');
   };
 
-  const handleDeleteChat = (chatId) => {
-    // ลบแชทจากรายการ
-    setChats((prev) => prev.filter((chat) => chat.id !== chatId));
-    // คุณสามารถเพิ่มการเรียก API เพื่อลบแชทในฐานข้อมูลได้
-    axios.delete(`/api/chats/${chatId}`).catch(console.error);
+  const handleDeleteChat = async(chatId) => {
+      const resolt = await Swal.fire({
+        title: 'คุณแน่ใจหรือไม่?',
+        text: 'คุณต้องการลบข้อความนี้หรือไม่?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'ใช่, ลบข้อความ!',
+      });
+
+      if (resolt.isConfirmed) {
+        setLoading(true);
+        try {
+          // ลบแชทจากรายการ
+          await axios.delete(`/api/chats/chat?chatId=${chatId}`);
+          mutate();
+        } catch (error) {
+          console.error(error);
+          Swal.fire('Error!', 'There was an issue deleting the chat.', 'error');
+        } finally {
+          setLoading(false);
+        }
+      }
+       
   };
 
   const handleChatDeleted = (chatId) => {
@@ -167,18 +189,19 @@ export default function Messages() {
       console.error('Error creating chat:', error);
     }
   };
-
-  console.log(chats);
   
   return (
     <div className='flex flex-col bg-gray-300 w-full h-screen'>
       {/* Header */}
       <div className='flex flex-row items-center justify-between w-full p-4'>
-        <Avatar 
-          src={user?.pictureUrl} 
-          size={36}
-          userId={session?.user?.id} 
-        />
+        <div className='flex flex-row items-center gap-2'>
+         
+          <Avatar 
+            src={user?.pictureUrl}
+            size={36}
+            userId={session?.user?.id} 
+          />
+        </div>
         <h1 className='text-md font-bold'>Massager</h1>
         <FaCirclePlus 
           className='cursor-pointer text-[#0056FF]'
@@ -208,7 +231,7 @@ export default function Messages() {
             <div
               key={chat.id}
               className={`grid ${chatDeleted ? 'grid-cols-7' : 'grid-cols-6'} w-full`}
-              onClick={() => handleOpen(chat.id, chat.receiver?.fullname || chat.sender?.fullname)}
+              onClick={chatDeleted ? null : () => handleOpen(chat.id, chat.receiver?.fullname || chat.sender?.fullname)}
               {...swipeHandlers}
             >
               {/* Avatar */}
@@ -248,7 +271,10 @@ export default function Messages() {
               {/* Delete Button */}
               {chatDeleted && (
                 <div className='flex flex-col col-span-1 text-sm h-full ml-2'>
-                  <div className='flex flex-col items-center justify-center bg-red-500 text-white h-[100%]'>
+                  <div 
+                    className='flex flex-col items-center justify-center bg-red-500 text-white h-[100%]'
+                    onClick={() => handleDeleteChat(chat.id)}
+                  >
                     <RiDeleteBinLine size={30} />
                   </div>
                 </div>
