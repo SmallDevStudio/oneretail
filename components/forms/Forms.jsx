@@ -11,7 +11,7 @@ import { FaCirclePlus } from "react-icons/fa6";
 import { RiDeleteBack2Fill } from "react-icons/ri";
 import { Divider } from "@mui/material";
 import Loading from "../Loading";
-import CircularProgress from "@mui/material";
+import {CircularProgress} from "@mui/material";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 

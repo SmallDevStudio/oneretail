@@ -6,7 +6,6 @@ import Image from "next/image";
 import { LinearProgress, Box, Button } from "@mui/material";
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
-import { SiMicrosoftexcel } from "react-icons/si";
 
 moment.locale('th'); // Set locale globally
 
@@ -101,7 +100,7 @@ const VoteNameTable = () => {
         <div className="overflow-x-auto p-5">
             <div className="flex justify-end mb-4">
                 <Button variant="contained" color="primary" onClick={handleExport} disabled={exporting}>
-                    <SiMicrosoftexcel className="text-xl mr-2"/> <span>Export</span>
+                   <span>Export</span>
                 </Button>
             </div>
             {exporting && (
