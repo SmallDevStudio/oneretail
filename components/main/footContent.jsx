@@ -105,9 +105,9 @@ export default function FooterContant() {
                                 width={150}
                                 height={100}
                                 loading="lazy"
-                                className="rounded-xl"
+                                className="rounded-lg"
                                 style={{
-                                    width: "155px",
+                                    width: "auto",
                                     height: "90px",
                                     objectFit: "cover",
                                     objectPosition: "center",
