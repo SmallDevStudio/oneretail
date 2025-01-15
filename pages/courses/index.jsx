@@ -66,7 +66,7 @@ const CoursesApp = () => {
                         
                         <div className='flex flex-row justify-between items-center mt-1 w-full'>
                             <div className='flex flex-row items-center gap-1'>
-                                <span className='text-md font-bold text-[#0056FF]'>{course.rating}</span>
+                                <span className='text-md font-bold text-[#0056FF]'>{(course.rating).toFixed(2)}</span>
                                 {course.rating > 0 ? (
                                     Array.from({ length: course?.rating }, (_, i) => (
                                         <>                           

@@ -18,6 +18,7 @@ import { AppLayout } from "@/themes";
 import Loading from "@/components/Loading";
 import Form from "@/components/courses/form";
 import Swal from "sweetalert2";
+import Avatar from "@/components/utils/Avatar";
 
 const fetcher = url => axios.get(url).then(res => res.data);
 
@@ -284,16 +285,16 @@ const Review = () => {
 
             <div className="flex flex-col px-4 mt-2 w-full">
                 <div className="flex flex-col justify-center items-center w-full">
-                    <h1 className="flex text-xl font-bold mt-1 text-[#0056FF]">{courses.title}</h1>
+                    <h1 className="flex text-md font-bold mt-1 text-[#0056FF]">{courses.title}</h1>
                 </div>
 
                 <div className="flex flex-col mt-2 w-full">
-                    <span className="text-md font-bold text-[#0056FF]">รายละเอียด</span>
-                    <span className="text-sm font-normal">{courses.description}</span>
+                    <span className="text-sm font-bold text-[#0056FF]">รายละเอียด</span>
+                    <span className="text-xs font-normal">{courses.description}</span>
                     
                     <div className='flex flex-row justify-between items-center mt-5 w-full'>
                         <div className='flex flex-row items-center gap-1'>
-                            <span className='text-xl font-black text-[#0056FF]'>{rating}</span>
+                            <span className='text-xl font-black text-[#0056FF]'>{(rating).toFixed(2)}</span>
                             <FaStar className='text-yellow-500' size={22}/>
                             <span className='text-sm font-bold text-[#0056FF] ml-1'>คะแนนหลักสูตร</span>
                             <span className='text-sm font-bold text-gray-500'>({questionnaires.length})</span>
@@ -305,29 +306,23 @@ const Review = () => {
                 <Divider className="my-2"/>
 
                 {/* Reviews */}
-                <div className="flex flex-col mt-1 w-full">
+                <div className="flex flex-col mt-1 pb-24 w-full">
                     {suggestions.map((suggestion, index) => (
                         <div 
                             key={index}
                             className="flex flex-col mt-2 w-full"
                         >
                             <div className="flex flex-row justify-between w-full">
-                               <div className="flex flex-row items-center gap-2">
-                                <Image
-                                        src={suggestion?.user?.pictureUrl}
-                                        alt={suggestion?.user?.fullname + "avatar"}
-                                        width={40}
-                                        height={40}
-                                        className="rounded-full"
-                                    />
-                                    <span className="text-md font-bold text-[#0056FF]">{suggestion.user.fullname}</span>
+                               <div className="flex flex-row gap-2">
+                                    <Avatar src={suggestion?.user?.pictureUrl} size={40} userId={suggestion?.user?.userId} />
+                                    <span className="text-xs font-bold text-[#0056FF]">{suggestion.user.fullname}</span>
                                </div>
 
                                 {(user.user.role === "manager" || user.user.role === "admin" || suggestion?.user?.userId === session.user.id) && (
                                     <div className="flex flex-row gap-1">
                                         <BsThreeDotsVertical 
                                             className="text-gray-600" 
-                                            size={20} 
+                                            size={15} 
                                             onClick={(event) => handleSuggestionClick(event, suggestion._id)}
                                         />
                                         <Menu
@@ -350,7 +345,7 @@ const Review = () => {
                                 {Array.from({ length: suggestion?.rating }, (_, i) => (
                                     <>
                                     
-                                    <FaStar key={i} className="text-yellow-500" size={15} />
+                                    <FaStar key={i} className="text-yellow-500" size={12} />
                                     </>
                                 ))}
                             </div>
