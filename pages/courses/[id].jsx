@@ -58,8 +58,6 @@ const Review = () => {
         },
     });
 
-    console.log(courses);
-
     const { data: user } = useSWR(`/api/users/${session.user.id}`, fetcher);
 
     useEffect(() => {
@@ -315,7 +313,7 @@ const Review = () => {
                             <div className="flex flex-row justify-between w-full">
                                <div className="flex flex-row gap-2">
                                     <Avatar src={suggestion?.user?.pictureUrl} size={40} userId={suggestion?.user?.userId} />
-                                    <span className="text-xs font-bold text-[#0056FF]">{suggestion.user.fullname}</span>
+                                    <span className="text-xs font-bold text-[#0056FF]">{suggestion?.user?.fullname}</span>
                                </div>
 
                                 {(user.user.role === "manager" || user.user.role === "admin" || suggestion?.user?.userId === session.user.id) && (
@@ -323,7 +321,7 @@ const Review = () => {
                                         <BsThreeDotsVertical 
                                             className="text-gray-600" 
                                             size={15} 
-                                            onClick={(event) => handleSuggestionClick(event, suggestion._id)}
+                                            onClick={(event) => handleSuggestionClick(event, suggestion?._id)}
                                         />
                                         <Menu
                                             anchorEl={suggestionAnchorEl}
