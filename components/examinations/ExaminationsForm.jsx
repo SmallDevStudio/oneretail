@@ -7,8 +7,9 @@ import { Divider } from "@mui/material";
 import { FaSquarePlus } from "react-icons/fa6";
 import { FaRegEdit } from "react-icons/fa";
 import { RiDeleteBin5Line } from "react-icons/ri";
+import Loading from "../Loading";
 
-export default function ExaminationsForm() {
+export default function ExaminationsForm({ handleCloseForm, isEditExamination, mutate }) {
     const [examination, setExamination] = useState({});
     const [questions, setQuestions] = useState([]);
     const [question, setQuestion] = useState('');
@@ -17,11 +18,26 @@ export default function ExaminationsForm() {
     const [questionIndex, setQuestionIndex] = useState(0);
     const [showQuestionForm, setShowQuestionForm] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState({});
+    const [isEdit, setIsEdit] = useState(false);
+    const [isEditQuestion, setIsEditQuestion] = useState(false);
 
     const { data: session } = useSession();
     const router = useRouter();
 
-    console.log(questions);
+    useEffect(() => {
+        if (isEditExamination) {
+            setExamination({
+                id: isEditExamination._id,
+                title: isEditExamination.title,
+                description: isEditExamination.description,
+                group: isEditExamination.group,
+                position: isEditExamination.position,  
+            })
+            setQuestions(isEditExamination.questions);
+            setIsEdit(true);
+        }
+    }, [isEditExamination]);
 
     const handleOptionChange = (index, value) => {
         const newOptions = [...options];
@@ -30,18 +46,55 @@ export default function ExaminationsForm() {
     };
 
     const handleSubmitQuestion = () => {
-        const newQuestion = { question, options, correctAnswer };
-        const questionData = [...questions, newQuestion];
-        setQuestions(questionData);
-        setShowQuestionForm(false);
-        setQuestion(''); // Clear the question input field
-        setOptions(['', '', '', '']);
-        setCorrectAnswer(0);
+        if (question.trim() === '') {
+            Swal.fire({
+                icon: 'warning',
+                title: 'ข้อผิดพลาด',
+                text: 'กรุณากรอกคำถาม',
+            });
+            return;
+        }
+    
+        if (options.some((option) => option.trim() === '')) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'ข้อผิดพลาด',
+                text: 'กรุณากรอกตัวเลือกคำตอบให้ครบ',
+            });
+            return;
+        }
+    
+        if (isEditQuestion) {
+            const updatedQuestions = questions.map((q, index) => {
+                if (index === questionIndex) {
+                    return {
+                        ...q,
+                        question: question,
+                        options: options,
+                        correctAnswer: correctAnswer,
+                    };
+                }
+                return q;
+            });
+    
+            setQuestions(updatedQuestions);
+            setIsEditQuestion(false);
+        } else {
+            const newQuestion = { 
+                _id: null, // ใช้ null สำหรับคำถามใหม่
+                question: question, 
+                options: options, 
+                correctAnswer: correctAnswer,
+            };
+            setQuestions([...questions, newQuestion]);
+        }
+    
+        handleClearQuestion();
     };
 
     const handleClearQuestion = () => {
         setQuestion(''); // Clear the question input field
-        setOptions([...options, '', '', '', '']);
+        setOptions(['', '', '', '']);
         setCorrectAnswer(0);
         setShowQuestionForm(false);
     };
@@ -65,30 +118,133 @@ export default function ExaminationsForm() {
         setOptions(question.options);
         setCorrectAnswer(question.correctAnswer);
         setQuestionIndex(index);
+        setIsEditQuestion(true);
         !showQuestionForm ? setShowQuestionForm(true) : handleClearQuestion();
+    };
+
+    const handleSubmitExamination = async () => {
+        if (examination.title === '' || examination.title === undefined) {
+            setError({
+                title: 'กรุณากรอกชื่อข้อสอบ',
+            });
+            return;
+        }
+
+        if (isEdit) {
+            const data = {
+                title: examination.title,
+                description: examination.description? examination.description : null,
+                group: examination.group? examination.group : null,
+                position: examination.position? examination.position : null,
+                questions: questions.map((question) => ({
+                    _id: question._id ? question._id : null,
+                    question: question.question,
+                    options: question.options,
+                    correctAnswer: question.correctAnswer,
+                })),
+                creator: session.user.id,
+            };
+
+            try {
+                setLoading(true);
+                const response = await axios.put(`/api/examinations2/${examination.id}`, data);
+                console.log(response.data);
+                const result = await Swal.fire({
+                    icon: 'success',
+                    title: 'สําเร็จ',
+                    text: 'แก้ไขข้อสอบสําเร็จ',
+                    confirmButtonText: 'OK',
+                });
+                if (result.isConfirmed) {
+                    handleClearExamination();
+                    handleCloseForm();
+                    mutate();
+                }
+            } catch (error) {
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: error.response.data.message,
+                    confirmButtonText: 'OK',
+                })
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        } else {
+            const data = {
+                title: examination.title,
+                description: examination.description? examination.description : null,
+                group: examination.group? examination.group : null,
+                position: examination.position? examination.position : null,
+                questions: questions,
+                creator: session.user.id,
+            };
+    
+            try {
+                setLoading(true);
+                const response = await axios.post('/api/examinations2', data);
+                console.log(response.data);
+                const result = await Swal.fire({
+                    icon: 'success',
+                    title: 'สําเร็จ',
+                    text: 'เพิ่มข้อสอบสําเร็จ',
+                    confirmButtonText: 'OK',
+                });
+                if (result.isConfirmed) {
+                    handleClearExamination();
+                    handleCloseForm();
+                }
+            } catch (error) {
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: error.response.data.message,
+                    confirmButtonText: 'OK',
+                })
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        }
+    }
+
+    const handleClearExamination = () => {
+        setExamination({}); // Clear the examination object
+        setQuestions([]); // Clear the questions array
+        setQuestion(''); // Clear the question input field
+        setOptions(['', '', '', '']);
+        setCorrectAnswer(0);
+        setQuestionIndex(0);
+        setShowQuestionForm(false);
+        setLoading(false);
+        setError({});
+        setIsEdit(false);
+        handleCloseForm();
     };
     
 
     return (
         <div className="flex flex-col w-full">
-            <span className="text-md font-bold text-[#0056FF]">เพิ่มข้อสอบ</span>
+            <span className="text-md font-bold text-[#0056FF]">{isEdit ? 'แก้ไขข้อสอบ' : 'เพิ่มข้อสอบ'}</span>
             <div className="flex flex-col w-full gap-2 text-sm">
                 <div className="flex flex-row items-center gap-2 w-full">
                     <label 
                         htmlFor="title"
                         className="col-span-1 text-md font-bold"
                     >
-                        ชื่อข้อสอบ:
+                        ชื่อข้อสอบ<span className="text-red-500">*</span>:
                     </label>
                     <input 
                         type="text" 
                         name="title" 
                         id="title"
-                        className="flex border border-gray-300 rounded-full p-2 w-1/2"
+                        className={`flex border rounded-full p-2 w-1/2 ${error.title ? "border-red-500" : "border-gray-300"}`}
                         value={examination.title} 
                         onChange={(e) => setExamination({...examination, title: e.target.value})}
                         placeholder="กรอกชื่อข้อสอบ"
                     />
+                    {error.title && <span className="text-red-500">{error.title}</span>}
                 </div>
 
                 <div className="flex flex-row items-center gap-2 w-full">
@@ -248,16 +404,16 @@ export default function ExaminationsForm() {
                         </select>
                     </div>
 
-                    <div className="flex flex-row items-center gap-2 w-full">
+                    <div className="flex flex-row items-center text-sm gap-2 w-full">
                         <button
-                            className="bg-blue-500 text-white font-bold py-2 px-4 rounded-full"
+                            className="bg-blue-500 text-white font-bold py-2 px-4 text-sm rounded-full"
                             onClick={handleSubmitQuestion}
                         >
-                            เพิ่มคําถาม
+                            {isEditQuestion? 'แก้ไข' : 'เพิ่ม'}
                         </button>
 
                         <button
-                            className="bg-red-500 text-white font-bold py-2 px-4 rounded-full"
+                            className="bg-red-500 text-white font-bold py-2 px-4 text-sm rounded-full"
                             onClick={handleClearQuestion}
                         >
                             ลบคําถาม
@@ -266,6 +422,23 @@ export default function ExaminationsForm() {
 
                 </div>
                 )}
+
+                <div className="flex flex-row items-center gap-2 w-full mt-4">
+                    <button
+                        className="bg-blue-500 text-white font-bold py-2 px-4 rounded-full"
+                        onClick={handleSubmitExamination}
+                    >
+                        {isEdit? 'แก้ไข' : 'เพิ่ม'}
+                    </button>
+
+                    <button
+                        className="bg-red-500 text-white font-bold py-2 px-4 rounded-full"
+                        onClick={handleClearExamination}
+                    >
+
+                        ยกเลิก
+                    </button>
+                </div>
 
             </div>
 

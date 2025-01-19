@@ -6,8 +6,9 @@ const ExaminationsSchema = new mongoose.Schema({
     group: { type: String },
     position: { type: String },
     active: { type: Boolean, default: true },
-    ExamQuestionId: [{ type: ObjectId, ref: 'ExamQuestions' }],
+    questions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ExamQuestions' }],
     creator: { type: String, ref: 'Users' },
+    isDeleted: { type: Boolean, default: false },
 },{ timestamps: true });
 
-export default mongoose.models.Examinations || mongoose.model('Examinations', ExaminationsSchema);
+export default mongoose.models.Examinations2 || mongoose.model('Examinations2', ExaminationsSchema);

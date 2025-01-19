@@ -205,6 +205,14 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                 setSelected={setSelected}
               />
 
+                <Item
+                  title="จัดการข้อสอบ"
+                  to="/admin/examinations"
+                  icon={<PiExam />}
+                  selected={selected}
+                  setSelected={setSelected}
+                  />
+
               <Item
                 title="จัดการ Redeem"
                 to="/admin/redeem"
@@ -271,14 +279,6 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                   />
 
               </SubMenu>
-
-                  <Item
-                  title="จัดการข้อสอบ"
-                  to="/admin/exams"
-                  icon={<PiExam />}
-                  selected={selected}
-                  setSelected={setSelected}
-                  />
 
                   <Item
                   title="จัดการ Badges"
