@@ -409,7 +409,7 @@ export default function ExaminationsForm({ handleCloseForm, isEditExamination, m
                             className="bg-blue-500 text-white font-bold py-2 px-4 text-sm rounded-full"
                             onClick={handleSubmitQuestion}
                         >
-                            {isEditQuestion? 'แก้ไข' : 'เพิ่ม'}
+                            {isEditQuestion? 'แก้ไข' : 'บันทึกคำถาม'}
                         </button>
 
                         <button
@@ -423,17 +423,19 @@ export default function ExaminationsForm({ handleCloseForm, isEditExamination, m
                 </div>
                 )}
 
-                <div className="flex flex-row items-center gap-2 w-full mt-4">
+                <div className="flex flex-row items-center justify-center gap-2 w-full mt-4">
                     <button
-                        className="bg-blue-500 text-white font-bold py-2 px-4 rounded-full"
+                        className={`bg-blue-500 text-white font-bold py-2 px-4 rounded-full ${showQuestionForm ? 'opacity-50 cursor-not-allowed' : ''}`}
                         onClick={handleSubmitExamination}
+                        disabled={showQuestionForm}
                     >
-                        {isEdit? 'แก้ไข' : 'เพิ่ม'}
+                        {isEdit? 'แก้ไข' : 'บันทึก'}
                     </button>
 
                     <button
-                        className="bg-red-500 text-white font-bold py-2 px-4 rounded-full"
+                        className={`bg-red-500 text-white font-bold py-2 px-4 rounded-full ${showQuestionForm ? 'opacity-50 cursor-not-allowed' : ''}`}
                         onClick={handleClearExamination}
+                        disabled={showQuestionForm}
                     >
 
                         ยกเลิก
