@@ -108,8 +108,9 @@ const ExaminationForm = () => {
 
     if (!examination) return <Loading />;
 
+    
     return (
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col w-full pb-20 ">
             {/* Header */}
             <div className="flex flex-row justify-center items-center bg-[#0056FF] text-white p-3 w-full">
                 <div>
