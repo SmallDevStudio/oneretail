@@ -40,7 +40,7 @@ export default async function handler(req, res) {
                 }
 
                 // ค้นหา ExaminationAnswer
-                let examination = await ExaminationAnswer.findOne({ examId: id, userId });
+                let examination = await ExaminationAnswer.findOne({ examId: id, userId: userId });
 
                 if (examination?.isComplete) {
                     return res.status(400).json({ success: false, message: "Examination has already been completed" });
