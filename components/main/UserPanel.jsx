@@ -6,6 +6,7 @@ import { IoMdArrowRoundForward } from "react-icons/io";
 import ExchangeModal from "@/components/ExchangeModal";
 import LevelModal from "@/components/LevelModal";
 import UserModal from "../UserModal";
+import Avatar from "../utils/Avatar";
 
 const LineProgressBar = dynamic(() => import("@/components/ProfileLineProgressBar"), { ssr: false });
 
@@ -33,7 +34,6 @@ const UserPanel = ({user, level, onExchangeAdd, setLoading, loading, coins, onUp
         setIsModalOpen(false);
     };
 
-
     return (
         <div className="flex flex-row bg-[#0056FF] text-white items-start justify-between rounded-xl px-2 shadow-lg">
             <div className="flex flex-col w-2/3">
@@ -41,19 +41,10 @@ const UserPanel = ({user, level, onExchangeAdd, setLoading, loading, coins, onUp
                     <div className="flex flex-col" style={{ width: "auto", height: "auto" }} onClick={() => setIsModalOpen(true)}>
                         <div className="items-center text-center" style={{ width: "auto", height: "90px" }}>
                             <div className="mt-3">
-                                <Image
+                                <Avatar
                                     src={level?.user?.pictureUrl}
-                                    alt="User Avatar"
-                                    width={80}
-                                    height={80}
-                                    className="rounded-full"
-                                    loading="lazy"
-                                    style={{
-                                        width: "80px",
-                                        height: "80px",
-                                        objectFit: "cover",
-                                        objectPosition: "center",
-                                    }}
+                                    size={80}
+                                    userId={level?.user?.userId}
                                     onClick={() => setIsModalOpen(true)}
                                 />
                             </div>

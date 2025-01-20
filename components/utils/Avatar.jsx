@@ -39,6 +39,8 @@ export default function Avatar({ src, size, userId }) {
         style={{
           width: size,
           height: size,
+          objectFit: "cover",
+          objectPosition: "center",
         }}
         loading="lazy"
         onClick={() => router.push(url)}

@@ -67,6 +67,8 @@ export default function Ads() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentAdIndex, ads, showButton]);
 
+
+    
     const handleSkipAd = () => {
         handleNextAd();
     };
@@ -75,6 +77,8 @@ export default function Ads() {
         setShowButton(false);
         router.push("/main");
     };
+
+    console.log(ads);
 
     if (loading) return <Loading />;
 
@@ -109,6 +113,7 @@ export default function Ads() {
                         style={{ width: "100%", height: "auto" }}
                         loading="lazy"
                         className="object-cover"
+                        onClick={() => router.push(ads?.data[currentAdIndex]?.url)}
                     />
                 </div>
             </div>
