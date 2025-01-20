@@ -176,8 +176,6 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
             setOpenAds(false); // ปิด modal เมื่อกดปิด
         };
 
-        
-    
         if (status === "loading" || !user || !level || loading ) return <Loading />;
         if (userError) return <div>Error loading data</div>;
     

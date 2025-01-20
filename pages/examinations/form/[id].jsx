@@ -22,60 +22,59 @@ const ExaminationForm = () => {
     const { data: session } = useSession();
     const userId = session?.user?.id;
 
-    const { data: useAnswersData } = useSWR(() => userId ? `/api/examination-answers/${id}?userId=${userId}` : null, fetcher, {
+    const { data: useAnswersData, error: useAnswersDataError } = useSWR(() => userId ? `/api/examination-answers/${id}?userId=${userId}` : null, fetcher, {
         onSuccess: (data) => {
             setUseAnswers(data.data);
+            
         },
     });
 
-    const { data } = useSWR(() => id ? `/api/examinations2/${id}` : null, fetcher, {
+    const { data, error } = useSWR(() => id ? `/api/examinations2/${id}` : null, fetcher, {
         onSuccess: (data) => {
             setExamination(data.data);
-            const savedQuestions = JSON.parse(sessionStorage.getItem("incorrectQuestions"));
-            setIncorrectQuestions(savedQuestions || data.data.questions);
+            setIncorrectQuestions(data.data.questions);
         },
     });
-
+    
     useEffect(() => {
-        // ตรวจสอบสถานะ isComplete และบันทึก incorrectQuestions
+        // ตรวจสอบสถานะ isComplete และจัดการ incorrectQuestions
         if (useAnswers?.isComplete) {
             setHasCompleted(true);
-            setIncorrectQuestions([]);
-            sessionStorage.removeItem("incorrectQuestions");
-        } else if (incorrectQuestions.length > 0) {
-            sessionStorage.setItem("incorrectQuestions", JSON.stringify(incorrectQuestions));
-        }
-    }, [useAnswers?.isComplete, incorrectQuestions]);
+            setIncorrectQuestions([]); // ไม่ต้องแสดงคำถามเมื่อทำเสร็จแล้ว
+        } 
+
+    }, [useAnswers?.isComplete]);
 
     const handleOptionChange = (index, questionId) => {
         const updatedAnswers = [...answers];
         const question = examination.questions.find(q => q._id === questionId);
+    
         const isCorrect = parseInt(question.correctAnswer) === parseInt(index);
-
+    
         const existingAnswerIndex = updatedAnswers.findIndex(answer => answer.questionId === questionId);
         if (existingAnswerIndex > -1) {
             updatedAnswers[existingAnswerIndex] = { questionId, answer: index, isCorrect };
         } else {
             updatedAnswers.push({ questionId, answer: index, isCorrect });
         }
-
+    
         setAnswers(updatedAnswers);
-        sessionStorage.setItem("answers", JSON.stringify(updatedAnswers));
     };
 
     const handleSubmit = async () => {
         setLoading(true);
-
+    
+        // ตรวจสอบว่าผู้ใช้ตอบทุกคำถามหรือยัง
         const unansweredQuestions = incorrectQuestions.filter(
             question => !answers.some(answer => answer.questionId === question._id)
         );
-
+    
         if (unansweredQuestions.length > 0) {
             Swal.fire("กรุณาตอบคำถามให้ครบทุกข้อ", "", "warning");
             setLoading(false);
             return;
         }
-
+    
         const incorrect = answers.filter(answer => !answer.isCorrect).map(answer => answer.questionId);
         const savePayload = {
             userId,
@@ -86,36 +85,26 @@ const ExaminationForm = () => {
             })),
             isComplete: incorrect.length === 0,
         };
-
+    
         try {
             await axios.post(`/api/examination-answers/${id}`, savePayload);
-
+    
             if (incorrect.length === 0) {
                 Swal.fire("สำเร็จ", "คุณตอบคำถามถูกทั้งหมดแล้ว!", "success");
                 setHasCompleted(true);
-                sessionStorage.removeItem("incorrectQuestions");
-                sessionStorage.removeItem("answers");
             } else {
                 Swal.fire("ลองอีกครั้ง", `คุณตอบถูก ${answers.length - incorrect.length} ข้อ`, "warning");
             }
         } catch (error) {
             Swal.fire("เกิดข้อผิดพลาด", "ไม่สามารถบันทึกข้อมูลได้", "error");
         } finally {
+            // รีเซ็ตสถานะของคำถามและคำตอบ
             const nextRoundQuestions = examination.questions.filter(q => incorrect.includes(q._id));
             setIncorrectQuestions(nextRoundQuestions);
-            setAnswers([]);
-            sessionStorage.setItem("incorrectQuestions", JSON.stringify(nextRoundQuestions));
-            sessionStorage.removeItem("answers");
+            setAnswers([]); // ล้างคำตอบ
             setLoading(false);
         }
     };
-
-    useEffect(() => {
-        const savedAnswers = JSON.parse(sessionStorage.getItem("answers"));
-        if (savedAnswers) {
-            setAnswers(savedAnswers);
-        }
-    }, []);
 
     if (!examination) return <Loading />;
 
@@ -136,28 +125,25 @@ const ExaminationForm = () => {
 
                 <div className="flex flex-col">
                 {!hasCompleted ? (
-                    incorrectQuestions.map((question, index) => {
-                        const questionIndex = examination.questions.findIndex(q => q._id === question._id) + 1;
-                        return (
-                            <div key={index} className="flex flex-col my-2 text-sm">
-                                <span>{questionIndex}. {question?.question}</span>
-                                <div className="flex flex-col gap-1 mt-2">
-                                {question?.options?.map((option, i) => (
-                                    <div key={i} className="flex flex-row items-center gap-2">
-                                        <input 
-                                            type="radio" 
-                                            name={`option-${question._id}`} 
-                                            value={option} 
-                                            onChange={() => handleOptionChange(i, question._id)} 
-                                            checked={answers.some(answer => answer.questionId === question._id && answer.answer === i)} 
-                                        />
-                                        <label>{option}</label>
-                                    </div>
-                                ))}
+                    incorrectQuestions.map((question, index) => (
+                        <div key={index} className="flex flex-col my-2 text-sm">
+                            <span>{examination.questions.indexOf(question) + 1}. {question?.question}</span>
+                            <div className="flex flex-col gap-1 mt-2">
+                            {question?.options?.map((option, i) => (
+                                <div key={i} className="flex flex-row items-center gap-2">
+                                    <input 
+                                        type="radio" 
+                                        name={`option-${question._id}`} 
+                                        value={option} 
+                                        onChange={() => handleOptionChange(i, question._id)} 
+                                        checked={answers.some(answer => answer.questionId === question._id && answer.answer === i)} 
+                                    />
+                                    <label>{option}</label>
                                 </div>
+                            ))}
                             </div>
-                        );
-                    })
+                        </div>
+                    ))
                 ) : (
                     <div className="flex flex-col items-center my-4">
                         <span className="text-lg font-bold text-green-600">คุณได้ส่งคำตอบเรียบร้อยแล้ว</span>

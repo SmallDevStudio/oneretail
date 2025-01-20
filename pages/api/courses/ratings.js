@@ -18,21 +18,21 @@ export default async function handler(req, res) {
                 if (!course) {
                     return res.status(404).json({ success: false, message: "Course not found" });
                 }
-        
-                const questions = await ReviewQuiz.find({ courseId: id });
-        
+
+                const questions = await ReviewQuiz.find({ courseId: id }).sort({ createdAt: 1 });
+
                 const courseWithQuestions = {
                     ...course.toObject(),
                     questions,
                 };
-        
+
                 const questionnaires = await Questionnaires.find({ courseId: id });
-        
+
                 // คำนวณคะแนนเฉลี่ย
                 const ratings = questionnaires.map((questionnaire) => questionnaire.rating);
                 const totalRatings = ratings.reduce((sum, rating) => sum + rating, 0);
                 const averageRating = ratings.length ? totalRatings / ratings.length : 0;
-        
+
                 // ดึงข้อมูล suggestions
                 const suggestions = await Promise.all(
                     questionnaires
@@ -42,48 +42,48 @@ export default async function handler(req, res) {
                             const comments = await QuestionnaireComments.find({
                                 questionnaireId: questionnaire._id,
                             });
-        
-                            // ดึงข้อมูล user แบบ manual
-                            const userIds = [
-                                ...new Set([
-                                    questionnaire.userId,
-                                    ...comments.map((comment) => comment.userId),
-                                ]),
-                            ];
-        
+
+                            let user = null;
+                            if (!questionnaire.anonymous) {
+                                // ดึงข้อมูล user หากไม่ anonymous
+                                user = await Users.findOne({ userId: questionnaire.userId });
+                            }
+
+                            // ดึงข้อมูล user แบบ manual สำหรับ comments
+                            const userIds = comments.map((comment) => comment.userId);
                             const users = await Users.find({ userId: { $in: userIds } });
-        
+
                             // แมปข้อมูล user กับ comments
                             const commentsWithUsers = comments.map((comment) => ({
                                 ...comment.toObject(),
                                 user: users.find((user) => user.userId === comment.userId),
                             }));
-        
+
                             return {
                                 _id: questionnaire._id,
-                                userId: questionnaire.userId,
+                                userId: questionnaire.anonymous ? null : questionnaire.userId, // null ถ้า anonymous
                                 suggestion: questionnaire.suggestion,
                                 rating: questionnaire.rating,
                                 createAt: questionnaire.createdAt,
-                                user: users.find((user) => user.userId === questionnaire.userId), // ข้อมูล user ของ suggestion
+                                user: questionnaire.anonymous ? null : user, // null ถ้า anonymous
                                 comments: commentsWithUsers, // comments พร้อมข้อมูล user
+                                anonymous: questionnaire.anonymous, // เพิ่ม anonymous ใน response
                             };
                         })
                 );
-        
+
                 // ส่งข้อมูลกลับไปยัง Client
                 res.status(200).json({
                     success: true,
                     data: courseWithQuestions,
                     questionnaires,
                     rating: averageRating,
-                    suggestions, // ส่ง suggestions ที่มีข้อมูล comments และ user
+                    suggestions, // ส่ง suggestions ที่มีข้อมูล comments, user และ anonymous
                 });
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });
             }
             break;
-
         case "DELETE":
             try {
                 await ReviewQuiz.deleteMany({ courseId: id });

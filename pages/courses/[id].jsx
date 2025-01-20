@@ -201,8 +201,6 @@ const Review = () => {
                         userId: session.user.id,
                     };
     
-                    console.log('newComment', newComment);
-    
                     await axios.post('/api/courses/comments', newComment);
                     handleCloseComment();
                     mutate(`/api/courses/ratings?id=${id}`);

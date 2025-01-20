@@ -17,6 +17,7 @@ export default function Form({ course, handleCloseForm }) {
     const [answers, setAnswers] = useState([]);
     const [suggestions, setSuggestions] = useState('');
     const [points, setPoints] = useState([]);
+    const [anonymous, setAnonymous] = useState(false);
     const [rating, setRating] = useState(0);
 
     const router = useRouter();
@@ -27,6 +28,7 @@ export default function Form({ course, handleCloseForm }) {
         setSuggestions('');
         setPoints([]);
         setRating(0);
+        setAnonymous(false);
         handleCloseForm();
     };
         
@@ -54,6 +56,7 @@ export default function Form({ course, handleCloseForm }) {
                 courseId: course._id,
                 question: answers,
                 suggestion: suggestions,
+                anonymous: anonymous,
                 rating: calculatedRating,
             };
         
@@ -139,7 +142,20 @@ export default function Form({ course, handleCloseForm }) {
                         </div>
                     ))}
 
-                    <div className="flex flex-col gap-2 mt-4">
+                    <Divider className="my-4" />
+
+                    <div className="flex flex-col gap-2">
+                        <div className="flex flex-row items-center gap-2">
+                            <input
+                                type="checkbox"
+                                id="anonymous"
+                                checked={anonymous}
+                                onChange={(e) => setAnonymous(e.target.checked)}
+                            />
+                            <label htmlFor="anonymous" className="text-lg font-bold">
+                                ไม่แสดงตัวตน
+                            </label>
+                        </div>
                         <label htmlFor="suggestions" className="text-lg font-bold">
                             ข้อเสนอแนะ
                         </label>
