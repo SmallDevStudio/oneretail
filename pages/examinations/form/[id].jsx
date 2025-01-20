@@ -22,7 +22,7 @@ const ExaminationForm = () => {
     const { data: session } = useSession();
     const userId = session?.user?.id;
 
-    const { data: useAnswersData, error: useAnswersDataError } = useSWR(() => userId ? `/api/examination-answers/${id}?userId=${userId}` : null, fetcher, {
+    const { data: useAnswersData, error: useAnswersDataError, mutate: fetchUseAnswers } = useSWR(() => userId ? `/api/examination-answers/${id}?userId=${userId}` : null, fetcher, {
         onSuccess: (data) => {
             setUseAnswers(data.data);
             
@@ -102,6 +102,7 @@ const ExaminationForm = () => {
             const nextRoundQuestions = examination.questions.filter(q => incorrect.includes(q._id));
             setIncorrectQuestions(nextRoundQuestions);
             setAnswers([]); // ล้างคำตอบ
+            fetchUseAnswers();
             setLoading(false);
         }
     };
