@@ -78,8 +78,6 @@ export default function Ads() {
         router.push("/main");
     };
 
-    console.log(ads);
-
     if (loading) return <Loading />;
 
     return (
@@ -113,7 +111,7 @@ export default function Ads() {
                         style={{ width: "100%", height: "auto" }}
                         loading="lazy"
                         className="object-cover"
-                        onClick={() => router.push(ads?.data[currentAdIndex]?.url)}
+                        onClick={() => router.push(ads.data[currentAdIndex].url ? ads.data[currentAdIndex].url : null)}
                     />
                 </div>
             </div>

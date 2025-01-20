@@ -25,9 +25,7 @@ const AdsModal = ({ children, onClose }) => {
                 }
                 .modal-content {
                     position: relative;
-                    padding: 20px;
-                    border-radius: 15px;
-                    max-width: 80%;
+                    max-width: 100%;
                     max-height: 100%;
                     width: 100%;
                 }

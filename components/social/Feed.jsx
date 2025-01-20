@@ -16,6 +16,7 @@ import moment from "moment";
 import "moment/locale/th";
 import { BsPinAngleFill } from "react-icons/bs";
 import Loading from "@/components/Loading";
+import Avatar from "@/components/utils/Avatar";
 
 moment.locale('th');
 
@@ -425,13 +426,10 @@ const Feed = ({ user, posts }) => {
             <div className="flex flex-col bg-white py-2">
                 <div className="flex flex-row items-center justify-center px-2 w-full gap-2">
                     <div>
-                        <Image
-                            src={user?.user?.pictureUrl}
-                            alt="user"
-                            width={40}
-                            height={40}
-                            className="w-[32px] h-[32px] rounded-full"
-                            onClick={() => router.push(`/p/${user?.user?.userId}`)}
+                        <Avatar 
+                            src={user?.user?.pictureUrl} 
+                            size={40} 
+                            userId={user?.user?.userId} 
                         />
                     </div>
                     <div className="relative w-5/6 p-2 text-xs border border-gray-200 outline-none rounded-full h-8">
@@ -455,14 +453,10 @@ const Feed = ({ user, posts }) => {
                     >
                         <div className="flex flex-row align-top items-start">
                             <div className="flex items-start align-top w-[35px] h-[35px] pt-1">
-                                <Image
+                                <Avatar 
                                     src={post?.user?.pictureUrl}
-                                    alt="user"
-                                    width={30}
-                                    height={30}
-                                    className="rounded-full"
-                                    style={{ width: '30px', height: '30px' }}
-                                    onClick={() => router.push(`/p/${post?.user?.userId}`)}
+                                    size={35}
+                                    userId={post?.user?.userId}
                                 />
                             </div>
                             <div className="flex flex-col w-full ml-2">
@@ -568,15 +562,10 @@ const Feed = ({ user, posts }) => {
                                 <div className="flex flex-col w-full bg-gray-300 rounded-lg mt-2 ml-2">
                                     <div className="flex flex-row items-center px-2 w-full gap-2 rounded-lg mt-1">
                                         <div className="flex items-center justify-center align-top w-[25px]">
-                                            <Image
+                                            <Avatar
                                                 src={comment?.user?.pictureUrl}
-                                                alt="user"
-                                                width={20}
-                                                height={20}
-                                                className="rounded-full"
-                                                style={{ width: '20px', height: '20px' }}
-                                                loading="lazy"
-                                                onClick={() => router.push(`/p/${comment?.user?.userId}`)}
+                                                size={25}
+                                                userId={comment?.user?.userId}
                                             />
                                         </div>
                                         <div className="flex flex-col w-full">
@@ -668,16 +657,12 @@ const Feed = ({ user, posts }) => {
                                         <div  className="flex flex-col bg-gray-200 rounded-lg  w-full ">
                                             <div className="flex flex-row w-full  p-2 gap-2">
                                                 <div className="flex w-[25px]">
-                                                    <Image
+                                                    <Avatar
                                                         src={reply?.user?.pictureUrl}
-                                                        alt="user"
-                                                        width={20}
-                                                        height={20}
-                                                        className="rounded-full"
-                                                        style={{ width: '20px', height: '20px' }}
-                                                        loading="lazy"
-                                                        onClick={() => router.push(`/p/${reply?.user?.userId}`)}
+                                                        size={25}
+                                                        userId={reply?.user?.userId}
                                                     />
+                                                    
                                                 </div>
 
                                                 <div className="flex flex-col w-full">

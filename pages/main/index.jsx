@@ -40,6 +40,8 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
         const [timer, setTimer] = useState(5); // ตั้งเวลาถอยหลังเริ่มต้นที่ 5 วินาที
         const [loading, setLoading] = useState(false);
         const [showSticky, setShowSticky] = useState(false);
+        const [showBtn, setShowBtn] = useState(false);
+
         const router = useRouter();
         const userId = session?.user?.id;
     
@@ -144,8 +146,6 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
             }
         };
 
-
-        
         const onRequestClose = () => {
             setShowModal(false);
         };
@@ -164,7 +164,7 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
                 setCurrentAdIndex(currentAdIndex + 1);
                 setTimer(5); // ตั้งเวลาใหม่เมื่อเปลี่ยนไปยังโฆษณาถัดไป
             } else {
-                setOpenAds(false); // ปิด modal ถ้าโฆษณาครบแล้ว
+                setShowBtn(true);
             }
         };
     
@@ -235,8 +235,6 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
                         </div>
 
-                       
-
                         <ManagerModal isOpen={showModal} onRequestClose={onRequestClose} score={100} />
                         <LinkModal isOpen={linkModal} onRequestClose={() => setLinkModal(false)} />
                         <BirthDayModal isOpen={openModal} onRequestClose={() => setOpenModal(false)} name={user.user.fullname} />
@@ -246,10 +244,10 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
                                     <div className="flex relative justify-end items-center">
                                         <div
                                             className="flex bg-gray-300 rounded-full px-3 py-1 cursor-pointer"
-                                            onClick={handleSkipAd}
+                                            onClick={showBtn ? handleCloseAds : handleSkipAd}
                                         >
                                             <span className="text-xs font-bold">
-                                                ข้ามโฆษณา ({timer}s)
+                                                {showBtn ? "ปิด" : `ข้ามโฆษณา (${timer}s)`}
                                             </span>
                                         </div>
                                     </div>
@@ -260,6 +258,7 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
                                             height={350}
                                             alt="Ads"
                                             style={{ width: '100%', height: 'auto' }}
+                                            onClick={() => ads.data[currentAdIndex].url ? router.push(ads.data[currentAdIndex].url) : null}
                                         />
                                     </div>
                                 </div>

@@ -22,7 +22,6 @@ import { AppLayout } from "@/themes";
 
 moment.locale('th');
 
-
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 
@@ -75,11 +74,6 @@ const FeedPage = () => {
     }, []);
 
     if (!posts) return <Loading />;
-
-    console.log('posts', posts);
-    console.log('user', user);
-    console.log('images', images);
-    console.log('videos', videos);
 
     return (
         <div className="flex flex-col w-full min-h-screen max-w-[100vw]">
