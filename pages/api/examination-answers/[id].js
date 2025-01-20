@@ -22,14 +22,10 @@ export default async function handler(req, res) {
       case "POST":
         const { userId, answers, isComplete } = req.body;
 
-        if (!userId || !Array.isArray(answers)) {
-            return res.status(400).json({ success: false, message: "Invalid data format" });
-        }
-
         try {
-            let examination = await ExaminationAnswer.findOne({ examId: id, userId });
+            const examination = await ExaminationAnswer.findOne({ examId: id, userId });
 
-            if (examination && examination.isComplete) {
+            if (examination.isComplete) {
                 return res.status(400).json({ success: false, message: "Examination has already been completed" });
             }
 

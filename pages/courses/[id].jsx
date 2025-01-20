@@ -263,6 +263,8 @@ const Review = () => {
     if (isLoading || !courses || !questionnaires ) return <Loading />;
     if (error) return <div>Failed to load</div>;
 
+    console.log('suggestions', suggestions);
+
     return (
         <div className='flex flex-col p-2 w-full'>
             <div className='flex flex-row justify-between items-center'>

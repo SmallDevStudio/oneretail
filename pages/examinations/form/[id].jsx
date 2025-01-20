@@ -106,7 +106,7 @@ const ExaminationForm = () => {
         }
     };
 
-    if (!examination) return <Loading />;
+    if (!examination || !userId) return <Loading />;
 
     
     return (
