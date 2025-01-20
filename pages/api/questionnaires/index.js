@@ -31,8 +31,9 @@ export default async function handler(req, res) {
         case "PUT":
             try {
                 const { questionnaireId } = req.query;
-                const { suggestion } = req.body;
-                const questionnaires = await Questionnaires.findByIdAndUpdate(questionnaireId, { suggestion }, {
+                const { suggestion, anonymous } = req.body;
+
+                const questionnaires = await Questionnaires.findByIdAndUpdate(questionnaireId, { suggestion, anonymous }, {
                     new: true,
                     runValidators: true,
                 });

@@ -44,6 +44,7 @@ const Review = () => {
     const [openSuggestion, setOpenSuggestion] = useState(false);
     const [suggestion, setSuggestion] = useState('');
     const [hasGallery, setHasGallery] = useState(false);
+    const [anonymous, setAnonymous] = useState(false);
 
     const router = useRouter();
     const { id } = router.query;
@@ -129,7 +130,7 @@ const Review = () => {
 
     const handleUpdateSuggestion = async() => {
         try {
-            await axios.put(`/api/questionnaires?questionnaireId=${selectedSuggestions}`, { suggestion: suggestion });
+            await axios.put(`/api/questionnaires?questionnaireId=${selectedSuggestions}`, { suggestion: suggestion, anonymous: anonymous });
             handleCloseSuggestion();
             mutate(`/api/courses/ratings?id=${id}`);
     
@@ -312,8 +313,12 @@ const Review = () => {
                         >
                             <div className="flex flex-row justify-between w-full">
                                <div className="flex flex-row gap-2">
-                                    <Avatar src={suggestion?.user?.pictureUrl} size={40} userId={suggestion?.user?.userId} />
-                                    <span className="text-xs font-bold text-[#0056FF]">{suggestion?.user?.fullname}</span>
+                                    <Avatar 
+                                        src={suggestion?.anonymous ? "/images/anonymous.png" : suggestion?.user?.pictureUrl} 
+                                        size={40} 
+                                        userId={suggestion?.anonymous ? null : suggestion?.user?.userId} 
+                                    />
+                                    <span className="text-xs font-bold text-[#0056FF]">{suggestion?.anonymous ? "ไม่แสดงตัวตน" : suggestion?.user?.fullname}</span>
                                </div>
 
                                 {(user.user.role === "manager" || user.user.role === "admin" || suggestion?.user?.userId === session.user.id) && (
@@ -339,7 +344,7 @@ const Review = () => {
                                 )}
                             </div>
 
-                            <div className="flex flex-row items-center gap-1 mt-2">
+                            <div className="flex flex-row items-center gap-1 mt-1">
                                 {Array.from({ length: suggestion?.rating }, (_, i) => (
                                     <>
                                     
@@ -357,13 +362,7 @@ const Review = () => {
                                     <div className="flex flex-col bg-gray-200 p-2 rounded-xl w-full">
                                         <div className="flex flex-row justify-between w-full">
                                             <div className="flex flex-row items-center gap-1">
-                                                <Image
-                                                    src={comment?.user?.pictureUrl}
-                                                    alt={comment?.user?.fullname + "avatar"}
-                                                    width={30}
-                                                    height={30}
-                                                    className="rounded-full"
-                                                />
+                                                <Avatar src={comment?.user?.pictureUrl} size={30} userId={comment?.user?.userId} />
                                                 <span className="text-sm font-bold text-[#0056FF]">{comment?.user?.fullname}</span>
                                             </div>
                                             {(user.user.role === "manager" || user.user.role === "admin") && (
@@ -448,6 +447,16 @@ const Review = () => {
                     </div>
 
                     <div className="flex flex-col mt-2 gap-1 w-full">
+                        <div className="flex flex-row items-center gap-2">
+                            <input 
+                                type="checkbox" 
+                                name="anonymous" 
+                                id="anonymous" 
+                                checked={suggestion?.anonymous}
+                                onChange={(e) => setAnonymous(e.target.checked)}
+                            />
+                            <label htmlFor="" className="text-sm font-bold text-gray-500">ไม่ระบุตัวตน</label>
+                        </div>
                         <label htmlFor="suggestion" className="text-sm font-bold text-gray-500">แก้ไขรีวิว</label>
                         <textarea
                             id="suggestion"
