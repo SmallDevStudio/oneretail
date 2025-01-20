@@ -7,6 +7,7 @@ import { database } from "@/lib/firebase"; // Firebase client SDK
 export default function Avatar({ src, size, userId }) {
   const router = useRouter();
   const [isOnline, setIsOnline] = useState(false);
+  const [imgSrc, setImgSrc] = useState(src);
 
   useEffect(() => {
     if (!userId) return;
@@ -30,7 +31,7 @@ export default function Avatar({ src, size, userId }) {
   return (
     <div className="relative">
       <Image
-        src={src}
+        src={imgSrc} // ใช้ imgSrc แทน src เดิม
         alt="Avatar"
         width={100}
         height={100}
@@ -41,6 +42,7 @@ export default function Avatar({ src, size, userId }) {
         }}
         loading="lazy"
         onClick={() => router.push(url)}
+        onError={() => setImgSrc("/images/anonymous.png")} // ตั้งค่า imgSrc เมื่อเกิดข้อผิดพลาด
       />
       {isOnline && (
         <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-500 rounded-full"></div>

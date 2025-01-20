@@ -26,7 +26,7 @@ export default async function handler(req, res) {
                     questions,
                 };
 
-                const questionnaires = await Questionnaires.find({ courseId: id });
+                const questionnaires = await Questionnaires.find({ courseId: id }).sort({ createdAt: -1 });
 
                 // คำนวณคะแนนเฉลี่ย
                 const ratings = questionnaires.map((questionnaire) => questionnaire.rating);
