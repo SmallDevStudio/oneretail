@@ -71,7 +71,7 @@ export default function AnswerTable({ answers }) {
                     position: answer?.user?.emp?.position || "-",
                     correct: correctCount,
                     incorrect: incorrectCount,
-                    total: firstUserAnswer?.answers?.length || 0,
+                    total: firstUserAnswer?.answers?.length - incorrectCount || 0,
                     createdAt: firstUserAnswer
                         ? moment(firstUserAnswer.createdAt).format("YYYY-MM-DD HH:mm")
                         : "-",

@@ -16,35 +16,43 @@ const UsersReport = () => {
         setLoading(true);
         setProgress(0);
         setError(null);
-
-        let allData = [];
-        let hasMore = true;
+    
         let skip = 0;
-        const limit = 500; // จำกัดจำนวนการโหลดในแต่ละครั้ง
-
+        const limit = 100; // จำนวนการโหลดในแต่ละครั้ง
+        let allData = [];
+    
         try {
-            const res = await axios.get(`/api/reports/users`, {
-                params: { limit, skip },
-            });
-
-            const allData = res.data.data;
-
+            while (true) {
+                const res = await axios.get(`/api/reports/users`, {
+                    params: { skip, limit },
+                });
+    
+                const { data } = res.data;
+                if (!data || data.length === 0) break;
+    
+                allData = allData.concat(data);
+                skip += limit;
+    
+                // อัพเดต progress (ถ้ามีจำนวนข้อมูลโดยประมาณ)
+                setProgress((prev) => Math.min(prev + (limit / allData.length) * 100, 100));
+            }
+    
             // Format dates using moment before exporting
             const formattedData = allData.map(item => ({
                 ...item,
                 createdAt: moment(item.createdAt).format('LLL'),
-                updatedAt: moment(item.updatedAt).format('LLL')
+                updatedAt: moment(item.updatedAt).format('LLL'),
             }));
-
+    
             // Create Excel Workbook
             const workbook = XLSX.utils.book_new();
             const worksheet = XLSX.utils.json_to_sheet(formattedData);
-
+    
             XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-
+    
             // Export to Excel
             XLSX.writeFile(workbook, `users-report.xlsx`);
-
+    
             setLoading(false);
         } catch (error) {
             console.error('Error exporting data:', error);
