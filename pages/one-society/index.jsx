@@ -18,6 +18,8 @@ import { AiOutlineMessage } from "react-icons/ai";
 import Feed from "@/components/social/Feed";
 import FeedImages from "@/components/social/FeedImages";
 import FeedVideo from "@/components/social/FeedVideo";
+import Friends from "@/components/social/Friends";
+import Notifications from "@/components/social/Notifications";
 import { AppLayout } from "@/themes";
 
 moment.locale('th');
@@ -122,7 +124,7 @@ const FeedPage = () => {
                         <Link
                             href="#frinds"
                             className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'frinds' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
-                            onClick={() => handleTabClick('frinds')}
+                            onClick={() => handleTabClick('friends')}
                         >
                             <HiOutlineUsers
                                 size={28}
@@ -158,7 +160,8 @@ const FeedPage = () => {
                    
                     <li className="me-2">
                         <div 
-                            className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'images' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
+                            className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'notification' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
+                            onClick={() => handleTabClick('notification')}
                         >
                             <IoIosMenu 
                                 size={35}
@@ -172,8 +175,10 @@ const FeedPage = () => {
 
             <div className="flex flex-col bg-gray-300">
                 {activeTab === 'feed' && <Feed posts={filteredPosts} user={user} />}
+                {activeTab === 'friends' && <Friends />}
                 {activeTab === 'images' && <FeedImages posts={images} user={user} />}
                 {activeTab === 'video' && <FeedVideo posts={videos} user={user} />}
+                {activeTab === 'notification' && <Notifications />}
             </div>
 
         </div>

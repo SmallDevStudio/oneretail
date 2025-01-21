@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     switch (method) {
         case "GET":
             try {
-                const examination = await Examinations.findOne({ _id: id, active: true, isDeleted: false })
+                const examination = await Examinations.findOne({ _id: id })
                     .populate("questions");
                 res.status(200).json({ success: true, data: examination });
             } catch (error) {
