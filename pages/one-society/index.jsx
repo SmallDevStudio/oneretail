@@ -78,7 +78,7 @@ const FeedPage = () => {
     if (!posts) return <Loading />;
 
     return (
-        <div className="flex flex-col w-full min-h-screen max-w-[100vw]">
+        <div className="flex flex-col w-full min-h-screen">
             <div className="flex flex-row items-center justify-between gap-4 w-full mt-2 px-2">
                 <div className="flex flex-row items-center gap-2">
                     <h1 
@@ -174,11 +174,17 @@ const FeedPage = () => {
             <Divider className="mt-[-10px]"/>
 
             <div className="flex flex-col bg-gray-300">
-                {activeTab === 'feed' && <Feed posts={filteredPosts} user={user} />}
-                {activeTab === 'friends' && <Friends />}
-                {activeTab === 'images' && <FeedImages posts={images} user={user} />}
-                {activeTab === 'video' && <FeedVideo posts={videos} user={user} />}
-                {activeTab === 'notification' && <Notifications />}
+                {!posts ? 
+                    <Loading /> 
+                    : 
+                    <>
+                    {activeTab === 'feed' && <Feed posts={filteredPosts} user={user} />}
+                    {activeTab === 'friends' && <Friends />}
+                    {activeTab === 'images' && <FeedImages posts={images} user={user} />}
+                    {activeTab === 'video' && <FeedVideo posts={videos} user={user} />}
+                    {activeTab === 'notification' && <Notifications />}
+                    </>
+                }
             </div>
 
         </div>

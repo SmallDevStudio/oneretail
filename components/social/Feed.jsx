@@ -421,7 +421,10 @@ const Feed = ({ user, posts }) => {
     if (!posts) return <Loading />;
 
     return (
-        <div className="flex flex-col w-full">
+        (!posts || posts.length === 0) ? (
+            <div className="text-center text-2xl">No posts found.</div>
+        ) : (
+            <div className="flex flex-col w-full">
             {/* Input Post */}
             <div className="flex flex-col bg-white py-2">
                 <div className="flex flex-row items-center justify-center px-2 w-full gap-2">
@@ -444,7 +447,7 @@ const Feed = ({ user, posts }) => {
             </div>
 
             {/* Post Container */}
-            <div className="flex flex-col bg-gray-300 text-gray-700 mt-2 max-w-[100vw]">
+            <div className="flex flex-col bg-gray-300 text-gray-700 mt-2">
                 {posts.map((post, index) => (
                     <div 
                         key={index} 
@@ -759,6 +762,7 @@ const Feed = ({ user, posts }) => {
             </Dialog>
 
         </div>
+        )
     );
 };
 
