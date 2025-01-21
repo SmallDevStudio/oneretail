@@ -11,9 +11,22 @@ export default async function handler(req, res) {
     switch (method) {
         case "GET":
             try {
-                const examination = await Examinations.findOne({ _id: id })
-                    .populate("questions");
-                res.status(200).json({ success: true, data: examination });
+                // ดึงข้อมูล Examination
+                const examination = await Examinations.findOne({ _id: id }).lean();
+                if (!examination) {
+                    return res.status(404).json({ success: false, message: "Examination not found" });
+                }
+
+                // ดึงข้อมูล questions แบบ manual
+                const questionIds = examination.questions || []; // ใช้ question IDs จาก Examination
+                const questions = await ExamQuestions.find({ _id: { $in: questionIds } }).lean();
+
+                const examinationWithQuestions = {
+                    ...examination,
+                    questions, // ใส่ข้อมูลคำถามแบบเต็ม
+                };
+
+                res.status(200).json({ success: true, data: examinationWithQuestions });
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });
             }
