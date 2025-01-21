@@ -45,6 +45,12 @@ const ExaminationForm = () => {
 
     }, [useAnswers?.isComplete]);
 
+    useEffect(() => {
+        if(!session) {
+            router.push("/login");
+        }
+    }, [router, session]);
+
     const handleOptionChange = (index, questionId) => {
         const updatedAnswers = [...answers];
         const question = examination.questions.find(q => q._id === questionId);

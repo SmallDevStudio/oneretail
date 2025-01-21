@@ -45,7 +45,90 @@ export default function AnswerTable({ answers }) {
         setOpenDetails(!openDetails);
     }
 
-    console.log(answers);
+    const handleExport = async () => {
+        setLoading(true);
+    
+        try {
+            const formattedData = selectedAnswer.answers.map((item) => ({
+                empId: item.user?.empId || "-",
+                name: item.user?.fullname || "-",
+                answerCount: item?.userAnswers?.length,
+                createdAt: moment(item.createdAt).format("LLL"),
+            }));
+    
+            // Prepare Sheet Data
+            const sheetData = selectedAnswer.answers.map((answer) => {
+                const firstUserAnswer = answer.userAnswers[0]; // ดึงคำตอบแรกของผู้ใช้
+                const correctCount = firstUserAnswer?.answers?.filter((ans) => ans.isCorrect).length || 0;
+                const incorrectCount = firstUserAnswer?.answers?.length - correctCount || 0;
+    
+                return {
+                    empId: answer.user?.empId || "-",
+                    fullname: answer.user?.fullname || "-",
+                    correct: correctCount,
+                    incorrect: incorrectCount,
+                    total: firstUserAnswer?.answers?.length || 0,
+                    createdAt: firstUserAnswer
+                        ? moment(firstUserAnswer.createdAt).format("YYYY-MM-DD HH:mm")
+                        : "-",
+                };
+            });
+    
+            // Prepare Summary by Quiz
+            const firstAnswers = selectedAnswer.answers.map((answer) => answer.userAnswers[0]); // ดึงคำตอบแรกของผู้ใช้
+            const questionSummary = firstAnswers.flatMap((ua) =>
+                ua?.answers.map((a) => ({
+                    questionId: a.questionId,
+                    question: a.question?.question || "-",
+                    isCorrect: a.isCorrect,
+                }))
+            );
+    
+            const summaryByQuiz = [...new Map(questionSummary.map((item) => [item.questionId, item])).values()].map(
+                (question) => {
+                    const relatedAnswers = questionSummary.filter(
+                        (q) => q.questionId === question.questionId
+                    );
+                    const correctCount = relatedAnswers.filter((q) => q.isCorrect).length;
+                    const totalCount = relatedAnswers.length;
+                    const incorrectCount = totalCount - correctCount;
+                    const correctPercentage = totalCount > 0 ? ((correctCount / totalCount) * 100).toFixed(2) : "0.00";
+    
+                    return {
+                        index: selectedAnswer.answers.findIndex((a) => a.questionId === question.questionId) + 1,
+                        question: question.question,
+                        correct: correctCount,
+                        incorrect: incorrectCount,
+                        correctPercentage: `${correctPercentage}%`,
+                    };
+                }
+            );
+    
+            // Create Workbook
+            const workbook = XLSX.utils.book_new();
+            const worksheet = XLSX.utils.json_to_sheet(formattedData);
+            const dataSheet = XLSX.utils.json_to_sheet(sheetData);
+            const summarySheet = XLSX.utils.json_to_sheet(summaryByQuiz);
+    
+            // Add Worksheets
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Summary");
+            XLSX.utils.book_append_sheet(workbook, dataSheet, "Sheet Data");
+            XLSX.utils.book_append_sheet(workbook, summarySheet, "Summary by Quiz");
+    
+            // Export to Excel
+            XLSX.writeFile(workbook, `ExamAnswer_${moment().format("YYYYMMDD_HHmmss")}.xlsx`);
+            setLoading(false);
+        } catch (error) {
+            console.error("Error exporting data:", error);
+            setLoading(false);
+        }
+    };
+    
+
+
+    console.log('selectedAnswer.answers',selectedAnswer.answers);
+    console.log('answers',answers);
+
     return loading ? (
         <Loading />
     ) : (
@@ -81,8 +164,18 @@ export default function AnswerTable({ answers }) {
                     title="ข้อสอบ"
                 >
                     <div className="flex flex-col px-4 w-full">
-                        <span className="font-bold text-lg text-[#0056FF]">{selectedAnswer.title}</span>
-                        <span className="text-sm text-gray-500">{selectedAnswer.description}</span>
+                        <div className="flex flex-row justify-between w-full">
+                            <div className="flex flex-col">
+                                <span className="font-bold text-lg text-[#0056FF]">{selectedAnswer.title}</span>
+                                <span className="text-sm text-gray-500">{selectedAnswer.description}</span>
+                            </div>
+                            <button
+                                className="bg-[#0056FF] text-white px-4 py-2 rounded-lg"
+                                onClick={handleExport}
+                            >
+                                รายงาน
+                            </button>
+                        </div>
 
                         <table className="table-auto w-full mt-2 text-sm">
                             <thead className="bg-gray-200">
@@ -112,9 +205,10 @@ export default function AnswerTable({ answers }) {
                                             </div>
                                         </td>
                                         <td className="border px-4 py-2 text-center">{answer?.userAnswers?.length}</td>
+                                        
                                     </tr>
-                                    {openDetails && (
-                                        <div>
+                                    {openDetails && selectedUserDetails === answer.userAnswers && (
+                                        <div key={answer?.id}>
                                             Details
                                         </div>
                                     )}
