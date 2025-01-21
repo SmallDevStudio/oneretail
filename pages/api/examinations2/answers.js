@@ -3,6 +3,7 @@ import Examinations from "@/database/models/Examinations";
 import ExaminationAnswer from "@/database/models/ExaminationAnswer";
 import UserAnswer from "@/database/models/UserAnswer";
 import Users from "@/database/models/users";
+import Emp from "@/database/models/emp";
 import ExamQuestions from "@/database/models/ExamQuestions";
 
 export default async function handler(req, res) {
@@ -28,9 +29,22 @@ export default async function handler(req, res) {
                 const userIds = [...new Set(answers.map((answer) => answer.userId))];
                 const users = await Users.find({ userId: { $in: userIds } }).lean();
 
+                // Fetch emp details manually
+                const empIds = users.map((user) => user.empId);
+                const emps = await Emp.find({ empId: { $in: empIds } }).lean();
+
                 // Fetch questions related to user answers
                 const questionIds = [...new Set(userAnswers.flatMap((ua) => ua.answers.map((a) => a.questionId)))];
                 const questions = await ExamQuestions.find({ _id: { $in: questionIds } }).lean();
+
+                // Map users with emp data
+                const usersWithEmp = users.map((user) => {
+                    const emp = emps.find((e) => e.empId === user.empId);
+                    return {
+                        ...user,
+                        emp: emp || null, // Add emp details or null if not found
+                    };
+                });
 
                 // Map data
                 const examinationPopulated = examinations.map((examination) => {
@@ -40,7 +54,7 @@ export default async function handler(req, res) {
 
                     // Add userAnswerCount and detailed user mapping
                     const populatedAnswers = relatedAnswers.map((answer) => {
-                        const user = users.find((u) => u.userId === answer.userId);
+                        const user = usersWithEmp.find((u) => u.userId === answer.userId);
                         const relatedUserAnswers = userAnswers
                             .filter((ua) => ua.examAnswerId.toString() === answer._id.toString())
                             .map((ua) => ({

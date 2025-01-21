@@ -52,6 +52,8 @@ export default function AnswerTable({ answers }) {
             const formattedData = selectedAnswer.answers.map((item) => ({
                 empId: item.user?.empId || "-",
                 name: item.user?.fullname || "-",
+                teamGroup: item?.user?.emp?.teamGrop || "-",
+                position: item?.user?.emp?.position || "-",
                 answerCount: item?.userAnswers?.length,
                 createdAt: moment(item.createdAt).format("LLL"),
             }));
@@ -65,6 +67,8 @@ export default function AnswerTable({ answers }) {
                 return {
                     empId: answer.user?.empId || "-",
                     fullname: answer.user?.fullname || "-",
+                    teamGroup: answer?.user?.emp?.teamGrop || "-",
+                    position: answer?.user?.emp?.position || "-",
                     correct: correctCount,
                     incorrect: incorrectCount,
                     total: firstUserAnswer?.answers?.length || 0,
@@ -124,9 +128,6 @@ export default function AnswerTable({ answers }) {
         }
     };
     
-
-
-    console.log('selectedAnswer.answers',selectedAnswer.answers);
     console.log('answers',answers);
 
     return loading ? (
