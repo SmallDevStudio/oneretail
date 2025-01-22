@@ -45,12 +45,6 @@ const ExaminationForm = () => {
 
     }, [useAnswers?.isComplete]);
 
-    useEffect(() => {
-        if(!session) {
-            router.push("/login");
-        }
-    }, [router, session]);
-
     const handleOptionChange = (index, questionId) => {
         const updatedAnswers = [...answers];
         const question = examination.questions.find(q => q._id === questionId);
@@ -113,7 +107,7 @@ const ExaminationForm = () => {
         }
     };
 
-    if (!examination || !userId) return <Loading />;
+    if (!examination) return <Loading />;
 
     
     return (
@@ -195,3 +189,4 @@ const ExaminationForm = () => {
 export default ExaminationForm;
 
 ExaminationForm.getLayout = (page) => <AppLayout>{page}</AppLayout>;
+ExaminationForm.auth = true;
