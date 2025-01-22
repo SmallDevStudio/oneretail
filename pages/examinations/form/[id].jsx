@@ -63,6 +63,12 @@ const ExaminationForm = () => {
 
     const handleSubmit = async () => {
         setLoading(true);
+
+        if(!userId) {
+            setLoading(false);
+            Swal.fire("กรุณาเข้าสู่ระบบ", "", "warning");
+            return;
+        }
     
         // ตรวจสอบว่าผู้ใช้ตอบทุกคำถามหรือยัง
         const unansweredQuestions = incorrectQuestions.filter(
