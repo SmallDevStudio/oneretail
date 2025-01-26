@@ -39,7 +39,7 @@ const FeedPage = () => {
 
     const router = useRouter();
 
-    const { data, error, mutate } = useSWR(`/api/posts/feed?userId=${session?.user?.id}`, fetcher, {
+    const { data, error, mutate } = useSWR(`/api/onesociety/feed?userId=${session?.user?.id}`, fetcher, {
         onSuccess: (data) => {
             setPosts(data.data);
             setImages(data.images);
@@ -82,31 +82,34 @@ const FeedPage = () => {
             <div className="flex flex-row items-center justify-between gap-4 w-full mt-2 px-2">
                 <div className="flex flex-row items-center gap-2">
                     <h1 
-                        className="text-xl text-[#0056FF] font-bold ml-2"
+                        className="text-md text-[#0056FF] font-bold ml-2"
                         style={{ fontFamily: 'Ekachon' }}
                     >
                         One Society
                     </h1>
                 </div>
 
-                <div className="flex flex-row items-center gap-2">
+                <div className="flex flex-row justify-end items-center gap-2">
                     {showSearch && (
                         <input
                             type="text"
                             placeholder="ชื่อผู้ใช้ หรือโพสต์"
-                            className="border border-gray-300 rounded-full px-4 py-0.5 text-sm"
+                            className="border border-gray-300 rounded-full px-2 py-0.5 text-sm w-[70%]"
                             value={query}
                             onChange={handleSearchChange}
                         />
                     )}
                     <IoSearch size={25} onClick={() => setShowSearch(!showSearch)}/>
-                    <AiOutlineMessage size={25}/>
+                    <AiOutlineMessage 
+                        onClick={() => router.push('/messager')} 
+                        size={25}
+                    />
                 </div>
             </div>
 
            {/* Tab */}
            <div className="flex justify-center text-sm">
-                <ul className="flex flex-wrap justify-between gap-6 items-center">
+                <ul className="flex flex-wrap justify-between gap-3 items-center">
                 
                     <li className="me-2">
                         <Link
@@ -134,6 +137,18 @@ const FeedPage = () => {
 
                     <li className="me-2">
                         <Link
+                            href="#images"
+                            className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'images' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
+                            onClick={() => handleTabClick('images')}
+                        >
+                            <IoImagesOutline 
+                                size={28}
+                            />
+                        </Link>
+                    </li>
+
+                    <li className="me-2">
+                        <Link
                             href="#video"
                             className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'video' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
                             onClick={() => handleTabClick('video')}
@@ -145,23 +160,24 @@ const FeedPage = () => {
                             </svg>
                         </Link>
                     </li>
-
-                    <li className="me-2">
-                        <Link
-                            href="#images"
-                            className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'images' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
-                            onClick={() => handleTabClick('images')}
-                        >
-                            <IoImagesOutline 
-                                size={28}
-                            />
-                        </Link>
-                    </li>
                    
                     <li className="me-2">
                         <div 
                             className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'notification' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
                             onClick={() => handleTabClick('notification')}
+                        >
+                           <svg className="w-6 h-6 " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 118.17 139.66">
+                                <g>
+                                <path fill="currentColor" d="M113.17,95.62l-8.06-8.21c-1.13-1.15-1.75-2.66-1.75-4.27v-24.82c0-20.04-13.38-37-31.67-42.45.17-.82.25-1.67.25-2.51,0-7.09-5.77-12.86-12.86-12.86s-12.86,5.77-12.86,12.86c0,.85.08,1.69.24,2.51-18.29,5.45-31.66,22.41-31.66,42.44v24.82c0,1.61-.62,3.12-1.75,4.27l-8.06,8.21c-4.47,4.56-5.72,11.04-3.25,16.93,2.47,5.89,7.97,9.55,14.36,9.55h23.75c1.14,9.6,9.32,17.06,19.22,17.06s18.08-7.47,19.22-17.06h23.75c6.39,0,11.89-3.66,14.36-9.55,2.47-5.89,1.23-12.38-3.25-16.93ZM55.7,13.36c0-1.87,1.52-3.39,3.39-3.39s3.39,1.52,3.39,3.39c0,.29-.04.56-.1.8-1.09-.08-2.18-.12-3.29-.12s-2.2.04-3.29.12c-.06-.24-.1-.51-.1-.8h0ZM59.08,129.68c-4.66,0-8.57-3.24-9.61-7.58h19.22c-1.04,4.34-4.95,7.58-9.61,7.58h0ZM107.67,108.88c-.37.88-1.86,3.73-5.62,3.73H16.11c-3.76,0-5.25-2.86-5.62-3.73-.37-.88-1.36-3.94,1.27-6.63l8.06-8.21c2.88-2.93,4.46-6.8,4.46-10.91v-24.82c0-19.19,15.61-34.8,34.8-34.8s34.8,15.61,34.8,34.8v24.82c0,4.11,1.58,7.98,4.46,10.91l8.06,8.21c2.63,2.68,1.64,5.75,1.27,6.63h0Z"/>
+                                <path fill="currentColor" d="M59.08,139.66c-9.91,0-18.28-7.3-19.66-17.06h-23.31c-6.59,0-12.27-3.78-14.82-9.85-2.55-6.08-1.27-12.78,3.35-17.48l8.06-8.21c1.03-1.05,1.6-2.44,1.6-3.92v-24.82c0-19.51,12.97-37.04,31.59-42.79-.12-.72-.17-1.44-.17-2.16,0-7.37,6-13.36,13.36-13.36s13.36,6,13.36,13.36c0,.72-.06,1.44-.18,2.16,18.62,5.75,31.59,23.28,31.59,42.79v24.82c0,1.48.57,2.87,1.6,3.92l8.06,8.21c4.62,4.7,5.9,11.4,3.35,17.48-2.55,6.08-8.23,9.85-14.82,9.85h-23.31c-1.38,9.76-9.76,17.06-19.66,17.06ZM59.08,1c-6.82,0-12.36,5.55-12.36,12.36,0,.8.08,1.62.23,2.42l.09.45-.44.13c-18.43,5.49-31.3,22.74-31.3,41.96v24.82c0,1.74-.67,3.38-1.89,4.62l-8.06,8.21c-4.33,4.41-5.54,10.69-3.14,16.39,2.39,5.7,7.72,9.24,13.9,9.24h24.19l.05.44c1.13,9.48,9.18,16.62,18.73,16.62s17.6-7.15,18.73-16.62l.05-.44h24.19c6.18,0,11.51-3.54,13.9-9.24,2.39-5.7,1.19-11.98-3.14-16.39l-8.06-8.21c-1.22-1.24-1.89-2.88-1.89-4.62v-24.82c0-19.22-12.88-36.48-31.31-41.97l-.44-.13.09-.45c.16-.8.24-1.61.24-2.41,0-6.82-5.55-12.36-12.36-12.36ZM59.08,130.18c-4.82,0-8.97-3.28-10.1-7.97l-.15-.62h20.49l-.15.62c-1.12,4.69-5.28,7.97-10.1,7.97ZM50.13,122.6c1.22,3.91,4.81,6.58,8.96,6.58s7.74-2.68,8.96-6.58h-17.91ZM102.05,113.12H16.11c-4.06,0-5.68-3.09-6.08-4.04-.4-.95-1.47-4.27,1.37-7.17l8.06-8.21c2.78-2.84,4.32-6.59,4.32-10.56v-24.82c0-19.46,15.84-35.3,35.3-35.3s35.3,15.84,35.3,35.3v24.82c0,3.97,1.53,7.72,4.32,10.56l8.06,8.21c2.85,2.9,1.77,6.22,1.37,7.17h0c-.4.95-2.01,4.04-6.08,4.04ZM59.08,24.02c-18.91,0-34.3,15.39-34.3,34.3v24.82c0,4.24-1.63,8.23-4.6,11.26l-8.06,8.21c-2.42,2.46-1.5,5.28-1.17,6.08.34.8,1.71,3.43,5.16,3.43h85.94c3.45,0,4.82-2.62,5.16-3.43.34-.8,1.25-3.62-1.17-6.08l-8.06-8.21c-2.97-3.02-4.6-7.02-4.6-11.26v-24.82c0-18.91-15.39-34.3-34.3-34.3ZM62.76,14.69l-.42-.03c-2.21-.16-4.29-.16-6.5,0l-.42.03-.1-.41c-.07-.3-.11-.61-.11-.92,0-2.14,1.74-3.89,3.89-3.89s3.89,1.74,3.89,3.89c0,.31-.04.61-.11.92l-.1.41ZM59.08,10.48c-1.59,0-2.89,1.29-2.89,2.89,0,.09,0,.18.01.27,1.95-.12,3.79-.12,5.74,0,0-.09.01-.18.01-.27,0-1.59-1.29-2.89-2.89-2.89Z"/>
+                                </g>
+                            </svg>
+                        </div>
+                    </li>
+
+                    <li className="me-2">
+                        <div 
+                            className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'setting' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
                         >
                             <IoIosMenu 
                                 size={35}
@@ -174,16 +190,21 @@ const FeedPage = () => {
             <Divider className="mt-[-10px]"/>
 
             <div className="flex flex-col bg-gray-300">
-                {!posts ? 
-                    <Loading /> 
-                    : 
-                    <>
-                    {activeTab === 'feed' && <Feed posts={filteredPosts} user={user} />}
-                    {activeTab === 'friends' && <Friends />}
-                    {activeTab === 'images' && <FeedImages posts={images} user={user} />}
-                    {activeTab === 'video' && <FeedVideo posts={videos} user={user} />}
-                    {activeTab === 'notification' && <Notifications />}
-                    </>
+                {activeTab === 'feed' && 
+                    <div className="flex flex-col bg-gray-300 h-screen pb-20 max-w-screen overflow-x-hidden">
+                        <Feed 
+                            posts={filteredPosts} 
+                            user={user} 
+                        />
+                    </div>
+                }
+                {activeTab === 'friends' && 
+                    <Friends user={user}/>
+                }
+                {activeTab === 'images' && <FeedImages posts={images} user={user} />}
+                {activeTab === 'video' && <FeedVideo posts={videos} user={user} />}
+                {activeTab === 'notification' && 
+                    <Notifications user={user}/>
                 }
             </div>
 

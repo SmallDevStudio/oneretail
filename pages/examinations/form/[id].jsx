@@ -64,7 +64,7 @@ const ExaminationForm = () => {
     const handleSubmit = async () => {
         setLoading(true);
 
-        if(!userId) {
+        if(session && !session.user && !userId ) {
             setLoading(false);
             Swal.fire("กรุณาเข้าสู่ระบบ", "", "warning");
             return;
@@ -76,6 +76,12 @@ const ExaminationForm = () => {
         );
     
         if (unansweredQuestions.length > 0) {
+            Swal.fire("กรุณาตอบคำถามให้ครบทุกข้อ", "", "warning");
+            setLoading(false);
+            return;
+        }
+
+        if (answers.length < incorrectQuestions.length) {
             Swal.fire("กรุณาตอบคำถามให้ครบทุกข้อ", "", "warning");
             setLoading(false);
             return;

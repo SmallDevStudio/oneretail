@@ -239,7 +239,10 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
                         <LinkModal isOpen={linkModal} onRequestClose={() => setLinkModal(false)} />
                         <BirthDayModal isOpen={openModal} onRequestClose={() => setOpenModal(false)} name={user.user.fullname} />
                         {openAds && ads?.data?.[currentAdIndex] && (
-                            <AdsModal isOpen={openAds} onRequestClose={handleCloseAds}>
+                            <AdsModal 
+                                isOpen={openAds} 
+                                onClose={handleCloseAds}
+                            >
                                 <div className="flex-col w-full h-full flex">
                                     <div className="flex relative justify-end items-center">
                                         <div

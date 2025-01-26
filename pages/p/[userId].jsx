@@ -24,6 +24,7 @@ import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { IoIosArrowBack } from "react-icons/io";
 import { AppLayout } from "@/themes";
 import Loading from "@/components/Loading";
+import Follower from "@/components/social/Follower";
 
 moment.locale("th");
 
@@ -504,10 +505,9 @@ const ProfilePage = () => {
                                     </>
                                 ): (
                                     <>
-                                    <div className="flex flex-row px-2 py-1 bg-gray-200 text-[10px] rounded-full items-center gap-1 ">
-                                        <BsPersonFillAdd size={15} />
-                                        <span>ติดตาม</span>
-                                    </div>
+                                    <Follower 
+                                        targetId={userData?.user?.userId} 
+                                    />
                                     <div 
                                         className="flex flex-row px-2 py-1 bg-gray-200 text-[10px] rounded-full items-center gap-1"
                                         onClick={() => router.push("/messager?receiverId=" + userData?.user?.userId)}

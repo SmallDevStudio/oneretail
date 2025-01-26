@@ -50,7 +50,7 @@ export default function Messages() {
     },
   });
 
-  const { data: userData, error: userError } = useSWR(`/api/users/${session?.user?.id}`, fetcher, {
+  const { data: userData, error: userError, isLoading: userLoading } = useSWR(`/api/users/${session?.user?.id}`, fetcher, {
     onSuccess: (data) => {
       setUser(data.user);
     },
@@ -187,17 +187,20 @@ export default function Messages() {
       console.error('Error creating chat:', error);
     }
   };
+
+  console.log('userData:', userData);
+
+  if (loading || userLoading) return <CircularProgress />;
   
   return (
     <div className='flex flex-col bg-gray-300 w-full h-screen'>
       {/* Header */}
       <div className='flex flex-row items-center justify-between w-full p-4'>
         <div className='flex flex-row items-center gap-2'>
-         
           <Avatar 
-            src={user?.pictureUrl}
+            src={userData?.user?.pictureUrl}
             size={36}
-            userId={session?.user?.id} 
+            userId={userData?.user?.userId} 
           />
         </div>
         <h1 className='text-md font-bold'>Massager</h1>
