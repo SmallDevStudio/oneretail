@@ -30,14 +30,14 @@ export default async function handler(req, res) {
                 if (random) {
                     const createPoint = await Point.create({
                         userId: userId,
-                        description: `New Year 2025`,
+                        description: `Chinese New Year 2025`,
                         contentId: random._id,
                         path: 'randoms',
                         type: 'earn',
                         point: random.point
                     });
     
-                    const message = `คุณได้รับ ${createPoint.point} คะแนน จาก ${createPoint.description} `;
+                    const message = `${createPoint.description} คุณได้รับ ${createPoint.point} คะแนน`;
                     sendLineMessage(userId, message);
                 } else {
                     res.status(400).json({ success: false });

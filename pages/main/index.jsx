@@ -109,8 +109,8 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
         useEffect(() => {
             const checkDate = () => {
                 const currentDate = new Date();
-                const startDate = new Date("2025-01-01T00:00:00");
-                const endDate = new Date("2025-01-01T23:59:59");
+                const startDate = new Date("2025-01-29T00:00:00");
+                const endDate = new Date("2025-01-29T23:59:59");
     
                 if (currentDate >= startDate && currentDate <= endDate) {
                     setShowSticky(true);
@@ -126,13 +126,13 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
         const handleRandom = async() => {
             // สุ่มค่าในช่วง 1-100
-            const point = 25;
+            const point = 88;
     
             const res = await axios.post(`/api/randoms`, 
                 { 
                     userId, 
                     point,
-                    campaign: 'newyear'
+                    campaign: 'CHY2025'
                 });
             if (res.data) {
                 setHasRandom(true);
@@ -222,7 +222,7 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
                                 >
                                     <div className="flex flex-col items-center justify-center absolute">
                                             <Image
-                                                src="/images/1212/HNY-25-Points.gif"
+                                                src="/images/CHY.gif"
                                                 width={100}
                                                 height={100}
                                                 alt="Link"
@@ -272,7 +272,7 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
                             <RandomModal isOpen={showRandom} onClose={() => setShowRandom(false)}>
                                 <div className="flex flex-col items-center justify-center">
                                     <Image
-                                        src="/images/1212/HNY-25-Points.gif"
+                                        src="/images/CHY.gif"
                                         width={300}
                                         height={300}
                                         alt="Link"

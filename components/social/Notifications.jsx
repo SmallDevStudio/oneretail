@@ -17,7 +17,7 @@ export default function Notifications({user}) {
     const { data: session } = useSession();
     const router = useRouter();
    
-    const { data: notifications, error: notificationsError, mutate } = useSWR(`/api/notifications/${user.user.userId}`, fetcher);
+    const { data: notifications, error: notificationsError, mutate } = useSWR(`/api/onesociety/notifications?userId=${session.user.id}`, fetcher);
 
     const MakeReading = async (id) => {
         try {

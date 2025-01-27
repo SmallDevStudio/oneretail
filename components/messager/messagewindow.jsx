@@ -1,125 +1,136 @@
-import { useState, useEffect } from "react";
-import { database } from "@/lib/firebase"; // Firebase Client
-import { ref, push, onValue, update } from "firebase/database"; // Firebase Realtime Database APIs
-import { useSession } from "next-auth/react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { ref, onValue } from "firebase/database";
 import { IoIosArrowBack } from "react-icons/io";
 import { FiInfo } from "react-icons/fi";
-import { RiEmojiStickerLine } from "react-icons/ri";
+import { RiEmojiStickerLine, RiDeleteBinLine, RiReplyLine, RiFileCopyLine } from "react-icons/ri";
 import { GoPaperclip } from "react-icons/go";
 import Avatar from "../utils/Avatar";
-import { RiDeleteBinLine, RiReplyLine, RiFileCopyLine } from "react-icons/ri";
+import { useSession } from "next-auth/react";
+import { database } from "@/lib/firebase"; // Firebase setup file
+import { useFirebaseChat } from "@/lib/hook/useFirebaseChat";
+import Time from "../utils/Time";
+import axios from "axios";
+import MessagePopupMenu from "./MessagePopupMenu";
 
-const MessageWindows =({ selectedChat, handleClose, name, mutate }) => {
-  const [messages, setMessages] = useState([]);
-  const [replyTo, setReplyTo] = useState(null); // สถานะสำหรับข้อความที่กำลังตอบกลับ
-  const [text, setText] = useState("");
+export default function MessageWindows({ selectedChat, handleClose }) {
   const { data: session } = useSession();
+  const userId = session?.user?.userId;
+  const [text, setText] = useState("");
+  const [replyTo, setReplyTo] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [nameRoom, setNameRoom] = useState(null);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isTargetOnline, setIsTargetOnline] = useState(false);
+  const [targetUserId, setTargetUserId] = useState(null);
+  const [menuMessage, setMenuMessage] = useState(null);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const menuRef = useRef(null); // ใช้ตรวจจับคลิกข้างนอกเมนู
+  const {
+    messages,
+    participants,
+    listenToChat,
+    sendMessage,
+    deleteMessage,
+    markAsRead,
+    fetchUserData,
+  } = useFirebaseChat();
 
-  // Listener สำหรับดึงข้อความแบบเรียลไทม์
+  // ฟังก์ชันดึงข้อความในบทสนทนา
   useEffect(() => {
-    if (!selectedChat) return;
+    if (selectedChat) {
+      setLoading(true); // เริ่มโหลด
+      const unsubscribe = listenToChat(selectedChat, () => {
+        setLoading(false); // โหลดเสร็จ
+      });
 
-    const messagesRef = ref(database, `chats/${selectedChat}/messages`);
-
-    const unsubscribe = onValue(messagesRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const messagesArray = Object.entries(data)
-          .map(([key, value]) => ({
-            id: key,
-            ...value,
-          }))
-          .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
-        setMessages(messagesArray);
-
-        // อัปเดต reader = true สำหรับข้อความที่ผู้ใช้อื่นส่งมา
-        messagesArray.forEach((msg) => {
-          if (msg.senderId !== session?.user?.id && !msg.reader) {
-            update(ref(database, `chats/${selectedChat}/messages/${msg.id}`), {
-              reader: true,
-            });
-          }
-        });
-      } else {
-        setMessages([]);
-      }
-    });
-
-    return () => unsubscribe(); // Cleanup listener
-  }, [selectedChat, session?.user?.id]);
-
-  // ฟังก์ชันสำหรับส่งข้อความและบันทึก Notification
-  const handleSendMessage = async () => {
-    if (!text.trim()) return;
-
-    try {
-      // สร้าง Message Data
-      const messageData = {
-        text,
-        senderId: session?.user?.id,
-        timestamp: new Date().toISOString(),
-        reader: false,
-      };
-
-      // บันทึกข้อความใน Firebase
-      const messageRef = ref(database, `chats/${selectedChat}/messages`);
-      await push(messageRef, messageData);
-
-      // สร้าง Notification Data
-      const notificationData = {
-        userId: name, // ระบุ userId ที่จะได้รับการแจ้งเตือน
-        senderId: session?.user?.id,
-        text,
-        pictureUrl: session?.user?.image,
-        fullname: session?.user?.name,
-        empId: session?.user?.empId, // เพิ่ม field empId (ปรับตาม structure ของ session)
-        chatId: selectedChat,
-        createdAt: new Date().toISOString(),
-        read: false,
-      };
-
-      // บันทึก Notification ใน Firebase
-      const notificationRef = ref(database, `notifications/${name}`);
-      await push(notificationRef, notificationData);
-
-      mutate(); // Refresh data
-    } catch (error) {
-      console.error("Error sending message or creating notification:", error);
-    } finally {
-      setText(""); // Clear the input field
+      return () => unsubscribe(); // ยกเลิกการฟังเมื่อปิด
     }
-  };
+  }, [selectedChat, listenToChat]);
 
-  // ฟังก์ชันอัปเดต Notification เมื่อผู้ใช้เข้ามาใน Chat Room
-  const markNotificationsAsRead = async (chatId) => {
-    try {
-      const notificationsRef = ref(database, `notifications/${session?.user?.id}`);
-      const snapshot = await get(notificationsRef);
-      if (snapshot.exists()) {
-        const updates = {};
-        snapshot.forEach((child) => {
-          const notification = child.val();
-          if (notification.chatId === chatId && !notification.read) {
-            updates[`${child.key}/read`] = true;
-          }
-        });
+  useEffect(() => {
+    if (participants) {
+      const participantsArray = Array.isArray(participants) ? participants : Array.from(participants || []);
   
-        if (Object.keys(updates).length > 0) {
-          await update(notificationsRef, updates);
-        }
+      const otherParticipants = participantsArray.filter(
+        (participant) => participant.userId !== session?.user?.id
+      );
+  
+      if (otherParticipants.length > 0) {
+        setNameRoom(
+          otherParticipants.map((participant) => participant.user?.fullname || "Unknown").join(", ")
+        );
+        setTargetUserId(otherParticipants[0].userId);
+      } else {
+        setNameRoom("Chat Room");
+        setTargetUserId(null);
       }
-    } catch (error) {
-      console.error("Error updating notifications:", error);
     }
-  };
+  }, [participants, session?.user?.id]);
+
+  useEffect(() => {
+    if (userId && targetUserId) {
+      const userStatusRef = ref(database, `users/${userId}/online`);
+      const targetUserStatusRef = ref(database, `users/${targetUserId}/online`);
+
+      // ฟังสถานะออนไลน์แบบเรียลไทม์
+      const unsubscribe = onValue(userStatusRef, (snapshot) => {
+        if (snapshot.exists()) {
+          setIsOnline(snapshot.val());
+        } else {
+          setIsOnline(false); // หากไม่มีข้อมูลใน Firebase ให้ถือว่า offline
+        }
+      });
+
+      // ฟังสถานะออนไลน์แบบเรียลไทม์
+      const unsubscribeTargetUser = onValue(targetUserStatusRef, (snapshot) => {
+        if (snapshot.exists()) {
+          setIsTargetOnline(snapshot.val());
+        } else {
+          setIsTargetOnline(false); // หากไม่มีข้อมูลใน Firebase ให้ถือว่า offline
+        }
+      });
+
+      return () => {
+        unsubscribe();
+        unsubscribeTargetUser();
+      };
+    }
+  }, [userId, targetUserId]);
 
   useEffect(() => {
     if (selectedChat && session?.user?.id) {
-      markNotificationsAsRead();
+      markAsRead(selectedChat);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedChat, session?.user?.id]);
+  }, [selectedChat, session?.user?.id, markAsRead]);
+
+  const handleSendMessage = async () => {
+    if (!text.trim()) return;
+  
+    if (!selectedChat || typeof selectedChat !== "string") {
+      console.error("Invalid chatId:", selectedChat);
+      return;
+    }
+  
+    await sendMessage(selectedChat, session?.user?.id, text);
+
+    if (!isOnline) {
+      const user = Array.from(participants).filter(
+        (participant) => participant.userId === userId
+      )
+      await axios.post("/api/notifications", {
+        userId: targetUserId,
+        senderId: userId,
+        description: `${user[0].user.fullname} ส่งข้อความใหม่`,
+        referId: selectedChat,
+        path: 'message',
+        subpath: '',
+        url: `${window.location.origin}messager/${selectedChat}`,
+        type: 'message'
+      })
+    }
+    setText("");
+    setReplyTo(null);
+  };
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
@@ -128,105 +139,141 @@ const MessageWindows =({ selectedChat, handleClose, name, mutate }) => {
     }
   };
 
-  const handleTextChange = (e) => {
-    setText(e.target.value);
+  const handleInfo = () => {
+
+  }
+
+  // ฟังก์ชันคัดลอกข้อความ
+  const handleCopyMessage = (message) => {
+    navigator.clipboard.writeText(message.message);
+    alert("คัดลอกข้อความเรียบร้อย");
   };
 
-  const handleLongPress = (msg) => {
-    // เปิดเมนูตัวเลือก
-    const menuOptions = [
-      {
-        label: "คัดลอก",
-        icon: <RiFileCopyLine />,
-        action: () => {
-          navigator.clipboard.writeText(msg.text);
-          alert("คัดลอกข้อความเรียบร้อยแล้ว");
-        },
-      },
-      {
-        label: "ตอบกลับ",
-        icon: <RiReplyLine />,
-        action: () => {
-          setReplyTo(msg); // ตั้งค่าข้อความที่กำลังตอบกลับ
-        },
-      },
-      {
-        label: "ลบ",
-        icon: <RiDeleteBinLine />,
-        action: async () => {
-          const confirmDelete = window.confirm("คุณต้องการลบข้อความนี้หรือไม่?");
-          if (confirmDelete) {
-            await update(ref(database, `chats/${selectedChat}/messages/${msg.id}`), {
-              text: "ข้อความนี้ถูกลบ",
-              deleted: true, // เพิ่มสถานะข้อความที่ถูกลบ
-            });
-          }
-        },
-      },
-    ];
-  
-    // แสดงเมนู (ปรับ UI เองตามต้องการ)
-    console.log(menuOptions);
+  // ฟังก์ชันอ้างอิงข้อความ
+  const handleReplyMessage = (message) => {
+    setReplyTo(message);
   };
+
+  // ฟังก์ชันลบข้อความ
+  const handleDeleteMessage = (message) => {
+    if (message.senderId === userId) {
+      deleteMessage(selectedChat, message.id);
+    } else {
+      alert("คุณสามารถลบข้อความของตัวเองเท่านั้น");
+    }
+  };
+
+  // ฟังก์ชันเปิดเมนูเมื่อกดค้าง
+  const handleLongPress = (e, message) => {
+    e.preventDefault();
+    const x = e.clientX || e.touches?.[0]?.clientX;
+    const y = e.clientY || e.touches?.[0]?.clientY;
+    setMenuMessage(message);
+    setMenuPosition({ x, y });
+  };
+
+  // ฟังก์ชันปิดเมนู
+  const closeMenu = () => setMenuMessage(null);
+
+  // ใช้ effect เพื่อตรวจจับคลิกข้างนอกเมนู
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        closeMenu();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="flex flex-col justify-between w-full h-screen">
       {/* Header */}
       <div className="flex flex-row items-center justify-between w-full px-2 py-4 bg-gray-300">
-        <IoIosArrowBack
-          className="text-xl cursor-pointer text-[#0056FF]"
-          onClick={handleClose}
-          size={25}
-        />
+        <IoIosArrowBack className="text-xl cursor-pointer text-[#0056FF]" onClick={handleClose} size={25} />
         <div className="flex flex-col items-center">
-          <span className="text-lg font-bold">{name ? name : "Chat Room"}</span>
+          <span className="text-lg font-bold">{ nameRoom || "Chat Room"}</span>
+          <div className="flex flex-row items-center gap-1">
+            <div className={`w-2 h-2 rounded-full ${isTargetOnline ? "bg-green-500" : "bg-red-500"}`} />
+            <span className="text-xs">{isTargetOnline ? "Online" : "Offline"}</span>
+          </div>
         </div>
-        <FiInfo className="text-xl cursor-pointer text-[#0056FF]" size={25} />
+        <FiInfo 
+          onClick={handleInfo} 
+          className="text-xl cursor-pointer text-[#0056FF]" 
+          size={25} 
+        />
       </div>
 
       {/* Chat Window */}
       <div className="flex flex-col p-2 h-full w-full gap-2 overflow-y-auto">
         {messages.map((msg) => (
-        <div
+          <div
             key={msg.id}
-            className={`flex ${
-            msg.senderId === session?.user?.id ? "justify-end" : "justify-start"
-            } w-full gap-2`}
-            onContextMenu={(e) => {
-            e.preventDefault();
-            handleLongPress(msg); // เรียกเมนูเมื่อกดค้าง
-            }}
-        >
+            className={`flex flex-col ${msg.senderId === session?.user?.id ? "justify-end" : "justify-start"} w-full gap-2`}
+            onContextMenu={(e) => handleLongPress(e, msg)}
+          >
             {msg.senderId !== session?.user?.id && (
-            <Avatar
-                src={session?.user?.image}
-                size={30}
-                url={`/p/${msg.senderId}`}
-            />
+              <Avatar 
+                src={msg.user.pictureUrl} 
+                size={30} 
+                userId={msg.user.userId} 
+              />
             )}
             <div
-            className={`flex max-w-xs ${
+              className={`flex max-w-xs ${
                 msg.senderId === session?.user?.id
-                ? "bg-[#0056FF] text-white self-end"
-                : "bg-gray-300 text-black self-start"
-            } px-4 py-2 rounded-lg`}
+                  ? "bg-[#0056FF] text-white self-end"
+                  : "bg-gray-300 text-black self-start"
+              } px-4 py-2 rounded-lg`}
             >
-            {/* แสดงข้อความที่ถูกลบ */}
-            <span>{msg.deleted ? "ข้อความนี้ถูกลบ" : msg.text}</span>
-            {msg.reader && msg.senderId !== session?.user?.id && (
-                <span className="text-xs text-gray-500 ml-2">อ่านแล้ว</span>
-            )}
+              <span>{msg.deleted ? "ข้อความนี้ถูกลบ" : msg.message}</span>
+              
             </div>
-        </div>
+            <div className={`flex flex-row text-xs text-gray-500 ${msg.senderId === session?.user?.id ? "justify-end" : "justify-start"}`}>
+              {msg.reader && msg.senderId !== session?.user?.id && (
+                <span className="text-xs text-gray-500 ml-2">อ่านแล้ว</span>
+              )}
+              <span className="text-xs">
+                <Time timestamp={msg.createdAt} />
+              </span>
+            </div>
+          </div>
         ))}
 
-        {/* แสดงข้อความที่กำลังตอบกลับ */}
-        {replyTo && (
-        <div className="p-2 bg-gray-100 border border-gray-300 rounded-lg">
-            <p className="text-xs text-gray-500">ตอบกลับ: {replyTo.text}</p>
-        </div>
+        {/* แสดงเมนู popup */}
+        {menuMessage && (
+          <div
+            ref={menuRef}
+            style={{
+              position: "absolute",
+              left: `${menuPosition.x}px`,
+              top: `${menuPosition.y}px`,
+            }}
+          >
+            <MessagePopupMenu
+              message={menuMessage}
+              onCopy={handleCopyMessage}
+              onReply={handleReplyMessage}
+              onDelete={handleDeleteMessage}
+              closeMenu={closeMenu}
+            />
+          </div>
         )}
-    </div>
+
+        {/* แสดงข้อความที่อ้างอิง */}
+        {replyTo && (
+          <div className="p-2 bg-gray-100 border border-gray-300 rounded-lg">
+            <p className="text-xs text-gray-500">อ้างอิง: {replyTo.message}</p>
+          </div>
+        )}
+      </div>
 
       {/* Chat Input */}
       <div className="flex flex-row items-center justify-between w-full px-2 py-4 gap-2">
@@ -237,19 +284,14 @@ const MessageWindows =({ selectedChat, handleClose, name, mutate }) => {
           placeholder="พิมพ์ข้อความ"
           className="p-1 border border-gray-300 rounded-xl text-sm w-full"
           value={text}
-          onChange={handleTextChange}
+          onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
         />
         <RiEmojiStickerLine className="text-[#0056FF]" size={30} />
-        <button
-          onClick={handleSendMessage}
-          className="p-2 bg-[#0056FF] text-white rounded-lg"
-        >
+        <button onClick={handleSendMessage} className="p-2 bg-[#0056FF] text-white rounded-lg">
           Send
         </button>
       </div>
     </div>
   );
-}
-
-export default MessageWindows;
+};
