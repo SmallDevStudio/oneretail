@@ -19,7 +19,7 @@ export default function MessageWindows({ selectedChat, handleClose }) {
   const [replyTo, setReplyTo] = useState(null);
   const [loading, setLoading] = useState(false);
   const [nameRoom, setNameRoom] = useState(null);
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isOnline, setIsOnline] = useState(false);
   const [isTargetOnline, setIsTargetOnline] = useState(false);
   const [targetUserId, setTargetUserId] = useState(null);
   const [menuMessage, setMenuMessage] = useState(null);
