@@ -113,20 +113,18 @@ export default function MessageWindows({ selectedChat, handleClose }) {
   
     await sendMessage(selectedChat, session?.user?.id, text);
 
-    if (!isOnline) {
-      const user = Array.from(participants).filter(
-        (participant) => participant.userId === userId
-      )
-      await axios.post("/api/notifications", {
-        userId: targetUserId,
-        senderId: userId,
-        description: `${user[0].user.fullname} ส่งข้อความใหม่`,
-        referId: selectedChat,
-        path: 'message',
-        subpath: '',
-        url: `${window.location.origin}messager/${selectedChat}`,
-        type: 'message'
-      })
+    if (!isTargetOnline) {
+     const notiData = {
+      userId: targetUserId,
+      senderId: session?.user?.id,
+      description: `${nameRoom} ส่งข้อความใหม่ถึงคุณ`,
+      referId: selectedChat,
+      path: 'message',
+      subpath: '',
+      url: `${window.location.origin}messager/${selectedChat}`,
+      type: 'message'
+     }
+     await axios.post('/api/notifications', notiData);
     }
     setText("");
     setReplyTo(null);
