@@ -97,7 +97,7 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
         useEffect(() => {
             const fetchRandom = async () => {
-                await axios.get(`/api/randoms/${userId}?campaign=newyear`).then((res) => {
+                await axios.get(`/api/randoms/${userId}?campaign=CHY2025`).then((res) => {
                     if (res.data.data.length > 0) {
                         setHasRandom(true);
                     }
