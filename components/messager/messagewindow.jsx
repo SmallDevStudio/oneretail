@@ -168,7 +168,7 @@ export default function MessageWindows({ selectedChat, handleClose }) {
       referId: selectedChat,
       path: 'message',
       subpath: '',
-      url: `${window.location.origin}messager/${selectedChat}`,
+      url: `${window.location.origin}/messager/${selectedChat}`,
       type: 'message'
      }
      await axios.post('/api/notifications', notiData);

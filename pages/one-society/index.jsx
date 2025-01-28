@@ -196,6 +196,7 @@ const FeedPage = () => {
                         <Feed 
                             posts={filteredPosts} 
                             user={user} 
+                            mutate={mutate}
                         />
                     </div>
                 }
