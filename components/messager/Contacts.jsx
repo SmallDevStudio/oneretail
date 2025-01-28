@@ -4,7 +4,7 @@ import useSWR from "swr";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import Avatar from "../utils/Avatar";
-import { Dialog, Slide } from "@mui/material";
+import { Dialog, Slide, Divider } from "@mui/material";
 import MessageWindows from "../messager/messagewindow";
 import { useFirebaseChat } from "@/lib/hook/useFirebaseChat";
 
@@ -65,7 +65,7 @@ export default function Contacts() {
     return (
         <div className="flex flex-col p-2 w-full">
             <span className="text-xl font-bold text-[#0056FF]">รายชื่อ</span>
-            <div className="flex flex-row items-center w-full my-2">
+            <div className="flex flex-col items-center w-full my-2">
                 <input
                     type="text"
                     placeholder="กรอกชื่อ หรือรหัสพนักงาน"
@@ -73,8 +73,15 @@ export default function Contacts() {
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                 />
+                <div className="flex justify-end w-full">
+                    {filteredUsers?.length > 0 && (
+                        <span className="text-gray-400 text-xs">{filteredUsers?.length} รายชื่อ</span>
+                    )}
+                </div>
             </div>
-            <div className="flex flex-row w-full gap-2 my-2 overflow-x-hidden">
+            <span className="text-หท font-bold text-[#0056FF]">เพื่อนและผู้ติดตาม</span>
+            <div className="flex flex-col w-full gap-2 bg-gray-100 py-2 px-1">
+                <div className="flex flex-row gap-2 overflow-x-auto">
                 {friends?.data?.map((friend) => (
                     <div key={friend?.user?.userId}>
                         <Avatar
@@ -84,8 +91,10 @@ export default function Contacts() {
                         />
                     </div>
                 ))}
+                </div>
             </div>
-            <div className="flex flex-col w-full gap-2 my-2 px-1 overflow-x-hidden">
+
+            <div className="flex flex-col w-full gap-2 my-2 px-1 overflow-y-auto">
                 {filteredUsers?.map((user) => (
                     <div 
                         key={user?.userId}

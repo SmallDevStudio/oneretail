@@ -13,7 +13,7 @@ const Time = ({ timestamp }) => {
   // กำหนดรูปแบบเวลา
   const formattedTime = isMoreThanTwoDays ? time.format('lll') : time.fromNow();
 
-  return <span className="text-xs">{formattedTime}</span>;
+  return <span>{formattedTime}</span>;
 };
 
 export default Time;

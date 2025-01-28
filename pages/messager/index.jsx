@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 import moment from "moment";
 import "moment/locale/th";
 import { FaCirclePlus } from "react-icons/fa6";
-import { Slide, Dialog, CircularProgress } from "@mui/material";
+import { Slide, Dialog, CircularProgress, Menu, MenuItem, Button } from "@mui/material";
 import Avatar from "@/components/utils/Avatar";
 import { AppLayout } from "@/themes";
 import Modal from "@/components/Modal";
@@ -16,6 +16,8 @@ import Time from "@/components/utils/Time";
 import Contacts from "@/components/messager/Contacts";
 import { IoChatbubbleSharp } from "react-icons/io5";
 import { IoMdContacts } from "react-icons/io";
+import { BsThreeDotsVertical } from "react-icons/bs";
+import { RiDeleteBin5Line } from "react-icons/ri";
 
 moment.locale("th");
 
@@ -30,8 +32,17 @@ export default function Messages() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('messager');
+  const [anchorEl, setAnchorEl] = useState(null);
 
-  const { listenUserChats } = useFirebaseChat();
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const { listenUserChats, deleteConversation } = useFirebaseChat();
   const { data: session } = useSession();
   const userId = session?.user?.id;
 
@@ -65,7 +76,37 @@ export default function Messages() {
 
   const handleTabClick = useCallback((tab) => {
           setActiveTab(tab);
-      }, []);
+  }, []);
+
+  const handleDeleteConversation = async (chatId) => {
+    handleClose();
+    try {
+      const result = await Swal.fire({
+        title: "ลบข้อความ",
+        text: "คุณต้องการลบข้อความนี้หรือไม่?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "ลบข้อความ",
+        cancelButtonText: "ยกเลิก",
+      });
+  
+      if (result.isConfirmed) {
+        setLoading(true);
+        await deleteConversation(chatId, userId);
+  
+        // Remove the deleted chat from the state
+        setChats((prevChats) => prevChats.filter((chat) => chat.chatId !== chatId));
+        Swal.fire("ลบข้อความสำเร็จ", "", "success");
+      }
+    } catch (error) {
+      console.error(error);
+      Swal.fire("ลบข้อความไม่สำเร็จ", "", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) return <CircularProgress />;
 
@@ -115,21 +156,66 @@ export default function Messages() {
                 return (
                   <div
                     key={index}
-                    className="flex flex-row items-center w-full gap-2 p-2 cursor-pointer hover:bg-gray-200"
-                    onClick={() => handleOpen(chat.chatId)}
+                    className="flex flex-row items-center justify-between w-full gap-2 p-2 cursor-pointer hover:bg-gray-200"
                   >
-                    <Avatar src={otherUser.user.pictureUrl || "/default-avatar.png"} size={40} />
-                    <div className="flex flex-col">
-                      <span className="text-sm font-bold">
-                        {otherUser.user.fullname || "Unknown User"}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        {chat.lastMessage?.message || "No messages yet"}
-                      </span>
+                    <div 
+                      className="flex flex-row items-center gap-2"
+                      onClick={() => handleOpen(chat.chatId)}
+                    >
+                      <div className="relative">
+                        <Avatar 
+                          src={otherUser.user.pictureUrl || "/default-avatar.png"} 
+                          size={40} 
+                          userId={otherUser.userId}
+                        />
+                        {chat.unreadCount > 0 && (
+                          <div className="absolute top-0 right-0 flex items-center justify-center text-xs bg-red-500 text-white p-1 w-4 h-4 rounded-full">
+                            <span>{chat.unreadCount}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold">
+                          {otherUser.user.fullname || "Unknown User"}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {chat.lastMessage?.message || "No messages yet"}
+                        </span>
+                      </div>
                     </div>
-                    <span className="text-xs text-gray-400 ml-auto">
-                      <Time timestamp={chat.updatedAt} />
-                    </span>
+                    <div className="flex flex-row items-center">
+                      <span className="text-xs text-gray-400 ml-auto">
+                        <Time timestamp={chat.updatedAt} />
+                      </span> 
+                      <div>
+                      
+                        <BsThreeDotsVertical 
+                          size={20} 
+                          className="text-gray-400 ml-auto" 
+                          onClick={handleClick}
+                        />
+
+                        <Menu
+                          id="basic-menu"
+                          anchorEl={anchorEl}
+                          open={open}
+                          onClose={handleClose}
+                          MenuListProps={{
+                            'aria-labelledby': 'basic-button',
+                          }}
+                        >
+                          <MenuItem 
+                            onClick={() => handleDeleteConversation(chat.chatId, userId)}
+                          >
+                            <div className="flex flex-row items-center gap-2">
+                              <RiDeleteBin5Line />
+                                Delete
+                            </div>
+                          </MenuItem>
+                        </Menu>
+                      </div>
+
+                    </div>
                   </div>
                 );
               })}
