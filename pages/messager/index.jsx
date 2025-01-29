@@ -62,21 +62,26 @@ export default function Messages() {
   const handleSearch = (e) => {
     setSearch(e.target.value.toLowerCase());
   };
-
+  
   const filteredChats = useMemo(() => {
     if (!search) return chats;
-    return chats.filter((chat) =>
-      chat.participants.users.some(
+    
+    return chats.filter((chat) => {
+      // ค้นหาจากชื่อผู้ใช้
+      const userMatch = chat.participants.users.some(
         (user) =>
           user.userId !== userId &&
-          user.fullname.toLowerCase().includes(search)
-      )
-    );
+          user?.user?.fullname?.toLowerCase().includes(search)
+      );
+  
+      // ค้นหาจากข้อความล่าสุด
+      const messageMatch =
+        chat.lastMessage?.message?.toLowerCase().includes(search) || false;
+  
+      return userMatch || messageMatch; // ถ้ามี match อย่างใดอย่างหนึ่งก็แสดงผล
+    });
   }, [chats, search, userId]);
-
-  const handleTabClick = useCallback((tab) => {
-          setActiveTab(tab);
-  }, []);
+  
 
   const handleDeleteConversation = async (chatId) => {
     handleClose();
@@ -108,24 +113,32 @@ export default function Messages() {
     }
   };
 
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+  };
+
   if (loading) return <CircularProgress />;
 
   return (
     <div className="flex flex-col bg-gray-300 w-full h-screen">
       {/* Header */}
-      <div className="flex flex-row items-center justify-between w-full p-4">
+      <div className="flex flex-row items-center justify-between w-full px-4 py-2">
         <h1 className="text-md font-bold">Massager</h1>
-        <div className={`flex flex-row items-center gap-2 text-gray-500`}>
-          <IoChatbubbleSharp 
-            className={activeTab === 'messager' ? 'text-[#0056FF]' : ''}
-            size={20}
+        <div className={`flex flex-row items-center gap-4 text-gray-500`}>
+          <div 
+            className={`flex flex-col items-center cursor-pointer ${activeTab === 'messager' ? 'text-[#0056FF] font-bold' : ''}`}
             onClick={() => handleTabClick('messager')}
-          />
-          <IoMdContacts 
-            className={activeTab === 'contacts' ? 'text-[#0056FF]' : ''}
-            size={20}
+          >
+            <IoChatbubbleSharp size={20}/>
+            <span className="text-xs">Massage</span>
+          </div>
+          <div 
+            className={`flex flex-col items-center cursor-pointer ${activeTab === 'contacts' ? 'text-[#0056FF] font-bold' : ''}`}
             onClick={() => handleTabClick('contacts')}
-          />
+          >
+            <IoMdContacts size={20}/>
+            <span className="text-xs">Contacts</span>
+          </div>
         </div>
       </div>
 

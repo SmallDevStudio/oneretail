@@ -46,11 +46,10 @@ export default function MessageWindows({ selectedChat, handleClose }) {
   useEffect(() => {
     if (selectedChat) {
       setLoading(true); // เริ่มโหลด
-      const unsubscribe = listenToChat(selectedChat, () => {
-        setLoading(false); // โหลดเสร็จ
-      });
-
-      return () => unsubscribe(); // ยกเลิกการฟังเมื่อปิด
+      const unsubscribe = listenToChat(selectedChat);
+      setLoading(false); // โหลดเสร็จ
+  
+      return () => unsubscribe(); // ยกเลิกการติดตามเมื่อออกจากหน้าแชท
     }
   }, [selectedChat, listenToChat]);
 
@@ -158,20 +157,6 @@ export default function MessageWindows({ selectedChat, handleClose }) {
       await sendMessage(selectedChat, userId, text);
       setReplyTo(null); // เคลียร์ข้อความที่อ้างอิงหลังจากส่ง
       setText("");
-    }
-
-    if (!isTargetOnline) {
-     const notiData = {
-      userId: targetUserId,
-      senderId: userId,
-      description: `${nameRoom} ส่งข้อความใหม่ถึงคุณ`,
-      referId: selectedChat,
-      path: 'message',
-      subpath: '',
-      url: `${window.location.origin}/messager/${selectedChat}`,
-      type: 'message'
-     }
-     await axios.post('/api/notifications', notiData);
     }
   };
 
