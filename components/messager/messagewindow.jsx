@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { IoIosArrowBack } from "react-icons/io";
 import { FiInfo } from "react-icons/fi";
 import { RiEmojiStickerLine, RiDeleteBinLine, RiReplyLine, RiFileCopyLine } from "react-icons/ri";
@@ -14,6 +14,20 @@ import MessagePopupMenu from "./MessagePopupMenu";
 import { Alert, Snackbar } from "@mui/material";
 import Swal from "sweetalert2";
 import { IoIosCloseCircleOutline } from "react-icons/io";
+import StickerPanel from "../stickers/StickerPanel";
+import Dialog from '@mui/material/Dialog';
+import Slide from '@mui/material/Slide';
+import Image from "next/image";
+import { IoIosHeartEmpty } from "react-icons/io";
+import { BsEmojiSmile } from "react-icons/bs";
+import { AiOutlinePicture } from "react-icons/ai";
+import { upload } from '@vercel/blob/client';
+import { nanoid } from 'nanoid';
+import { IoCloseCircle } from "react-icons/io5";
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
 
 export default function MessageWindows({ selectedChat, handleClose }) {
   const { data: session } = useSession();
@@ -29,9 +43,17 @@ export default function MessageWindows({ selectedChat, handleClose }) {
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [snackbarOpen, setSnackbarOpen] = useState(false); // สำหรับแสดงข้อความแจ้งเตือนการคัดลอก
   const [alertMessage, setAlertMessage] = useState(""); // ข้อความที่จะแสดงใน Snackbar
+  const [openSticker, setOpenSticker] = useState(false); // สถานะเปิดปิดของปุ่มสติกเกอร์
+  const [sticker, setSticker] = useState(null); // สติกเกอร์ที่ถูกเลือก
+  const [isUplaoding, setIsUploading] = useState(false); // สถานะการอัปโหลดไฟล์
+  const [files, setFiles] = useState(null); // ไฟล์ที่อัปโหลด
+  const [image, setImage] = useState(null); // สถานะของรูปภาพที่ถูกเลือก
+  const [video, setVideo] = useState(null); // สถานะของวิดีโอที่ถูกเลือก
 
   const chatWindowRef = useRef(null); // สำหรับเลื่อนหน้าแชท
   const menuRef = useRef(null); // ใช้ตรวจจับคลิกข้างนอกเมนู
+  const fileInputRef = useRef(null);
+  const imageInputRef = useRef(null);
   const {
     messages,
     participants,
@@ -44,13 +66,11 @@ export default function MessageWindows({ selectedChat, handleClose }) {
 
   // ฟังก์ชันดึงข้อความในบทสนทนา
   useEffect(() => {
-    if (selectedChat) {
-      setLoading(true); // เริ่มโหลด
-      const unsubscribe = listenToChat(selectedChat);
-      setLoading(false); // โหลดเสร็จ
-  
-      return () => unsubscribe(); // ยกเลิกการติดตามเมื่อออกจากหน้าแชท
-    }
+    if (!selectedChat) return;
+    
+    const unsubscribe = listenToChat(selectedChat);
+    
+    return () => unsubscribe();
   }, [selectedChat, listenToChat]);
 
   useEffect(() => {
@@ -135,29 +155,39 @@ export default function MessageWindows({ selectedChat, handleClose }) {
   // เลื่อนหน้าแชทไปยังข้อความล่าสุด
   useEffect(() => {
     if (chatWindowRef.current) {
-      chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
+        setTimeout(() => {
+            chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
+        }, 100); // ปรับ delay เล็กน้อยเพื่อให้ UI โหลดทัน
     }
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!text.trim()) return;
+    if (!text.trim() && !sticker && !files && !image && !video) return;
   
     if (!selectedChat || typeof selectedChat !== "string") {
       console.error("Invalid chatId:", selectedChat);
       return;
     }
   
+    const extraData = {};
+  
+    if (sticker) extraData.sticker = sticker;
+    if (files) extraData.files = files;
+    if (image) extraData.image = image;
+    if (video) extraData.video = video;
+  
     if (replyTo) {
-      // ถ้ามี replyTo ให้ใช้ replyMessage
-      await replyMessage(selectedChat, userId, text, replyTo.id);
-      setReplyTo(null); // เคลียร์ข้อความที่อ้างอิงหลังจากส่ง
-      setText("");
+      await replyMessage(selectedChat, userId, text, replyTo.id, "text", extraData);
+      setReplyTo(null);
     } else {
-      // ถ้าไม่มี replyTo ให้ใช้ sendMessage
-      await sendMessage(selectedChat, userId, text);
-      setReplyTo(null); // เคลียร์ข้อความที่อ้างอิงหลังจากส่ง
-      setText("");
+      await sendMessage(selectedChat, userId, text, "text", extraData);
     }
+  
+    setText("");
+    setSticker(null);
+    setFiles(null);
+    setImage(null);
+    setVideo(null);
   };
 
   const handleKeyDown = (e) => {
@@ -243,6 +273,110 @@ export default function MessageWindows({ selectedChat, handleClose }) {
     setReplyTo(null);
   }
 
+  const handleOpenSticker = () => {
+    setOpenSticker(true);
+  };
+
+  const handleCloseSticker = () => {
+    setOpenSticker(false);
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current.click(); // เมื่อกดปุ่ม ให้เปิด input file
+  };
+
+  const handleUploadImage = () => {
+    imageInputRef.current.click(); // เมื่อกดปุ่ม ให้เปิด input file
+  };
+
+  const handleFileChange = async (e) => {
+    setIsUploading(true);
+    const file = e.target.files[0]; 
+    if (!file) return;
+  
+    const newBlob = await upload(file.name, file, {
+      access: 'public',
+      handleUploadUrl: '/api/blob/upload',
+    });
+
+    const mediaEntry = {
+      url: newBlob.url,
+      public_id: nanoid(10),
+      file_name: file.name,
+      mime_type: file.type,
+      file_size: file.size,
+      type: file.type,
+      userId,
+    };
+
+    await axios.post('/api/upload/save', mediaEntry);
+  
+    setFiles(mediaEntry);
+    setIsUploading(false);
+
+    fileInputRef.current.value = ""; // รีเซ็ตค่า input เพื่อให้สามารถเลือกไฟล์ใหม่ได้
+};
+
+  const getFileIcon = (fileType) => {
+    if (!fileType) return "/image/iconfiles/other.png";
+  
+    if (fileType.includes("pdf")) return "/image/iconfiles/pdf.png";
+    if (fileType.includes("msword") || fileType.includes("doc")) return "/image/iconfiles/doc.png";
+    if (fileType.includes("excel") || fileType.includes("spreadsheet")) return "/image/iconfiles/xls.png";
+    if (fileType.includes("presentation") || fileType.includes("powerpoint")) return "/image/iconfiles/ppt.png";
+  
+    return "/image/iconfiles/other.png";
+  };
+
+  const handleMultipleImageChange = async (e) => {
+    setIsUploading(true); // เริ่มการอัปโหลด
+    const fileArray = Array.from(e.target.files); // แปลง FileList เป็น array
+
+    const uploadPromises = fileArray.map(async (file) => {
+        const newBlob = await upload(file.name, file, {
+          access: 'public',
+          handleUploadUrl: '/api/blob/upload',
+        });
+
+        const mediaEntry = {
+          url: newBlob.url,
+          public_id: nanoid(10),
+          file_name: file.name,
+          mime_type: file.type,
+          file_size: file.size,
+          type: file.type.startsWith('image') ? 'image' : 'video',
+          userId, 
+        };
+
+        // ส่งข้อมูลไฟล์ไปยัง API /api/upload/save เพื่อบันทึกลงในฐานข้อมูล
+        await axios.post('/api/upload/save', mediaEntry);
+
+        return mediaEntry;
+    });
+
+    // รอการอัปโหลดทั้งหมดเสร็จสิ้น
+    const uploadedMedia = await Promise.all(uploadPromises);
+
+    // แยก Image และ Video
+    const uploadedImages = uploadedMedia.filter(file => file.type === 'image');
+    const uploadedVideos = uploadedMedia.filter(file => file.type === 'video');
+
+    // อัปเดต state สำหรับ Image และ Video
+    setImage((prev) => [...(prev || []), ...uploadedImages]);
+    setVideo((prev) => [...(prev || []), ...uploadedVideos]);
+
+    setIsUploading(false);
+
+    // รีเซ็ตค่า input
+    imageInputRef.current.value = '';
+  };
+
+  console.log('image', image);
+  console.log('video', video);
+  console.log('files', files);
+  console.log('sticker', sticker);
+  console.log('message', messages);
+
   return (
     <div className="flex flex-col justify-between w-full h-screen">
       {/* Header */}
@@ -323,25 +457,69 @@ export default function MessageWindows({ selectedChat, handleClose }) {
                     msg.senderId === session?.user?.id
                       ? msg.isDeleted
                         ? "text-xs text-gray-500 self-end"
+                        : msg.sticker || msg.image || msg.video || msg.files
+                        ? "flex flex-col gap-1"
                         : "bg-[#0056FF] text-white self-end"
                       : msg.isDeleted
                       ? "text-xs text-gray-500 self-end"
                       : "bg-gray-300 text-black self-start"
                   } px-4 py-1 rounded-lg`}
                 >
+                  
+                  <div className="flex flex-col gap-1">
                   <span>{msg.isDeleted ? "ข้อความนี้ถูกลบ" : msg.message}</span>
+                  {msg.sticker && (
+                    <Image 
+                      src={msg.sticker.url}
+                      alt="sticker"
+                      width={120}
+                      height={120}
+                      priority={true}
+                    />
+                  )}
+                  {msg.image && msg.image.length > 0 && msg.image.map((image, index) => (
+                    <div key={index} className="relative">
+                      <Image 
+                        src={image.url}
+                        alt="image"
+                        width={120}
+                        height={120}
+                        priority={true}
+                      />
+                    </div>
+                  ))}
+                  {msg.video && msg.video.length > 0 && msg.video.map((video) => (
+                    <video key={video.public_id} width="100" height="100" controls>
+                      <source 
+                        src={msg.video.url} 
+                        type={msg.video.mime_type} 
+                      />
+                    </video>
+                  ))}
+                  </div>
                 </div>
               </div>
             )}
-            <div className={`flex flex-row text-xs text-gray-500 ${msg.senderId === userId ? "justify-end" : "justify-start"}`}>
-              {Array.isArray(msg.readBy) && Array.from(msg.readBy).includes(targetUserId) && msg.senderId === userId && (
-                  <span className="text-[9px] text-gray-500 mr-4">อ่านแล้ว</span>
-                )}
-              <div className="text-[9px]">
-                <Time timestamp={msg.createdAt} />
+            {/* Like & Emotion */}
+            
+            <div className={`flex flex-row text-xs text-gray-500 gap-2 ${msg.senderId === userId ? "justify-end" : "justify-start"}`}>
+              <div className={`flex flex-row justify-between gap-4 ${msg.senderId === userId ? "self-end" : "self-start"}`}>
+                <div className="flex flex-row items-center gap-1">
+                  {Array.isArray(msg.readBy) && Array.from(msg.readBy).includes(targetUserId) && msg.senderId === userId && (
+                      <span className="text-[9px] text-gray-500 mr-4">อ่านแล้ว</span>
+                    )}
+                </div>
+                <div className="flex flex-row items-center text-sm gap-2">
+                  <IoIosHeartEmpty />
+                  <BsEmojiSmile />
+                </div>
+                <div className="flex text-[9px]">
+                  <Time timestamp={msg.createdAt} />
+                </div>
               </div>
               
             </div>
+
           </div>
         ))}
 
@@ -379,39 +557,139 @@ export default function MessageWindows({ selectedChat, handleClose }) {
       </div>
 
       {/* Chat Input */}
-      <div className="flex flex-row items-center justify-between w-full px-2 py-4 gap-2">
-        <GoPaperclip className="text-[#0056FF]" size={30} />
-        <div className="flex flex-col w-full">
-          {/* แสดงข้อความที่อ้างอิง */}
-          {replyTo && (
-            <div className="flex flex-col p-2 bg-gray-100 border border-gray-300 rounded-lg w-full"> 
-             <div className="flex flex-row justify-between w-full">
-              <span className="text-xs text-gray-500">อ้างอิง:</span>
-              <IoIosCloseCircleOutline 
-                onClick={handleDeletedReply}
+      <div className="absolute bottom-0 w-full border-t border-gray-300">
+        {/* Sticker Preview */}
+        {sticker && (
+          <div className="relative">
+            <div className="relative flex flex-col items-center justify-center">
+              <Image 
+                src={sticker.url} 
+                alt="sticker" 
+                width={100} 
+                height={100} 
               />
-             </div>
-              <span className="text-xs text-gray-500">{replyTo.message}</span>
-        
-                
-        
+              <IoCloseCircle size={20} 
+                className="absolute top-0 right-0 cursor-pointer" 
+                onClick={() => setSticker(null)} 
+              />
             </div>
-          )}
-          <input
-            id="text"
-            type="text"
-            placeholder="พิมพ์ข้อความ"
-            className="p-1 border border-gray-300 rounded-xl text-sm w-full"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={handleKeyDown}
+          </div>
+        )}
+
+        {/* Image Preview */}
+        {image && image.length > 0 && image.map((image, index) => (
+          <div 
+            key={index} 
+            className="relative flex flex-col items-center justify-center"
+          >
+            <Image src={image.url} 
+              alt="Image" 
+              width={80} 
+              height={80} 
+              priority={true}
+            />
+            <IoCloseCircle 
+              size={20} 
+              className="absolute top-0 right-0 cursor-pointer" 
+              onClick={() => setImage(null)} 
+            />
+          </div>
+        ))}
+
+        {/* Video Preview */}
+        {video && (
+          <div className="relative">
+            <video width="80" height="80" controls>
+              <source src={video.url} type={video.mime_type} />
+            </video>
+            <IoCloseCircle size={20} className="absolute top-0 right-0 cursor-pointer" onClick={() => setVideo(null)} />
+          </div>
+        )}
+
+        {/* File Preview */}
+        {files && (
+          <div className="flex items-center gap-2 p-2 border border-gray-300 rounded-lg">
+            <Image 
+              src={getFileIcon(files.type)} 
+              alt="file-icon" 
+              width={40} 
+              height={40} 
+            />
+            <span className="text-sm">{files.file_name}</span>
+            <IoCloseCircle size={20} className="cursor-pointer" onClick={() => setFiles(null)} />
+          </div>
+        )}
+        {/* Chat Input */}
+        <div className="flex flex-row items-center justify-between w-full px-2 py-2 gap-2">
+          <GoPaperclip 
+            className="text-[#0056FF]" 
+            size={30} 
+            /*onClick={handleUploadClick}*/
           />
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              style={{ display: "none" }}
+            />
+          <div className="flex flex-col w-full">
+            {/* แสดงข้อความที่อ้างอิง */}
+            {replyTo && (
+              <div className="flex flex-col p-2 bg-gray-100 border border-gray-300 rounded-lg w-full"> 
+              <div className="flex flex-row justify-between w-full">
+                <span className="text-xs text-gray-500">อ้างอิง:</span>
+                <IoIosCloseCircleOutline 
+                  onClick={handleDeletedReply}
+                />
+              </div>
+                <span className="text-xs text-gray-500">{replyTo.message}</span>
+              </div>
+            )}
+            <input
+              id="text"
+              type="text"
+              placeholder="พิมพ์ข้อความ"
+              className="p-1 border border-gray-300 rounded-xl text-sm w-full"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+          </div>
+          <AiOutlinePicture 
+            size={30} 
+            onClick={handleUploadImage} 
+            className="text-[#0056FF]" 
+          />
+            <input
+              type="file"
+              ref={imageInputRef}
+              onChange={handleMultipleImageChange}
+              multiple
+              accept="image/*, video/*"
+              style={{ display: "none" }}
+            />
+          <RiEmojiStickerLine 
+            onClick={handleOpenSticker} 
+            className="text-[#0056FF]" 
+            size={30} 
+          />
+          <button onClick={handleSendMessage} className="p-2 bg-[#0056FF] text-white rounded-lg">
+            Send
+          </button>
         </div>
-        <RiEmojiStickerLine className="text-[#0056FF]" size={30} />
-        <button onClick={handleSendMessage} className="p-2 bg-[#0056FF] text-white rounded-lg">
-          Send
-        </button>
       </div>
+        {openSticker && (
+          <Dialog
+            open={openSticker}
+            onClose={handleCloseSticker}
+            TransitionComponent={Transition}
+          >
+            <StickerPanel
+              setSticker={setSticker}
+              onClose={handleCloseSticker}
+            />
+          </Dialog>
+        )}
     </div>
   );
 };

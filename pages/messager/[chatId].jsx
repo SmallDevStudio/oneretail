@@ -21,27 +21,16 @@ const ChatRoom = () => {
 
     useEffect(() => {
         if (!chatId) return;
-
-        const checkChatExists = async () => {
-            setLoading(true);
-            try {
-                const chatRef = ref(database, `chats/${chatId}`);
-                const snapshot = await get(chatRef);
-
-                if (snapshot.exists()) {
-                    setChatExists(true); // พบห้องแชท
-                } else {
-                    setChatExists(false); // ไม่พบห้องแชท
-                }
-            } catch (error) {
-                console.error("Error checking chat existence:", error);
-                setChatExists(false);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        checkChatExists();
+    
+        setLoading(true);
+        get(ref(database, `chats/${chatId}`)).then((snapshot) => {
+            setChatExists(snapshot.exists());
+        }).catch((error) => {
+            console.error("Error checking chat existence:", error);
+            setChatExists(false);
+        }).finally(() => {
+            setLoading(false);
+        });
     }, [chatId]);
 
     if (loading) {

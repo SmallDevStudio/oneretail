@@ -9,7 +9,7 @@ const LibrarySchema = new mongoose.Schema({
     image_width: { type: Number },
     image_height: { type: Number },
     url: { type: String, required: true }, // เพิ่มฟิลด์ URL เพื่อเก็บ public URL ของรูปภาพ
-    type: { type: String, enum: ['image', 'video', 'file'], required: true },
+    type: { type: String, required: true },
     folder: { type: String },
     subfolder: { type: String },
     isTemplate: { type: Boolean, default: false },

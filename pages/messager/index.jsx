@@ -56,8 +56,8 @@ export default function Messages() {
   }, [userId, listenUserChats, chats.length]);
 
   const handleOpen = (chatId) => {
-    return router.push("/messager/" + chatId);
-  }
+    return router.replace("/messager/" + chatId);
+  };
 
   const handleSearch = (e) => {
     setSearch(e.target.value.toLowerCase());
