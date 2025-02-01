@@ -172,7 +172,7 @@ export default function Messages() {
                     className="flex flex-row items-center justify-between w-full gap-2 p-2 cursor-pointer hover:bg-gray-200"
                   >
                     <div 
-                      className="flex flex-row items-center gap-2"
+                      className="flex flex-row items-center w-full gap-2"
                       onClick={() => handleOpen(chat.chatId)}
                     >
                       <div className="relative">
@@ -195,11 +195,10 @@ export default function Messages() {
                           {chat.lastMessage?.message || "No messages yet"}
                         </span>
                       </div>
-                    </div>
-                    <div className="flex flex-row items-center">
                       <span className="text-xs text-gray-400 ml-auto">
                         <Time timestamp={chat.updatedAt} />
                       </span> 
+                      </div>
                       <div>
                       
                         <BsThreeDotsVertical 
@@ -228,7 +227,7 @@ export default function Messages() {
                         </Menu>
                       </div>
 
-                    </div>
+                    
                   </div>
                 );
               })}
