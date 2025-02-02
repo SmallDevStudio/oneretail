@@ -84,8 +84,6 @@ const CheckIn = () => {
 
     if (loading) return <Loading />;
 
-    console.log('hasUserJoin:', hasUserJoin);
-
     const getChannelColor = (channel) => {
         switch (channel) {
             case 'AL':
