@@ -153,8 +153,6 @@ const MonitorEvent = () => {
         });
     };
 
-    console.log(events);
-
     return (
         <div className="flex flex-col bg-gray-200 pb-20 min-h-screen">
             {/* Header */}
