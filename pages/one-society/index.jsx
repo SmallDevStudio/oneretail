@@ -107,7 +107,7 @@ const FeedPage = () => {
 
            {/* Tab */}
            <div className="flex justify-center text-sm">
-                <ul className="flex flex-wrap justify-between gap-3 items-center">
+                <ul className="flex flex-wrap justify-between items-center w-full px-2">
                 
                     <li className="me-2">
                         <Link
@@ -128,18 +128,6 @@ const FeedPage = () => {
                             onClick={() => handleTabClick('friends')}
                         >
                             <HiOutlineUsers
-                                size={28}
-                            />
-                        </Link>
-                    </li>
-
-                    <li className="me-2">
-                        <Link
-                            href="#images"
-                            className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'images' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
-                            onClick={() => handleTabClick('images')}
-                        >
-                            <IoImagesOutline 
                                 size={28}
                             />
                         </Link>
@@ -203,7 +191,6 @@ const FeedPage = () => {
                 {activeTab === 'friends' && 
                     <Friends user={user}/>
                 }
-                {activeTab === 'images' && <FeedImages posts={images} user={user} />}
                 {activeTab === 'video' && <FeedVideo posts={videos} user={user} />}
                 {activeTab === 'notification' && 
                     <Notifications user={user}/>

@@ -17,14 +17,12 @@ export default function Follower({ targetId }) {
 
     useEffect(() => {
         if (!followData) return;
-        if (followData.data.type === 'follow') {
+        if (followData?.data?.type === 'follow') {
             setHasFollowed(true);
         } else {
             setHasFollowed(false);
         }
     }, [followData]);
-
-    console.log(followData);
 
     const handleFollow = async () => {
         const followType = hasFollowed ? 'unfollow' : 'follow';

@@ -396,9 +396,11 @@ const Feed = ({ user, posts }) => {
 
             {/* Post Container */}
             {!posts ? (
-                <Loading />
+                <Loading/>
             ): (
-                <div className="flex flex-col bg-gray-300 text-gray-700 mt-2 max-w-screen">
+                <div 
+                    className="flex flex-col bg-gray-300 text-gray-700 mt-2 max-w-screen"
+                >
                 {posts.map((post, index) => (
                     !post ? (
                         <CircularProgress key={index} />
@@ -450,9 +452,9 @@ const Feed = ({ user, posts }) => {
                                                     </span>
                                                     ))
                                                 ):(
-                                                    post?.tagusers.map((user) => (
+                                                    post?.tagusers.map((user, tagIndex) => (
                                                         <span
-                                                            key={user.userId}
+                                                            key={tagIndex}
                                                             className="inline text-[#F68B1F] text-xs"
                                                             onClick={() => router.push(`/p/${user.userId}`)}
                                                         >

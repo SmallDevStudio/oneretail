@@ -25,6 +25,8 @@ import { IoIosArrowBack } from "react-icons/io";
 import { AppLayout } from "@/themes";
 import Loading from "@/components/Loading";
 import Follower from "@/components/social/Follower";
+import ImageTab from "@/components/profile/ImageTab";
+import VideoTab from "@/components/profile/videoTab";
 
 moment.locale("th");
 
@@ -76,8 +78,6 @@ const ProfilePage = () => {
 
         fetchUserData();
     }, [userId]);
-
-    console.log("userData:", userData);
 
     const handleOptionClick = (event, type, id) => {
         setAnchorEl(event.currentTarget);
@@ -586,8 +586,9 @@ const ProfilePage = () => {
                 </div>
                 
                 {/* Input */}
+                {tabs === "details" && (
                 <div className="flex flex-col mt-1 bg-white p-2 w-full">
-                    {tabs === "details" && (
+                    
                         <>
                         <span className="text-[#0056FF] font-bold text-lg">
                             โพสต์
@@ -612,8 +613,9 @@ const ProfilePage = () => {
                             </div>
                         </div>
                         </>
-                    )}
+                    
                 </div>
+                )}
                     
                 
                  {/* Post */}
@@ -916,6 +918,19 @@ const ProfilePage = () => {
                     <CircularProgress />
                 </div>
             </Dialog>
+
+            {tabs === "picture" && 
+                <ImageTab 
+                    userId={userId}
+                    ImageData={userData?.images}
+                />
+                }
+            {tabs === "video" && (
+                <VideoTab 
+                    userId={userId}
+                    videoData={userData?.video}
+                />
+            )}
         </div>
         
     );
