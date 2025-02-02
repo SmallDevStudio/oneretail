@@ -23,7 +23,13 @@ import { BsEmojiSmile } from "react-icons/bs";
 import { AiOutlinePicture } from "react-icons/ai";
 import { upload } from '@vercel/blob/client';
 import { nanoid } from 'nanoid';
+import ReactPlayer from "react-player";
 import { IoCloseCircle } from "react-icons/io5";
+import { TbZoomPan } from "react-icons/tb";
+import moment from "moment";
+import "moment/locale/th";
+
+moment.locale("th");
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -49,6 +55,10 @@ export default function MessageWindows({ selectedChat, handleClose }) {
   const [files, setFiles] = useState(null); // ไฟล์ที่อัปโหลด
   const [image, setImage] = useState(null); // สถานะของรูปภาพที่ถูกเลือก
   const [video, setVideo] = useState(null); // สถานะของวิดีโอที่ถูกเลือก
+  const [openInfo, setOpenInfo] = useState(false); // สถานะเปิดปิดของปุ่มข้อมูล
+  const [openImage, setOpenImage] = useState(false); // สถานะเปิดปิดของปุ่มรูปภาพ
+  const [openVideo, setOpenVideo] = useState(false); // สถานะเปิดปิดของปุ่มวิดีโอ
+  const [currentMedia, setCurrentMedia] = useState(null); // สถานะของไฟล์ที่ถูกเลือก
 
   const chatWindowRef = useRef(null); // สำหรับเลื่อนหน้าแชท
   const menuRef = useRef(null); // ใช้ตรวจจับคลิกข้างนอกเมนู
@@ -57,6 +67,7 @@ export default function MessageWindows({ selectedChat, handleClose }) {
   const {
     messages,
     participants,
+    conversation,
     listenToChat,
     sendMessage,
     deleteMessage,
@@ -197,9 +208,34 @@ export default function MessageWindows({ selectedChat, handleClose }) {
     }
   };
 
-  const handleInfo = () => {
+  const handleOpenInfo = () => {
+    setOpenInfo(true);
+  };
 
+
+  const handleCloseInfo = () => {
+    setOpenInfo(false);
   }
+
+  const handleOpenImage = (media) => {
+    setCurrentMedia(media);
+    setOpenImage(true);
+  };
+
+  const handleCloseImage = () => {
+    setCurrentMedia(null);
+    setOpenImage(false);
+  };
+
+  const handleOpenVideo = (media) => {
+    setCurrentMedia(media);
+    setOpenVideo(true);
+  };
+
+  const handleCloseVideo = () => {
+    setCurrentMedia(null);
+    setOpenVideo(false);
+  };
 
   // ฟังก์ชันคัดลอกข้อความ
   const handleCopyMessage = (message) => {
@@ -235,6 +271,23 @@ export default function MessageWindows({ selectedChat, handleClose }) {
       }
     }
   };
+
+  // ฟังก์ชันกดถูกใจข้อความ
+  const handleLikeMessage = async (message) => {
+    try {
+      await likeMessage(selectedChat, message.id, userId);
+      const updatedMessages = messages.map((m) => {
+        if (m.id === message.id) {
+          return { ...m, isLiked: !m.isLiked };
+        }
+        return m;
+      });
+      setMessages(updatedMessages);
+    } catch (error) {
+      console.error("Error liking message:", error);
+    }
+  }
+
   
   // การเปิดเมนูเมื่อกดค้าง
   const handleLongPress = (e, message) => {
@@ -376,6 +429,8 @@ export default function MessageWindows({ selectedChat, handleClose }) {
   console.log('files', files);
   console.log('sticker', sticker);
   console.log('message', messages);
+  console.log('participants', participants);
+  console.log('conversation', conversation);
 
   return (
     <div className="flex flex-col justify-between w-full h-screen">
@@ -390,7 +445,7 @@ export default function MessageWindows({ selectedChat, handleClose }) {
           </div>
         </div>
         <FiInfo 
-          onClick={handleInfo} 
+          onClick={handleOpenInfo} 
           className="text-xl cursor-pointer text-[#0056FF]" 
           size={25} 
         />
@@ -478,7 +533,7 @@ export default function MessageWindows({ selectedChat, handleClose }) {
                     />
                   )}
                   {msg.image && msg.image.length > 0 && msg.image.map((image, index) => (
-                    <div key={index} className="relative">
+                    <div key={index} className="relative" onClick={() => handleOpenImage(image)}>
                       <Image 
                         src={image.url}
                         alt="image"
@@ -486,15 +541,25 @@ export default function MessageWindows({ selectedChat, handleClose }) {
                         height={120}
                         priority={true}
                       />
+                      <div className="absolute bottom-0 right-0 flex items-center justify-center bg-gray-500 bg-opacity-50 p-1 rounded-full">
+                        <span className="text-white text-sm">
+                        <TbZoomPan />
+                        </span>
+                      </div>
                     </div>
                   ))}
                   {msg.video && msg.video.length > 0 && msg.video.map((video) => (
-                    <video key={video.public_id} width="100" height="100" controls>
-                      <source 
-                        src={msg.video.url} 
-                        type={msg.video.mime_type} 
-                      />
-                    </video>
+                    <div key={video.public_id} 
+                      className="relative" 
+                      onClick={() => handleOpenVideo(video)}
+                    >
+                      <video width="100" height="100" controls>
+                        <source 
+                          src={video.url} 
+                          type={video.mime_type} 
+                        />
+                      </video>
+                    </div>
                   ))}
                   </div>
                 </div>
@@ -508,10 +573,6 @@ export default function MessageWindows({ selectedChat, handleClose }) {
                   {Array.isArray(msg.readBy) && Array.from(msg.readBy).includes(targetUserId) && msg.senderId === userId && (
                       <span className="text-[9px] text-gray-500 mr-4">อ่านแล้ว</span>
                     )}
-                </div>
-                <div className="flex flex-row items-center text-sm gap-2">
-                  <IoIosHeartEmpty />
-                  <BsEmojiSmile />
                 </div>
                 <div className="flex text-[9px]">
                   <Time timestamp={msg.createdAt} />
@@ -557,7 +618,7 @@ export default function MessageWindows({ selectedChat, handleClose }) {
       </div>
 
       {/* Chat Input */}
-      <div className="absolute bottom-0 w-full border-t border-gray-300">
+      <div className="absolute bottom-0 w-full border-t border-gray-300 pb-2">
         {/* Sticker Preview */}
         {sticker && (
           <div className="relative">
@@ -678,7 +739,6 @@ export default function MessageWindows({ selectedChat, handleClose }) {
           </button>
         </div>
       </div>
-        {openSticker && (
           <Dialog
             open={openSticker}
             onClose={handleCloseSticker}
@@ -689,7 +749,123 @@ export default function MessageWindows({ selectedChat, handleClose }) {
               onClose={handleCloseSticker}
             />
           </Dialog>
-        )}
+
+          <Dialog
+            open={openInfo}
+            onClose={handleCloseInfo}
+            TransitionComponent={Transition}
+            maxWidth="md"
+            fullWidth
+          >
+            <div className="flex flex-col gap-2 rounded-lg bg-white h-full w-full pb-2">
+              {/* Header */}
+              <div className="flex flex-row justify-between bg-[#0056FF] items-center gap-2 w-full p-2">
+                <span className="text-white">ข้อมูล</span>
+                <IoCloseCircle size={20} 
+                  className="cursor-pointer text-white" 
+                  onClick={handleCloseInfo} 
+                />
+              </div>
+              {/* Participants */}
+              <div className="flex flex-col gap-2 p-2">
+                <div className="flex flex-row items-center gap-2">
+                  <span className="text-sm text-gray-700 font-bold">วันที่สร้าง:</span>
+                  <span className="text-sm text-gray-500">{moment(conversation?.createdAt).format("DD/MM/YYYY HH:mm:ss")}</span>
+                </div>
+                <div className="flex flex-row items-center gap-2">
+                  <span className="text-sm text-gray-700 font-bold">ผู้สร้าง:</span>
+                  <span className="text-sm text-gray-500">{conversation?.creator?.user?.fullname}</span>
+                </div>
+                <span className="text-xs text-gray-700 font-bold">ผู้เข้าร่วม</span>
+                <div className="flex flex-row items-center gap-2">
+                  {participants && Array.from(participants).map((participant) => (
+                    <Avatar 
+                      key={participant.userId} 
+                      src={participant.user?.pictureUrl} 
+                      size={30} 
+                      userId={participant.userId} 
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Dialog>
+          
+          {/* แสดงรูปภาพ */}
+          <Dialog
+            open={openImage}
+            onClose={handleCloseImage}
+            TransitionComponent={Transition}
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              bgcolor: 'rgba(0, 0, 0, 0.5)',
+              '& .MuiDialog-paper': {
+                maxWidth: '100%',
+                maxHeight: '100%',
+                overflow: 'auto',
+                borderRadius: 0,
+                boxShadow: 'none',
+                backgroundColor: 'transparent',
+              },
+            }}
+          >
+            <div className="flex flex-col gap-2 h-full w-full pb-2">
+              <div className="relative w-full h-full">
+                <Image 
+                  src={currentMedia?.url} 
+                  alt="media" 
+                  width={500} 
+                  height={500} 
+                  priority={true}
+                />
+                <IoCloseCircle 
+                  size={30} 
+                  className="absolute top-0 right-0 cursor-pointer text-[#F2F2F2]" 
+                  onClick={handleCloseImage} 
+                />
+              </div>
+            </div>
+          </Dialog>
+
+          {/* แสดงวิดีโอ */}
+          <Dialog
+            open={openVideo}
+            onClose={handleCloseVideo}
+            TransitionComponent={Transition}
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              bgcolor: 'rgba(0, 0, 0, 0.5)',
+              '& .MuiDialog-paper': {
+                maxWidth: '100%',
+                maxHeight: '100%',
+                overflow: 'auto',
+                borderRadius: 0,
+                boxShadow: 'none',
+                backgroundColor: 'transparent',
+              },
+            }}
+          >
+            <div className="flex flex-col gap-2 h-full w-full pb-2">
+              <div className="relative w-full h-full">
+                <ReactPlayer 
+                  url={currentMedia?.url} 
+                  width="100%" 
+                  height="100%" 
+                  controls={true} 
+                  playing={true}
+                />
+                <IoCloseCircle 
+                  size={30} 
+                  className="absolute top-0 right-0 cursor-pointer text-[#F2F2F2]" 
+                  onClick={handleCloseVideo} 
+                />
+              </div>
+            </div>
+          </Dialog>
     </div>
   );
 };
