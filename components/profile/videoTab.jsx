@@ -12,6 +12,8 @@ export default function VideoTab({ videoData }) {
     const [openVideo, setOpenVideo] = useState(false);
     const [selectedVideo, setSelectedVideo] = useState(null);
 
+    console.log('videoData:',videoData);
+
     const handleOpenVideo = (video) => {
         setSelectedVideo(video);
         setOpenVideo(true);
@@ -25,34 +27,30 @@ export default function VideoTab({ videoData }) {
     return (
         <div className="flex flex-col w-full bg-white mt-2 py-2 h-[100%]">
             <div className="grid grid-cols-3 justify-between w-full gap-2">
-                {videoData?.map((video, index) => (
-                    <div key={index} className="relative flex flex-col items-center w-full">
-                        {/* Video */}
-                        {video?.medias?.map((media, mediaIndex) => (
-                            <div 
-                                key={mediaIndex} 
-                                className="relative"
-                                onClick={() => handleOpenVideo(video)}
-                            >
-                                <video
-                                    src={media.thumbnail || media.url} // URL ของวิดีโอ
-                                    controls={false} // ไม่แสดงปุ่มควบคุม
-                                    poster={media.thumbnail || undefined} // ใช้ thumbnail ถ้ามี
-                                    width="120"
-                                    height="120"
-                                    className="rounded-md"
-                                    style={{
-                                        objectFit: "cover",
-                                        objectPosition: "center",
-                                        height: "120px",
-                                        width: "120px",
-                                    }}
-                                />
-                                <div className="absolute bottom-0 right-0 p-1 bg-black bg-opacity-50 rounded-tl-md">
-                                    <TbZoomScan className="text-white cursor-pointer" />
-                                </div>
-                            </div>
-                        ))}
+            {/* Video */}
+                {videoData.map((video, videoIndex) => (
+                    <div 
+                        key={videoIndex} 
+                        className="relative"
+                        onClick={() => handleOpenVideo(video)}
+                    >
+                        <video
+                            src={video.thumbnail || video.url} // URL ของวิดีโอ
+                            controls={false} // ไม่แสดงปุ่มควบคุม
+                            poster={video.thumbnail || undefined} // ใช้ thumbnail ถ้ามี
+                            width="120"
+                            height="120"
+                            className="rounded-md"
+                            style={{
+                                objectFit: "cover",
+                                objectPosition: "center",
+                                height: "120px",
+                                width: "120px",
+                            }}
+                        />
+                        <div className="absolute bottom-0 right-0 p-1 bg-black bg-opacity-50 rounded-tl-md">
+                            <TbZoomScan className="text-white cursor-pointer" />
+                        </div>
                     </div>
                 ))}
             </div>

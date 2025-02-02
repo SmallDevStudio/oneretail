@@ -118,30 +118,28 @@ export default function ImageTab({ ImageData }) {
   };
 
   return (
-    <div className="grid grid-cols-3 w-full mt-2 px-2 py-2 bg-white h-screen">
+    <div className="flex w-full mt-2 px-2 py-2 bg-white h-screen">
       {ImageData?.length > 0 ? (
-        ImageData.map((image, index) => (
-          <div key={index} className="flex w-[120px] h-[120px]">
-            {image?.medias?.map((media, idx) => (
-              <div
-                key={idx}
-                onClick={() => handleOpenModal(media)}
-                className="relative w-full h-full cursor-pointer"
-              >
-                <Image
-                  src={media.url}
-                  alt={media.public_id}
-                  width={120}
-                  height={120}
-                  className="w-[120px] h-[120px] object-cover"
-                />
-                <div className="absolute bottom-0 right-0 p-1 bg-black bg-opacity-50 rounded-tl-md">
-                  <TbZoomScan className="text-white" />
-                </div>
+        <div className="grid grid-cols-3 justify-between w-full gap-2">
+          {ImageData.map((image, index) => (
+            <div
+              key={index}
+              onClick={() => handleOpenModal(image)}
+              className="relative cursor-pointer w-[120px] h-[120px]"
+            >
+              <Image
+                src={image.url}
+                alt={image.public_id}
+                width={120}
+                height={120}
+                className="object-cover w-[120px] h-[120px] rounded-md"
+              />
+              <div className="absolute bottom-0 right-0 p-1 bg-black bg-opacity-50 rounded-tl-md">
+                <TbZoomScan className="text-white" />
               </div>
-            ))}
-          </div>
-        ))
+            </div>
+          ))}
+        </div>
       ) : null}
 
       <Dialog

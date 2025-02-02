@@ -85,7 +85,7 @@ export default async function handler(req, res) {
           status: { $in: ["published", "friend"] },
         }).lean();
 
-        // 6. รวมโพสทั้ง 2 ส่วนเข้าด้วยกัน (ถ้ามีโพสที่ซ้ำกันจะทำการ deduplicate โดยใช้ _id)
+        // 6. รวมโพสทั้ง 2 ส่วนเข้าด้วยกัน (ถ้ามีโพสที่ซ้ำกันจะ deduplicate โดยใช้ _id)
         const combinedPostsMap = new Map();
         postsCreated.forEach((post) => {
           combinedPostsMap.set(post._id.toString(), post);
@@ -95,7 +95,7 @@ export default async function handler(req, res) {
         });
         let combinedPosts = Array.from(combinedPostsMap.values());
 
-        // 7. sort โดย createdAt (เรียงจากใหม่ไปเก่า)
+        // 7. sort โพสโดย createdAt (เรียงจากใหม่ไปเก่า)
         combinedPosts.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
@@ -145,17 +145,31 @@ export default async function handler(req, res) {
           })
         );
 
-        // 9. แยกโพสที่มีรูปและโพสที่มีวิดีโอจาก field medias
-        const imagePosts = populatedPosts.filter(
-          (post) =>
-            post.medias &&
-            post.medias.some((media) => media.type === "image")
-        );
-        const videoPosts = populatedPosts.filter(
-          (post) =>
-            post.medias &&
-            post.medias.some((media) => media.type === "video")
-        );
+        // 9. วนลูปผ่านโพสทั้งหมดเพื่อดึงข้อมูล medias ของแต่ละโพส
+        const images = [];
+        const videos = [];
+
+        populatedPosts.forEach((post) => {
+          if (post.medias && post.medias.length > 0) {
+            post.medias.forEach((media) => {
+              if (media.type === "image") {
+                images.push({
+                  public_id: media.public_id,
+                  type: media.type,
+                  url: media.url,
+                  _id: media._id, // ใช้ _id ของ media (หรืออาจจะเอา _id ของโพสถ้าต้องการ)
+                });
+              } else if (media.type === "video") {
+                videos.push({
+                  public_id: media.public_id,
+                  type: media.type,
+                  url: media.url,
+                  _id: media._id,
+                });
+              }
+            });
+          }
+        });
 
         // 10. ส่งกลับข้อมูลรวม
         res.status(200).json({
@@ -167,8 +181,8 @@ export default async function handler(req, res) {
             points: pointResult, // คะแนน
             coins: coinsData,    // เหรียญ
             posts: populatedPosts, // โพสทั้งหมด (ทั้งที่สร้างเองและที่มี tag user)
-            images: imagePosts,     // โพสที่มีรูป
-            video: videoPosts,     // โพสที่มีวิดีโอ
+            images: images,             // รูปทั้งหมดที่ดึงมาจากทุกโพส
+            video: videos,      // วิดีโอทั้งหมดที่ดึงมาจากทุกโพส
           },
         });
       } catch (error) {
@@ -178,9 +192,7 @@ export default async function handler(req, res) {
       break;
 
     default:
-      res
-        .status(405)
-        .json({ success: false, error: "Method not allowed" });
+      res.status(405).json({ success: false, error: "Method not allowed" });
       break;
   }
 }
