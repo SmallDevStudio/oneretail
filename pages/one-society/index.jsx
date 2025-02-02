@@ -21,6 +21,7 @@ import FeedVideo from "@/components/social/FeedVideo";
 import Friends from "@/components/social/Friends";
 import Notifications from "@/components/social/Notifications";
 import { AppLayout } from "@/themes";
+import Messager from "@/components/utils/Messager";
 
 moment.locale('th');
 
@@ -98,10 +99,7 @@ const FeedPage = () => {
                         />
                     )}
                     <IoSearch size={25} onClick={() => setShowSearch(!showSearch)}/>
-                    <AiOutlineMessage 
-                        onClick={() => router.push('/messager')} 
-                        size={25}
-                    />
+                    <Messager userId={session?.user?.id} size={25} />
                 </div>
             </div>
 

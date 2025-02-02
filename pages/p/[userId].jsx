@@ -27,6 +27,8 @@ import Loading from "@/components/Loading";
 import Follower from "@/components/social/Follower";
 import ImageTab from "@/components/profile/ImageTab";
 import VideoTab from "@/components/profile/videoTab";
+import Messager from "@/components/utils/Messager";
+
 
 moment.locale("th");
 
@@ -50,7 +52,7 @@ const ProfilePage = () => {
     const [likes, setLikes] = useState({});
     const [checkError, setCheckError] = useState(null);
     const [percentage, setPercentage] = useState(0);
-    const [tabs, setTabs] = useState('details');
+    const [tabs, setTabs] = useState('posts');
 
     const { data: session } = useSession();
     const router = useRouter();
@@ -421,24 +423,19 @@ const ProfilePage = () => {
         <div className="flex flex-col bg-gray-300 w-full min-h-screen mb-20">
             <div>
                 <div className="flex flex-col w-full bg-white">
-                    <div className="flex flex-row items-start w-full mt-2 px-2">
+                    <div className="flex flex-row items-center w-full mt-2 px-2 py-1">
                         <div className="flex items-center">
                             <IoIosArrowBack 
-                                size={20}
+                                size={24}
                                 className="text-[#0056FF] cursor-pointer"
                                 onClick={() => router.back()}
                             />
-                            <span className="text-[#0056FF] font-bold text-md ml-2">Profile</span>
+                            <span className="text-[#0056FF] font-bold text-md ml-2">{userData?.user?.fullname}</span>
                         </div>
-                        <div className="flex items-center gap-2 text-gray-500 ml-auto">
-                            <IoSearch size={20} />
-                            {userData?.user?.userId === session?.user?.id && 
-                                <AiOutlineMessage 
-                                    size={20}
-                                    className="cursor-pointer"
-                                    onClick={() => router.push("/messager")}
-                                />
-                            }
+                        <div className="flex items-center gap-2 text-gray-500 ml-auto pr-2">
+                            <IoSearch size={24} />
+                            <Messager userId={userId} size={24} />
+                        
                         </div>
                     </div>
 
@@ -553,40 +550,48 @@ const ProfilePage = () => {
 
                 {/* Detail */ }
                 <div className="flex flex-col mt-1 bg-white p-2 w-full">
-                    <ul className="flex flex-row justify-evenly items-center text-sm font-bold text-[#0056FF]">
-                        <li
-                            className={`cursor-pointer text-[#0056FF] ${tabs === "details" ? "border-b-2" : ""}`}
-                            onClick={() => setTabs("details")}
+                    <ul className="flex flex-row justify-between items-center text-sm text-[#0056FF]">
+                        <div className="flex flex-row items-center w-2/6">
+                        <span
+                            className='font-bold text-lg'
                         >
                             รายละเอียด
-                        </li>
-                        <li
-                            className={`cursor-pointer text-[#0056FF] ${tabs === "picture" ? "border-b-2" : ""}`}
-                            onClick={() => setTabs("picture")}
-                        >
-                            รูปภาพ
-                        </li>
-                        <li
-                            className={`cursor-pointer text-[#0056FF] ${tabs === "video" ? "border-b-2" : ""}`}
-                            onClick={() => setTabs("video")}
-                        >
-                            วีดีโอ
-                        </li>
+                        </span>
+                        </div>
+                        <div className="flex flex-row justify-evenly items-center text-sm text-gray-500 w-full">
+                            <li
+                                className={`cursor-pointer  ${tabs === "posts" ? "border-b-2 border-[#F2871F] text-[#0056FF] font-bold" : ""}`}
+                                onClick={() => activeTab('posts')}
+                            >
+                                โพสต์
+                            </li>
+
+                            <li
+                                className={`cursor-pointer ${tabs === "picture" ? "border-b-2 border-[#F2871F] text-[#0056FF] font-bold" : ""}`}
+                                onClick={() => activeTab('picture')}
+                            >
+                                รูปภาพ
+                            </li>
+                            <li
+                                className={`cursor-pointer ${tabs === "video" ? "border-b-2 border-[#F2871F] text-[#0056FF] font-bold" : ""}`}
+                                onClick={() => activeTab('video')}
+                            >
+                                วีดีโอ
+                            </li>
+                        </div>
                     </ul>
 
-                    {tabs === "details" && (
-                        <div className="flex flex-col mt-1 bg-white p-2 text-xs w-full">
-                            <span className="text-[#0056FF] font-bold">TeamGroup: {userData?.emp?.teamGrop}</span>
-                            <span className="text-[#0056FF] font-bold ">{userData?.emp?.position ? "Position: " + userData?.emp?.position : ""}</span>
-                            <span className="text-[#0056FF] font-bold ">{userData?.emp?.group ? "Group: " + userData?.emp?.group : ""}</span>
-                            <span className="text-[#0056FF] font-bold ">{userData?.emp?.department ? "Department: " + userData?.emp?.department : ""}</span>
-                            <span className="text-[#0056FF] font-bold ">{userData?.emp?.email ? "e-mail: " + userData?.emp?.email : ""}</span>
-                        </div>
-                    )}
+                    <div className="flex flex-col mt-1 bg-white p-2 text-xs w-full">
+                        <span className="text-[#0056FF] font-bold">TeamGroup: {userData?.emp?.teamGrop}</span>
+                        <span className="text-[#0056FF] font-bold ">{userData?.emp?.position ? "Position: " + userData?.emp?.position : ""}</span>
+                        <span className="text-[#0056FF] font-bold ">{userData?.emp?.group ? "Group: " + userData?.emp?.group : ""}</span>
+                        <span className="text-[#0056FF] font-bold ">{userData?.emp?.department ? "Department: " + userData?.emp?.department : ""}</span>
+                        <span className="text-[#0056FF] font-bold ">{userData?.emp?.email ? "e-mail: " + userData?.emp?.email : ""}</span>
+                    </div>
                 </div>
                 
                 {/* Input */}
-                {tabs === "details" && (
+                {tabs === "posts" && (
                 <div className="flex flex-col mt-1 bg-white p-2 w-full">
                     
                         <>
@@ -620,7 +625,7 @@ const ProfilePage = () => {
                 
                  {/* Post */}
                  <div className="flex flex-col w-full">
-                    {tabs === "details" && 
+                    {tabs === "posts" && 
                         userData?.posts?.length > 0 ? (
                             userData?.posts?.map((post, index) => (
                         <div 

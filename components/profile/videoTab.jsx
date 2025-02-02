@@ -25,6 +25,7 @@ export default function VideoTab({ videoData }) {
     }
     
     return (
+        videoData.length > 0 ? (
         <div className="flex flex-col w-full bg-white mt-2 py-2 h-[100%]">
             <div className="grid grid-cols-3 justify-between w-full gap-2">
             {/* Video */}
@@ -89,5 +90,6 @@ export default function VideoTab({ videoData }) {
                 </div>
             </Dialog>
         </div>
+        ) : null
     )
 }
