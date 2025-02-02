@@ -11,7 +11,7 @@ import { useFirebaseChat } from "@/lib/hook/useFirebaseChat";
 import Time from "../utils/Time";
 import axios from "axios";
 import MessagePopupMenu from "./MessagePopupMenu";
-import { Alert, Snackbar } from "@mui/material";
+import { Alert, Snackbar, AvatarGroup, Avatar as MUIAvatar } from "@mui/material";
 import Swal from "sweetalert2";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import StickerPanel from "../stickers/StickerPanel";
@@ -27,7 +27,7 @@ import { TbZoomPan } from "react-icons/tb";
 import { uploadFileToFirebase } from "@/lib/uploadFileToFirebase";
 import moment from "moment";
 import "moment/locale/th";
-import { auth, checkAuthState } from "@/lib/firebase";
+import { FaHeart } from "react-icons/fa";
 import { useRouter } from "next/router";
 
 moment.locale("th");
@@ -76,6 +76,7 @@ export default function MessageWindows({ selectedChat, handleClose }) {
     deleteMessage,
     readMessage,
     replyMessage,
+    likeMessage
   } = useFirebaseChat();
 
   // ฟังก์ชันดึงข้อความในบทสนทนา
@@ -277,21 +278,9 @@ export default function MessageWindows({ selectedChat, handleClose }) {
 
   // ฟังก์ชันกดถูกใจข้อความ
   const handleLikeMessage = async (message) => {
-    try {
-      await likeMessage(selectedChat, message.id, userId);
-      const updatedMessages = messages.map((m) => {
-        if (m.id === message.id) {
-          return { ...m, isLiked: !m.isLiked };
-        }
-        return m;
-      });
-      setMessages(updatedMessages);
-    } catch (error) {
-      console.error("Error liking message:", error);
-    }
-  }
+    await likeMessage(selectedChat, message.id, userId);
+  };
 
-  
   // การเปิดเมนูเมื่อกดค้าง
   const handleLongPress = (e, message) => {
     e.preventDefault();
@@ -389,8 +378,6 @@ export default function MessageWindows({ selectedChat, handleClose }) {
     fileInputRef.current.value = ""; // รีเซ็ตค่า input
   };
 
-  console.log('files', files);
-
   const getFileIcon = (type) => {
     const fileType = type
     if (!fileType) return "/images/iconfiles/other.png";
@@ -477,13 +464,13 @@ export default function MessageWindows({ selectedChat, handleClose }) {
 
       {/* Chat Window */}
       <div 
-        className="flex flex-col p-2 h-full w-full gap-2 overflow-y-auto"
+        className="flex flex-col px-2 h-full w-full mt-2 overflow-y-auto"
         ref={chatWindowRef}
       >
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`flex flex-col ${msg.senderId === session?.user?.id ? "justify-end" : "justify-start"} w-full gap-2`}
+            className={`flex flex-col ${msg.senderId === session?.user?.id ? "justify-end" : "justify-start"} w-full gap-1`}
             onContextMenu={(e) => handleLongPress(e, msg)}
           >
             {/* แสดงข้อความที่อ้างอิง */}
@@ -542,14 +529,14 @@ export default function MessageWindows({ selectedChat, handleClose }) {
                       : msg.isDeleted
                       ? "text-xs text-gray-500 self-end"
                       : "bg-gray-300 text-black self-start"
-                  } px-4 py-1 rounded-lg`}
+                  } px-2 py-1 rounded-lg`}
                 >
                   
                   <div className="flex flex-col gap-1">
                   <span>{msg.isDeleted ? "ข้อความนี้ถูกลบ" : msg.message}</span>
                   {msg.files && (
                     <div 
-                      className="flex flex-row items-center gap-1 bg-gray-100 rounded-md p-2"
+                      className="flex flex-row items-center gap-1 bg-gray-100 rounded-md p-2 cursor-pointer"
                       onClick={() => router.push(msg.files.url, '_blank')}
                     >
                       <Image 
@@ -611,6 +598,29 @@ export default function MessageWindows({ selectedChat, handleClose }) {
               </div>
             )}
             {/* Like & Emotion */}
+            <div className={`flex px-2 ${msg.senderId === userId ? "justify-end" : "justify-start"}`}>
+              {msg.likedUsers?.length > 0 && (
+                <div className="flex flex-row text-xs text-gray-500 items-center gap-2">
+                  <FaHeart size={15} className="text-red-500" />
+                  {msg.likedUsers?.length > 1 && (
+                    <AvatarGroup
+                      renderSurplus={(surplus) => <span>+{surplus.toString()[0]}k</span>}
+                      total={msg?.likedUsers?.length}
+                      spacing="small"
+                    >
+                      {msg?.likedUsers?.map((user, userIndex) => (
+                        <MUIAvatar
+                          key={userIndex}
+                          src={user.user.pictureUrl}
+                          alt="avatar"
+                          sx={{ width: 25, height: 25 }}
+                        />
+                      ))}
+                    </AvatarGroup>
+                  )}
+                </div>
+              )}
+            </div>
             
             <div className={`flex flex-row text-xs text-gray-500 gap-2 ${msg.senderId === userId ? "justify-end" : "justify-start"}`}>
               <div className={`flex flex-row justify-between gap-4 ${msg.senderId === userId ? "self-end" : "self-start"}`}>
@@ -619,6 +629,7 @@ export default function MessageWindows({ selectedChat, handleClose }) {
                       <span className="text-[9px] text-gray-500 mr-4">อ่านแล้ว</span>
                     )}
                 </div>
+                
                 <div className="flex text-[9px]">
                   <Time timestamp={msg.createdAt} />
                 </div>
@@ -644,6 +655,7 @@ export default function MessageWindows({ selectedChat, handleClose }) {
               onCopy={handleCopyMessage}
               onReply={setReplyTo}
               onDelete={handleDeleteMessage}
+              onLike={handleLikeMessage}
               closeMenu={closeMenu}
             />
           </div>

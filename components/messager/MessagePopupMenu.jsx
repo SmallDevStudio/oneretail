@@ -2,20 +2,13 @@ import React, { useState } from "react";
 import { RiDeleteBinLine, RiReplyLine, RiFileCopyLine } from "react-icons/ri";
 import { useSession } from "next-auth/react";
 import { Divider } from "@mui/material";
-import Image from "next/image";
-import { FaRegHeart } from "react-icons/fa";
-
-const icons =[
-  {id: 1, src: "/images/survey/1.svg"},
-  {id: 2, src: "/images/survey/2.svg"},
-  {id: 3, src: "/images/survey/3.svg"},
-  {id: 4, src: "/images/survey/4.svg"},
-  {id: 5, src: "/images/survey/5.svg"},
-]
+import { FaRegHeart, FaHeart } from "react-icons/fa";
 
 const MessagePopupMenu = ({ message, onCopy, onReply, onDelete, onLike, closeMenu }) => {
     const { data: session } = useSession();
     const userId = session?.user?.id;
+
+    const hasLiked = message.isLike?.includes(userId);
 
     return (
         <div className="absolute text-xs p-2 z-10 w-32">
@@ -42,12 +35,13 @@ const MessagePopupMenu = ({ message, onCopy, onReply, onDelete, onLike, closeMen
           <Divider />
           <button
             className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100"
-            onClick={() => {
-              onLike(message);
+            onClick={async() => {
+              await onLike(message);
               closeMenu();
             }}
           >
-            <FaRegHeart /> <span>ถูกใจ</span>
+            {hasLiked ? <FaHeart className="text-red-500" /> : <FaRegHeart />}
+            <span>{hasLiked ? "ยกเลิกถูกใจ" : "ถูกใจ"}</span>
           </button>
           <Divider />
           <button
