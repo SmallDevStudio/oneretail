@@ -22,6 +22,7 @@ import Friends from "@/components/social/Friends";
 import Notifications from "@/components/social/Notifications";
 import { AppLayout } from "@/themes";
 import Messager from "@/components/utils/Messager";
+import FeedSkeleton from "@/components/SkeletonLoader/FeedSkeleton";
 
 moment.locale('th');
 
@@ -38,7 +39,7 @@ const FeedPage = () => {
 
     const router = useRouter();
 
-    const { data, error, mutate } = useSWR(`/api/onesociety/feed?userId=${session?.user?.id}`, fetcher, {
+    const { data, error, mutate, isValidating, isLoading } = useSWR(`/api/onesociety/feed?userId=${session?.user?.id}`, fetcher, {
         onSuccess: (data) => {
             setPosts(data.data);
             setImages(data.images);
@@ -108,32 +109,29 @@ const FeedPage = () => {
                 <ul className="flex flex-wrap justify-between items-center w-full px-2">
                 
                     <li className="me-2">
-                        <Link
-                            href="#feed"
+                        <div
                             className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'feed' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
                             onClick={() => handleTabClick('feed')}
                         >
                             <GoHome 
                                 size={28}
                             />
-                        </Link>
+                        </div>
                     </li>
 
                     <li className="me-2">
-                        <Link
-                            href="#frinds"
+                        <div
                             className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'friends' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
                             onClick={() => handleTabClick('friends')}
                         >
                             <HiOutlineUsers
                                 size={28}
                             />
-                        </Link>
+                        </div>
                     </li>
 
                     <li className="me-2">
-                        <Link
-                            href="#video"
+                        <div
                             className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'video' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
                             onClick={() => handleTabClick('video')}
                         >
@@ -142,12 +140,11 @@ const FeedPage = () => {
                                 <path fill="currentColor" d="M142.64,160.64v-63.49c0-3.4.91-6.74,2.63-9.67,1.73-2.93,4.2-5.35,7.18-6.99,2.97-1.65,6.34-2.47,9.74-2.38,3.4.09,6.71,1.09,9.6,2.89l50.79,31.75c2.74,1.71,5,4.09,6.57,6.92,1.57,2.83,2.39,6.01,2.39,9.24s-.82,6.41-2.39,9.24c-1.57,2.83-3.83,5.21-6.57,6.92l-50.79,31.75c-2.88,1.8-6.2,2.8-9.6,2.89-3.4.09-6.76-.73-9.74-2.38-2.97-1.65-5.45-4.06-7.18-6.99-1.73-2.93-2.63-6.27-2.63-9.67Z"/>
                                 <path fill="currentColor" d="M361.11,308.55H13.08c-6.9,0-12.5-5.6-12.5-12.5s5.6-12.5,12.5-12.5h348.03c6.9,0,12.5,5.6,12.5,12.5s-5.6,12.5-12.5,12.5Z"/>
                             </svg>
-                        </Link>
+                        </div>
                     </li>
                    
                     <li className="me-2">
-                        <Link 
-                            href="#notification"
+                        <div 
                             className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'notification' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
                             onClick={() => handleTabClick('notification')}
                         >
@@ -157,19 +154,18 @@ const FeedPage = () => {
                                 <path fill="currentColor" d="M59.08,139.66c-9.91,0-18.28-7.3-19.66-17.06h-23.31c-6.59,0-12.27-3.78-14.82-9.85-2.55-6.08-1.27-12.78,3.35-17.48l8.06-8.21c1.03-1.05,1.6-2.44,1.6-3.92v-24.82c0-19.51,12.97-37.04,31.59-42.79-.12-.72-.17-1.44-.17-2.16,0-7.37,6-13.36,13.36-13.36s13.36,6,13.36,13.36c0,.72-.06,1.44-.18,2.16,18.62,5.75,31.59,23.28,31.59,42.79v24.82c0,1.48.57,2.87,1.6,3.92l8.06,8.21c4.62,4.7,5.9,11.4,3.35,17.48-2.55,6.08-8.23,9.85-14.82,9.85h-23.31c-1.38,9.76-9.76,17.06-19.66,17.06ZM59.08,1c-6.82,0-12.36,5.55-12.36,12.36,0,.8.08,1.62.23,2.42l.09.45-.44.13c-18.43,5.49-31.3,22.74-31.3,41.96v24.82c0,1.74-.67,3.38-1.89,4.62l-8.06,8.21c-4.33,4.41-5.54,10.69-3.14,16.39,2.39,5.7,7.72,9.24,13.9,9.24h24.19l.05.44c1.13,9.48,9.18,16.62,18.73,16.62s17.6-7.15,18.73-16.62l.05-.44h24.19c6.18,0,11.51-3.54,13.9-9.24,2.39-5.7,1.19-11.98-3.14-16.39l-8.06-8.21c-1.22-1.24-1.89-2.88-1.89-4.62v-24.82c0-19.22-12.88-36.48-31.31-41.97l-.44-.13.09-.45c.16-.8.24-1.61.24-2.41,0-6.82-5.55-12.36-12.36-12.36ZM59.08,130.18c-4.82,0-8.97-3.28-10.1-7.97l-.15-.62h20.49l-.15.62c-1.12,4.69-5.28,7.97-10.1,7.97ZM50.13,122.6c1.22,3.91,4.81,6.58,8.96,6.58s7.74-2.68,8.96-6.58h-17.91ZM102.05,113.12H16.11c-4.06,0-5.68-3.09-6.08-4.04-.4-.95-1.47-4.27,1.37-7.17l8.06-8.21c2.78-2.84,4.32-6.59,4.32-10.56v-24.82c0-19.46,15.84-35.3,35.3-35.3s35.3,15.84,35.3,35.3v24.82c0,3.97,1.53,7.72,4.32,10.56l8.06,8.21c2.85,2.9,1.77,6.22,1.37,7.17h0c-.4.95-2.01,4.04-6.08,4.04ZM59.08,24.02c-18.91,0-34.3,15.39-34.3,34.3v24.82c0,4.24-1.63,8.23-4.6,11.26l-8.06,8.21c-2.42,2.46-1.5,5.28-1.17,6.08.34.8,1.71,3.43,5.16,3.43h85.94c3.45,0,4.82-2.62,5.16-3.43.34-.8,1.25-3.62-1.17-6.08l-8.06-8.21c-2.97-3.02-4.6-7.02-4.6-11.26v-24.82c0-18.91-15.39-34.3-34.3-34.3ZM62.76,14.69l-.42-.03c-2.21-.16-4.29-.16-6.5,0l-.42.03-.1-.41c-.07-.3-.11-.61-.11-.92,0-2.14,1.74-3.89,3.89-3.89s3.89,1.74,3.89,3.89c0,.31-.04.61-.11.92l-.1.41ZM59.08,10.48c-1.59,0-2.89,1.29-2.89,2.89,0,.09,0,.18.01.27,1.95-.12,3.79-.12,5.74,0,0-.09.01-.18.01-.27,0-1.59-1.29-2.89-2.89-2.89Z"/>
                                 </g>
                             </svg>
-                        </Link>
+                        </div>
                     </li>
 
                     <li className="me-2">
-                        <Link 
-                            href="#setting"
+                        <div 
                             className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'setting' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
                             onClick={() => handleTabClick('setting')}
                         >
                             <IoIosMenu 
                                 size={35}
                             />
-                        </Link>
+                        </div>
                     </li>
 
                 </ul>
@@ -179,20 +175,21 @@ const FeedPage = () => {
             <div className="flex flex-col bg-gray-300">
                 {activeTab === 'feed' && 
                     <div className="flex flex-col bg-gray-300 h-screen pb-20 max-w-screen overflow-x-hidden">
-                        <Feed 
-                            posts={filteredPosts} 
-                            user={user} 
-                            mutate={mutate}
-                        />
+                        {isValidating && posts.length === 0 ? 
+                            <FeedSkeleton />
+                        : 
+                            <Feed 
+                                posts={filteredPosts} 
+                                user={user} 
+                                mutate={mutate}
+                            />
+                        }
+                        
                     </div>
                 }
-                {activeTab === 'friends' && 
-                    <Friends user={user}/>
-                }
+                {activeTab === 'friends' && <Friends/>}
                 {activeTab === 'video' && <FeedVideo posts={videos} user={user} />}
-                {activeTab === 'notification' && 
-                    <Notifications user={user}/>
-                }
+                {activeTab === 'notification' && <Notifications user={user}/>}
             </div>
 
         </div>

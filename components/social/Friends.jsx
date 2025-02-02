@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { FaRegCommentDots } from "react-icons/fa";
 import Avatar from "../utils/Avatar";
 import UserList from "./UserList";
-import { Dialog, Slide } from "@mui/material";
+import { Dialog, Slide, CircularProgress } from "@mui/material";
 import MessageWindows from "../messager/messagewindow";
 import { useFirebaseChat } from "@/lib/hook/useFirebaseChat";
 
@@ -22,7 +22,7 @@ export default function Friends() {
   const { data: session } = useSession();
   const userId = session?.user?.id;
 
-  const { data: friends, mutate } = useSWR(
+  const { data: friends, mutate , isValidating, error, isLoading } = useSWR(
     `/api/onesociety/follower?userId=${userId}`,
     fetcher
   );
@@ -47,6 +47,7 @@ export default function Friends() {
     setSelectedChat(null);
   };
   
+  if (isLoading) return <CircularProgress />;
 
   return (
     <>

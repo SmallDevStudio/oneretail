@@ -13,11 +13,8 @@ import PostInput from "@/components/comments/PostInput";
 import ReplyInput from "@/components/comments/ReplyInput";
 import ImageGallery from "@/components/club/ImageGallery";
 import Swal from "sweetalert2";
-import { MdOutlineMail, MdOutlinePostAdd } from "react-icons/md";
 import { BsPinAngleFill } from "react-icons/bs";
 import { IoSearch } from "react-icons/io5";
-import { FaUserPlus, FaUserTimes, FaCoins } from "react-icons/fa";
-import { BsPersonFillAdd } from "react-icons/bs";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { AiOutlineMessage } from "react-icons/ai";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
@@ -28,6 +25,7 @@ import Follower from "@/components/social/Follower";
 import ImageTab from "@/components/profile/ImageTab";
 import VideoTab from "@/components/profile/videoTab";
 import Messager from "@/components/utils/Messager";
+import FeedSkeleton from "@/components/SkeletonLoader/FeedSkeleton";
 
 
 moment.locale("th");
@@ -104,13 +102,18 @@ const ProfilePage = () => {
     const handlePostSubmit = async (data) => {
         setLoading(true);
         try {
-            const userId = session?.user?.id;
+            const postUserId = session?.user?.id;
     
             // Check if there is either post content or media content
             if (!data.post && (!data.media || data.media.length === 0)) {
                 setCheckError('กรุณากรอกข้อความหรือเพิ่มรูปภาพ');
                 setLoading(false);
                 return; // Exit the function if the condition is not met
+            }
+
+            if (postUserId !== userId) {
+                const tagUser = data.selectedUsers;
+                tagUser.push({ userId: userId });
             }
     
 
@@ -121,7 +124,7 @@ const ProfilePage = () => {
                 files: data.files,
                 tagusers: data.selectedUsers,
                 pinned: false,
-                userId,
+                userId: postUserId === userId ? postUserId : userId,
                 page: 'post'
             });
 
@@ -417,9 +420,7 @@ const ProfilePage = () => {
         ? parseFloat((userData?.points?.totalPoints / userData?.level?.nextLevelRequiredPoints ) * 100)
         : 0;
 
-    if(loading || !userData) return <Loading />;
-
-    return (
+    return (!userData ? <Loading /> :
         <div className="flex flex-col bg-gray-300 w-full min-h-screen mb-20">
             <div>
                 <div className="flex flex-col w-full bg-white">
@@ -592,40 +593,39 @@ const ProfilePage = () => {
                 
                 {/* Input */}
                 {tabs === "posts" && (
-                <div className="flex flex-col mt-1 bg-white p-2 w-full">
-                    
-                        <>
-                        <span className="text-[#0056FF] font-bold text-lg">
-                            โพสต์
-                        </span>
-                        <div className="flex flex-row justify-center items-center gap-2 mt-2 w-full">
-                            <div>
-                                <Image
-                                    src={userData?.user?.pictureUrl}
-                                    alt="user"
-                                    width={50}
-                                    height={50}
-                                    className="rounded-full object-cover"
-                                    style={{ width: '40px', height: '40px' }}
-                                />
-                            </div>
+                <div className="flex flex-col w-full">
+                    <div className="flex flex-col mt-1 bg-white p-2 w-full">
+                        
+                            <>
+                            <span className="text-[#0056FF] font-bold text-lg">
+                                โพสต์
+                            </span>
+                            <div className="flex flex-row justify-center items-center gap-2 mt-2 w-full">
+                                <div>
+                                    <Image
+                                        src={userData?.user?.pictureUrl}
+                                        alt="user"
+                                        width={50}
+                                        height={50}
+                                        className="rounded-full object-cover"
+                                        style={{ width: '40px', height: '40px' }}
+                                    />
+                                </div>
 
-                            <div 
-                                className="flex border-2 border-gray-200 items-center px-2 rounded-full w-full h-8"
-                                onClick={() => handleClickOpen('post')}
-                            >
-                                <span className="text-sm text-gray-500">คุณคิดอะไรอยู่..?</span>
+                                <div 
+                                    className="flex border-2 border-gray-200 items-center px-2 rounded-full w-full h-8"
+                                    onClick={() => handleClickOpen('post')}
+                                >
+                                    <span className="text-sm text-gray-500">คุณคิดอะไรอยู่..?</span>
+                                </div>
                             </div>
-                        </div>
-                        </>
+                            </>
+                        
+                    </div>
                     
-                </div>
-                )}
-                    
-                
                  {/* Post */}
                  <div className="flex flex-col w-full">
-                    {tabs === "posts" && 
+                    {!userData?.posts ? <FeedSkeleton /> :
                         userData?.posts?.length > 0 ? (
                             userData?.posts?.map((post, index) => (
                         <div 
@@ -648,7 +648,7 @@ const ProfilePage = () => {
                                     <div className="flex flex-row justify-between items-center">
                                         <p className="text-xs font-bold text-[#0056FF]">
                                             {post?.page === 'share-your-story' ? 
-                                              <div className="flex flex-row gap-1">
+                                            <div className="flex flex-row gap-1">
                                                 <span>{post?.user?.fullname}</span>
                                                 <span>{'>'}</span>
                                                 <span 
@@ -657,7 +657,7 @@ const ProfilePage = () => {
                                                 > 
                                                     Share your story
                                                 </span>
-                                              </div> 
+                                            </div> 
                                             : post?.user?.fullname}
                                         </p>
                                         <div className="flex flex-row gap-2">
@@ -697,7 +697,9 @@ const ProfilePage = () => {
                                     <p className="text-xs ml-2 mb-2">{post?.post}</p>
                                 )}
                                 {post?.medias.length > 0 && (
-                                    <ImageGallery medias={post.medias} userId={session?.user?.id} />
+                                    <div className="flex flex-col w-full">
+                                        <ImageGallery medias={post.medias} userId={session?.user?.id} />
+                                    </div>
                                 )}
                             </div>
                             <div className="flex flex-col w-full mt-2">
@@ -731,7 +733,7 @@ const ProfilePage = () => {
                                         <span className="text-xs">{Array.isArray(post.comments) ? post.comments.length : 0}</span>
                                     </div>
                                 </div>
-    
+
                                 {showComments === post._id && Array.isArray(post.comments) && post.comments.map((comment, commentIndex) => (
                                     <div key={commentIndex} className="flex flex-col w-full">
                                     <div className="flex flex-col w-full bg-gray-300 rounded-lg mt-2 ml-2">
@@ -810,7 +812,7 @@ const ProfilePage = () => {
                                                     <path fill='currentColor' d="M150.02,188.95h-66.43c-5.9,0-10.69-4.79-10.69-10.69s4.78-10.69,10.69-10.69h66.43c5.9,0,10.69,4.79,10.69,10.69s-4.79,10.69-10.69,10.69Z"/>
                                                     </svg>
                                                     <span className="text-xs cursor-pointer" onClick={() => handleClickOpen('reply', comment._id)}>
-                                                     แสดงความคิดเห็น
+                                                    แสดงความคิดเห็น
                                                     </span>
                                                 </div>
                                                 <div className="flex flex-row items-center gap-2">
@@ -822,7 +824,7 @@ const ProfilePage = () => {
                                             </div>
                                         </div>
                                         </div>
-    
+
                                         {showReply === comment._id && Array.isArray(comment.reply) && comment.reply.map((reply, replyIndex) => (
                                             <div key={replyIndex} className="flex flex-col w-full pl-5 mt-1 ml-2">
                                             <div  className="flex flex-col bg-gray-200 rounded-lg  w-full ">
@@ -837,7 +839,7 @@ const ProfilePage = () => {
                                                             style={{ width: '20px', height: '20px' }}
                                                         />
                                                     </div>
-    
+
                                                     <div className="flex flex-col w-full">
                                                         <div className="flex flex-row justify-between items-center">
                                                             <p className="text-xs font-bold text-[#0056FF]">{reply?.user?.fullname}</p>
@@ -895,16 +897,19 @@ const ProfilePage = () => {
                                             </div>
                                             </div>
                                         ))}
-    
-                                   
+
+                                
                                     </div>
                                     
                                 ))}
                             </div>
                         </div>
                             ))
-                        ): null}
+                        ): null
+                    }
                 </div>
+                </div>
+                )}
             </div>
             <Dialog 
                 fullScreen

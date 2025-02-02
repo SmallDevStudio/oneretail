@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import useSWR from "swr";
 import axios from "axios";
 import { Dialog, Slide, CircularProgress, Menu, MenuItem } from "@mui/material";
 import Image from "next/image";
@@ -14,10 +13,8 @@ import ImageGallery from "@/components/main/ImageGallery";
 import Swal from "sweetalert2";
 import moment from "moment";
 import "moment/locale/th";
-import { BsPinAngleFill } from "react-icons/bs";
 import Loading from "@/components/Loading";
 import Avatar from "@/components/utils/Avatar";
-import PostPanel from "./Post/PostPanel";
 
 moment.locale('th');
 
@@ -369,10 +366,7 @@ const Feed = ({ user, posts }) => {
     };
     
     return (
-        (!posts || posts.length === 0) ? (
-            <Loading />
-        ) : (
-            <div className="flex flex-col max-w-screen">
+        <div className="flex flex-col max-w-screen">
             {/* Input Post */}
             <div className="flex flex-col bg-white py-2">
                 <div className="flex flex-row items-center justify-center px-2 w-full gap-2">
@@ -395,19 +389,14 @@ const Feed = ({ user, posts }) => {
             </div>
 
             {/* Post Container */}
-            {!posts ? (
-                <Loading/>
-            ): (
-                <div 
-                    className="flex flex-col bg-gray-300 text-gray-700 mt-2 max-w-screen"
-                >
+            <div className="flex flex-col bg-gray-300 text-gray-700 mt-2 max-w-screen">
                 {posts.map((post, index) => (
                     !post ? (
                         <CircularProgress key={index} />
                     ): (
-                    <>
+                    <Fragment key={index}>
                     <div 
-                        key={index} 
+                        
                         id={post?._id} 
                         className="flex flex-col px-2 gap-2 bg-gray-100 py-2 mb-2 p-2"
                     >
@@ -789,11 +778,10 @@ const Feed = ({ user, posts }) => {
                             ))}
                         </div>
                     )}
-                    </>
+                    </Fragment>
                     )
                 ))}
-                </div>
-            )}
+            </div>
             
             <Dialog 
                 fullScreen
@@ -814,7 +802,6 @@ const Feed = ({ user, posts }) => {
             </Dialog>
 
         </div>
-        )
     );
 };
 
