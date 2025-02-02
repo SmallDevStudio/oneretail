@@ -18,16 +18,17 @@ import StickerPanel from "../stickers/StickerPanel";
 import Dialog from '@mui/material/Dialog';
 import Slide from '@mui/material/Slide';
 import Image from "next/image";
-import { IoIosHeartEmpty } from "react-icons/io";
-import { BsEmojiSmile } from "react-icons/bs";
 import { AiOutlinePicture } from "react-icons/ai";
 import { upload } from '@vercel/blob/client';
 import { nanoid } from 'nanoid';
 import ReactPlayer from "react-player";
 import { IoCloseCircle } from "react-icons/io5";
 import { TbZoomPan } from "react-icons/tb";
+import { uploadFileToFirebase } from "@/lib/uploadFileToFirebase";
 import moment from "moment";
 import "moment/locale/th";
+import { auth, checkAuthState } from "@/lib/firebase";
+import { useRouter } from "next/router";
 
 moment.locale("th");
 
@@ -59,6 +60,8 @@ export default function MessageWindows({ selectedChat, handleClose }) {
   const [openImage, setOpenImage] = useState(false); // สถานะเปิดปิดของปุ่มรูปภาพ
   const [openVideo, setOpenVideo] = useState(false); // สถานะเปิดปิดของปุ่มวิดีโอ
   const [currentMedia, setCurrentMedia] = useState(null); // สถานะของไฟล์ที่ถูกเลือก
+
+  const router = useRouter();
 
   const chatWindowRef = useRef(null); // สำหรับเลื่อนหน้าแชท
   const menuRef = useRef(null); // ใช้ตรวจจับคลิกข้างนอกเมนู
@@ -347,39 +350,68 @@ export default function MessageWindows({ selectedChat, handleClose }) {
     const file = e.target.files[0]; 
     if (!file) return;
   
-    const newBlob = await upload(file.name, file, {
-      access: 'public',
-      handleUploadUrl: '/api/blob/upload',
-    });
+    // อัปโหลดไฟล์ไปยัง Firebase Storage
+    const uploadedFile = await uploadFileToFirebase(file, selectedChat);
 
-    const mediaEntry = {
-      url: newBlob.url,
-      public_id: nanoid(10),
-      file_name: file.name,
-      mime_type: file.type,
-      file_size: file.size,
-      type: file.type,
-      userId,
-    };
-
-    await axios.post('/api/upload/save', mediaEntry);
+    const fileType = uploadedFile.file_name.split('.').pop();
+    let type = '';
+    if (fileType === 'xlsx' || fileType === 'xls') {
+      type = 'excel';
+    } else if (fileType === 'docx' || fileType === 'doc') {
+      type = 'word';
+    } else if (fileType === 'pptx' || fileType === 'ppt') {
+      type = 'powerpoint';
+    } else if (fileType === 'pdf') {
+      type = 'pdf';
+    } else {
+      type = 'files';
+    }
   
-    setFiles(mediaEntry);
+    if (uploadedFile) {
+      const uploadData = {
+        public_id: uploadedFile.file_id,
+        url: uploadedFile.url,
+        file_name: uploadedFile.file_name,
+        mime_type: uploadedFile.mime_type,
+        file_size: uploadedFile.file_size,
+        type: type,
+        folder: 'files',
+        userId,
+      };
+      // บันทึกข้อมูลลง Firestore หรือ MongoDB (เลือกใช้ตามระบบของคุณ)
+      await axios.post('/api/upload/save', uploadData);
+  
+      // เพิ่มไฟล์ที่อัปโหลดทั้งหมดใน state files
+      setFiles(uploadData);
+    }
+  
     setIsUploading(false);
-
-    fileInputRef.current.value = ""; // รีเซ็ตค่า input เพื่อให้สามารถเลือกไฟล์ใหม่ได้
-};
-
-  const getFileIcon = (fileType) => {
-    if (!fileType) return "/image/iconfiles/other.png";
-  
-    if (fileType.includes("pdf")) return "/image/iconfiles/pdf.png";
-    if (fileType.includes("msword") || fileType.includes("doc")) return "/image/iconfiles/doc.png";
-    if (fileType.includes("excel") || fileType.includes("spreadsheet")) return "/image/iconfiles/xls.png";
-    if (fileType.includes("presentation") || fileType.includes("powerpoint")) return "/image/iconfiles/ppt.png";
-  
-    return "/image/iconfiles/other.png";
+    fileInputRef.current.value = ""; // รีเซ็ตค่า input
   };
+
+  console.log('files', files);
+
+  const getFileIcon = (type) => {
+    const fileType = type
+    if (!fileType) return "/images/iconfiles/other.png";
+  
+    if (fileType === "pdf") return "/images/iconfiles/pdf.png";
+    if (fileType === "msword" || fileType.includes("doc")) return "/images/iconfiles/doc.png";
+    if (fileType ==="excel" || fileType.includes("spreadsheet")) return "/images/iconfiles/xls.png";
+    if (fileType === "presentation" || fileType.includes("powerpoint")) return "/images/iconfiles/ppt.png";
+  
+    return "/images/iconfiles/other.png";
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes < 1024) {
+      return `${bytes} B`;
+    } else if (bytes < 1024 * 1024) {
+      return `${(bytes / 1024).toFixed(2)} KB`;
+    } else {
+      return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+    }
+  }
 
   const handleMultipleImageChange = async (e) => {
     setIsUploading(true); // เริ่มการอัปโหลด
@@ -424,16 +456,13 @@ export default function MessageWindows({ selectedChat, handleClose }) {
     imageInputRef.current.value = '';
   };
 
-  console.log('image', image);
-  console.log('video', video);
   console.log('files', files);
-  console.log('sticker', sticker);
   console.log('message', messages);
   console.log('participants', participants);
   console.log('conversation', conversation);
 
   return (
-    <div className="flex flex-col justify-between w-full h-screen">
+    <div className="flex flex-col justify-between w-full h-screen pb-20">
       {/* Header */}
       <div className="flex flex-row items-center justify-between w-full px-2 py-4 bg-gray-300">
         <IoIosArrowBack className="text-xl cursor-pointer text-[#0056FF]" onClick={handleClose} size={25} />
@@ -523,6 +552,27 @@ export default function MessageWindows({ selectedChat, handleClose }) {
                   
                   <div className="flex flex-col gap-1">
                   <span>{msg.isDeleted ? "ข้อความนี้ถูกลบ" : msg.message}</span>
+                  {msg.files && (
+                    <div 
+                      className="flex flex-row items-center gap-1 bg-gray-100 rounded-md p-2"
+                      onClick={() => router.push(msg.files.url, '_blank')}
+                    >
+                      <Image 
+                        src={getFileIcon(msg.files.type)} 
+                        alt="file-icon" 
+                        width={50} 
+                        height={50} 
+                      />
+                      <div className="flex flex-col">
+                        <span className="text-sm">{msg.files.file_name}</span>
+                          <span className="text-xs text-gray-500">{msg.files.type}</span>
+                          <div className="flex flex-row items-center gap-1">
+                            <span className="text-xs text-gray-500">ขนาด:</span>
+                            <span className="text-xs text-gray-500">{formatFileSize(msg.files.file_size)}</span>
+                          </div>
+                      </div>
+                    </div>
+                  )}
                   {msg.sticker && (
                     <Image 
                       src={msg.sticker.url}
@@ -669,14 +719,16 @@ export default function MessageWindows({ selectedChat, handleClose }) {
 
         {/* File Preview */}
         {files && (
-          <div className="flex items-center gap-2 p-2 border border-gray-300 rounded-lg">
-            <Image 
-              src={getFileIcon(files.type)} 
-              alt="file-icon" 
-              width={40} 
-              height={40} 
-            />
-            <span className="text-sm">{files.file_name}</span>
+          <div className="flex flex-row justify-between items-center gap-2 p-2 border border-gray-300 rounded-lg bg-white">
+            <div className="flex flex-row items-center gap-2">
+              <Image 
+                src={getFileIcon(files.type)} 
+                alt="file-icon" 
+                width={40} 
+                height={40} 
+              />
+              <span className="text-sm">{files.file_name}</span>
+            </div>
             <IoCloseCircle size={20} className="cursor-pointer" onClick={() => setFiles(null)} />
           </div>
         )}
@@ -685,7 +737,7 @@ export default function MessageWindows({ selectedChat, handleClose }) {
           <GoPaperclip 
             className="text-[#0056FF]" 
             size={30} 
-            /*onClick={handleUploadClick}*/
+            onClick={handleUploadClick}
           />
             <input
               type="file"
