@@ -444,7 +444,7 @@ export default function MessageWindows({ selectedChat, handleClose }) {
   };
 
   return (
-    <div className="flex flex-col justify-between w-full h-screen pb-20">
+    <div className="flex flex-col justify-between w-full h-screen">
       {/* Header */}
       <div className="flex flex-row items-center justify-between w-full px-2 py-4 bg-gray-300">
         <IoIosArrowBack className="text-xl cursor-pointer text-[#0056FF]" onClick={handleClose} size={25} />
@@ -464,7 +464,7 @@ export default function MessageWindows({ selectedChat, handleClose }) {
 
       {/* Chat Window */}
       <div 
-        className="flex flex-col px-2 h-full w-full mt-2 overflow-y-auto"
+        className="flex flex-col px-2 h-full w-full pt-2 pb-20 overflow-y-auto"
         ref={chatWindowRef}
       >
         {messages.map((msg) => (
@@ -675,7 +675,7 @@ export default function MessageWindows({ selectedChat, handleClose }) {
       </div>
 
       {/* Chat Input */}
-      <div className="absolute bottom-0 w-full border-t border-gray-300 pb-2">
+      <div className="absolute bottom-0 w-full bg-white border-t border-gray-300">
         {/* Sticker Preview */}
         {sticker && (
           <div className="relative">
@@ -740,7 +740,7 @@ export default function MessageWindows({ selectedChat, handleClose }) {
           </div>
         )}
         {/* Chat Input */}
-        <div className="flex flex-row items-center justify-between w-full px-2 py-2 gap-2">
+        <div className="flex flex-row items-center  justify-between w-full px-2 py-2 gap-2 max-h-12">
           <GoPaperclip 
             className="text-[#0056FF]" 
             size={30} 
