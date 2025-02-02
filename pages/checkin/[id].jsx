@@ -25,12 +25,13 @@ const CheckIn = () => {
     const [hasCheckIn, setHasCheckIn] = useState(false);
     const [hasUserJoin, setHasUserJoin] = useState(false);
 
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const router = useRouter();
     const { id } = router.query;
     const userId = session?.user?.id;
 
     useEffect(() => {
+        if (status === "loading") return; // ยังโหลดข้อมูลอยู่
         if (userId) {
             setLoading(true);
             const fetchCheckIn = async () => {
@@ -47,7 +48,7 @@ const CheckIn = () => {
             };
             fetchCheckIn();
             }
-    }, [id, router, userId]);
+    }, [id, router, status, userId]);
 
     useEffect(() => {
         if (id && userId) {

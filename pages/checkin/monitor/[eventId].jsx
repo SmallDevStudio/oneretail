@@ -12,6 +12,7 @@ import { IoQrCodeSharp } from "react-icons/io5";
 import { Slide, Dialog } from "@mui/material";
 import { QRCodeCanvas } from 'qrcode.react';
 import { IoCloseCircle } from "react-icons/io5";
+import Swal from "sweetalert2";
 
 moment.locale('th');
 
@@ -135,6 +136,25 @@ const MonitorEvent = () => {
         }
     };
 
+    const handlePhone = (phone) => {
+        Swal.fire({
+            title: "โทรออก?",
+            text: `คุณต้องการโทรไปที่ ${phone} หรือไม่?`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "โทรออก",
+            cancelButtonText: "ยกเลิก",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = `tel:${phone}`;
+            }
+        });
+    };
+
+    console.log(events);
+
     return (
         <div className="flex flex-col bg-gray-200 pb-20 min-h-screen">
             {/* Header */}
@@ -233,8 +253,18 @@ const MonitorEvent = () => {
                             <div className="flex flex-row items-center gap-2">
                                 <div className={`w-3 h-3 rounded-full ${user.hasCheckin ? 'bg-green-500' : 'bg-red-500'}`}></div>
                                 <Avatar src={user?.pictureUrl} size={30} userId={user?.userId} />
-                                <span className="font-bold">{user?.empId}</span>
-                                <span className="font-bold">{user?.fullname}</span>
+                                <div className="flex flex-col">
+                                    <div className="flex flex-row items-center gap-2">
+                                        <span className="font-bold">{user?.empId}</span>
+                                        <span className="font-bold">{user?.fullname}</span>
+                                    </div>
+                                    <span 
+                                        className="text-sm font-bold text-[#F2871F]"
+                                        onClick={() => handlePhone(user?.phone)}
+                                    >
+                                        {user?.phone}
+                                    </span>
+                                </div>
                             </div>
                             {user.checkinTime && (
                                 <span className="text-gray-500 text-xs">
