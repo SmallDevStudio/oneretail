@@ -456,11 +456,6 @@ export default function MessageWindows({ selectedChat, handleClose }) {
     imageInputRef.current.value = '';
   };
 
-  console.log('files', files);
-  console.log('message', messages);
-  console.log('participants', participants);
-  console.log('conversation', conversation);
-
   return (
     <div className="flex flex-col justify-between w-full h-screen pb-20">
       {/* Header */}
