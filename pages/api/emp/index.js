@@ -17,6 +17,15 @@ export default async function handler(req, res) {
             }
         break;
 
+        case 'POST' :
+            try {
+                const emp = await Emp.create(req.body);
+                res.status(201).json({success: true, data: emp});
+            } catch (error) {
+                console.error('Error creating emp:', error);
+                res.status(400).json({ success: false, error: error.message });
+            }
+        break;
 
         default:
             res.status(400).json({ success: false, error: 'Invalid request method' });

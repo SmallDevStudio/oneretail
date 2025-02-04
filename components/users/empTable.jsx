@@ -7,11 +7,12 @@ import Header from "../admin/global/Header";
 import { FaEdit } from "react-icons/fa";
 import { RiDeleteBinLine } from "react-icons/ri";
 import EmpForm from "./empForm";
+import Swal from "sweetalert2";
 
 const fetcher = url => axios.get(url).then(res => res.data);
 
 const Transition = React.forwardRef(function Transition(props, ref) {
-    return <Slide direction="right" ref={ref} {...props} />;
+    return <Slide direction="top" ref={ref} {...props} />;
 });
 
 export default function EmpTable() {
@@ -20,7 +21,7 @@ export default function EmpTable() {
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(false);
     const [openForm, setOpenForm] = useState(false);
-    const [selectedEmp, setSelectedEmp] = useState({});
+    const [selectedEmp, setSelectedEmp] = useState(null);
 
     const { data, error, mutate } = useSWR('/api/emp', fetcher, {
         onSuccess: (data) => {
@@ -54,23 +55,48 @@ export default function EmpTable() {
         { field: 'action', headerName: 'Acion', width: 200,
             renderCell: (params) => (
                 <div className="flex flex-row items-center justify-center gap-4 p-2">
-                    <FaEdit size={25}/>
-                    <RiDeleteBinLine size={25} />
+                    <FaEdit size={25}
+                        onClick={() => handleSelectedEmp(params.row)}
+                    />
+                    <RiDeleteBinLine size={25} 
+                        onClick={() => handleDeleteEmp(params.row.empId)}
+                    />
                 </div>
             )
          },
     ];
 
-    const handleOpen = (emp) => {
-        setSelectedEmp(emp);
+    const handleOpen = () => {
         setOpenForm(true);
     }
     const handleClose = () => {
-        setSelectedEmp({});
+        setSelectedEmp(null);
         setOpenForm(false);
     }
 
-    console.log('emp', emps);
+    const handleSelectedEmp = (emp) => {
+        setSelectedEmp(emp);
+        setOpenForm(true);
+    }
+
+    const handleDeleteEmp = async (empId) => {
+        const result = await Swal.fire({
+            title: 'คุณต้องการลบข้อมูลพนักงานใช่หรือไม่?',
+            text: 'คุณจะไม่สามารถย้อนกลับได้',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#0056FF',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'ยืนยัน',
+            cancelButtonText: 'ยกเลิก',
+        });
+
+        if (result.isConfirmed) {
+            await axios.delete(`/api/emp/${empId}`);
+            mutate();
+            Swal.fire('ลบข้อมูลพนักงานเรียบร้อยแล้ว', '', 'success');
+        }
+    }
 
     return (
         <div className="flex flex-col w-full">
@@ -79,7 +105,7 @@ export default function EmpTable() {
             <div className="flex flex-row items-center justify-between w-full p-2">
                 <button
                     className="flex bg-[#0056FF] rounded-full px-4 py-1 text-white font-bold"
-                    onClick={() => handleOpen({})}
+                    onClick={() => handleOpen()}
                 >
                     เพื่มข้อมูลพนักงาน
                 </button>
@@ -130,6 +156,7 @@ export default function EmpTable() {
                     <EmpForm
                         empData={selectedEmp}
                         mutate={mutate}
+                        handleClose={handleClose}
                     />
                 </div>
             </Dialog>
