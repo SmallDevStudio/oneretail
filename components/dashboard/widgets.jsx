@@ -23,19 +23,19 @@ const Widgets = () => {
             <div className="flex w-1/4" style={{
                 cursor: 'pointer',
             }}>
-                <Widget icon={<FaUser />} title="Users" value={`${users.length} / ${emps.emps.length}`} url={"/admin/users"} color={"#3DC2EC"}/>
+                <Widget icon={<FaUser />} title="Users" value={`${users?.length} / ${emps?.data?.length}`} url={"/admin/users"} color={"#3DC2EC"}/>
             </div>
 
             <div className="flex w-1/4">
-                <Widget icon={<MdContentPaste />} title="Contents" value={contents.data.length} url={"/admin/contents"} color={"#F4CE14"}/>
+                <Widget icon={<MdContentPaste />} title="Contents" value={contents?.data?.length} url={"/admin/contents"} color={"#F4CE14"}/>
             </div>
 
             <div className="flex w-1/4">
-                <Widget icon={<IoGiftOutline />} title="Redeems" value={redeems.data.length} url={"/admin/redeem"} color={"#615EFC"} />
+                <Widget icon={<IoGiftOutline />} title="Redeems" value={redeems?.data?.length} url={"/admin/redeem"} color={"#615EFC"} />
             </div>
 
             <div className="flex w-1/4">
-                <Widget icon={<MdOutlineEventNote />} title="Events" value={events.data.length} url={"/admin/events"} color={"#C80036"} />
+                <Widget icon={<MdOutlineEventNote />} title="Events" value={events?.data?.length} url={"/admin/events"} color={"#C80036"} />
             </div>
             
         </div>

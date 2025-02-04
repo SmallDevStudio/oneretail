@@ -10,7 +10,7 @@ export default async function handler(req, res) {
             try {
                 const emps = await Emp.find({}).sort({ createdAt: -1 });
 
-                res.status(200).json({success: true,data: emps});
+                res.status(200).json({success: true, data: emps});
             } catch (error) {
                 console.error('Error fetching emp:', error);
                 res.status(400).json({ success: false, error: error.message });

@@ -2,17 +2,22 @@ import connetMongoDB from "@/lib/services/database/mongodb";
 import Emp from "@/database/models/emp";
 
 export default async function handler(req, res) {
-    if (req.method === "GET") {
-        const { empId } = req.query;
-        await connetMongoDB();
-        const emp = await Emp.findOne({ empId: empId });
-        res.status(200).json({ emp });
-        
-    } else if (req.method === "PUT") {
+    const { method } = req;
 
-    } else if (req.method === "DELETE") {
+    await connetMongoDB();
 
-    } else {
-        res.status(405).json({ error: "Method not allowed" });
+    switch (method) {
+        case "GET":
+            try {
+                const { empId } = req.query;
+                const emp = await Emp.findOne({ empId });
+                res.status(200).json({ success: true, data: emp });
+            } catch (error) {
+                res.status(400).json({ success: false });
+            }
+            break;
+        default:
+            res.status(400).json({ success: false });
+            break;
     }
 }

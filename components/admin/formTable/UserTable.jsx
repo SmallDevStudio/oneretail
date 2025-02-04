@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
+import { useSession } from 'next-auth/react';
 import axios from 'axios';
 import Image from 'next/image';
 import useSWR from 'swr';
@@ -17,6 +18,8 @@ const UsersTable = ({ users, setUsers, mutate }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedUser, setSelectedUser] = useState(null);
     const [openViewModal, setOpenViewModal] = useState(false);
+
+    const { data: session } = useSession();
 
     useEffect(() => {
         if (!users) return;
@@ -121,9 +124,14 @@ const UsersTable = ({ users, setUsers, mutate }) => {
             headerName: 'Active',
             width: 100,
             renderCell: (params) => (
-                <button onClick={() => handleActiveToggle(params.row._id, params.value)}>
-                    {params.value ? 'Active' : 'Inactive'}
-                </button>
+                <div className="flex items-center justify-center h-12">
+                    <button 
+                        onClick={() => handleActiveToggle(params.row.userId, params.value)}
+                        className={`px-2 py-1 rounded-full text-sm ${params.value ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}
+                    >
+                        {params.value ? 'Active' : 'Inactive'}
+                    </button>
+                </div>
             )
         },
         {

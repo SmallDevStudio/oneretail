@@ -54,6 +54,7 @@ export default function UsersAdmin() {
                 <UserTable 
                     users={userData}
                     setUsers={setUserData}
+                    mutate={mutate}
                 />
                }
                {activeTab === 'emp' && <EmpTable />}
