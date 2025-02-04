@@ -1,14 +1,25 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
 import Emp from "@/database/models/emp";
 export default async function handler(req, res) {
-    if (req.method === "GET") {
-        await connetMongoDB();
-        const emps = await Emp.find({});
-        res.status(200).json({ emps });
-    } else if (req.method === "POST") {
-        const { empId, teamGrop, sex, branch, department, group, chief_th, chief_eng, position } = req.body;
-        await connetMongoDB();
-        await Emp.create({ empId, teamGrop, sex, branch, department, group, chief_th, chief_eng, position });
-        res.status(201).json({ message: "Emp created successfully" });
+    const { method } = req;
+
+    await connetMongoDB();
+
+    switch (method) {
+        case 'GET' :
+            try {
+                const emps = await Emp.find({}).sort({ createdAt: -1 });
+
+                res.status(200).json({success: true,data: emps});
+            } catch (error) {
+                console.error('Error fetching emp:', error);
+                res.status(400).json({ success: false, error: error.message });
+            }
+        break;
+
+
+        default:
+            res.status(400).json({ success: false, error: 'Invalid request method' });
+            break;
     }
-}
+} 

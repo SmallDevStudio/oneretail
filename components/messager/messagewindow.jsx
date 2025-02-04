@@ -46,6 +46,7 @@ export default function MessageWindows({ selectedChat, handleClose }) {
   const [isOnline, setIsOnline] = useState(false);
   const [isTargetOnline, setIsTargetOnline] = useState(false);
   const [targetUserId, setTargetUserId] = useState(null);
+  const [user, setUser] = useState(null);
   const [menuMessage, setMenuMessage] = useState(null);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [snackbarOpen, setSnackbarOpen] = useState(false); // สำหรับแสดงข้อความแจ้งเตือนการคัดลอก
@@ -95,6 +96,12 @@ export default function MessageWindows({ selectedChat, handleClose }) {
       const otherParticipants = participantsArray.filter(
         (participant) => participant.userId !== session?.user?.id
       );
+
+      const userIds = participantsArray.filter(
+        (participant) => participant.userId === session?.user?.id
+      )
+
+      setUser(userIds[0]);
   
       if (otherParticipants.length > 0) {
         setNameRoom(
@@ -197,6 +204,17 @@ export default function MessageWindows({ selectedChat, handleClose }) {
     } else {
       await sendMessage(selectedChat, userId, text, "text", extraData);
     }
+
+    await axios.post('/api/notifications', {
+      userId: targetUserId,
+      senderId: userId,
+      description: `${user?.user?.fullname} ได้ส่งข้อความให้คุณ`,
+      referId: selectedChat,
+      path: 'messager',
+      subpath: '',
+      url: `${window.location.origin}/messager/${selectedChat}`,
+      type: 'message',
+    });
   
     setText("");
     setSticker(null);

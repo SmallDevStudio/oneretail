@@ -11,37 +11,32 @@ import { RiDeleteBinLine } from "react-icons/ri";
 import { Autocomplete, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import '@/styles/CategoryTable.module.css';
 
-const fetcher = (url) => axios.get(url).then((res) => res.data);
-
-const UsersTable = () => {
-    const [users, setUsers] = useState([]);
+const UsersTable = ({ users, setUsers, mutate }) => {
     const [filteredUsers, setFilteredUsers] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedUser, setSelectedUser] = useState(null);
     const [openViewModal, setOpenViewModal] = useState(false);
 
-    const { data, error } = useSWR('/api/users/emp', fetcher, {
-        onSuccess: (data) => {
-            setUsers(data.data);
-            setLoading(false);
-        }
-    });
-
     useEffect(() => {
-        setFilteredUsers(
-            users.filter(user =>
-                user.empId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.fullname.toLowerCase().includes(searchTerm.toLowerCase())
-            )
-        );
-    }, [searchTerm, users]);
+        if (!users) return;
 
-    if (error) return <div>Failed to load</div>;
-    if (!data) return <div>Loading...</div>;
+        if (searchTerm) {
+            setFilteredUsers(
+                users.filter(user =>
+                    user.empId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    user.fullname.toLowerCase().includes(searchTerm.toLowerCase())
+                )
+            );
+        } else {
+            setFilteredUsers(users);
+        }
+        
+    }, [searchTerm, users]);
 
     const handleRoleChange = async (userId, newRole) => {
         await axios.put(`/api/users/update?userId=${userId}`, { role: newRole });
+        mutate();
         setUsers(prev =>
             prev.map(user => (user._id === userId ? { ...user, role: newRole } : user)) // ใช้ user._id ในการเปรียบเทียบ
         );
@@ -53,6 +48,7 @@ const UsersTable = () => {
         setUsers(prev =>
             prev.map(user => (user._id === userId ? { ...user, active: newActive } : user))
         );
+        mutate();
     };
 
     const handleViewUser = (user) => {
