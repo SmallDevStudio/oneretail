@@ -13,6 +13,7 @@ export default function ExaminationsForm({ handleCloseForm, isEditExamination, m
     const [examination, setExamination] = useState({});
     const [questions, setQuestions] = useState([]);
     const [question, setQuestion] = useState('');
+    const [description, setDescription] = useState('');
     const [options, setOptions] = useState(['', '', '', '']);
     const [correctAnswer, setCorrectAnswer] = useState(0);
     const [questionIndex, setQuestionIndex] = useState(0);
@@ -70,6 +71,7 @@ export default function ExaminationsForm({ handleCloseForm, isEditExamination, m
                     return {
                         ...q,
                         question: question,
+                        description: description,
                         options: options,
                         correctAnswer: correctAnswer,
                     };
@@ -83,6 +85,7 @@ export default function ExaminationsForm({ handleCloseForm, isEditExamination, m
             const newQuestion = { 
                 _id: null, // ใช้ null สำหรับคำถามใหม่
                 question: question, 
+                description: description,
                 options: options, 
                 correctAnswer: correctAnswer,
             };
@@ -94,6 +97,7 @@ export default function ExaminationsForm({ handleCloseForm, isEditExamination, m
 
     const handleClearQuestion = () => {
         setQuestion(''); // Clear the question input field
+        setDescription('');
         setOptions(['', '', '', '']);
         setCorrectAnswer(0);
         setShowQuestionForm(false);
@@ -102,6 +106,7 @@ export default function ExaminationsForm({ handleCloseForm, isEditExamination, m
     const handleAddQuestion = () => {
         setQuestionIndex(questionIndex + 1);
         setQuestion(''); // Clear the question input field
+        setDescription('');
         setOptions(['', '', '', '']);
         setCorrectAnswer(0);
         showQuestionForm ? setShowQuestionForm(false) : setShowQuestionForm(true);
@@ -115,6 +120,7 @@ export default function ExaminationsForm({ handleCloseForm, isEditExamination, m
     const handleEditQuestion = (index) => {
         const question = questions[index];
         setQuestion(question.question);
+        setDescription(question.description);
         setOptions(question.options);
         setCorrectAnswer(question.correctAnswer);
         setQuestionIndex(index);
@@ -247,21 +253,22 @@ export default function ExaminationsForm({ handleCloseForm, isEditExamination, m
                     {error.title && <span className="text-red-500">{error.title}</span>}
                 </div>
 
-                <div className="flex flex-row items-center gap-2 w-full">
+                <div className="flex flex-row gap-2 w-full">
                     <label 
                         htmlFor="description"
                         className="col-span-1 text-md font-bold"
                     >
                         รายละเอียด:
                     </label>
-                    <input 
+                    <textarea 
                         type="text" 
                         name="description" 
                         id="description"
-                        className="flex border border-gray-300 rounded-full p-2 w-1/2"
+                        className="flex border border-gray-300 rounded-lg p-2 w-1/2"
                         value={examination.description} 
                         onChange={(e) => setExamination({...examination, description: e.target.value})}
                         placeholder="กรอกรายละเอียดข้อสอบ"
+                        rows={4}
                     />
                 </div>
 
@@ -339,88 +346,109 @@ export default function ExaminationsForm({ handleCloseForm, isEditExamination, m
                 </div>
 
                 {showQuestionForm && (
-                    <div className="flex flex-col w-full gap-2">
-                    <div className="flex flex-row items-center gap-2 w-full">
-                        <label 
-                            htmlFor="question"
-                            className="col-span-1 text-md font-bold"
-                        >
-                            คำถาม:
-                        </label>
-                        <input 
-                            type="text" 
-                            name="question" 
-                            id="question"
-                            className="flex border border-gray-300 rounded-full p-2 w-1/2"
-                            value={question} 
-                            onChange={(e) => setQuestion(e.target.value)}
-                            placeholder="กรอกคําถาม"
-                        />
+                    <div className="flex flex-col w-full border border-gray-300 rounded-lg p-2 shadow-xl gap-2">
+                        <span className="text-lg text-[#0056FF] font-bold">{isEditQuestion ? 'แก้ไขข้อสอบ' : 'เพิ่มข้อสอบ'}</span>
+                        <div className="flex flex-row items-center gap-2 w-full">
+                            <label 
+                                htmlFor="question"
+                                className="col-span-1 text-md font-bold"
+                            >
+                                คำถาม:
+                            </label>
+                            <input 
+                                type="text" 
+                                name="question" 
+                                id="question"
+                                className="flex border border-gray-300 rounded-full p-2 w-1/2"
+                                value={question} 
+                                onChange={(e) => setQuestion(e.target.value)}
+                                placeholder="กรอกคําถาม"
+                            />
+                        </div>
+
+                        <div className="flex flex-row gap-2 w-full">
+                            <label 
+                                htmlFor="description"
+                                className="col-span-1 text-md font-bold"
+                            >
+                                รายละเอียด:
+                            </label>
+                            <textarea
+                                type="text" 
+                                name="description" 
+                                id="description"
+                                className="flex border border-gray-300 rounded-lg p-2 w-1/2"
+                                value={description} 
+                                onChange={(e) => setDescription(e.target.value)}
+                                placeholder="กรอกรายละเอียด"
+                                rows="2"
+                            />
+                        </div>
+
+
+                        <div className="flex flex-col items-center gap-2 w-full">
+                            {options.map((option, index) => (
+                                <div className="flex flex-row items-center gap-2 w-full" key={index}>
+                                    <label 
+                                        htmlFor={`option-${index}`}
+                                        className="col-span-1 text-md font-bold"
+                                    >
+                                        คําตอบ {index + 1}:
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        name={`option-${index}`} 
+                                        id={`option-${index}`}
+                                        className="flex border border-gray-300 rounded-full p-2 w-5/6"
+                                        value={option} 
+                                        onChange={(e) => handleOptionChange(index, e.target.value)}
+                                        placeholder={`กรอกคําตอบ ${index + 1}`}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="flex flex-row items-center gap-2 w-full">
+                            <label 
+                                htmlFor="correctAnswer"
+                                className="col-span-1 text-md font-bold"
+                            >
+                                คําตอบถูกต้อง:
+                            </label>
+                            <select 
+                                name="correctAnswer" 
+                                id="correctAnswer"
+                                className="flex border border-gray-300 rounded-full p-2 w-1/2"
+                                value={correctAnswer} 
+                                onChange={(e) => setCorrectAnswer(e.target.value)}
+                            >
+                                {options.map((option, index) => 
+                                    option !== '' ? (
+                                        <option key={index} value={index}>
+                                            คําตอบ {index + 1} - {option}
+                                        </option>
+                                    ) : null
+                                )}
+                            </select>
+                        </div>
+
+                        <div className="flex flex-row items-center text-sm gap-2 w-full">
+                            <button
+                                className="bg-blue-500 text-white font-bold py-2 px-4 text-sm rounded-full"
+                                onClick={handleSubmitQuestion}
+                            >
+                                {isEditQuestion? 'แก้ไข' : 'บันทึกคำถาม'}
+                            </button>
+
+                            <button
+                                className="bg-red-500 text-white font-bold py-2 px-4 text-sm rounded-full"
+                                onClick={handleClearQuestion}
+                            >
+                                ลบคําถาม
+                            </button>
+                        </div>
+
                     </div>
-
-                    <div className="flex flex-col items-center gap-2 w-full">
-                        {options.map((option, index) => (
-                            <div className="flex flex-row items-center gap-2 w-full" key={index}>
-                                <label 
-                                    htmlFor={`option-${index}`}
-                                    className="col-span-1 text-md font-bold"
-                                >
-                                    คําตอบ {index + 1}:
-                                </label>
-                                <input 
-                                    type="text" 
-                                    name={`option-${index}`} 
-                                    id={`option-${index}`}
-                                    className="flex border border-gray-300 rounded-full p-2 w-5/6"
-                                    value={option} 
-                                    onChange={(e) => handleOptionChange(index, e.target.value)}
-                                    placeholder={`กรอกคําตอบ ${index + 1}`}
-                                />
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="flex flex-row items-center gap-2 w-full">
-                        <label 
-                            htmlFor="correctAnswer"
-                            className="col-span-1 text-md font-bold"
-                        >
-                            คําตอบถูกต้อง:
-                        </label>
-                        <select 
-                            name="correctAnswer" 
-                            id="correctAnswer"
-                            className="flex border border-gray-300 rounded-full p-2 w-1/2"
-                            value={correctAnswer} 
-                            onChange={(e) => setCorrectAnswer(e.target.value)}
-                        >
-                            {options.map((option, index) => 
-                                option !== '' ? (
-                                    <option key={index} value={index}>
-                                        คําตอบ {index + 1} - {option}
-                                    </option>
-                                ) : null
-                            )}
-                        </select>
-                    </div>
-
-                    <div className="flex flex-row items-center text-sm gap-2 w-full">
-                        <button
-                            className="bg-blue-500 text-white font-bold py-2 px-4 text-sm rounded-full"
-                            onClick={handleSubmitQuestion}
-                        >
-                            {isEditQuestion? 'แก้ไข' : 'บันทึกคำถาม'}
-                        </button>
-
-                        <button
-                            className="bg-red-500 text-white font-bold py-2 px-4 text-sm rounded-full"
-                            onClick={handleClearQuestion}
-                        >
-                            ลบคําถาม
-                        </button>
-                    </div>
-
-                </div>
                 )}
 
                 <div className="flex flex-row items-center justify-center gap-2 w-full mt-4">
