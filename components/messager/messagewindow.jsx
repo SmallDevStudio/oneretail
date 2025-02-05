@@ -540,12 +540,12 @@ export default function MessageWindows({ selectedChat, handleClose }) {
                   className={`flex max-w-xs ${
                     msg.senderId === session?.user?.id
                       ? msg.isDeleted
-                        ? "text-xs text-gray-500 self-end"
+                        ? "text-xs self-end"
                         : msg.sticker || msg.image || msg.video || msg.files
                         ? "flex flex-col gap-1"
                         : "bg-[#0056FF] text-white self-end"
                       : msg.isDeleted
-                      ? "text-xs text-gray-500 self-end"
+                      ? "text-xs self-end"
                       : "bg-gray-300 text-black self-start"
                   } px-2 py-1 rounded-lg`}
                 >
