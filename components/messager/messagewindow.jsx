@@ -546,7 +546,7 @@ export default function MessageWindows({ selectedChat, handleClose }) {
                         : "bg-[#0056FF] text-white self-end"
                       : msg.isDeleted
                       ? "text-xs self-end"
-                      : "bg-gray-300 text-black self-start"
+                      : "text-black self-start"
                   } px-2 py-1 rounded-lg`}
                 >
                   
