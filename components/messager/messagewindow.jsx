@@ -65,7 +65,10 @@ export default function MessageWindows({ selectedChat, handleClose }) {
   const router = useRouter();
 
   const chatWindowRef = useRef(null); // สำหรับเลื่อนหน้าแชท
+  const messageRefs = useRef({});
   const menuRef = useRef(null); // ใช้ตรวจจับคลิกข้างนอกเมนู
+  const longPressTimeout = useRef(null);
+
   const fileInputRef = useRef(null);
   const imageInputRef = useRef(null);
   const {
@@ -300,12 +303,24 @@ export default function MessageWindows({ selectedChat, handleClose }) {
   };
 
   // การเปิดเมนูเมื่อกดค้าง
-  const handleLongPress = (e, message) => {
-    e.preventDefault();
-    const x = e.clientX || e.touches?.[0]?.clientX;
-    const y = e.clientY || e.touches?.[0]?.clientY;
-    setMenuMessage(message); // กำหนดข้อความปัจจุบันสำหรับเมนู
-    setMenuPosition({ x, y });
+  const handleLongPressStart = (e, message) => {
+    e.preventDefault(); // ป้องกันการเปิด context menu บนมือถือ
+    longPressTimeout.current = setTimeout(() => {
+        // ตรวจสอบตำแหน่งของข้อความที่กด
+        const messageRef = messageRefs.current[message.id];
+        if (!messageRef?.getBoundingClientRect) return;
+
+        const rect = messageRef.getBoundingClientRect();
+        const x = rect.left + rect.width / 2; // กึ่งกลางข้อความ
+        const y = rect.bottom + 10; // ใต้ข้อความ
+
+        setMenuMessage(message);
+        setMenuPosition({ x, y });
+    }, 500); // ตั้งเวลาว่าเมื่อกดค้าง 500ms ให้เปิดเมนู
+  };
+
+  const handleLongPressEnd = () => {
+    clearTimeout(longPressTimeout.current); // ถ้าปล่อยก่อน 500ms ให้ยกเลิก
   };
 
   // ฟังก์ชันปิดเมนู
@@ -317,20 +332,22 @@ export default function MessageWindows({ selectedChat, handleClose }) {
 
   // ใช้ effect เพื่อตรวจจับคลิกข้างนอกเมนู
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        closeMenu();
-      }
+    const handleClickOutside = (event) => {
+        if (menuRef.current && !menuRef.current.contains(event.target)) {
+            closeMenu();
+        }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("touchstart", handleClickOutside);
+    if (menuMessage) {
+        document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("touchstart", handleClickOutside);
+    }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("touchstart", handleClickOutside);
+        document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener("touchstart", handleClickOutside);
     };
-  }, []);
+  }, [menuMessage]);
 
   const handleDeletedReply = () => {
     setReplyTo(null);
@@ -488,8 +505,13 @@ export default function MessageWindows({ selectedChat, handleClose }) {
         {messages.map((msg) => (
           <div
             key={msg.id}
+            ref={(el) => (messageRefs.current[msg.id] = el)}
             className={`flex flex-col ${msg.senderId === session?.user?.id ? "justify-end" : "justify-start"} w-full gap-1`}
-            onContextMenu={(e) => handleLongPress(e, msg)}
+            onTouchStart={(e) => handleLongPressStart(e, msg)} // รองรับมือถือ
+            onMouseDown={(e) => handleLongPressStart(e, msg)} // รองรับ Desktop
+            onTouchEnd={handleLongPressEnd} // ยกเลิกถ้าปล่อยก่อนกำหนด
+            onMouseUp={handleLongPressEnd} // ยกเลิกถ้าปล่อยก่อนกำหนด
+            onContextMenu={(e) => e.preventDefault()} // ปิดการใช้งานคลิกขวา
           >
             {/* แสดงข้อความที่อ้างอิง */}
             {msg.replyId && (
@@ -654,30 +676,32 @@ export default function MessageWindows({ selectedChat, handleClose }) {
               </div>
               
             </div>
+             {/* Popup Menu แสดงอยู่ล่างข้อความ */}
+            {menuMessage?.id === msg.id && (
+              <div
+                ref={menuRef}
+                style={{
+                    position: "absolute",
+                    left: `${menuPosition.x}px`,
+                    top: `${menuPosition.y}px`,
+                    transform: "translate(-50%, 10px)",
+                }}
+              >
+                <MessagePopupMenu
+                    message={menuMessage}
+                    onCopy={handleCopyMessage}
+                    onReply={setReplyTo}
+                    onDelete={handleDeleteMessage}
+                    onLike={handleLikeMessage}
+                    closeMenu={closeMenu}
+                />
+              </div>
+            )}
 
           </div>
         ))}
 
-        {/* Popup Menu */}
-        {menuMessage && (
-          <div
-            ref={menuRef}
-            style={{
-              position: "absolute",
-              left: `${menuPosition.x}px`,
-              top: `${menuPosition.y}px`,
-            }}
-          >
-            <MessagePopupMenu
-              message={menuMessage}
-              onCopy={handleCopyMessage}
-              onReply={setReplyTo}
-              onDelete={handleDeleteMessage}
-              onLike={handleLikeMessage}
-              closeMenu={closeMenu}
-            />
-          </div>
-        )}
+       
 
       {/* Snackbar สำหรับแสดงผลแจ้งเตือน */}
       <Snackbar

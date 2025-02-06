@@ -68,7 +68,7 @@ const Reward = () => {
               index + 1 <= currentDay ? 'bg-[#0056FF] text-white' : 'bg-gray-200 text-gray-300'
             }`}
           >
-            <span className="text-sm font-bold"> {index + 1} Day</span>
+            <span className="text-sm font-bold">Day {index + 1}</span>
           </motion.div>
         ))}
       </div>

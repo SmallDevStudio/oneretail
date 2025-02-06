@@ -50,6 +50,7 @@
     "firebase-admin": "^13.0.2",
     "formidable": "^3.5.1",
     "formik": "^2.4.6",
+    "framer-motion": "^12.4.0",
     "fs": "^0.0.1-security",
     "immer": "^10.1.1",
     "iron-session": "^8.0.1",

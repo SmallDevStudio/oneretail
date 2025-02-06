@@ -1,11 +1,9 @@
-// models/UserReward.js
 import mongoose from 'mongoose';
 
 const UserRewardSchema = new mongoose.Schema({
-  userId: { type: String, required: true },
-  date: { type: Date, default: Date.now },
-  day: { type: Number, required: true },
-  points: { type: Number, required: true },
+  userId: { type: String, ref: 'Users', required: true, unique: true },
+  dayLogged: { type: Number, required: true, default: 0 },
+  lastRewardDate: { type: Date, default: null },
 });
 
 export default mongoose.models.UserReward || mongoose.model('UserReward', UserRewardSchema);
