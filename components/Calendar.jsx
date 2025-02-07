@@ -110,7 +110,7 @@ const CustomCalendar = () => {
         }
     };
 
-    console.log(user);
+    console.log('selectedEvent:', selectedEvent);
 
     return (
         <div className='flex flex-col items-center justify-center w-full'>
@@ -177,18 +177,19 @@ const CustomCalendar = () => {
                         <p className='text-md mb-4'>{selectedEvent.description}</p>
                         
                         <div className='flex flex-row gap-2 items-center'>
-                            <span className='text-sm text-[#F68B1F]'>
+                            <div className='text-sm text-[#F68B1F]'>
                                 <Image
                                     src="/images/other/location-01.svg"
                                     alt="avatar"
                                     width={20}
                                     height={20}
                                     className='rounded-full'
+                                    onClick={selectedEvent.mapLocation? () => window.open(`${selectedEvent.mapLocation}`) : () => {}}
                                 />
                                 {selectedEvent.location}
-                            </span>
-                            <Link href={selectedEvent.link? selectedEvent.link : '#'} target={selectedEvent.link? '_blank' : '_self'}>
-                                <p className='text-sm font-bold'>{selectedEvent.mapLocation} - {selectedEvent.place}</p>
+                            </div>
+                            <Link href={selectedEvent.mapLocation? selectedEvent.mapLocation : '#'} target={selectedEvent.mapLocation? '_blank' : '_self'}>
+                                <p className='text-sm font-bold'>{selectedEvent.place}</p>
                             </Link>
                         </div>
                         {user.role === 'admin' && (
