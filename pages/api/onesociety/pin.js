@@ -7,8 +7,8 @@ export default async function handler(req, res) {
     
     switch (method) {
         case "POST":
-            try {
-                const { postId, userId, pinned } = req.body;
+            const { postId, userId, pinned } = req.body;
+                
                 let hasPinned = true
                 
                 if (pinned = true) {
@@ -17,6 +17,7 @@ export default async function handler(req, res) {
                     hasPinned = true
                 }
 
+            try {
                 const pinPost = await PinPost.findOne({ postId: postId});
 
                 if (pinPost) {
