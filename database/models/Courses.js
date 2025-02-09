@@ -8,6 +8,7 @@ const coursesSchema = new mongoose.Schema({
     active: { type: Boolean, default: true },
     driveUrl: { type: String },
     galleryId: { type: String, ref: 'Gallery' },
+    questionnairesActive: { type: Boolean, default: true },
     creator: { type: String, ref: 'Users', required: true },
 }, { timestamps: true });
 

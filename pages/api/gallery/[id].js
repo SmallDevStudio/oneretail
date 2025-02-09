@@ -1,5 +1,7 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
 import Gallery from "@/database/models/Gallery";
+import GalleryStore from "@/database/models/GalleryStore";
+import { ObjectId } from "mongodb";
 
 export default async function handler(req, res) {
     const { method } = req;
@@ -9,7 +11,9 @@ export default async function handler(req, res) {
     switch (method) {
         case "GET":
             try {
-                const gallery = await Gallery.findById(id);
+                const gallery = await Gallery.findById(id).sort({ createdAt: -1 });
+                const subGallery = await GalleryStore.find({ galleryId: ObjectId(id) });
+                gallery.subGallery = subGallery? subGallery : null;
                 res.status(200).json({ success: true, data: gallery });
             } catch (error) {
                 res.status(400).json({ success: false });

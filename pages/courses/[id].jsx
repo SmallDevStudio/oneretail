@@ -44,6 +44,7 @@ const Review = () => {
     const [openSuggestion, setOpenSuggestion] = useState(false);
     const [suggestion, setSuggestion] = useState('');
     const [hasGallery, setHasGallery] = useState(false);
+    const [questionnairesActive, setQuestionnairesActive] = useState(false);
     const [anonymous, setAnonymous] = useState(false);
 
     const router = useRouter();
@@ -60,6 +61,14 @@ const Review = () => {
     });
 
     const { data: user } = useSWR(`/api/users/${session.user.id}`, fetcher);
+
+    useEffect(() => {
+        if (courses.questionnairesActive === false) {
+            setQuestionnairesActive(false);
+        } else {
+            setQuestionnairesActive(true);
+        }
+    }, [courses.questionnairesActive]);
 
     useEffect(() => {
         if (questionnaires) {
@@ -264,8 +273,6 @@ const Review = () => {
     if (isLoading || !courses || !questionnaires ) return <Loading />;
     if (error) return <div>Failed to load</div>;
 
-    console.log('suggestions', suggestions);
-
     return (
         <div className='flex flex-col p-2 w-full'>
             <div className='flex flex-row justify-between items-center'>
@@ -399,7 +406,7 @@ const Review = () => {
 
                 {/* Toolbar */}
                 <div className="fixed flex flex-col bottom-20 bg-white mt-2 w-full gap-2">
-                   {!hasQuestionnaire && 
+                   {questionnairesActive && !hasQuestionnaire && 
                      <div 
                         onClick={handleOpenForm} 
                         className="flex flex-row items-center text-sm text-[#0056FF] gap-2 w-full"

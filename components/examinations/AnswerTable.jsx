@@ -242,7 +242,7 @@ export default function AnswerTable({ answers }) {
                     <div className="flex flex-col gap-2 mt-4">
                         <div className="flex flex-row justify-between gap-2">
                             <div>
-                                <span className="font-bold">จำนวนคำตอบ: <span className="text-[#0056FF]">{exportAnswers.length}</span></span>
+                                <span className="font-bold">จำนวนคำตอบ: <span className="text-[#0056FF]">{exportAnswers?.length}</span></span>
                             </div>
                             <div className="flex flex-row gap-2">
                                 <div className="flex flex-row items-center gap-2">

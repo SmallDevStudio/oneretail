@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     switch (method) {
         case "GET":
             try {
-                const gallery = await Gallery.find();
+                const gallery = await Gallery.find().sort({ createdAt: -1 });
                 res.status(200).json({ success: true, data: gallery });
             } catch (error) {
                 res.status(400).json({ success: false });

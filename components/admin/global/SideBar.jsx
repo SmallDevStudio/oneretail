@@ -304,6 +304,18 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                   setSelected={setSelected}
                   />
 
+                <SubMenu
+                title="จัดการ Gallery"
+                icon={<GoFileMedia />}
+                >
+                  <Item
+                  title="จัดการ Gallery"
+                  to="/admin/galleries"
+                  icon={<GoFileMedia />}
+                  selected={selected}
+                  setSelected={setSelected}
+                  />
+
                   <Item
                   title="จัดการ Media"
                   to="/admin/medias"
@@ -311,6 +323,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                   selected={selected}
                   setSelected={setSelected}
                   />
+                </SubMenu>
               
 
                 <SubMenu

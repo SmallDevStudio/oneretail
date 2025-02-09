@@ -6,6 +6,7 @@ import { BsPlusSquareFill } from "react-icons/bs";
 import { FaPlusSquare, FaEdit } from "react-icons/fa";
 import { FaSquareMinus } from "react-icons/fa6";
 import { IoQrCodeSharp } from "react-icons/io5";
+import { TbReportAnalytics } from "react-icons/tb";
 import Qrcode from "../forms/Qrcode";
 import { Divider } from '@mui/material';
 import Swal from 'sweetalert2';
@@ -13,15 +14,13 @@ import Modal from "./Modal";
 
 moment.locale('th');
 
-export default function CourseTable({ courses, mutate, setIsEditing, setSelectedCourse, selectedCourse, handleShowForm }) {
+export default function CourseTable({ courses, mutate, setIsEditing, setSelectedCourse, selectedCourse, handleShowForm, handleShowReport }) {
     const [selectedQuestions, setSelectedQuestions] = useState([]);
     const [openModal, setOpenModal] = useState(false);
     const [openQrModal, setOpenQrModal] = useState(false);
     const [selectedCourseId, setSelectedCourseId] = useState(null);
     const [url, setUrl] = useState('');
     const [text, setText] = useState('');
-
-    console.log('selectedQuestions:', selectedQuestions);
 
     const handleDelete = async (id) => {
         const resolt = await Swal.fire({
@@ -46,10 +45,21 @@ export default function CourseTable({ courses, mutate, setIsEditing, setSelected
     };
 
     const handleUpdateActive = async (id, active) => {
-        console.log('active:', active);
 
         try {
             await axios.put(`/api/courses/active?id=${id}`, {
+                active: active
+            });
+            mutate();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleUpdateQuestionActive = async (id, active) => {
+
+        try {
+            await axios.put(`/api/courses/questionactive?id=${id}`, {
                 active: active
             });
             mutate();
@@ -89,6 +99,11 @@ export default function CourseTable({ courses, mutate, setIsEditing, setSelected
         setOpenQrModal(false);
     };
 
+    const handleReport = (course) => {
+        setSelectedCourse(course);
+        handleShowReport();
+    };
+
     console.log('courses:', courses);
 
     return (
@@ -101,6 +116,7 @@ export default function CourseTable({ courses, mutate, setIsEditing, setSelected
                         <th className="px-4 py-2">คําอธิบาย</th>
                         <th className="px-4 py-2 w-20">คำถาม</th>
                         <th className="px-4 py-2 w-40">สถานะ</th>
+                        <th className="px-4 py-2 w-40">เปิด/ปิดแบบสอบถาม</th>
                         <th className="px-4 py-2 w-[12%]">วันที่สร้าง</th>
                         <th className="px-4 py-2">Action</th>
                     </tr>
@@ -133,6 +149,18 @@ export default function CourseTable({ courses, mutate, setIsEditing, setSelected
                                 }
                                 </div>
                             </td>
+                            <td className="border px-4 py-2 w-32">
+                                <div 
+                                    className="flex items-center justify-center text-sm w-full cursor-pointer"
+                                    onClick={() => handleUpdateQuestionActive(course?.course?._id, !course?.course?.questionnairesActive)}
+                                >
+                                    {course?.course?.questionnairesActive ? 
+                                    <span className="bg-green-500 font-bold text-white px-4 py-0.5 rounded-full">เปิดใช้งาน</span> 
+                                    : 
+                                    <span className="bg-red-500 font-bold text-white px-4 py-0.5 rounded-full">ปิดใช้งาน</span>
+                                    }
+                                </div>
+                            </td>
                             <td className="border px-4 py-2">{moment(course?.course?.createdAt).format('lll')}</td>
                             <td className="border px-4 py-2">
                                 <div className="flex items-center space-x-2">
@@ -149,6 +177,7 @@ export default function CourseTable({ courses, mutate, setIsEditing, setSelected
                                         />
                                     </button>
                                     <IoQrCodeSharp size={25} onClick={() => handleOpenQrModal(course?.course)}/>
+                                    <TbReportAnalytics size={25} onClick={() => handleReport(course?.course)}/>
                                 </div>
                             </td>
                         </tr>

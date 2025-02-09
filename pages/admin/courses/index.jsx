@@ -8,6 +8,8 @@ import CourseTable from "@/components/courses/CourseTable";
 import Header from "@/components/admin/global/Header";
 import { AdminLayout } from "@/themes";
 import Loading from "@/components/Loading";
+import Report from "@/components/courses/Report";
+import Modal from "@/components/Modal";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -16,8 +18,10 @@ const Courses = () => {
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [showForm, setShowForm] = useState(false);
-    const { data: session } = useSession();
+    const [showReport, setShowReport] = useState(false);
+
     const router = useRouter();
+    const { data: session } = useSession();
 
     const { data, error, mutate, isLoading } = useSWR("/api/courses/admin", fetcher, {
         onSuccess: (data) => {
@@ -29,7 +33,14 @@ const Courses = () => {
         setShowForm(!showForm);
     };
 
-    console.log('courses:', courses);
+    const handleShowReport = () => {
+        setShowReport(!showReport);
+    };
+
+    const handleCloseReport = () => {
+        setShowReport(false);
+        setSelectedCourse(null);
+    };
 
     if (isLoading) return <Loading />;
     if (error) return <div>Failed to load</div>;
@@ -53,19 +64,29 @@ const Courses = () => {
                     setSelectedCourse={setSelectedCourse}
                     selectedCourse={selectedCourse}
                     handleShowForm={handleShowForm}
-
+                    handleShowReport={handleShowReport}
                 />
             </div>
             {showForm && (
                 <CourseForm 
-                mutate={mutate} 
-                userId={session?.user?.id} 
-                editData={selectedCourse}
-                isEditing={isEditing}
-                setIsEditing={setIsEditing}
-                handleShowForm={handleShowForm}
-                setSelectedCourse={setSelectedCourse}
-            />
+                    mutate={mutate} 
+                    userId={session?.user?.id} 
+                    editData={selectedCourse}
+                    isEditing={isEditing}
+                    setIsEditing={setIsEditing}
+                    handleShowForm={handleShowForm}
+                    setSelectedCourse={setSelectedCourse}
+                />
+            )}
+            {showReport && (
+                <Modal
+                    open={showReport}
+                    onClose={handleCloseReport}
+                >
+                    <Report 
+                        course={selectedCourse}
+                    />
+                </Modal>
             )}
         </div>
     );
