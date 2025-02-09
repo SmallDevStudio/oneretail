@@ -45,6 +45,7 @@ export default async function handler(req, res) {
                                 question._id,
                                 {
                                     question: question.question,
+                                    description: question.description,
                                     options: question.options,
                                     correctAnswer: question.correctAnswer,
                                 },
@@ -55,6 +56,7 @@ export default async function handler(req, res) {
                             // Create new question
                             const newQuestion = new ExamQuestions({
                                 question: question.question,
+                                description: question.description,
                                 options: question.options,
                                 correctAnswer: question.correctAnswer,
                             });

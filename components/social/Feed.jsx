@@ -22,7 +22,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const Feed = ({ user, posts }) => {
+const Feed = ({ user, posts, mutate }) => {
     const { data: session } = useSession();
     const [showComments, setShowComments] = useState({});
     const [showReply, setShowReply] = useState({});
@@ -54,6 +54,8 @@ const Feed = ({ user, posts }) => {
             setLikes(initialLikes);
         }
     }, [posts, session]);
+
+    console.log(posts);
 
     const handleOptionClick = (event, type, id) => {
         setAnchorEl(event.currentTarget);
@@ -312,6 +314,21 @@ const Feed = ({ user, posts }) => {
             }
         }
     };
+
+    const handlePin = async (postId, pinned) => {
+        try {
+            await axios.post('/api/onesociety/pin', {
+                postId: postId,
+                userId: session?.user?.id,
+                pinned: pinned
+            });
+            mutate();
+            
+        } catch (error) {
+            console.error(error);
+            Swal.fire('Error!', 'There was an issue pinning the post.', 'error');
+        }
+    }
     
     const handleCommentDelete = async (commentId) => {
         const result = await Swal.fire({
@@ -460,7 +477,10 @@ const Feed = ({ user, posts }) => {
                                             )}
                                         </div>
                                         </div>
-                                        <span className="text-gray-500 text-xs">{moment(post?.createdAt).fromNow()}</span>
+                                        <div className="flex flex-row items-center gap-2">
+                                            <span className="text-gray-500 text-xs">{moment(post?.createdAt).fromNow()}</span>
+                                            {post?.hasPin && <span className="text-gray-500 text-xs">ได้รับการปักหมุด</span>}
+                                        </div>
                                 </div>
                             </div>
                             
@@ -476,7 +496,9 @@ const Feed = ({ user, posts }) => {
                                                 paper: "text-xs",
                                                 }}
                                         >
+                                            <MenuItem onClick={() => { handlePin(currentOption.id, post.hasPin); handleOptionClose(); }}>{post.hasPin ? 'Unpin' : 'Pin'}</MenuItem>
                                             <MenuItem onClick={() => { handleDelete(currentOption.id); handleOptionClose(); }}>Delete</MenuItem>
+
                                         </Menu>
                                     </div>
                                 )}

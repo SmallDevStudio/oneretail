@@ -40,6 +40,8 @@ export default function ExaminationsForm({ handleCloseForm, isEditExamination, m
         }
     }, [isEditExamination]);
 
+    console.log('questions', questions);
+
     const handleOptionChange = (index, value) => {
         const newOptions = [...options];
         newOptions[index] = value;
@@ -145,6 +147,7 @@ export default function ExaminationsForm({ handleCloseForm, isEditExamination, m
                 questions: questions.map((question) => ({
                     _id: question._id ? question._id : null,
                     question: question.question,
+                    description: question.description,
                     options: question.options,
                     correctAnswer: question.correctAnswer,
                 })),
@@ -219,6 +222,7 @@ export default function ExaminationsForm({ handleCloseForm, isEditExamination, m
         setExamination({}); // Clear the examination object
         setQuestions([]); // Clear the questions array
         setQuestion(''); // Clear the question input field
+        setDescription('');
         setOptions(['', '', '', '']);
         setCorrectAnswer(0);
         setQuestionIndex(0);

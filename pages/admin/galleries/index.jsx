@@ -58,11 +58,11 @@ const Galleries = () => {
                 </thead>
                 <tbody>
                     {gallery.map((item, index) => (
-                        <tr key={item.id} className="border text-center text-sm">
+                        <tr key={index} className="border text-center text-sm">
                             <td className="border px-2 py-1">{index + 1}</td>
                             <td className="border px-2 py-1">{item.title}</td>
                             <td className="border px-2 py-1">{item.description}</td>
-                            <td className="border px-2 py-1">{item.folder}</td>
+                            <td className="border px-2 py-1">{item.subGallery}</td>
                             <td className="border px-2 py-1">
                                 {moment(item.created_at).format("LL")}
                             </td>

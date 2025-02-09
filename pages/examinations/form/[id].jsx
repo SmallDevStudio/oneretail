@@ -140,20 +140,27 @@ const ExaminationForm = () => {
                 {!hasCompleted ? (
                     incorrectQuestions.map((question, index) => (
                         <div key={index} className="flex flex-col my-2 text-sm">
-                            <span>{examination.questions.indexOf(question) + 1}. {question?.question}</span>
+                            <span className="font-bold">
+                                {examination.questions.indexOf(question) + 1}. {question?.question}
+                            </span>
+                            {/* วิธีที่ 1: ใช้ CSS แทน dangerouslySetInnerHTML */}
+                            <div style={{ whiteSpace: "pre-wrap" }} className="ml-2 text-gray-700">
+                                {question?.description}
+                            </div>
+
                             <div className="flex flex-col gap-1 mt-2">
-                            {question?.options?.map((option, i) => (
-                                <div key={i} className="flex flex-row items-center gap-2">
-                                    <input 
-                                        type="radio" 
-                                        name={`option-${question._id}`} 
-                                        value={option} 
-                                        onChange={() => handleOptionChange(i, question._id)} 
-                                        checked={answers.some(answer => answer.questionId === question._id && answer.answer === i)} 
-                                    />
-                                    <label>{option}</label>
-                                </div>
-                            ))}
+                                {question?.options?.map((option, i) => (
+                                    <div key={i} className="flex flex-row items-center gap-2">
+                                        <input 
+                                            type="radio" 
+                                            name={`option-${question._id}`} 
+                                            value={option} 
+                                            onChange={() => handleOptionChange(i, question._id)} 
+                                            checked={answers.some(answer => answer.questionId === question._id && answer.answer === i)} 
+                                        />
+                                        <label>{option}</label>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     ))
@@ -163,6 +170,7 @@ const ExaminationForm = () => {
                     </div>
                 )}
                 </div>
+
 
                 <div className="flex flex-row justify-center gap-4 mt-5">
                     {hasCompleted ? (
