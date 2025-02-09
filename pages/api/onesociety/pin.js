@@ -11,7 +11,7 @@ export default async function handler(req, res) {
                 
                 let hasPinned = true
                 
-                if (pinned = true) {
+                if (pinned) {
                     hasPinned = false
                 } else {
                     hasPinned = true
