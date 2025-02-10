@@ -15,12 +15,20 @@ const getDaysInMonth = (month, year) => {
 };
 
 const Loginreward = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [points, setPoints] = useState(0);
   const [welcomeBack, setWelcomeBack] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    if (status === "loading") return;
+    if (!session) return;
+
+    const userId = session?.user?.id;
+  }, [status, session]);
+
   const userId = session?.user?.id;
 
   const { data: loginData, error: loginDataError, isLoading: isLoginDataLoading, mutate } = useSWR(

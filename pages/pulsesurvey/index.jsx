@@ -13,18 +13,25 @@ const PulseSurvey = () => {
     const [loading, setLoading] = useState(false);
     const [survey, setSurvey] = useState({ value: null, memo: "" });
     const [showModal, setShowModal] = useState(false);
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const userId = session?.user?.id;
     const router = useRouter();
 
     const { data: surveyData, error: surveyError, isLoading: isSurveyLoading } = useSWR(() => userId ? `/api/survey/checkSurvey?userId=${userId}` : null, fetcher);
 
     useEffect(() => {
+        if (status === "loading") return;
+        if (!session) return;
+    
+        const userId = session?.user?.id;
+    }, [status, session]);
+
+    useEffect(() => {
         if (surveyData?.completed) {
             router.push('/ads');
         }
     }, [surveyData, router]);
-
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
