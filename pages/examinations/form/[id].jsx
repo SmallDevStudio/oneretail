@@ -20,6 +20,20 @@ const ExaminationForm = () => {
     const router = useRouter();
     const { id } = router.query;
     const { data: session, status } = useSession();
+
+    useEffect(() => {
+        if (status === "loading") return;
+        if (!session) return;
+
+        const userId = session?.user?.id;
+        // ตรวจสอบสถานะ isComplete และจัดการ incorrectQuestions
+        if (useAnswers.isComplete) {
+            setHasCompleted(true);
+            setIncorrectQuestions([]); // ไม่ต้องแสดงคำถามเมื่อทำเสร็จแล้ว
+        } 
+
+    }, [session, status, useAnswers.isComplete]);
+
     const userId = session?.user?.id;
 
     const { data: useAnswersData, error: useAnswersDataError, mutate: fetchUseAnswers } = useSWR(() => userId ? `/api/examination-answers/${id}?userId=${userId}` : null, fetcher, {
@@ -34,16 +48,6 @@ const ExaminationForm = () => {
             setIncorrectQuestions(data.data.questions);
         },
     });
-    
-    useEffect(() => {
-        if (status === "loading") return;
-        // ตรวจสอบสถานะ isComplete และจัดการ incorrectQuestions
-        if (useAnswers.isComplete) {
-            setHasCompleted(true);
-            setIncorrectQuestions([]); // ไม่ต้องแสดงคำถามเมื่อทำเสร็จแล้ว
-        } 
-
-    }, [status, useAnswers.isComplete]);
 
     const handleOptionChange = (index, questionId) => {
         const updatedAnswers = [...answers];

@@ -26,10 +26,13 @@ const ExaminationsPage = () => {
     const { data, error, isLoading } = useSWR("/api/examinations/", fetcher);
     const { data: session, status } = useSession();
     const router = useRouter();
-    const userId = session?.user?.id;
-
+   
     useEffect(() => {
-        if (status === "loading") return; // Do nothing while loading
+        if (status === "loading") return;
+        if (!session) return;
+
+        const userId = session?.user?.id;
+        
         if (session) {
             try {
                 const res = axios.get(`/api/users/${userId}`);
@@ -47,6 +50,8 @@ const ExaminationsPage = () => {
             }
         }
     }, [router, session, status, userId]);
+
+    const userId = session?.user?.id;
 
     useEffect(() => {
         if (session) {

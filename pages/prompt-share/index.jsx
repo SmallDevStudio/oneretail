@@ -24,7 +24,7 @@ moment.locale('th');
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 const FeedPage = () => {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const [posts, setPosts] = useState([]);
     const [images, setImages] = useState([]);
     const [videos, setVideos] = useState([]);
@@ -35,6 +35,15 @@ const FeedPage = () => {
 
     const router = useRouter();
 
+    useEffect(() => {
+        if (status === "loading") return;
+        if (!session) return;
+    
+        const userId = session?.user?.id;
+    }, [status, session]);
+
+    const userId = session?.user?.id;
+
     const { data, error, mutate, isValidating, isLoading } = useSWR(`/api/onesociety/feed?userId=${session?.user?.id}`, fetcher, {
         onSuccess: (data) => {
             setPosts(data.data);
@@ -43,7 +52,7 @@ const FeedPage = () => {
         }
     });
 
-    const { data: user, mutate: mutateUser } = useSWR(`/api/users/${session?.user?.id}`, fetcher);
+    const { data: user, mutate: mutateUser } = useSWR(userId ? `/api/users/${userId}` : null, fetcher);
 
     useEffect(() => {
         const tab = router.query.tab || "feed";
