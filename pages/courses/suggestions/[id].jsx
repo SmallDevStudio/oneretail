@@ -32,6 +32,14 @@ const Suggestions = () => {
     });
 
     useEffect(() => {
+        if (status === "loading") {
+            setLoading(true);
+        } else {
+            setLoading(false);
+        }
+    }, [status]);
+
+    useEffect(() => {
             if (questionnaires) {
                 const hasQuestionnaire = questionnaires.some(questionnaire => questionnaire.userId === session.user.id);
                 setHasQuestionnaire(hasQuestionnaire);

@@ -49,7 +49,7 @@ const Review = () => {
 
     const router = useRouter();
     const { id } = router.query;
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     
     const { data, error, mutate, isLoading } = useSWR(`/api/courses/ratings?id=${id}`, fetcher, {
         onSuccess: (data) => {
@@ -61,6 +61,14 @@ const Review = () => {
     });
 
     const { data: user } = useSWR(`/api/users/${session.user.id}`, fetcher);
+
+    useEffect(() => {
+        if (status === "loading") {
+            setLoading(true);
+        } else {
+            setLoading(false);
+        }
+    }, [status]);
 
     useEffect(() => {
         if (courses.questionnairesActive === false) {

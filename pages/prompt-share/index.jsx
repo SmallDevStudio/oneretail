@@ -18,6 +18,7 @@ import Notifications from "@/components/social/Notifications";
 import { AppLayout } from "@/themes";
 import Messager from "@/components/utils/Messager";
 import FeedSkeleton from "@/components/SkeletonLoader/FeedSkeleton";
+import Avatar from "@/components/utils/Avatar";
 
 moment.locale('th');
 
@@ -179,10 +180,12 @@ const FeedPage = () => {
                     <li className="me-2">
                         <div 
                             className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${activeTab === 'setting' ? 'text-[#0056FF] border-[#F2871F]' : 'border-transparent hover:text-[#0056FF] hover:border-[#F2871F]'}`}
-                            onClick={() => handleTabClick('setting')}
+                            onClick={() => router.push(`/p/${user?.user?.userId}`)}
                         >
-                            <IoIosMenu 
-                                size={35}
+                            <Avatar
+                                src={user?.user?.pictureUrl}
+                                size={32}
+                                userId={user?.user?.userId}
                             />
                         </div>
                     </li>

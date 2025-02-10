@@ -7,7 +7,6 @@ import Loading from "@/components/Loading";
 /*import MainIconMenu from "@/components/MainIconMenu";*/
 import MainIconMenu from "@/components/main/MainIconMenuNew";
 import FooterContant from "@/components/main/footContent";
-import AppLayout from "@/themes/Layout/AppLayout";
 import dynamic from "next/dynamic";
 import RecheckUser from "@/components/RecheckUser";
 import ManagerModal from "@/components/ManagerModal";
@@ -295,9 +294,5 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
             </React.Fragment>
         );
     };
-    
-    MainPage.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-    
-    MainPage.auth = true;
     
     export default MainPage;

@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
-const EventCheckInSchema = new mongoose.Schema({
+const EventCheckinSchema = new mongoose.Schema({
+    eventId: { type: String },
     title: { type: String, required: true },
     description: { type: String},
     startDate: { type: Date },
@@ -17,7 +18,8 @@ const EventCheckInSchema = new mongoose.Schema({
     note: { type: String, default: '' },
     status: { type: Boolean, default: true },
     userId: { type: String, ref: 'Users', required: true },
-    createdAt: { type: Date, default: Date.now },
+}, {
+    timestamps: true
 });
 
-export default mongoose.models.EventCheckIn || mongoose.model('EventCheckIn', EventCheckInSchema);
+export default mongoose.models.EventCheckin || mongoose.model('EventCheckin', EventCheckinSchema);

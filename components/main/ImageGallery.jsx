@@ -77,6 +77,7 @@ const ImageGallery = ({ medias, userId }) => {
                                         height={400}
                                         className="object-cover cursor-pointer"
                                         style={{ width: '100%', height: 'auto' }}
+                                        loading="lazy"
                                     />
                                 </div>
                                 <div className="flex relative bottom-8 right-1 justify-end items-center">
@@ -113,6 +114,7 @@ const ImageGallery = ({ medias, userId }) => {
                                         height={400}
                                         className="object-cover cursor-pointer"
                                         style={{ width: '100%', height: 'auto' }}
+                                        loading="lazy"
                                     />
                                 </div>
                                 <div className="flex relative bottom-10 right-2 justify-end items-center">
@@ -171,6 +173,7 @@ const ImageGallery = ({ medias, userId }) => {
                                     height={400}
                                     className="rounded-xl mt-2 object-cover cursor-pointer"
                                     style={{ width: '100%', height: 'auto' }}
+                                    loading="lazy"
                                 />
                             ) : (
                                 <div className="relative w-full">

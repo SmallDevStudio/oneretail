@@ -29,6 +29,7 @@ import moment from "moment";
 import "moment/locale/th";
 import { FaHeart } from "react-icons/fa";
 import { useRouter } from "next/router";
+import { useNotify } from "@/lib/hook/useNotify";
 
 moment.locale("th");
 
@@ -61,6 +62,7 @@ export default function MessageWindows({ selectedChat, handleClose }) {
   const [openImage, setOpenImage] = useState(false); // สถานะเปิดปิดของปุ่มรูปภาพ
   const [openVideo, setOpenVideo] = useState(false); // สถานะเปิดปิดของปุ่มวิดีโอ
   const [currentMedia, setCurrentMedia] = useState(null); // สถานะของไฟล์ที่ถูกเลือก
+  const { toastify } = useNotify();
 
   const router = useRouter();
 

@@ -13,7 +13,6 @@ import ImageGallery from "@/components/main/ImageGallery";
 import Swal from "sweetalert2";
 import moment from "moment";
 import "moment/locale/th";
-import Loading from "@/components/Loading";
 import Avatar from "@/components/utils/Avatar";
 
 moment.locale('th');
@@ -54,8 +53,6 @@ const Feed = ({ user, posts, mutate }) => {
             setLikes(initialLikes);
         }
     }, [posts, session]);
-
-    console.log(posts);
 
     const handleOptionClick = (event, type, id) => {
         setAnchorEl(event.currentTarget);
@@ -521,7 +518,7 @@ const Feed = ({ user, posts, mutate }) => {
                                         alt="sticker"
                                         width={200}
                                         height={200}
-                                        priority
+                                        loading="lazy"
                                     />
                                 </div>
                             )}
@@ -651,7 +648,7 @@ const Feed = ({ user, posts, mutate }) => {
                                                         alt="sticker"
                                                         width={100}
                                                         height={100}
-                                                        priority
+                                                        loading="lazy"
                                                     />
                                                 </div>
                                             )}
@@ -775,7 +772,7 @@ const Feed = ({ user, posts, mutate }) => {
                                                                     alt="sticker"
                                                                     width={100}
                                                                     height={100}
-                                                                    priority
+                                                                    loading="lazy"
                                                                 />
                                                             </div>
                                                         )}

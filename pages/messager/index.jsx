@@ -275,4 +275,3 @@ export default function Messages() {
   );
 }
 
-Messages.getLayout = (page) => <AppLayout>{page}</AppLayout>;

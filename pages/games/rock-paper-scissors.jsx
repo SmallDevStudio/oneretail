@@ -7,8 +7,14 @@ import Loading from "@/components/Loading";
 import { AppLayout } from "@/themes";
 
 const RockPaperScissorsPage = () => {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const router = useRouter();
+
+    useEffect(() => {
+        if (status === "loading") {
+            return <Loading />;
+        }
+    }, [session, router, status]);
 
     return (
         <>
