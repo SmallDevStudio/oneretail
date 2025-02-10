@@ -23,58 +23,34 @@ const ExaminationsPage = () => {
     const [submitted, setSubmitted] = useState(true);
     const [explanation, setExplanation] = useState('');
 
-    const { data, error, isLoading } = useSWR("/api/examinations/", fetcher);
     const { data: session, status } = useSession();
     const router = useRouter();
+    const userId = session?.user?.id ?? null;
+
+    const { data, error, isLoading } = useSWR("/api/examinations/", fetcher, {
+        revalidateOnFocus: false,
+    });
    
     useEffect(() => {
-        if (status === "loading") return;
-        if (!session) return;
-
-        const userId = session?.user?.id;
-        
-        if (session) {
-            try {
-                const res = axios.get(`/api/users/${userId}`);
-                res.then((res) => {
-                    if (res.data && 
-                        res.data.user.teamGrop !== 'AL' &&
-                        res.data.user.teamGrop !== 'Retail' &&
-                        res.data.user.teamGrop !== 'CRSG') {
-                            router.push("/main");
-                            return;
-                        }
-                });
-            } catch (error) {
-                console.error(error);
-            }
-        }
-    }, [router, session, status, userId]);
-
-    const userId = session?.user?.id;
-
-    useEffect(() => {
-        if (session) {
-            const res = axios.get(`/api/examinations/answers?userId=${userId}`);
-            res.then((res) => {
-                if (res.data && res.data.data && res.data.data.length > 0) {
-                    router.push("/main");
-                    return;
-                }
-            });
-        }
-    }, [router, session, userId]);
-
-    
-
-    useEffect(() => {
-        if (data && data.data) {
+        if (data?.data) {
             setQuestions(data.data);
         }
     }, [data]);
 
-    if (error) return <div>Failed to load</div>;
-    if (isLoading || !questions.length) return <Loading />;
+    useEffect(() => {
+        if (status !== "authenticated" || !userId) return;
+
+        axios.get(`/api/users/${userId}`)
+            .then(res => {
+                if (!["AL", "Retail", "CRSG"].includes(res.data?.user?.teamGroup)) {
+                    router.push("/main");
+                }
+            })
+            .catch(console.error);
+    }, [status, userId, router]);
+
+    if (isLoading) return <Loading />;
+    if (error || !questions.length) return <div>Failed to load</div>;
 
     const handleAnswer = async () => {
         setSubmitted(false);
