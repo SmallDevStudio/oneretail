@@ -129,5 +129,3 @@ export default function Learning() {
     )
 }
 
-Learning.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-Learning.auth = true;

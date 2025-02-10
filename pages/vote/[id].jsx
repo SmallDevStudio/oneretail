@@ -156,10 +156,4 @@ const VotePage = () => {
     );
 };
 
-VotePage.getLayout = function getLayout(page) {
-    return <AppLayout>{page}</AppLayout>;
-};
-
-VotePage.auth = true;
-
 export default VotePage;

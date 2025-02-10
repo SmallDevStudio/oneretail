@@ -17,7 +17,4 @@ const Training = () => {
   );
 };
 
-Training.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-Training.auth = true;
-
 export default Training;

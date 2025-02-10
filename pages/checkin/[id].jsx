@@ -291,6 +291,3 @@ const CheckIn = () => {
 };
 
 export default CheckIn;
-
-CheckIn.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-CheckIn.auth = true

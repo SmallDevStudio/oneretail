@@ -101,6 +101,3 @@ const LearningGen = () => {
 };
 
 export default LearningGen;
-
-LearningGen.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-LearningGen.auth = true;

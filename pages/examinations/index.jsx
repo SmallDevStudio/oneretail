@@ -348,5 +348,3 @@ const ExaminationsPage = () => {
 
 export default ExaminationsPage;
 
-ExaminationsPage.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-ExaminationsPage.auth = true;

@@ -208,5 +208,3 @@ const ExaminationForm = () => {
 
 export default ExaminationForm;
 
-ExaminationForm.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-ExaminationForm.auth = true;

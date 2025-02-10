@@ -13,12 +13,12 @@ export default async function handler(req, res) {
   switch (method) {
     case "GET":
       try {
-        // 1. ดึงโพสต์ทั้งหมดจากฐานข้อมูล (เรียงจากล่าสุดไปเก่า)
-        const posts = await Post.find({}).sort({ createdAt: -1 });
-
-        // 2. ดึงข้อมูล PinPost ที่ถูก pin (`pinned: true`)
+        // 1. ดึงข้อมูล PinPost ที่ถูก pin (`pinned: true`)
         const pinPosts = await PinPost.find({ pinned: true });
         const pinnedPostIds = pinPosts.map((pin) => pin.postId.toString());
+
+         // 2. ดึงโพสต์ทั้งหมดจากฐานข้อมูล (เรียงจากล่าสุดไปเก่า)
+         const posts = await Post.find({}).sort({ createdAt: -1 }).lean();
 
         // 3. ดึงข้อมูลผู้ใช้สำหรับโพสต์ทั้งหมด
         const userIds = posts.map((post) => post.userId);

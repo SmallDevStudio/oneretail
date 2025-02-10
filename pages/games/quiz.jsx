@@ -98,6 +98,3 @@ export default function QuizGame() {
         </Provider>
     );
 }
-
-QuizGame.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-QuizGame.auth = true;

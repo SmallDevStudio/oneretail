@@ -49,6 +49,3 @@ const Gallery = () => {
 };
 
 export default Gallery;
-
-Gallery.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-Gallery.auth = true;

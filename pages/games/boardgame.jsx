@@ -12,7 +12,4 @@ const BoardGame = () => {
     );
 };
 
-BoardGame.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-BoardGame.auth = true;
-
 export default BoardGame;

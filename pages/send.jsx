@@ -32,6 +32,3 @@ export default function Send() {
     </div>
   );
 }
-
-Send.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-Send.auth = true;

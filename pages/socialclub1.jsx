@@ -12,6 +12,3 @@ const SocialClubPage = () => {
 };
 
 export default SocialClubPage;
-
-SocialClubPage.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-SocialClubPage.auth = true;

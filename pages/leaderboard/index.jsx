@@ -243,8 +243,3 @@ export default function LeaderBoard() {
     );
 }
 
-LeaderBoard.getLayout = function getLayout(page) {
-    return <AppLayout>{page}</AppLayout>;
-}
-
-LeaderBoard.auth = true;

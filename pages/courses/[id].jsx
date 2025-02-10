@@ -51,6 +51,7 @@ const Review = () => {
     const { id } = router.query;
     const { data: session, status } = useSession();
     
+    
     const { data, error, mutate, isLoading } = useSWR(`/api/courses/ratings?id=${id}`, fetcher, {
         onSuccess: (data) => {
             setCourses(data.data);
@@ -60,15 +61,17 @@ const Review = () => {
         },
     });
 
-    const { data: user } = useSWR(`/api/users/${session.user.id}`, fetcher);
-
     useEffect(() => {
-        if (status === "loading") {
-            setLoading(true);
-        } else {
-            setLoading(false);
-        }
-    }, [status]);
+        if (status === "loading") return;
+        if (!session) return;
+    
+        const userId = session?.user?.id;
+        // ใช้ userId ได้อย่างปลอดภัยหลังจาก session โหลดเสร็จ
+    }, [status, session]);
+
+    const userId = session?.user?.id || null;
+
+    const { data: user } = useSWR(userId ? `/api/users/${userId}` : null, fetcher);
 
     useEffect(() => {
         if (courses.questionnairesActive === false) {
@@ -80,10 +83,10 @@ const Review = () => {
 
     useEffect(() => {
         if (questionnaires) {
-            const hasQuestionnaire = questionnaires.some(questionnaire => questionnaire.userId === session.user.id);
+            const hasQuestionnaire = questionnaires.some(questionnaire => questionnaire.userId === userId);
             setHasQuestionnaire(hasQuestionnaire);
         }
-    }, [questionnaires, session.user.id] );
+    }, [questionnaires, userId] );
 
     useEffect(() => {
         if (courses.galleryId !== null || courses.galleryId !== undefined || courses.galleryId !== '') {
@@ -602,6 +605,3 @@ const Review = () => {
 }
 
 export default Review;
-
-Review.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-Review.auth = true

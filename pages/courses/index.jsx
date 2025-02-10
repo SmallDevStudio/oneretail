@@ -93,5 +93,3 @@ const CoursesApp = () => {
 
 export default CoursesApp;
 
-CoursesApp.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-CoursesApp.auth = true;

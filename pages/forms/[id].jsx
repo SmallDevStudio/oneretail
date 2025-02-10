@@ -26,5 +26,3 @@ const Forms = () => {
 }
 
 export default Forms;
-Forms.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-Forms.auth = true;

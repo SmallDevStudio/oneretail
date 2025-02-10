@@ -188,6 +188,3 @@ const Pretest = () => {
 };
 
 export default Pretest;
-
-Pretest.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-Pretest.auth = true;

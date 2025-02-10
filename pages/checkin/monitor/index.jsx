@@ -106,6 +106,3 @@ const MonitorEvent = () => {
 };
 
 export default MonitorEvent;
-
-MonitorEvent.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-MonitorEvent.auth = true;

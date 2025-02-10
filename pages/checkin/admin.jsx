@@ -302,6 +302,3 @@ const AdminCheckIn = () => {
 };
 
 export default AdminCheckIn;
-
-AdminCheckIn.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-AdminCheckIn.auth = true

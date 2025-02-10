@@ -143,6 +143,4 @@ export default function Games() {
     );
 }
 
-Games.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-Games.auth = true;
 

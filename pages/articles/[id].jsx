@@ -15,6 +15,3 @@ const Article = () => {
 };
 
 export default Article;
-
-Article.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-Article.auth = true;

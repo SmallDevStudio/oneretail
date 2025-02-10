@@ -463,12 +463,3 @@ export default function Redeem() {
     );
   }
   
-  Redeem.getLayout = function getLayout(page) {
-    return (
-      <AppLayout>
-        {page}
-      </AppLayout>
-    );
-  }
-  
-  Redeem.auth = true;

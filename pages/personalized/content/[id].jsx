@@ -154,6 +154,4 @@ const Content = () => {
 
 export default Content;
 
-Content.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-Content.auth = true;
 

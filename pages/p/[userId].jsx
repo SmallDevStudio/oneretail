@@ -947,6 +947,3 @@ const ProfilePage = () => {
 };
 
 export default ProfilePage;
-
-ProfilePage.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-ProfilePage.auth = true;

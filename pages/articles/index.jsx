@@ -13,8 +13,3 @@ const ArticlesPage = () => {
 
 export default ArticlesPage;
 
-ArticlesPage.getLayout = function getLayout(page) {
-    return <AppLayout>{page}</AppLayout>;
-};
-
-ArticlesPage.auth = true;

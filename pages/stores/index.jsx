@@ -118,6 +118,3 @@ export default function Stores() {
         </main>
     );
 }
-
-Stores.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-Stores.auth = true;

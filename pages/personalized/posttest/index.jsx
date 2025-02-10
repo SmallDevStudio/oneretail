@@ -318,6 +318,3 @@ const PostTest = () => {
 };
 
 export default PostTest;
-
-PostTest.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-PostTest.auth = true;

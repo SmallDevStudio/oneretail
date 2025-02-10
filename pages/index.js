@@ -69,4 +69,3 @@ const HomePage = () => {
 
 export default HomePage;
 
-HomePage.auth = true;

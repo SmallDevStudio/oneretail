@@ -219,6 +219,3 @@ const FeedPage = () => {
 };
 
 export default FeedPage;
-
-FeedPage.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-FeedPage.auth = true;

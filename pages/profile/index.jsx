@@ -240,5 +240,3 @@ export default function Profile() {
     );
 }
 
-Profile.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-Profile.auth = true;

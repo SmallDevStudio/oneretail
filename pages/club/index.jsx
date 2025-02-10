@@ -82,6 +82,3 @@ export default function Club() {
         </div>
     );
 }
-
-Club.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-Club.auth = true;

@@ -325,6 +325,3 @@ const PersonalizedID = () => {
 }
 
 export default PersonalizedID;
-
-PersonalizedID.getLayout = (page) => <AppLayout>{page}</AppLayout>
-PersonalizedID.auth = true

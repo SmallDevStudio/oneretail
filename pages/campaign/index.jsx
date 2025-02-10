@@ -65,6 +65,3 @@ export default function Campaign() {
         </main>
     );
 }
-
-Campaign.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-Campaign.auth = true

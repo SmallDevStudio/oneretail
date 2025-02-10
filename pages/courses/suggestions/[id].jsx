@@ -21,6 +21,7 @@ const Suggestions = () => {
     const router = useRouter();
     const { id } = router.query;
     const { data: session, status } = useSession();
+    const userId = session?.user?.id;
     
     const { data, error } = useSWR(`/api/courses/ratings?id=${id}`, fetcher, {
         onSuccess: (data) => {
@@ -32,19 +33,19 @@ const Suggestions = () => {
     });
 
     useEffect(() => {
-        if (status === "loading") {
-            setLoading(true);
-        } else {
-            setLoading(false);
-        }
-    }, [status]);
+        if (status === "loading") return;
+        if (!session) return;
+    
+        const userId = session?.user?.id;
+        // ใช้ userId ได้อย่างปลอดภัยหลังจาก session โหลดเสร็จ
+    }, [status, session]);
 
     useEffect(() => {
             if (questionnaires) {
-                const hasQuestionnaire = questionnaires.some(questionnaire => questionnaire.userId === session.user.id);
+                const hasQuestionnaire = questionnaires.some(questionnaire => questionnaire.userId === userId);
                 setHasQuestionnaire(hasQuestionnaire);
             }
-    }, [questionnaires, session.user.id] );
+    }, [questionnaires, userId] );
 
     useEffect(() => {
         if (hasQuestionnaire) {
@@ -72,6 +73,3 @@ const Suggestions = () => {
 };
 
 export default Suggestions;
-
-Suggestions.getLayout = page => <AppLayout>{page}</AppLayout>;
-Suggestions.auth = true;

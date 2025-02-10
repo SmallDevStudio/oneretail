@@ -116,6 +116,3 @@ const SlugPage = () => {
 
 
 export default SlugPage;
-
-SlugPage.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-SlugPage.auth = true;

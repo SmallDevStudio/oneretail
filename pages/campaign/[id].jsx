@@ -77,6 +77,3 @@ export default function CampaignId() {
         </div>
     );
 }
-
-CampaignId.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-CampaignId.auth = true;

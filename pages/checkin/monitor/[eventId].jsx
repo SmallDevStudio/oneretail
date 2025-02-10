@@ -3,7 +3,6 @@ import axios from "axios";
 import useSWR from "swr";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { AppLayout } from "@/themes";
 import { IoIosArrowBack } from "react-icons/io";
 import moment from "moment";
 import "moment/locale/th";
@@ -13,6 +12,7 @@ import { Slide, Dialog } from "@mui/material";
 import { QRCodeCanvas } from 'qrcode.react';
 import { IoCloseCircle } from "react-icons/io5";
 import Swal from "sweetalert2";
+import Loading from "@/components/Loading";
 
 moment.locale('th');
 
@@ -32,10 +32,18 @@ const MonitorEvent = () => {
     const [open, setOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
 
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const userId = session?.user?.id;
     const router = useRouter();
     const { eventId } = router.query;
+
+    const [origin, setOrigin] = useState("");
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            setOrigin(window.location.origin);
+        }
+    }, []);
 
     const { data: checkinData, error: checkinError, mutate: checkinMutate } = useSWR(
         `/api/checkin/monitor/${eventId}`,
@@ -48,6 +56,14 @@ const MonitorEvent = () => {
             }
         }
     );
+
+    useEffect(() => {
+        if (status === "loading") return;
+        if (!session) return;
+    
+        const userId = session?.user?.id;
+        // ใช้ userId ได้อย่างปลอดภัยหลังจาก session โหลดเสร็จ
+    }, [status, session]);
 
     useEffect(() => {
         if (!events?.userJoin) return;
@@ -288,7 +304,7 @@ const MonitorEvent = () => {
                     />
                     <QRCodeCanvas 
                         id="qr-code-download"
-                        value={`${window.location.origin}/checkin/${selectedEvent}`} 
+                        value={`${origin}/checkin/${selectedEvent}`} 
                         size={220}
                         bgColor={'#fff'}
                         fgColor={'#0056FF'}
@@ -317,6 +333,3 @@ const MonitorEvent = () => {
 };
 
 export default MonitorEvent;
-
-MonitorEvent.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-MonitorEvent.auth = true;

@@ -190,6 +190,3 @@ const Salestrip = () => {
 
 export default Salestrip;
 
-Salestrip.getLayout = (page) => <AppLayout>{page}</AppLayout>;
-Salestrip.auth = true;
-
