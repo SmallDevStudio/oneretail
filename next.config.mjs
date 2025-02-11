@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  trailingSlash: true, // ใช้สำหรับให้ Sitemap ถูกต้อง
   images: {
     remotePatterns: [
       {

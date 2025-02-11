@@ -6,6 +6,7 @@ import RockPaperScissors from "@/components/games/RockPaperScissors";
 import Loading from "@/components/Loading";
 
 const RockPaperScissorsPage = () => {
+    const [user, setUser] = useState(null);
     const { data: session, status } = useSession();
     const router = useRouter();
     const userId = session?.user?.id;
@@ -17,10 +18,27 @@ const RockPaperScissorsPage = () => {
             const userId = session?.user?.id;
             // ใช้ userId ได้อย่างปลอดภัยหลังจาก session โหลดเสร็จ
         }, [status, session]);
+
+    useEffect(() => {
+        if (userId) {
+            const fetchUser = async () => {
+                try {
+                    const response = await axios.get(`/api/users/${userId}`);
+                    setUser(response.data.user);
+                } catch (error) {
+                    console.error("Error fetching user:", error);
+                }
+            }
+
+            fetchUser();
+        }
+    }, [userId]);
+
     return (
         <>
             <RockPaperScissors 
-                userId={userId} 
+                userId={userId}
+                user={user}
             />
         </>
     );

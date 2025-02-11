@@ -6,8 +6,9 @@ import Loading from "../Loading";
 import Image from "next/image";
 import { IoIosArrowBack } from "react-icons/io";
 import { Divider } from "@mui/material";
+import { motion } from "framer-motion";
 
-const RockPaperScissors = ({ userId }) => {
+const RockPaperScissors = ({ userId, user }) => {
   const router = useRouter();
   const [hasPlayedToday, setHasPlayedToday] = useState(false);
   const [userScore, setUserScore] = useState(0);
@@ -22,11 +23,7 @@ const RockPaperScissors = ({ userId }) => {
   const [hasTodayPlayed, setHasTodayPlayed] = useState(false);
 
   const choices = ["rock", "paper", "scissors"];
-  const imageChoices = {
-    rock: "/images/game3/rock.png",
-    paper: "/images/game3/paper.png",
-    scissors: "/images/game3/scissors.png",
-  }
+  
   const imageIconChoices = {
     rock: "/images/game3/rock_b.png",
     paper: "/images/game3/paper_b.png",
@@ -176,71 +173,103 @@ const RockPaperScissors = ({ userId }) => {
         </div>
       
         <div className="flex flex-col mt-2">
-        <div className="flex flex-col gap-7 items-center justify-evenly p-4 min-h-[80%]">
-          {userChoice && (
-              <div className="flex flex-col items-center gap-2">
-                <Image
-                  src={imageChoices[userChoice]}
-                  alt={userChoice}
-                  width={100}
-                  height={100}
-                  className="text-[#0056FF]"
-                />
-              </div>
-            )}
-
-              <div
-                className="inline-block px-9 py-4 text-[2.5em] font-bold text-white bg-[#0056FF] rounded-full"
-              >
-                {timer}
-              </div>
-
+          <div className="flex flex-col gap-7 items-center justify-evenly p-4 min-h-[80%]">
               {cpuChoice && (
-                <div className="flex flex-col items-center gap-2">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.5 }}
+                  transition={{ duration: 0.5 }}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="flex flex-col items-center gap-1"
+                >
+                  <span className="text-xl font-bold text-[#F2871F]">OneRetail</span>
                   <Image
-                    src={imageChoices[cpuChoice]}
+                    src={imageIconChoices[cpuChoice]}
                     alt={cpuChoice}
                     width={100}
                     height={100}
                     className="text-[#F2871F]"
                   />
-                </div>
+                </motion.div>
               )}
-              
-            </div>
+
+              <div className="flex flex-col items-center w-full min-h-[80px]">
+                {result ? (
+                  <motion.div
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.5, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className={`flex flex-col items-center mt-4 py-2 px-4 rounded-full w-5/6 mb-2 ${
+                      result === "คุณชนะ!"
+                        ? "animate-bounce bg-[#0056FF]"
+                        : result === "คุณเสมอ!"
+                        ? "bg-[#F2871F] animate-bounce"
+                        : "bg-[#0056FF] animate-bounce"
+                    }`}
+                  >
+                    <span className="text-3xl font-bold text-white" onClick={handleNextRound}>
+                      {result}
+                    </span>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.5, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="inline-block px-9 py-4 text-[2.5em] font-bold text-white bg-[#0056FF] rounded-full"
+                  >
+                    {timer}
+                  </motion.div>
+                )}
+              </div>
+
+              {userChoice && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.5 }}
+                  transition={{ duration: 0.5 }}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="flex flex-col items-center gap-1"
+                >
+                  <Image
+                    src={imageIconChoices[userChoice]}
+                    alt={userChoice}
+                    width={100}
+                    height={100}
+                    className="text-[#0056FF]"
+                  />
+                  <span className="text-xl font-bold text-[#0056FF]">{user?.fullname}</span>
+                </motion.div>
+              )}
+            </div>;
          
           </div>
 
           <div className="flex flex-col items-center">
-            <div className="flex flex-row justify-evenly mt-4 gap-4 w-full">
-              {choices.map((choice) => (
-                <div
-                  key={choice}
-                >
-                  <Image
-                    src={imageIconChoices[choice]}
-                    alt={choice}
-                    width={70}
-                    height={70}
-                    className="cursor-pointer"
-                    onClick={() => handleChoiceClick(choice)}
-                  />
-                </div>
-              ))}
-            </div>
+          <div className="flex flex-row justify-evenly mt-2 mb-2 gap-4 w-full">
+            {choices.map((choice) => (
+              <div key={choice}>
+                <Image
+                  src={imageIconChoices[choice]}
+                  alt={choice}
+                  width={70}
+                  height={70}
+                  className={`cursor-pointer transition ${
+                    result ? "grayscale pointer-events-none cursor-not-allowed" : ""
+                  }`}
+                  onClick={!result ? () => handleChoiceClick(choice) : undefined}
+                />
+              </div>
+            ))}
+          </div>
             
-            <div className="flex flex-col items-center w-full min-h-[80px]">
-              {result && (
-                <div className="flex flex-col items-center mt-4 bg-[#0056FF] py-2 px-4 rounded-full w-5/6 mb-2">
-                  <span 
-                    className={`text-3xl font-bold text-white`}
-                    onClick={handleNextRound}
-                  >
-                      {result}
-                  </span>
-                </div>
-              )}
-            </div>
+            
 
           </div>
           {showModal && (
