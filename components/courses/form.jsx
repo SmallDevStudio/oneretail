@@ -127,11 +127,12 @@ export default function Form({ course, handleCloseForm }) {
                                                 const newAnswers = [...answers];
                                                 newAnswers[index] = {
                                                     questionId: question._id,
+                                                    point: optionIndex + 1,
                                                     answer: option,
                                                 };
                                                 setAnswers(newAnswers);
                                                 const newPoints = [...points];
-                                                newPoints[index] = optionIndex;
+                                                newPoints[index] = optionIndex + 1;
                                                 setPoints(newPoints);
                                             }}
                                         />

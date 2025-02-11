@@ -5,6 +5,7 @@ const QuestionnairesSchema = new mongoose.Schema({
     courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
     question: [{
         questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'ReviewQuiz', required: true },
+        point: { type: Number, required: true },
         answer: { type: String, required: true },
     }],
     suggestion: { type: String},
