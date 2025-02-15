@@ -311,8 +311,16 @@ const Review = () => {
                     
                     <div className='flex flex-row justify-between items-center mt-5 w-full'>
                         <div className='flex flex-row items-center gap-1'>
-                            <span className='text-xl font-black text-[#0056FF]'>{(rating).toFixed(2)}</span>
-                            <FaStar className='text-yellow-500' size={22}/>
+                            <span className='text-xl font-black text-[#0056FF]'>{(rating).toFixed(0)}</span>
+                            {rating > 0 ? (
+                                    Array.from({ length: rating.toFixed(0) }, (_, i) => (
+                                        <>                           
+                                            <FaStar key={i} className="text-yellow-500" size={15} />
+                                        </>
+                                    ))
+                                ) : (
+                                    <FaStar className="text-gray-200" size={15} />
+                                )}
                             <span className='text-sm font-bold text-[#0056FF] ml-1'>คะแนนหลักสูตร</span>
                             <span className='text-sm font-bold text-gray-500'>({questionnaires.length})</span>
                         </div>

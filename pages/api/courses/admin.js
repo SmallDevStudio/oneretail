@@ -37,7 +37,7 @@ export default async function handler(req, res) {
                         return {
                             course: course.toObject(),
                             questions,
-                            rating: averageRating,
+                            rating: parseFloat(averageRating.toFixed(2)), // ปัดเป็นทศนิยม 2 ตัว
                             suggestions,
                             questionnaires,
                         };

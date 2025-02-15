@@ -24,13 +24,11 @@ const CoursesApp = () => {
         },
     });
 
-    console.log('courses:', courses);
-
     if (isLoading) return <Loading />;
     if (error) return <div>Failed to load</div>;
 
     return (
-      <div className='flex flex-col p-2 w-full'>
+      <div className='flex flex-col p-2 pb-20 w-full'>
         <div className='flex flex-row justify-between items-center'>
             <div>
                 <IoIosArrowBack 
@@ -66,9 +64,9 @@ const CoursesApp = () => {
                         
                         <div className='flex flex-row justify-between items-center mt-1 w-full'>
                             <div className='flex flex-row items-center gap-1'>
-                                <span className='text-md font-bold text-[#0056FF]'>{(course.rating).toFixed(2)}</span>
+                                <span className='text-md font-bold text-[#0056FF]'>{(course.rating).toFixed(0)}</span>
                                 {course.rating > 0 ? (
-                                    Array.from({ length: course?.rating }, (_, i) => (
+                                    Array.from({ length: course?.rating.toFixed(0) }, (_, i) => (
                                         <>                           
                                             <FaStar key={i} className="text-yellow-500" size={15} />
                                         </>

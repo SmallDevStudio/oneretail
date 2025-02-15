@@ -4,7 +4,7 @@ import useSWR from 'swr';
 import Header from '@/components/admin/global/Header';
 import { AdminLayout } from '@/themes';
 import Events from '@/components/events/Events';
-import CheckIn from '@/components/events/CheckIn';
+import CheckIn from '@/components/events/CheckInnew';
 import { Divider } from '@mui/material';
 import Loading from '@/components/Loading';
 
