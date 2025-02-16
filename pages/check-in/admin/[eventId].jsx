@@ -181,7 +181,7 @@ export default function AdminCheckInID() {
                                 className="flex flex-row items-center gap-2 px-4 py-1 justify-between bg-gray-200 rounded-3xl mt-2"
                             >
                                 <div className="flex flex-row items-center gap-2 text-xs">
-                                <div className={`w-4 h-4 ${user.status ? "bg-[#0056FF] p-2 rounded-full" : "bg-red-500 p-2 rounded-full"}`}></div>
+                                <div className={`w-4 h-4 ${user.status ? "bg-green-500 p-2 rounded-full" : "bg-red-500 p-2 rounded-full"}`}></div>
                                     <div className="w-10 h-10">
                                         <Image
                                             src={user.pictureUrl}
