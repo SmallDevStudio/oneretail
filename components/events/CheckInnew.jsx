@@ -48,8 +48,6 @@ export default function CheckIn() {
         },
     });
 
-    console.log('selectedEvent:', selectedEvent);
-
     useEffect(() => {
         if (!events) return;
         

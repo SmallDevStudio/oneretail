@@ -173,7 +173,7 @@ export default function AdminCheckInID() {
                         </div>
                     </div>
                     {/* users */}
-                    <div className="flex flex-col mt-2 w-full">
+                    <div className="flex flex-col mt-2 overflow-y-auto w-full">
                         <span className="font-bold">ผู้เข้าร่วม</span>
                         {filterUsers.map((user, index) => (
                             <div 
