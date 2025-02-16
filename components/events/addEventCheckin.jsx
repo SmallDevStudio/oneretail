@@ -1,14 +1,18 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
 import useSWR from "swr";
 import DatePicker from "react-datepicker";
 import { IoIosArrowBack } from "react-icons/io";
 import { IoCloseCircle } from "react-icons/io5";
 import { FaCalendarAlt, FaClock, FaUserPlus } from 'react-icons/fa';
+import Swal from "sweetalert2";
+import { CircularProgress } from '@mui/material';
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
-export default function AddEventCheckin({ onClose }) {
+export default function AddEventCheckin({ onClose, mutate, selectedEventData }) {
     const [events, setEvents] = useState([]);
     const [filterEvents, setFilterEvents] = useState([]);
     const [searchEvent, setSearchEvent] = useState("");
@@ -27,11 +31,19 @@ export default function AddEventCheckin({ onClose }) {
         startTime: '',
         endTime: '',
         place: '',
+        location: '',
         channel: '',
         position: '',
+        remark: '',
         active: true
     });
     const [checkField, setCheckField] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+
+    const { data: session, status } = useSession();
+    const userId = session?.user.id;
+    const router = useRouter();
 
     const { data, error, isLoading } = useSWR("/api/events", fetcher,{
         onSuccess: (data) => {
@@ -45,6 +57,33 @@ export default function AddEventCheckin({ onClose }) {
         }
     });
 
+    useEffect(() => {
+        if (status === "loading") return;
+        if ( isLoading || userLoading ) return;
+    }, [isLoading, status, userLoading]);
+
+    useEffect(() => {
+        if (selectedEventData) {
+           setForm({
+                eventId: selectedEventData._id,
+                title: selectedEventData.title,
+                description: selectedEventData.description,
+                No: selectedEventData.No,
+                startDate: selectedEventData.startDate,
+                endDate: selectedEventData.endDate,
+                startTime: selectedEventData.startTime,
+                endTime: selectedEventData.endTime,
+                place: selectedEventData.place,
+                location: selectedEventData.location,
+                channel: selectedEventData.channel,
+                position: selectedEventData.position,
+                remark: selectedEventData.remark,
+                active: selectedEventData.active
+            });
+            setSelectedUsers(selectedEventData.users);
+            setIsEditing(true);
+        }
+    }, [selectedEventData]);
 
     useEffect(() => {
         if (searchEvent) {
@@ -69,8 +108,10 @@ export default function AddEventCheckin({ onClose }) {
                 startTime: selectedEvent.startTime,
                 endTime: selectedEvent.endTime,
                 place: selectedEvent.place,
+                location: selectedEvent.link || selectedEvent.mapLocation,
                 channel: selectedEvent.channel,
                 position: selectedEvent.position,
+                remark: selectedEvent.remark,
                 active: true
             });
         }
@@ -145,23 +186,76 @@ export default function AddEventCheckin({ onClose }) {
             startTime: '',
             endTime: '',
             place: '',
+            location: '',
             channel: '',
-            position: ''
+            position: '',
+            remark: '',
+            active: false
         });
         setSearchEvent(null);
         setTaggedUsers([]);
         setInputValue('');
     };
 
-    const handleAddEventCheckin = () => {
+    const handleAddEventCheckin = async () => {
+        setLoading(true);
         const data = {
             ...form,
             eventId: form.eventId ? form.eventId : null,
-            users: selectedUsers
+            users: selectedUsers,
+            creator: userId
         }
 
-        console.log('data:',data);
-        
+        try {
+            if (isEditing) {
+                const res = await axios.put(`/api/events/eventcheckin/${selectedEventData._id}`, data);
+                if (res.status === 200 || res.status === 201) {
+                    mutate();
+                    handleClear();
+                    onClose();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'แก้ไข Event Check-in สําเร็จ',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else {
+                    console.log(res);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'แก้ไข Event Check-in ไม่สําเร็จ',
+                        text: res.data.message,
+                        confirmButtonText: 'ตกลง'
+                    });
+                }
+            } else {
+                const response = await axios.post('/api/events/eventcheckin', data);
+                if (response.status === 201 || response.status === 200) {
+                    mutate();
+                    handleClear();
+                    onClose();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'เพิ่ม Event Check-in สําเร็จ',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else {
+                    console.log(response);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เพิ่ม Event Check-in ไม่สําเร็จ',
+                        text: response.data.message,
+                        confirmButtonText: 'ตกลง'
+                    });
+                }
+            }
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+
     };
 
     const handleClose = () => {
@@ -173,13 +267,20 @@ export default function AddEventCheckin({ onClose }) {
         setForm({ ...form, active: !active })
     }
 
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center w-full h-full">
+                <CircularProgress />
+            </div>
+        )
+    }
 
     return (
         <div className="flex flex-col w-full h-full">
             {/* Header */}
             <div className="flex flex-row items-center text-white bg-[#0056FF] p-4 gap-4 w-full">
                 <IoIosArrowBack size={30} onClick={handleClose}/>
-                <span className="font-bold text-xl">เพิ่ม Event Check-in</span>
+                <span className="font-bold text-xl">{isEditing ? 'แก้ไข' : 'เพิ่ม'} Event Check-in</span>
             </div>
             {/* Form */}
             <div className="flex flex-col text-sm gap-2 p-4 w-full">
@@ -240,9 +341,9 @@ export default function AddEventCheckin({ onClose }) {
                     </div>
                 </div>
 
-                <div className="flex flex-row items-center gap-2 w-full">
+                <div className="flex flex-row gap-2 w-full">
                     <label htmlFor="description" className="font-bold">รายละเอียด</label>
-                    <input
+                    <textarea
                         type="text"
                         name="description"
                         id="description"
@@ -250,6 +351,7 @@ export default function AddEventCheckin({ onClose }) {
                         onChange={(e) => setForm({ ...form, description: e.target.value })}
                         className="border border-gray-300 rounded-md p-2 w-1/2"
                         placeholder="กรอกรายละเอียด"
+                        rows="4"
                     />
                 </div>
                 <div className="flex flex-row items-center gap-2 w-full">
@@ -308,17 +410,32 @@ export default function AddEventCheckin({ onClose }) {
                         </div>
                     </div>
                 </div>
-                <div className="flex flex-row items-center gap-2 w-full">
-                    <label htmlFor="place" className="font-bold">สถานที่</label>
-                     <input
-                        type="text"
-                        name="place"
-                        id="place"
-                        value={form.place}
-                        onChange={(e) => setForm({ ...form, place: e.target.value })}
-                        className="border border-gray-300 rounded-md p-2 w-1/2"
-                        placeholder="กรอกสถานที่"
-                    />
+                <div className="flex flex-row items-center gap-2 w-full sm:grid-cols-2">
+                    <div className="flex flex-row items-center gap-2 w-full">
+                        <label htmlFor="place" className="font-bold w-16">สถานที่</label>
+                        <input
+                            type="text"
+                            name="place"
+                            id="place"
+                            value={form.place}
+                            onChange={(e) => setForm({ ...form, place: e.target.value })}
+                            className="border border-gray-300 rounded-md p-2 w-full"
+                            placeholder="กรอกสถานที่"
+                        />
+                    </div>
+
+                    <div className="flex flex-row items-center gap-2 w-full">
+                        <label htmlFor="place" className="font-bold w-16">Location</label>
+                        <input
+                            type="text"
+                            name="location"
+                            id="location"
+                            value={form.location}
+                            onChange={(e) => setForm({ ...form, location: e.target.value })}
+                            className="border border-gray-300 rounded-md p-2 w-full"
+                            placeholder="กรอก link google map"
+                        />
+                    </div>
                 </div>
 
                 <div className="flex flex-row items-center gap-2 w-full">
@@ -355,6 +472,19 @@ export default function AddEventCheckin({ onClose }) {
                             {form.active ? 'เปิดการใช้งาน' : 'ปิดการใช้งาน'}
                         </button>
                     </div>
+                </div>
+
+                <div className="flex flex-row  gap-2 w-full">
+                    <label htmlFor="remarks" className="font-bold">หมายเหตุ</label>
+                    <textarea 
+                        type="text" 
+                        id="remark"
+                        name="remark"
+                        value={form.remark}
+                        onChange={(e) => setForm({ ...form, remark: e.target.value })}
+                        className="border border-gray-300 rounded-md p-2 w-full"
+                        placeholder="กรอกรายละเอียด"
+                    />
                 </div>
             </div>
             {/* selected user */}
@@ -446,9 +576,9 @@ export default function AddEventCheckin({ onClose }) {
                         ${checkField ? 'bg-[#0056FF]' : 'bg-[#0056FF]/50'}
                         `}
                     onClick={handleAddEventCheckin}
-                    disabled={checkField ? false : true}
+                    disabled={loading ? true : checkField ? false : true}
                 >
-                    บันทึก
+                    {loading ? 'Loading...' : isEditing ? 'แก้ไข' : 'บันทึก'}
                 </button>
 
                 <button

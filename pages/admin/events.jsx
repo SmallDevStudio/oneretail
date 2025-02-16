@@ -40,13 +40,13 @@ const ManageEvents = () => {
            p-2 text-center`}
           onClick={() => setActive('checkin')}
         >
-          Check-In
+          จัดการเช็คอิน
         </button>
       </div>
 
       {active === 'events' && <Events events={events} mutate={mutate} />}
 
-      {active === 'checkin' && <CheckIn events={events} mutate={mutate} />}
+      {active === 'checkin' && <CheckIn/>}
 
     </div>
   );

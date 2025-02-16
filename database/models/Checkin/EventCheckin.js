@@ -9,15 +9,17 @@ const EventCheckinSchema = new mongoose.Schema({
     startTime: { type: String, default: '' },
     endTime: { type: String, default: '' },
     No: { type: String, default: '' },
-    type: { type: String, default: 'training' },
     position: { type: String, default: '' },
     channel: { type: String, default: '' },
     place: { type: String, default: '' },
-    mapLocation: { type: String, default: '' },
-    link: { type: String, default: '' },
-    note: { type: String, default: '' },
-    status: { type: Boolean, default: true },
-    userId: { type: String, ref: 'Users', required: true },
+    location: { type: String, default: '' },
+    active: { type: Boolean, default: true },
+    creator: { type: String, ref: 'Users', required: true },
+    users: [{ 
+        empId: { type: String, ref: 'Users' }, 
+        fullname: { type: String } 
+    }],
+    remark: { type: String, default: '' },
 }, {
     timestamps: true
 });
