@@ -311,9 +311,9 @@ const Review = () => {
                     
                     <div className='flex flex-row justify-between items-center mt-5 w-full'>
                         <div className='flex flex-row items-center gap-1'>
-                            <span className='text-xl font-black text-[#0056FF]'>{(rating).toFixed(0)}</span>
+                            <span className='text-xl font-black text-[#0056FF]'>{(rating).toFixed(2)}</span>
                             {rating > 0 ? (
-                                    Array.from({ length: rating.toFixed(0) }, (_, i) => (
+                                    Array.from({ length: rating.toFixed(2) }, (_, i) => (
                                         <>                           
                                             <FaStar key={i} className="text-yellow-500" size={15} />
                                         </>

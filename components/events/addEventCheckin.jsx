@@ -12,8 +12,7 @@ import { CircularProgress } from '@mui/material';
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
-export default function AddEventCheckin({ onClose, mutate, selectedEventData }) {
-    const [events, setEvents] = useState([]);
+export default function AddEventCheckin({ onClose, mutate, selectedEventData, events }) {
     const [filterEvents, setFilterEvents] = useState([]);
     const [searchEvent, setSearchEvent] = useState("");
     const [selectedEvent, setSelectedEvent] = useState(null);
@@ -45,11 +44,6 @@ export default function AddEventCheckin({ onClose, mutate, selectedEventData }) 
     const userId = session?.user.id;
     const router = useRouter();
 
-    const { data, error, isLoading } = useSWR("/api/events", fetcher,{
-        onSuccess: (data) => {
-            setEvents(data.data);
-        }
-    });
 
     const { data: userData, isLoading: userLoading } = useSWR("/api/users", fetcher, {
         onSuccess: (data) => {
@@ -59,8 +53,8 @@ export default function AddEventCheckin({ onClose, mutate, selectedEventData }) 
 
     useEffect(() => {
         if (status === "loading") return;
-        if ( isLoading || userLoading ) return;
-    }, [isLoading, status, userLoading]);
+        if ( userLoading ) return;
+    }, [status, userLoading]);
 
     useEffect(() => {
         if (selectedEventData) {
@@ -86,9 +80,9 @@ export default function AddEventCheckin({ onClose, mutate, selectedEventData }) 
     }, [selectedEventData]);
 
     useEffect(() => {
-        if (searchEvent) {
+        if (searchEvent && events) {
             const filteredEvents = events.filter((event) =>
-                event?.title?.toLowerCase().includes(searchEvent.toLowerCase())
+                event?.title.toLowerCase().includes(searchEvent.toLowerCase())
             );
             setFilterEvents(filteredEvents);
         } else {
@@ -275,6 +269,10 @@ export default function AddEventCheckin({ onClose, mutate, selectedEventData }) 
         )
     }
 
+    console.log('events:', events);
+    console.log('filterEvents:', filterEvents);
+    console.log('searchEvent:', searchEvent);
+
     return (
         <div className="flex flex-col w-full h-full">
             {/* Header */}
@@ -297,7 +295,7 @@ export default function AddEventCheckin({ onClose, mutate, selectedEventData }) 
                         placeholder="ค้นหาข้อมูล events"
                     />
                     {filterEvents.length > 0 && (
-                        <ul className="fixed inset-0 top-32 left-5 bg-white border border-gray-300 rounded-md list-none h-[300px] w-1/2 overflow-y-auto z-[99999]">
+                        <ul className="absolute inset-0 top-32 left-5 bg-white border border-gray-300 rounded-md list-none h-[300px] w-1/2 overflow-y-auto z-[99999]">
                             {filterEvents.map((event) => (
                                 <li 
                                     key={event._id} 

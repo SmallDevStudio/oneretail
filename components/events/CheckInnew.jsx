@@ -30,6 +30,7 @@ const fetcher = url => axios.get(url).then(res => res.data);
 
 export default function CheckIn() {
     const [events, setEvents] = useState(null);
+    const [eventsData, setEventsData] = useState([]);
     const [filteredEvents, setFilteredEvents] = useState([]);
     const [searchQuery, setSearchQuery] = useState(''); // Search query state
     const [openAddEvent, setOpenAddEvent] = useState(false);
@@ -46,6 +47,12 @@ export default function CheckIn() {
         onSuccess: (data) => {
             setEvents(data.data);
         },
+    });
+
+    const { data: eventData, error: eventError } = useSWR('/api/events', fetcher, {
+      onSuccess: (data) => {
+        setEventsData(data.data);
+      }
     });
 
     useEffect(() => {
@@ -284,6 +291,7 @@ export default function CheckIn() {
               onClose={handleCloseEvent}
               mutate={mutate}
               selectedEventData={selectedEvent}
+              events={eventsData}
             />
           </Dialog>
 
