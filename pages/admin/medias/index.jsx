@@ -106,9 +106,14 @@ const Medias = () => {
         });
     }
 
+    const handleDelete = (media) => {
+        
+    }
+
+
     return (
         <div className="flex flex-col p-4 w-full">
-            <Header title={"จัดการคลังรูปภาพ"} subtitle="จัดการข้อมูลคลังรูปภาพ" />
+            <Header title={"จัดการไฟล์"} subtitle="จัดการข้อมูลไฟล์" />
 
             <div className="flex flex-col border border-gray-200 rounded-xl mb-4">
                 {/* HEADER */}

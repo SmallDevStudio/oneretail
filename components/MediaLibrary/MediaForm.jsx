@@ -72,6 +72,7 @@ export default function MediaForm({ onClose, userId }) {
 
     const handleClose = () => {
         setFiles([]);
+        setTotalProgress(0);
         onClose();
     };
 
