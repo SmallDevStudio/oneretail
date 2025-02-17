@@ -17,44 +17,35 @@ const HomePage = () => {
     const { data: ads, error: adsError } = useSWR('/api/ads/page', fetcher);
 
     useEffect(() => {
-        if (status === "loading" || !user || !loginReward || 
-            !survey || !ads) return;
-            
-        if (status === "unauthenticated") {
-            router.push("/login");
-        }
-
-        if (!session) {
-            router.push('/login');
-            return;
-        }
+        if (status === "loading" || !user || !loginReward || !survey || !ads) return;
+    
         if (!user || user?.user === null) {
             router.push('/register');
             return;
         }
-
+    
         if(!user.user.active){
             signOut();
-            router.push('/login');
-            return;
+            return; // middleware จะจัดการพาไป login เอง
         }
+    
         if (loginReward && !loginReward.receivedPointsToday) {
             router.push('/loginreward');
             return;
         }
-
+    
         if (survey && !survey.completed) {
             router.push('/pulsesurvey');
             return;
         }
-
+    
         if (ads && ads.data.length > 0) {
             router.push('/ads');
             return;
         }
-
+    
         router.push("/main");
-
+    
     }, [status, router, session, user, loginReward, survey, ads]);
 
     if (status === "loading" || isLoading || !user || !loginReward || !survey  || !ads || isLoadingSurvey ) return <Loading />;

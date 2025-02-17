@@ -12,18 +12,14 @@ export default function Login() {
                 <Image
                     src="/dist/img/logo-one-retail.png"
                     alt="One Retail Logo"
-                    width={300}
-                    height={300}
+                    width={200}
+                    height={200}
                     sizes="100vw"
                     className="inline"
-                    priority
-                    style={{
-                        width: "300px",
-                        height: "auto",
-                    }}
+                    loading="lazy"
                 />
 
-                <div className="mt-5">
+                <div className="mt-8">
                
                     <button type="button" 
                             className="text-white bg-[#06C755] hover:bg-[#06C755]/90 focus:ring-4 focus:outline-none focus:ring-[#3b5998]/50 rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center font-semibold dark:focus:ring-[#06C755]/55 me-2 mb-2"

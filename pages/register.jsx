@@ -23,9 +23,7 @@ export default function Register() {
 
     useEffect(() => {
         if (status === "loading") return;
-        if (!session) {
-            router.push('/login');
-        }
+
     }, [status, session, router]);
 
     

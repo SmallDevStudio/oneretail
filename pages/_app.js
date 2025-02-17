@@ -38,7 +38,7 @@ function App({ Component, pageProps: { session, ...pageProps } }) {
     };
   }, [router.events]);
 
-  if (isAds || isPulseSurvey || isLogin || isRegister || isMessagerId) {
+  if (isAds || isPulseSurvey  || isLogin || isRegister || isMessagerId) {
     return (
       <SessionProvider session={session}>
         <UserActivityWrapper>
