@@ -12,10 +12,6 @@ export default function Document() {
         <link rel="icon" type="image/png" sizes="32x32" href="/dist/icons/favicon-32x32.png"/>
         <link rel="icon" type="image/png" sizes="16x16" href="/dist/icons/favicon-16x16.png"/>
         <link rel="icon" href="/dist/icons/favicon.ico"/>
-        <Script
-            src="https://upload-widget.cloudinary.com/global/all.js"
-            strategy="beforeInteractive"
-          />
       </Head>
       <body>
         <Main/>
