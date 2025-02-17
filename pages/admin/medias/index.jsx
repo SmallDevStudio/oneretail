@@ -36,7 +36,7 @@ const Medias = () => {
     const router = useRouter();
     const userId = session?.user?.id;
 
-    const { data, error, isLoading } = useSWR(`/api/library`, fetcher,{
+    const { data, error, isLoading, mutate } = useSWR(`/api/library`, fetcher,{
         onSuccess: (data) => {
             setMedia(data.data);
         },
@@ -181,6 +181,7 @@ const Medias = () => {
                     <MediaForm 
                         onClose={handleCloseForm}
                         userId={userId}
+                        mutate={mutate}
                     />
                 </div>
             </Dialog>

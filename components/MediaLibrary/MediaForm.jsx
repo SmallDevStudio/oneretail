@@ -10,7 +10,7 @@ import { firebaseUploadFile } from "@/lib/firebaseUploadFile";
 import { useDropzone } from 'react-dropzone';
 import { LinearProgress } from "@mui/material";
 
-export default function MediaForm({ onClose, userId }) {
+export default function MediaForm({ onClose, userId, mutate }) {
     const [files, setFiles] = useState([]);
     const [uploadProgress, setUploadProgress] = useState(false);
     const [totalProgress, setTotalProgress] = useState(0);
@@ -68,6 +68,7 @@ export default function MediaForm({ onClose, userId }) {
         const uploadedMedia = await Promise.all(uploadPromises);
         setFiles(uploadedMedia);
         setUploadProgress(false);
+        mutate();
     };
 
     const handleClose = () => {
