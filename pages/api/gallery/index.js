@@ -18,6 +18,7 @@ export default async function handler(req, res) {
 
         case "POST":
             try {
+                console.log(req.body);
                 const gallery = await Gallery.create(req.body);
                 res.status(201).json(gallery);
             } catch (error) {

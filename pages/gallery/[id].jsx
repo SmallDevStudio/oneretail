@@ -11,7 +11,7 @@ import Loading from "@/components/Loading";
 
 const extractFolderId = (url) => {
     const regex = /\/folders\/([a-zA-Z0-9-_]+)/;
-    const match = url.match(regex);
+    const match = url?.match(regex);
     return match ? match[1] : null;
   };
 
@@ -27,7 +27,7 @@ const Gallery = () => {
     const router = useRouter();
     const { id } = router.query;
     
-    const apiKey = process.env.YOUTUBE_API_KEY;
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
 
     useEffect(() => {
         const fetchGallery = async () => {

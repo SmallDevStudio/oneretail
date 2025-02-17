@@ -3,11 +3,12 @@ import mongoose from "mongoose";
 const gallerySchema = new mongoose.Schema({
     title: { type: String, required: true },
     description: { type: String },
-    driveUrl: { type: String, required: true },
-    folder_name: { type: String },
+    googleDriveUrl: { type: String },
     subfolder: [{
-        name: { type: String },
-        driveUrl: { type: String, required: true },
+        title: { type: String },
+        description: { type: String },
+        googleDriveUrl: { type: String},
+        keywords: { type: [String], default: [] },
         createdAt: { type: Date, default: Date.now },
         updatedAt: { type: Date, default: Date.now }
     }],
