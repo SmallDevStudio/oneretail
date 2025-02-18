@@ -37,6 +37,7 @@ export default async function handler(req, res) {
 
             const points = await Point.find({ userId: { $in: userIds } });
             const coins = await Coins.find({ userId: { $in: userIds } });
+            const levels = await Level.find().sort({ level: 1 });
 
             const populatedUsers = users.map(user => {
                 user = user.toObject();
@@ -63,6 +64,20 @@ export default async function handler(req, res) {
                     }
                     return acc;
                 }, { coins: 0, totalCoins: 0 });
+                
+                let userLevel = 1;
+                let requiredPoints = 0;
+                let nextLevelRequiredPoints = 0;
+
+                for (const level of levels) {
+                if (pointData.totalPoints >= level.requiredPoints) {
+                        userLevel = level.level;
+                        requiredPoints = level.requiredPoints;
+                    } else {
+                        nextLevelRequiredPoints = level.requiredPoints;
+                        break;
+                    }
+                }
 
                 return {
                     ...user,
@@ -78,6 +93,7 @@ export default async function handler(req, res) {
                     totalPoints: pointData.totalPoints || 0,
                     coins: coinsData.coins || 0,
                     totalCoins: coinsData.totalCoins || 0,
+                    level: userLevel,
                 };
             });
 
