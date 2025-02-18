@@ -21,7 +21,7 @@ export default async function handler(req, res) {
         res.status(400).json({ error: "Invalid YouTube URL" });
     }
 
-    const API_KEY = process.env.YOUTUBE_API_KEY;
+    const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
     const apiUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${videoId}&key=${API_KEY}`;
 
     try {
