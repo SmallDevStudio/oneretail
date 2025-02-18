@@ -24,6 +24,7 @@ function App({ Component, pageProps: { session, ...pageProps } }) {
   const isLogin = router.pathname.startsWith("/login");
   const isRegister = router.pathname.startsWith("/register");
   const isMessagerId = router.pathname.startsWith("/messager/");
+  const isShare = router.pathname.startsWith("/share/");
 
   useEffect(() => {
     initGA(process.env.NEXT_PUBLIC_GOOGLE_ID);
@@ -38,7 +39,7 @@ function App({ Component, pageProps: { session, ...pageProps } }) {
     };
   }, [router.events]);
 
-  if (isAds || isPulseSurvey  || isLogin || isRegister || isMessagerId) {
+  if (isAds || isPulseSurvey  || isLogin || isRegister || isMessagerId || isShare) {
     return (
       <SessionProvider session={session}>
         <UserActivityWrapper>

@@ -17,6 +17,9 @@ import { FaInfoCircle } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import { IoIosShareAlt } from "react-icons/io";
 import { GoDownload } from "react-icons/go";
+import { firebaseDeleteFile } from "@/lib/firebaseUploadFile";
+import { IoCopyOutline } from "react-icons/io5";
+import { QRCodeCanvas } from 'qrcode.react';
 
 moment.locale("th");
 
@@ -29,7 +32,10 @@ const fetcher = url => axios.get(url).then(res => res.data);
 const Medias = () => {
     const [media, setMedia] = useState([]);
     const [openForm, setOpenForm] = useState(false);
+    const [selectedFiles, setSelectedFiles] = useState([]);
     const [selectedMedia, setSelectedMedia] = useState(null);
+    const [startSelectedIndex, setStartSelectedIndex] = useState(null);
+    const [lastSelectedIndex, setLastSelectedIndex] = useState(null);
     const [openInfo, setOpenInfo] = useState(false);
 
     const { data: session, status } = useSession();
@@ -41,8 +47,6 @@ const Medias = () => {
             setMedia(data.data);
         },
     });
-
-    console.log('media:', media);
 
     useEffect(() => {
         if (status === "loading") return; // Do nothing while loading
@@ -57,7 +61,7 @@ const Medias = () => {
     }
 
     const handleCloseInfo = () => {
-        setSelectedMedia(null);
+        setSelectedFiles([]);
         setOpenInfo(false);
     }
 
@@ -83,32 +87,89 @@ const Medias = () => {
         }
     }
 
-    const handleSelectedMedia = (media) => {
-        setSelectedMedia(media);
-    }
-
     const handleDownload = (media) => {
-        const url = media.url;
-        const fileName = media.file_name;
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = fileName;
-        link.click();
+        const url = `/share/${media._id}`;
+        window.open(url, "_blank");
     }
 
     const handleShare = (media) => {
         const url = media.url;
         navigator.clipboard.writeText(url).then(() => {
-            toast.success("URL copied to clipboard!");
+            toast.success("URL คัดลอกไปยัง clipboard!");
         }).catch(err => {
             console.error('Error copying URL:', err);
-            toast.error("Failed to copy URL!");
+            toast.error("ไม่สามารถคัดลอก URL!");
         });
     }
 
-    const handleDelete = (media) => {
-        
+    const handleMultiSelect = (e, media, index) => {
+        if (e.ctrlKey || e.metaKey) {
+            setSelectedFiles((prev) => prev.includes(media) ? prev.filter(item => item !== media) : [...prev, media]);
+            setStartSelectedIndex(index);
+        } else if (e.shiftKey && startSelectedIndex !== null) {
+            setLastSelectedIndex(index);
+            const selectedRange = Array.from(media).slice(startSelectedIndex, lastSelectedIndex + 1);
+            setSelectedFiles([...selectedRange]);
+        } else {
+            setSelectedFiles([media]);
+            setStartSelectedIndex(index);
+            setLastSelectedIndex(null);
+        }
+    };
+
+    const handleDeleteMultiple = async () => {
+        if (!selectedFiles.length) {
+            alert("กรุณาเลือกไฟล์ที่ต้องการลบ");
+            return;
+        };
+
+        await Swal.fire({
+            title: 'คุณแน่ใจ?',
+            text: "คุณต้องการลบไฟล์ที่เลือกใช่หรือไม่?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'ใช่, ลบ!',
+            cancelButtonText: 'ยกเลิก'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await Promise.all(selectedFiles.map(async (file) => {
+                        await firebaseDeleteFile(file.file_id, "files", file.file_name);
+                        await axios.delete(`/api/library/${file._id}`);
+                    }));
+                    mutate();
+                    toast.success("ไฟล์ที่เลือกถูกลบเรียบร้อย!");
+                    setSelectedFiles([]);
+                    setStartSelectedIndex(null);
+                    setLastSelectedIndex(null);
+                } catch (error) {
+                    console.error("Error deleting files:", error);
+                }
+            }
+        });
+    };
+
+    const genereteUrl = (fileId) => {
+        const url = process.env.NEXT_PUBLIC_BASE_URL + `/share/${fileId}`;
+        return url;
     }
+
+    const handleDownloadQrCode = (fileName) => {
+        const canvas = document.getElementById("qr-code-download");
+          if (canvas) {
+            const pngUrl = canvas
+                .toDataURL("image/png")
+                .replace("image/png", "image/octet-stream");
+            let downloadLink = document.createElement("a");
+            downloadLink.href = pngUrl
+            downloadLink.download = `${fileName}-QR.png`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+    };
 
 
     return (
@@ -126,34 +187,39 @@ const Medias = () => {
                                 <BsFillFileEarmarkPlusFill size={20} />
                             </div>
                         </Tooltip>
-                        <Tooltip title="ลบไฟล์" arrow>
-                            <div className="flex p-1 bg-gray-400 text-gray-100 rounded-md hover:bg-red-500" 
-                                                            
-                            >
-                                <BsFileEarmarkMinusFill size={20} />
-                            </div>
-                        </Tooltip>
-                        <Tooltip title="รายละเอียดไฟล์" arrow>
-                            <div className="flex p-1 bg-gray-400 text-gray-100 rounded-md hover:bg-blue-500" 
-                                onClick={() => handleOpenInfo(selectedMedia)}                            
-                            >
-                                <FaInfoCircle size={20} />
-                            </div>
-                        </Tooltip>
+                        {selectedFiles.length > 0 && (
+                            <>
+                            <Tooltip title="ลบไฟล์" arrow>
+                                <div className="flex p-1 bg-gray-400 text-gray-100 rounded-md hover:bg-red-500" 
+                                    onClick={() => handleDeleteMultiple()}                              
+                                >
+                                    <BsFileEarmarkMinusFill size={20} />
+                                </div>
+                            </Tooltip>
+                            <Tooltip title="รายละเอียดไฟล์" arrow>
+                                <div className="flex p-1 bg-gray-400 text-gray-100 rounded-md hover:bg-blue-500" 
+                                    onClick={() => handleOpenInfo()}                            
+                                >
+                                    <FaInfoCircle size={20} />
+                                </div>
+                            </Tooltip>
+                            </>
+                        )}
                     </div>
                 </div>
 
                 {/* CONTENT */}
                 <div className="px-4">
                     {isLoading && <Loading />}
-                    <div className="flex flex-row gap-2 text-sm w-full">
+                    <div className="flex flex-row flex-wrap gap-2 text-sm w-full">
                         {media.map((media, index) => (
                             <div 
                                 key={index}
                                 className={`flex flex-col gap-1 max-w-[100px] p-2 cursor-pointer hover:bg-gray-100 rounded-md
-                                    ${selectedMedia?._id === media._id ? "bg-blue-100" : ""}
+                                    ${selectedFiles.includes(media) ? "bg-blue-100" : ""}
                                     `}
-                                onClick={() => handleSelectedMedia(media)}
+                                onClick={(e) => handleMultiSelect(e, media, index)}
+                                
                             >
                                 <Image 
                                     src={getFileIcon(media.type)}
@@ -197,46 +263,57 @@ const Medias = () => {
                         <span className="text-lg font-bold">รายละเอียดไฟล์</span>
                         <IoClose className="text-xl cursor-pointer" onClick={handleCloseInfo} />
                     </div>
-                    <div className="flex flex-col gap-2 p-4">
+                    <div className="flex flex-col gap-2 px-4 py-2">
                         <div className="flex flex-col gap-2 items-center">
                             <Image 
-                                src={getFileIcon(selectedMedia?.type)}
-                                alt={selectedMedia?.file_name}
+                                src={getFileIcon(selectedFiles[0]?.type)}
+                                alt={selectedFiles[0]?.file_name}
                                 width={100}
                                 height={100}
                                 className="rounded-md"
                             />
-                            <span className="text-lg font-bold">{selectedMedia?.file_name}</span>
+                            <span className="text-lg font-bold">{selectedFiles[0]?.file_name}</span>
                         </div>
                         <div className="flex flex-row gap-2 items-center">
                             <span className="text-sm">ขนาดไฟล์:</span>
-                            <span className="text-sm">{formatFileSize(selectedMedia?.file_size)}</span>
+                            <span className="text-sm">{formatFileSize(selectedFiles[0]?.file_size)}</span>
                         </div>
                         <div className="flex flex-row gap-2 items-center">
                             <span className="text-sm">วันที่อัพโหลด:</span>
-                            <span className="text-sm">{moment(selectedMedia?.created_at).format("DD/MM/YYYY HH:mm:ss")}</span>
+                            <span className="text-sm">{moment(selectedFiles[0]?.createdAt).format("lll")}</span>
                         </div>
                         <div className="flex flex-row gap-2 items-center">
                             <span className="text-sm">ผู้อัพโหลด:</span>
-                            <span className="text-sm">{selectedMedia?.user?.fullname}</span>
+                            <span className="text-sm">{selectedFiles[0]?.user?.fullname}</span>
                         </div>
                     </div>
+                    <Tooltip title="คลิกเพื่อดาวน์โหลด" onClick={() => handleDownloadQrCode(selectedFiles[0].file_name)} arrow>
+                        <div className="flex flex-col items-center">
+                            <QRCodeCanvas 
+                                id="qr-code-download"
+                                value={genereteUrl(selectedFiles[0]?.file_id)}
+                                size={200}
+                                level="H"
+                                includeMargin={true}
+                            />
+                        </div>
+                    </Tooltip>
                     <Divider className="my-2"/>
                     <div className="flex flex-row justify-center text-sm gap-6 p-4">
                         <button
-                            className="flex flex-col items-center gap-1 border border-gray-200 rounded-md p-2 hover:bg-gray-100"
-                            onClick={() => handleDownload(selectedMedia)}
+                            className="flex flex-col items-center gap-1 border bg-yellow-500 text-white font-bold border-gray-200 rounded-md p-2 hover:bg-yellow-700"
+                            onClick={() => handleDownload(selectedFiles[0])}
                         >
-                            <GoDownload />
+                            <GoDownload size={30}/>
                             <span>ดาวน์โหลดไฟล์</span>
                             
                         </button>
                         <button
-                            className="flex flex-col items-center gap-1 border border-gray-200 rounded-md p-2 hover:bg-gray-100"
-                            onClick={() => handleShare(selectedMedia)}
+                            className="flex flex-col items-center gap-1 border bg-blue-600 text-white font-bold border-gray-200 rounded-md p-2 hover:bg-blue-800"
+                            onClick={() => handleShare(selectedFiles[0])}
                         >
-                            <IoIosShareAlt />
-                            <span>แชร์ไฟล์</span>
+                            <IoCopyOutline size={30}/>
+                            <span>คัดลอก URL</span>
                         </button>
                     </div>
                 </div>

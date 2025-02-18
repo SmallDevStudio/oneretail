@@ -26,6 +26,7 @@ import ImageTab from "@/components/profile/ImageTab";
 import VideoTab from "@/components/profile/videoTab";
 import Messager from "@/components/utils/Messager";
 import FeedSkeleton from "@/components/SkeletonLoader/FeedSkeleton";
+import { MdOutlinePostAdd } from "react-icons/md";
 
 
 moment.locale("th");
@@ -433,7 +434,11 @@ const ProfilePage = () => {
                             />
                             <span className="text-[#0056FF] font-bold text-md ml-2">{userData?.user?.fullname}</span>
                         </div>
+
                         <div className="flex items-center gap-2 text-gray-500 ml-auto pr-2">
+                            {(userData?.user?.role === 'admin' || userData?.user?.role === 'manager') && (
+                                <MdOutlinePostAdd size={24} onClick={() => router.push('/send')}/>
+                            )}
                             <IoSearch size={24} />
                             <Messager userId={userId} size={24} />
                         
