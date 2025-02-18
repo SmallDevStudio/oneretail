@@ -152,7 +152,9 @@ const Medias = () => {
     };
 
     const genereteUrl = (fileId) => {
-        const url = process.env.NEXT_PUBLIC_BASE_URL + `/share/${fileId}`;
+        console.log('genereteUrl', fileId);
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+        const url = `${baseUrl}/share/${fileId}`;
         return url;
     }
 
@@ -171,6 +173,7 @@ const Medias = () => {
         }
     };
 
+    console.log('selectedFiles', selectedFiles);
 
     return (
         <div className="flex flex-col p-4 w-full">
@@ -291,7 +294,7 @@ const Medias = () => {
                         <div className="flex flex-col items-center">
                             <QRCodeCanvas 
                                 id="qr-code-download"
-                                value={genereteUrl(selectedFiles[0]?.file_id)}
+                                value={genereteUrl(selectedFiles[0]?._id)}
                                 size={200}
                                 level="H"
                                 includeMargin={true}
