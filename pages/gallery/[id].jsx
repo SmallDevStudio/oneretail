@@ -6,14 +6,19 @@ import { IoIosArrowBack } from "react-icons/io";
 import { IoChevronBackCircle, IoChevronForwardCircleSharp } from "react-icons/io5";
 import { IoIosCloseCircle, IoIosDownload } from "react-icons/io";
 import { Modal, CircularProgress } from "@mui/material";
-import { AppLayout } from "@/themes";
 import Loading from "@/components/Loading";
+import moment from "moment";
+import "moment/locale/th";
+
+moment.locale("th");
 
 const extractFolderId = (url) => {
     const regex = /\/folders\/([a-zA-Z0-9-_]+)/;
     const match = url?.match(regex);
     return match ? match[1] : null;
-  };
+};
+
+const apiKey = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
 
 const Gallery = () => {
     const [files, setFiles] = useState([]);
@@ -23,12 +28,11 @@ const Gallery = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [loading, setLoading] = useState(false);
+    const [modalLoading, setModalLoading] = useState(false);
 
     const router = useRouter();
     const { id } = router.query;
     
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
-
     useEffect(() => {
         const fetchGallery = async () => {
             setLoading(true);
@@ -43,8 +47,8 @@ const Gallery = () => {
 
     useEffect(() => {
         if (gallery) {
-          const id = extractFolderId(gallery.driveUrl);
-          setDriveUrl(gallery.driveUrl);
+          const id = extractFolderId(gallery.googleDriveUrl);
+          setDriveUrl(gallery.googleDriveUrl);
           setFolderId(id);
         }
       }, [driveUrl, gallery]);
@@ -53,7 +57,7 @@ const Gallery = () => {
         if (!folderId) return;
         const fetchFiles = async () => {
           setLoading(true);
-          const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=${process.env.YOUTUBE_API_KEY}&fields=files(id,name,mimeType)`;
+          const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=${apiKey}&fields=files(id,name,mimeType)`;
           try {
             const response = await fetch(url);
             const data = await response.json();
@@ -66,6 +70,7 @@ const Gallery = () => {
         };
     
         fetchFiles();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [folderId, apiKey]);
 
     const handleOpenModal = (index) => {
@@ -87,30 +92,33 @@ const Gallery = () => {
         if (currentIndex > 0) {
           setCurrentIndex((prev) => prev - 1);
         }
-      };
+    };
 
     return (
-        <div className="container mx-auto">
+        <div className="flex flex-col w-full pb-20">
             {loading ? (
                 <div><Loading /></div>
             ) : (
-                <div className="flex flex-col w-full p-2.5 pb-16 gap-2">
-                    <div className="flex flex-row gap-2 items-center mt-2">
+                <div className="flex flex-col w-full gap-2">
+                    <div className="flex flex-row bg-[#0056FF] gap-2 p-2 text-white items-center">
                         <IoIosArrowBack 
                             size={30}
                             onClick={() => router.back()}
                             className="cursor-pointer"
                         />
-                        <span className="text-xl text-[#0056FF] font-bold">Gallery</span>
+                        <span className="text-lg text-white font-bold">Gallery</span>
                     </div>
-                    <h1 className="text-xl font-bold">{gallery?.title}</h1>
-                    <span className="text-sm text-gray-300">{gallery?.description}</span>
+                    <div className="flex flex-col p-2">
+                        <p className="text-lg font-bold">{gallery?.title}</p>
+                        <span className="text-sm text-gray-700">{gallery?.description}</span>
+                        <span className="text-sm text-gray-500">{moment(gallery?.createdAt).format("LL")}</span>
+                    </div>
                     {loading ? (
                         <div className="flex justify-center items-center h-64">
                             <CircularProgress />
                         </div>
                     ) : (
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-2">
                     {files?.map((file, index) => (
                         <div
                         key={file.id}
