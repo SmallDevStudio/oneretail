@@ -16,6 +16,7 @@ import { toast } from "react-toastify";
 import { IoClose } from "react-icons/io5";
 import { TiArrowBack } from "react-icons/ti";
 import FolderForm from "@/components/gallery/FolderForm";
+import { useGoogleDrive } from "@/lib/hook/useGoogleDrive";
 
 moment.locale("th");
 
@@ -40,19 +41,11 @@ const Galleries = () => {
     const [folder, setFolder] = useState(null);
     const [subFolder, setSubFolder] = useState(null);
     const [isSubFolder, setIsSubFolder] = useState(false);
+    const { fetchDriveFolderContent } = useGoogleDrive();
+    const [driveFolderContent, setDriveFolderContent] = useState([]);
     
     const { data: session, status } = useSession();
 
-    const fetchDriveFolderContent = async (folderId) => {
-        const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}&fields=files(id,name,mimeType,thumbnailLink,webViewLink)`;
-        try {
-            const response = await axios.get(url);
-            return response.data.files;
-        } catch (err) {
-            console.error("Error fetching Google Drive folder content:", err);
-            return [];
-        }
-    };
 
     const { data, error, mutate, isValidating, isLoading } = useSWR("/api/gallery", fetcher,{
         onSuccess: (data) => {
@@ -64,12 +57,17 @@ const Galleries = () => {
         if (status === "loading") return; // Do nothing while loading
     }, [status]);
 
+
     useEffect(() => {
-        if (folder?.googleDriveUrl) {
-            const folderId = folder.googleDriveUrl.match(/[-\w]{25,}/)?.[0];
-            fetchDriveFolderContent(folderId).then(setGallery);
+        if (selectedFolder) {
+            const loadDriveFolderContent = async () => {
+                const driveFolderContent = await fetchDriveFolderContent(selectedFolder.googleDriveUrl);
+                setDriveFolderContent(driveFolderContent);
+            }
+            loadDriveFolderContent();
         }
-    }, [folder]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedFolder]);
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -157,23 +155,25 @@ const Galleries = () => {
                 console.error(error);
             }
         }
-    }
+    };
 
     const handleClear = () => {
         setSelectedFolder(null);
         setFolder(null);
         setSubFolder(null);
-    }
+        setDriveFolderContent([]);
+    };
 
     const handleFolderClear = () => {
         setSelectedFolder(null);
         setSubFolder(null);
-    }
+        setDriveFolderContent([]);
+    };
 
     const handleCreatSubFolder = () => {
         setIsSubFolder(true);
         setOpenForm(true);
-    }
+    };
 
     return (
         <div className="flex flex-col p-4 w-full">
@@ -274,7 +274,7 @@ const Galleries = () => {
                 </div>
 
                 {/* breadcrumbs */}
-                <div className="p-2 w-full">
+                <div className="flex flex-row items-center justify-between py-2 px-4 w-full">
                     {folder && (
                         <div className="flex flex-row text-gray-500 text-sm items-center gap-2">
                             <IoHomeSharp onClick={handleClear} className="cursor-pointer hover:text-gray-400"/>
@@ -297,15 +297,39 @@ const Galleries = () => {
                             )}
                         </div>
                     )}
+                    {driveFolderContent && driveFolderContent.length > 0 && (
+                        <span className="text-gray-500 font-bold text-sm">จํานวน <span className="font-bold text-[#0056FF] text-lg">{driveFolderContent.length}</span> รูป</span>
+                    )}
                 </div>
 
                 {/* CONTENT */}
                 <div className="px-4">
                     <div className="flex flex-wrap gap-4">
                         {subFolder ? (
-                            <div>
-                                {subFolder.title}
-                            </div>
+                            driveFolderContent && driveFolderContent.length > 0 && (
+                                driveFolderContent.map((file, index) => (
+                                    <div 
+                                        key={index}
+                                        className="cursor-pointer"
+                                    >
+                                        {file.mimeType.startsWith("image/") && (
+                                            <Image
+                                                src={`https://drive.google.com/uc?id=${file.id}&export=download`}
+                                                alt={file.name}
+                                                width={200}
+                                                height={200}
+                                                style={{ objectFit: "cover" }}
+                                            />
+                                        )}
+                                        {file.mimeType.startsWith("video/") && (
+                                            <video
+                                                style={{ width: "100%", height: "auto" }}
+                                                src={`https://drive.google.com/uc?id=${file.id}&export=download`}
+                                            />
+                                        )}
+                                    </div>
+                                ))
+                            )
                         ): 
                         folder ? (
                             <>
@@ -329,7 +353,30 @@ const Galleries = () => {
                                     )}
                                 </div>
                             ))}
-                            
+                            {driveFolderContent && driveFolderContent.length > 0 && (
+                                driveFolderContent.map((file, index) => (
+                                    <div 
+                                        key={index}
+                                        className="cursor-pointer"
+                                    >
+                                        {file.mimeType.startsWith("image/") && (
+                                            <Image
+                                                src={`https://drive.google.com/uc?id=${file.id}&export=download`}
+                                                alt={file.name}
+                                                width={200}
+                                                height={200}
+                                                style={{ objectFit: "cover" }}
+                                            />
+                                        )}
+                                        {file.mimeType.startsWith("video/") && (
+                                            <video
+                                                style={{ width: "100%", height: "auto" }}
+                                                src={`https://drive.google.com/uc?id=${file.id}&export=download`}
+                                            />
+                                        )}
+                                    </div>
+                                ))
+                            )}
                             </>
                         ) : (
                             gallery.map((item, index) => (
