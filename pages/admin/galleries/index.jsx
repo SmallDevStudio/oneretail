@@ -59,7 +59,7 @@ const Galleries = () => {
 
 
     useEffect(() => {
-        if (selectedFolder) {
+        if (selectedFolder && selectedFolder.googleDriveUrl) {
             const loadDriveFolderContent = async () => {
                 const driveFolderContent = await fetchDriveFolderContent(selectedFolder.googleDriveUrl);
                 setDriveFolderContent(driveFolderContent);
@@ -67,7 +67,7 @@ const Galleries = () => {
             loadDriveFolderContent();
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedFolder]);
+    }, [selectedFolder, selectedFolder.googleDriveUrl]);
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -318,7 +318,9 @@ const Galleries = () => {
                                                 alt={file.name}
                                                 width={200}
                                                 height={200}
-                                                style={{ objectFit: "cover" }}
+                                                style={{ objectFit: "cover", width: "100%", height: "auto" }}
+                                                loading="lazy"
+
                                             />
                                         )}
                                         {file.mimeType.startsWith("video/") && (
