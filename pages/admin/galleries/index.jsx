@@ -59,7 +59,7 @@ const Galleries = () => {
 
 
     useEffect(() => {
-        if (selectedFolder && selectedFolder.googleDriveUrl) {
+        if (selectedFolder && selectedFolder?.googleDriveUrl) {
             const loadDriveFolderContent = async () => {
                 const driveFolderContent = await fetchDriveFolderContent(selectedFolder.googleDriveUrl);
                 setDriveFolderContent(driveFolderContent);
@@ -67,7 +67,7 @@ const Galleries = () => {
             loadDriveFolderContent();
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedFolder, selectedFolder.googleDriveUrl]);
+    }, [selectedFolder, selectedFolder?.googleDriveUrl]);
 
     useEffect(() => {
         const handleKeyDown = (e) => {
