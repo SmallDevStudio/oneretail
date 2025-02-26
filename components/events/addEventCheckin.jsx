@@ -269,10 +269,6 @@ export default function AddEventCheckin({ onClose, mutate, selectedEventData, ev
         )
     }
 
-    console.log('events:', events);
-    console.log('filterEvents:', filterEvents);
-    console.log('searchEvent:', searchEvent);
-
     return (
         <div className="flex flex-col w-full h-full">
             {/* Header */}

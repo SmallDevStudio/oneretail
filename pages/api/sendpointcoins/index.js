@@ -22,15 +22,16 @@ export default async function handler(req, res) {
 
     case 'POST':
       try {
-        const { adminUserId, empId, point, coins, ref, remark } = req.body;
+        const { userId, empId, point, coins, ref, remark } = req.body;
 
         const user = await Users.findOne({ empId });
+
         if (!user) {
           return res.status(404).json({ success: false, message: 'User not found' });
         }
 
         const transaction = new SentPointCoins({
-          userId: adminUserId,
+          userId,
           trans: empId,
           ref,
           point,
