@@ -45,6 +45,8 @@ const Courses = () => {
     if (isLoading) return <Loading />;
     if (error) return <div>Failed to load</div>;
 
+    console.log('selectedCourse', selectedCourse);
+
     return (
         <div className="flex flex-col w-full">
             <Header title="จัดการคอร์ส" subtitle="จัดการข้อมูลคอร์ส เพิ่มคอร์ส ลบคอร์ส แก้ไขคอร์ส" />

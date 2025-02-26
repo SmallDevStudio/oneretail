@@ -44,47 +44,57 @@ export default async function handler(req, res) {
         const userIds = questionnaires.map((q) => q.userId);
         const users = await Users.find({ userId: { $in: userIds } }).lean();
 
-        // ดึง question IDs จาก questionnaires ใน field "question" (เป็น array ของ { questionId, answer })
-        const allQuizIds = questionnaires.flatMap((q) =>
-          q.question.map((qItem) => qItem.questionId)
-        );
-        const uniqueQuizIds = [...new Set(allQuizIds.map((id) => id.toString()))];
-        // ดึงข้อมูลรายละเอียดคำถามจาก ReviewQuiz ที่ตรงกับ question IDs เหล่านี้
-        const quizs = await ReviewQuiz.find({ _id: { $in: uniqueQuizIds } }).lean();
-
-        // Map questionnaires ให้รวมข้อมูลของ user และรายละเอียดของคำถามในแต่ละ questionnaire
-        const questionnairesWithUser = questionnaires.map((q) => {
-          // หาข้อมูลผู้ใช้ที่ตรงกับ q.userId
-          const user = users.find((u) => u.userId === q.userId);
-          // Map field "question" (เป็น array) เพื่อเพิ่มข้อมูลรายละเอียดของคำถามและคำนวณ "point"
-          const mappedQuestions = q.question.map((qItem) => {
-            // หาข้อมูลคำถามที่ตรงกับ qItem.questionId จาก quizs
-            const questionData = quizs.find(
-              (qd) => qd._id.toString() === qItem.questionId.toString()
-            );
-            // คำนวณ point: หา index ของคำตอบที่ผู้ใช้เลือกใน questionData.options แล้วบวก 1
-            let point = null;
-            if (questionData && Array.isArray(questionData.options)) {
-              const answerIndex = questionData.options.findIndex(
-                (option) => option === qItem.answer
-              );
-              if (answerIndex >= 0) {
-                point = answerIndex + 1;
-              }
-            }
-            return {
-              ...qItem,
-              questionData, // รวมข้อมูลรายละเอียดของคำถาม (เช่น text, options)
-              point,        // เพิ่ม field "point"
-            };
-          });
-
-          return {
-            ...q,
-            user,          // รวมข้อมูลผู้ใช้
-            question: mappedQuestions, // แทนที่ field question ด้วย array ที่ map แล้ว
-          };
-        });
+                // ดึง question IDs จาก questionnaires และป้องกัน error เมื่อ question เป็น null
+                const allQuizIds = questionnaires.flatMap((q) =>
+                  (q?.question || []) // ป้องกัน q.question เป็น null หรือ undefined
+                    .filter(qItem => qItem?.questionId) // กรองเฉพาะค่าที่มี questionId
+                    .map(qItem => qItem.questionId)
+                );
+        
+                const uniqueQuizIds = [...new Set(allQuizIds.map((id) => id.toString()))];
+        
+                // ดึงข้อมูลรายละเอียดคำถามจาก ReviewQuiz ที่ตรงกับ question IDs เหล่านี้
+                const quizs = await ReviewQuiz.find({ _id: { $in: uniqueQuizIds } }).lean();
+        
+                // Map questionnaires ให้รวมข้อมูลของ user และรายละเอียดของคำถามในแต่ละ questionnaire
+                const questionnairesWithUser = questionnaires.map((q) => {
+                  // หาข้อมูลผู้ใช้ที่ตรงกับ q.userId
+                  const user = users.find((u) => u.userId === q.userId);
+        
+                  // ตรวจสอบให้แน่ใจว่า question มีค่า และกรองข้อมูลที่ไม่มี questionId
+                  const mappedQuestions = (q?.question || [])
+                    .filter(qItem => qItem?.questionId) // กรองเฉพาะข้อมูลที่มี questionId
+                    .map((qItem) => {
+                      // หาข้อมูลคำถามที่ตรงกับ qItem.questionId จาก quizs
+                      const questionData = quizs.find(
+                        (qd) => qd._id.toString() === qItem.questionId.toString()
+                      );
+        
+                      // คำนวณ point: หา index ของคำตอบที่ผู้ใช้เลือกใน questionData.options แล้วบวก 1
+                      let point = null;
+                      if (questionData && Array.isArray(questionData.options)) {
+                        const answerIndex = questionData.options.findIndex(
+                          (option) => option === qItem.answer
+                        );
+                        if (answerIndex >= 0) {
+                          point = answerIndex + 1;
+                        }
+                      }
+        
+                      return {
+                        ...qItem,
+                        questionData: questionData || null, // ป้องกัน undefined
+                        point,        // เพิ่ม field "point"
+                      };
+                    });
+        
+                  return {
+                    ...q,
+                    user,          // รวมข้อมูลผู้ใช้
+                    question: mappedQuestions, // แทนที่ field question ด้วย array ที่ map แล้ว
+                  };
+                });
+        
 
         // สร้าง object courseData สำหรับส่งกลับ
         const courseData = {

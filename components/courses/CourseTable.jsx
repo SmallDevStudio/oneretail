@@ -104,7 +104,7 @@ export default function CourseTable({ courses, mutate, setIsEditing, setSelected
         handleShowReport();
     };
 
-    console.log('courses:', courses);
+    console.log('selectedQuestions:', selectedQuestions);
 
     return (
         <div>
