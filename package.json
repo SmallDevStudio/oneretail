@@ -36,7 +36,7 @@
     "@vercel/speed-insights": "^1.0.12",
     "@zxing/library": "^0.18.6",
     "autoprefixer": "^10.4.19",
-    "axios": "^1.7.3",
+    "axios": "^1.8.1",
     "bcryptjs": "^2.4.3",
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.3",

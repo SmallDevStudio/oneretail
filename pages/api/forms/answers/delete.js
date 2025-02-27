@@ -4,22 +4,14 @@ import UseForms from "@/database/models/UseForms";
 
 export default async function handler(req, res) {
     const { method } = req;
-
     await connetMongoDB();
-    switch (method) {
-        case "GET":
-            try {
-                const { formId, userId } = req.query;
-                const answer = await UseForms.find({ formId, userId });
 
-                res.status(200).json({ success: true, data: answer });
-            } catch (error) {
-                res.status(400).json({ success: false, error: error.message });
-            }
-        case "POST":
+    switch (method) {
+        case "DELETE":
             try {
-                const answer = await UseForms.create(req.body);
-                res.status(201).json({ success: true, data: answer });
+                const { id } = req.query;
+                const answer = await UseForms.findByIdAndDelete(id);
+                res.status(200).json({ success: true, data: answer });
             } catch (error) {
                 res.status(400).json({ success: false, error: error.message });
             }

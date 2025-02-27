@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import axios from "axios";
+import useSWR from "swr";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import ReactPlayer from "react-player";
@@ -8,17 +9,32 @@ import moment from "moment";
 import "moment/locale/th";
 import Swal from "sweetalert2";
 import { IoIosArrowBack } from "react-icons/io";
+import { toast } from "react-toastify";
+import Loading from "../Loading";
+import { IoMdHome } from "react-icons/io";
 
 moment.locale('th');
 
+const fetcher = url => axios.get(url).then(res => res.data);
+
 export default function AppView({ data }) {
     const [answers, setAnswers] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [hasAnswered, setHasAnswered] = useState(false);
+    const [isSubmit, setIsSubmit] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const { data: session } = useSession();
     const userId = session?.user?.id;
     const router = useRouter();
+    const { id } = router.query;
 
+    const { data: answersData, error } = useSWR(`/api/forms/answers?formId=${id}&userId=${userId}`, fetcher);
+
+    useEffect(() => {
+        if (answers.length > 0 &&answersData && answersData.data.length > 0) {
+            setHasAnswered(true);
+        }
+    }, [answers, answersData]);
     const handleFieldChange = (e, field, index) => {
         const { name, value } = e.target;
 
@@ -44,6 +60,23 @@ export default function AppView({ data }) {
     };
 
     const handleSubmit = async () => {
+        setLoading(true);
+        setIsSubmit(true);
+
+        if (hasAnswered) {
+            setLoading(false);
+            await Swal.fire({
+                icon: 'warning',
+                title: 'คําเตือน',
+                text: 'คุณได้ตอบคําถามแล้ว',
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#0056FF',
+                allowOutsideClick: false
+            });
+            setAnswers([]);
+            return;
+        }
+
         const newAnswers = {
             formId: data._id,
             answers,
@@ -60,14 +93,18 @@ export default function AppView({ data }) {
                     confirmButtonColor: '#0056FF',
                     allowOutsideClick: false
                 }).then(() => {
+                    setLoading(false);
                     router.back();
                 });
             }
            
         } catch (error) {
             console.error(error);
+            setLoading(false);
         }
     };
+
+    if (loading) return <Loading />;
 
     return (
         <main className="flex flex-col w-full bg-[#0056FF] min-h-[100vh] mb-20">
@@ -165,13 +202,26 @@ export default function AppView({ data }) {
                     </div>
                 ))}
                 <div className="flex justify-center items-centerw-full mt-4">
-                    <button
-                        type="submit"
-                        className="bg-[#F2871F] text-white font-bold py-2 px-4 rounded-full"
-                        onClick={handleSubmit}
-                    >
-                        Submit
-                    </button>
+                    {hasAnswered && isSubmit ? (
+                        <button
+                            type="submit"
+                            className="bg-[#F2871F] text-white font-bold py-2 px-4 rounded-full"
+                            onClick={() => router.back()}
+                        >
+                            <div className="flex flex-row items-center gap-2">
+                                <IoMdHome size={20}/>
+                                กลับไปหน้าแรก
+                            </div>
+                        </button>
+                    ): (
+                        <button
+                            type="submit"
+                            className="bg-[#F2871F] text-white font-bold py-2 px-4 rounded-full"
+                            onClick={handleSubmit}
+                        >
+                            Submit
+                        </button>
+                    )}
                 </div>
             </div>
         </main>

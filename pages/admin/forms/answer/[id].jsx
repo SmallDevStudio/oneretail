@@ -12,6 +12,8 @@ import { Divider } from "@mui/material";
 import { IoIosArrowBack } from "react-icons/io";
 import { AdminLayout } from "@/themes";
 import * as XLSX from 'xlsx';
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 moment.locale('th');
 
@@ -32,6 +34,8 @@ const AnswerReport = () => {
     
     if (error) return <div>Failed to load</div>;
     if (!data) return <Loading />;
+
+    console.log(answers);
 
     const handleExport = async () => {
         setLoading(true);
@@ -58,6 +62,13 @@ const AnswerReport = () => {
                 const baseData = {
                     empId: item.user.empId,
                     fullname: item.user.fullname,
+                    teamGroup: item.emp.teamGrop,
+                    chief_th: item.emp.chief_th? item.emp.chief_th : '-',
+                    chief_en: item.emp.chief_en? item.emp.chief_en : '-',
+                    position: item.emp.position? item.emp.position : '-',
+                    department: item.emp.department? item.emp.department : '-',
+                    branch: item.emp.branch? item.emp.branch : '-',
+                    group: item.emp.group? item.emp.group : '-',
                     created_at: moment(item.createdAt).format('lll'),
                 };
     
@@ -89,8 +100,25 @@ const AnswerReport = () => {
     };
 
     const handleDelete = async (id) => {
-        await axios.delete(`/api/forms/answers/${id}`);
-        mutate();
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you really want to delete this answer? This process cannot be undone.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await axios.delete(`/api/forms/answers/delete?id=${id}`);
+                mutate();
+            } catch (error) {
+                console.error(error);
+            }
+        }
     };
 
     if (loading) return <Loading />;
@@ -146,6 +174,8 @@ const AnswerReport = () => {
                                                 width={50}
                                                 height={50}
                                                 className="rounded-full"
+                                                style={{ objectFit: 'cover', width: '50px', height: '50px' }}
+                                                priority
                                             />
                                         </div>
                                     </td>
@@ -168,6 +198,7 @@ const AnswerReport = () => {
                                     <td className="border px-4 py-2 text-center">
                                         <button
                                             className="bg-red-500 text-white font-bold py-2 px-4 rounded-full"
+                                            onClick={() => handleDelete(item._id)}
                                         >
                                             ลบ
                                         </button>

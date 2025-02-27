@@ -1,13 +1,14 @@
-import connetMongoDB from "@/lib/services/database/mongodb";
+import connectMongoDB from "@/lib/services/database/mongodb";
 import Forms from "@/database/models/Forms";
 import UseForms from "@/database/models/UseForms";
 import Users from "@/database/models/users";
+import Emp from "@/database/models/emp";
 
 export default async function handler(req, res) {
     const { method } = req;
-    const { formId } = req.query;
+    const { formId, userId } = req.query;
 
-    await connetMongoDB();
+    await connectMongoDB();
     switch (method) {
         case "GET":
             try {
@@ -16,27 +17,40 @@ export default async function handler(req, res) {
                     return res.status(404).json({ success: false, message: "Form not found" });
                 }
 
-                const answers = await UseForms.find({ formId });
-                if (!answers) {
+                const answers = await UseForms.find({ formId }).lean();
+                if (!answers.length) {
                     return res.status(404).json({ success: false, message: "Answers not found" });
                 }
+
                 const userIds = answers.map(answer => answer.userId);
-                const users = await Users.find({ userId: { $in: userIds } }).select('userId fullname pictureUrl role empId');
+                const users = await Users.find({ userId: { $in: userIds } }).select('userId fullname pictureUrl role empId').lean();
+
                 const userMap = users.reduce((acc, user) => {
                     acc[user.userId] = user;
                     return acc;
                 }, {});
 
+                // ดึง empId ที่ไม่ใช่ undefined
+                const empIds = users.map(user => user.empId).filter(empId => empId);
+                const emps = await Emp.find({ empId: { $in: empIds } }).lean();
+
+                const empMap = emps.reduce((acc, emp) => {
+                    acc[emp.empId] = emp;
+                    return acc;
+                }, {});
+
                 const populatedAnswers = answers.map((answer) => {
-                    const user = userMap[answer.userId];
+                    const user = userMap[answer.userId] || null;
+                    const emp = user?.empId ? empMap[user.empId] : null;
                     return {
-                        ...answer.toObject(),
-                        user
+                        ...answer,
+                        user,
+                        emp
                     };
                 });
 
                 const populatedForm = {
-                    ...form._doc,
+                    ...form.toObject(),
                     answers: populatedAnswers
                 };
 
@@ -46,15 +60,6 @@ export default async function handler(req, res) {
             }
             break;
 
-        case "DELETE":
-            try {
-                const answers = await UseForms.deleteMany({ formId });
-                res.status(200).json({ success: true, data: answers });
-            } catch (error) {
-                res.status(400).json({ success: false, error: error.message });
-            }
-            break;
-    
         default:
             res.status(400).json({ success: false });
             break;
