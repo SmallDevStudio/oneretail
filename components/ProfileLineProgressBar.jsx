@@ -7,57 +7,53 @@ const ProfileLineProgressBar = ({ percent }) => {
     useEffect(() => {
         let bar = null;
 
+        
         if (progressBarRef.current) {
             bar = new ProgressBar.Line(progressBarRef.current, {
-                strokeWidth: 5,
-                easing: 'easeInOut',
-                duration: 1400,
-                color: '#ED1C24',
-                trailColor: '#eee',
-                trailWidth: 5,
-                svgStyle: { width: '100%', height: '100%' },
-                text: {
-                    style: {
-                        color: 'black',
-                        position: 'absolute',
-                        left: '50%',
-                        top: '100%',
-                        padding: 0,
-                        margin: 0,
-                        transform: 'translate(-50%, -50%)', // Center the text
-                        fontSize: '12px',
-                        lineHeight: '8px', // Add this line to ensure Safari handles the text size correctly
-                        marginTop: '2px'
-                    },
-                    autoStyleContainer: false
-                },
-                from: { color: '#ED1C24' },
-                to: { color: '#ED1C24' },
+            strokeWidth: 7,
+            easing: 'easeInOut',
+            duration: 1400,
+            color: '#F2871F',
+            trailColor: '#eee',
+            trailWidth: 7,
+            from: { color: '#F2871F' },
+            to: { color: '#F2871F' },
                 step: (state, bar) => {
                     bar.path.setAttribute('stroke-linecap', 'round');
-                    bar.setText(Math.round(bar.value() * 100) + ' %');
-                },
-                svgStyle: {
-                    borderRadius: '15px' // Add this line to make the trail rounded
-                },
-                trail: {
-                    borderRadius: '15px' // Add this line to make the trail rounded
-                }
-            });
+                    const value = Math.round(bar.value() * 100);
+                    if (value === 0) {
+                        bar.setText('');
+                    } else {
+                        bar.setText(value + '%');
+                    }
 
-            bar.animate(percent / 100); // Value from 0.0 to 1.0
-        }
-
-        return () => {
-            if (bar) {
-                try {
-                    bar.destroy();
-                } catch (error) {
-                    console.error('Error destroying bar:', error);
-                }
+                    bar.text.style.color = '#000'; // สีข้อความเป็นสีดำ
+                    bar.text.style.fontWeight = 'bold'; // ตัวหนา
+                    bar.text.style.top = '50%';
+                    bar.text.style.marginTop = '4px';
+                    bar.text.style.weight = '15%';
+                },
+                    svgStyle: {
+                        borderRadius: '15px' // Add this line to make the trail rounded
+                    },
+                    trail: {
+                        borderRadius: '15px' // Add this line to make the trail rounded
+                    }
+                });
+        
+                bar.animate(percent / 100); // Value from 0.0 to 1.0
             }
-        };
-    }, [percent]);
+        
+            return () => {
+                if (bar) {
+                    try {
+                        bar.destroy();
+                    } catch (error) {
+                        console.error('Error destroying bar:', error);
+                    }
+                }
+            };
+        }, [percent]);
 
     return (
         <div 

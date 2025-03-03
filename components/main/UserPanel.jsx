@@ -16,7 +16,7 @@ const UserPanel = ({user, level, onExchangeAdd, setLoading, loading, coins, onUp
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [conversionRate, setConversionRate] = useState(25);
     const percent = level?.nextLevelRequiredPoints
-        ? parseFloat((level?.totalPoints / level?.nextLevelRequiredPoints ) * 100)
+        ? parseFloat((level?.nextLevelRequiredPoints - level?.totalPoints) / (level?.nextLevelRequiredPoints - level?.requiredPoints) * 100)
         : 0;
 
     const openModal = () => setModalIsOpen(true);
@@ -38,14 +38,13 @@ const UserPanel = ({user, level, onExchangeAdd, setLoading, loading, coins, onUp
         <div className="flex flex-row bg-[#0056FF] text-white items-start justify-between rounded-xl px-2 shadow-lg">
             <div className="flex flex-col w-2/3">
                 <div className="flex flex-row gap-4">
-                    <div className="flex flex-col" style={{ width: "auto", height: "auto" }} onClick={() => setIsModalOpen(true)}>
+                    <div className="flex flex-col" style={{ width: "auto", height: "auto" }}>
                         <div className="items-center text-center" style={{ width: "auto", height: "90px" }}>
                             <div className="mt-3">
                                 <Avatar
                                     src={level?.user?.pictureUrl}
                                     size={80}
                                     userId={level?.user?.userId}
-                                    onClick={() => setIsModalOpen(true)}
                                 />
                             </div>
                             

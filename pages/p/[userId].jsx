@@ -27,6 +27,7 @@ import VideoTab from "@/components/profile/videoTab";
 import Messager from "@/components/utils/Messager";
 import FeedSkeleton from "@/components/SkeletonLoader/FeedSkeleton";
 import { MdOutlinePostAdd } from "react-icons/md";
+import UserModal from "@/components/UserModal";
 
 
 moment.locale("th");
@@ -52,6 +53,7 @@ const ProfilePage = () => {
     const [checkError, setCheckError] = useState(null);
     const [percentage, setPercentage] = useState(0);
     const [tabs, setTabs] = useState('posts');
+    const [openUserPanel, setOpenUserPanel] = useState(false);
 
     const { data: session } = useSession();
     const router = useRouter();
@@ -421,6 +423,14 @@ const ProfilePage = () => {
         ? parseFloat((userData?.points?.totalPoints / userData?.level?.nextLevelRequiredPoints ) * 100)
         : 0;
 
+    const handleOpenUserPanel = () => {
+        setOpenUserPanel(true);
+    }
+
+    const handleClosedUserPanel = () => {
+        setOpenUserPanel(false);
+    }
+
     return (!userData ? <Loading /> :
         <div className="flex flex-col bg-gray-300 w-full min-h-screen mb-20">
             <div>
@@ -449,11 +459,12 @@ const ProfilePage = () => {
                     <div className="flex flex-row justify-evenly items-center px-8 py-4 w-full">
                         {/* Avatar */}
                         <div 
-                            className="flex flex-row items-center gap-2 relative"
+                            className="flex flex-row items-center gap-2 relative cursor-pointer"
                             style={{ 
                                 height: "140px",
                                 width: "140px",
                             }}
+                            onClick={handleOpenUserPanel}
                         >
                             <Image
                                 src={userData?.user?.pictureUrl}
@@ -500,10 +511,10 @@ const ProfilePage = () => {
                                 {userData?.user?.userId === session?.user?.id ? (
                                     <>
                                     <div className="flex flex-row px-4 py-1 bg-[#0056FF] text-white text-sm rounded-full items-center gap-1 ">
-                                        <span>Point: <strong>{userData?.points?.totalPoints}</strong></span>
+                                        <span>Point: <strong>{userData?.points?.point}</strong></span>
                                     </div>
                                     <div className="flex flex-row px-4 py-1 bg-[#F2871F] text-white text-sm rounded-full items-center gap-1">
-                                        <span>Coins: <strong>{userData?.coins?.totalCoins}</strong></span>
+                                        <span>Coins: <strong>{userData?.coins?.coins}</strong></span>
                                     </div>
                                     </>
                                 ): (
@@ -933,6 +944,14 @@ const ProfilePage = () => {
                     <CircularProgress />
                 </div>
             </Dialog>
+           
+            <UserModal
+                isOpen={openUserPanel}
+                onRequestClose={handleClosedUserPanel}
+                user={user}
+                mutate={mutateUser}
+            />
+           
 
             {tabs === "picture" && 
                 <ImageTab 
@@ -946,6 +965,7 @@ const ProfilePage = () => {
                     videoData={userData?.video}
                 />
             )}
+            
         </div>
         
     );
