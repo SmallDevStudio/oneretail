@@ -3,14 +3,20 @@ import { DataGrid } from '@mui/x-data-grid';
 import { useSession } from 'next-auth/react';
 import axios from 'axios';
 import Image from 'next/image';
-import useSWR from 'swr';
 import moment from 'moment';
 import 'moment/locale/th';
 import * as XLSX from 'xlsx';
 import { FaRegEye } from "react-icons/fa";
 import { RiDeleteBinLine } from "react-icons/ri";
-import { Autocomplete, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
+import { Autocomplete, TextField, Dialog, Slide, DialogTitle, DialogContent, DialogActions, Button, Divider } from '@mui/material';
 import '@/styles/CategoryTable.module.css';
+import { FaEdit } from "react-icons/fa";
+import { IoClose } from "react-icons/io5";
+import { toast } from 'react-toastify';
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const UsersTable = ({ users, setUsers, mutate }) => {
     const [filteredUsers, setFilteredUsers] = useState([]);
@@ -18,9 +24,18 @@ const UsersTable = ({ users, setUsers, mutate }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedUser, setSelectedUser] = useState(null);
     const [openViewModal, setOpenViewModal] = useState(false);
+    const [openForm, setOpenForm] = useState(false);
+    const [form, setForm] = useState({});
+    const [isEdit, setIsEdit] = useState(false);
 
-    const { data: session } = useSession();
+    const { data: session, loading: loadingSession } = useSession();
 
+    const userId = session?.user.id;
+
+    useEffect(() => {
+        if (loadingSession) return;
+    }, [loadingSession]);
+    
     useEffect(() => {
         if (!users) return;
 
@@ -36,6 +51,12 @@ const UsersTable = ({ users, setUsers, mutate }) => {
         }
         
     }, [searchTerm, users]);
+
+    useEffect(() => {
+        if (isEdit && selectedUser) {
+            setForm(selectedUser);
+        }
+    }, [isEdit, selectedUser]);
 
     const handleRoleChange = async (userId, newRole) => {
         await axios.put(`/api/users/update?userId=${userId}`, { role: newRole });
@@ -98,7 +119,16 @@ const UsersTable = ({ users, setUsers, mutate }) => {
             headerName: 'Picture',
             width: 100,
             renderCell: (params) => (
-                <Image src={params.value} alt={params.row.fullname} width="50" height="50" className='rounded-full' style={{ width: '50px', height: '50px'}}/>
+                <div className="flex justify-center items-center" style={{ width: '50px', height: '50px' }}>
+                    <Image 
+                        src={params.value} 
+                        alt={params.row.fullname} 
+                        width="50" 
+                        height="50" 
+                        className='rounded-full' 
+                        style={{ width: '50px', height: '50px'}}
+                    />
+                </div>
             )
         },
         { field: 'fullname', headerName: 'Fullname', width: 200 },
@@ -146,12 +176,52 @@ const UsersTable = ({ users, setUsers, mutate }) => {
             width: 200,
             renderCell: (params) => (
                 <>
+                    <button onClick={() => handleOpenForm(params.row)} className="text-gray-800 font-bold py-2 px-4 rounded-full "><FaEdit /></button>
                     <button onClick={() => handleViewUser(params.row)} className="text-gray-800 font-bold py-2 px-4 rounded-full mr-2"><FaRegEye /></button>
                     <button onClick={() => handleDeleteUser(params.row._id)} className="text-gray-800 font-bold py-2 px-4 rounded-full "><RiDeleteBinLine /></button>
+                   
                 </>
             )
         }
     ];
+
+    const handleOpenForm = (user) => {
+        setSelectedUser(user);
+        setIsEdit(true);
+        setOpenForm(true);
+    };
+
+    const handleCloseForm = () => {
+        setSelectedUser(null);
+        setIsEdit(false);
+        setOpenForm(false);
+    };
+
+    const handleUpdateUser = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.put(`/api/users/${selectedUser.userId}`, form);
+            if (response.status === 200) {
+                await axios.post('/api/userlog', { 
+                    userId: userId, 
+                    targetId: selectedUser.userId, 
+                    action: 'อัปเดตผู้ใช้' 
+                });
+                toast.success('อัปเดตผู้ใช้สําเร็จ');
+                handleCloseForm();
+                mutate();
+            } else {
+                toast.error('เกิดข้อผิดพลาดในการอัปเดตผู้ใช้');
+            }
+        } catch (error) {
+            console.error('Error updating user:', error);
+            toast.error('เกิดข้อผิดพลาดในการอัปเดตผู้ใช้');
+        } finally {
+            setLoading(false);
+        }
+        
+    };
+
 
     return (
         <div style={{ height: 600, width: '100%' }}>
@@ -236,6 +306,149 @@ const UsersTable = ({ users, setUsers, mutate }) => {
                     >Close</Button>
                     </div>
                 </DialogActions>
+            </Dialog>
+
+            <Dialog
+                open={openForm}
+                onClose={handleCloseForm}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+                fullWidth={true}
+                TransitionComponent={Transition}
+            >
+                <div className='flex flex-col w-full'>
+                    <div className='flex flex-row bg-[#0056FF] text-white items-center justify-between p-2 gap-4 w-full'>
+                        <h1 className='text-xl font-bold'>แก้ไขข้อมูล User</h1>
+                        <IoClose size={30} onClick={handleCloseForm}/>
+                    </div>
+
+                    <div className='flex flex-col text-sm gap-2 p-4'>
+                        {form && form.pictureUrl && (
+                            <div className='flex flex-col items-center justify-center gap-2'>
+                                <Image
+                                    src={form.pictureUrl}
+                                    alt={form.fullname}
+                                    width="150"
+                                    height="150"
+                                    className='rounded-full'
+                                    style={{ width: '150px', height: '150px', objectFit: 'cover'}}
+                                />
+                            </div>
+                        )}
+
+                        <div className='flex flex-row items-center gap-1'>
+                            <label htmlFor="userId" className='font-bold w-1/6'>รหัสผู้ใช้</label>
+                            <input 
+                                type="text"
+                                id="userId"
+                                name="userId"
+                                placeholder='กรุณากรอกรหัสพนักงาน'
+                                className='w-full p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0056FF] focus:border-[#0056FF]'
+                                value={form.userId}
+                                onChange={(e) => setForm({...form, userId: e.target.value})} 
+                            />
+                        </div>
+
+                        <div className='flex flex-row items-center gap-1'>
+                            <label htmlFor="empId" className='font-bold w-1/6'>รหัสพนักงาน</label>
+                            <input 
+                                type="text"
+                                id="empId"
+                                name="empId"
+                                placeholder='กรุณากรอกรหัสพนักงาน'
+                                className='w-full p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0056FF] focus:border-[#0056FF]'
+                                value={form.empId}
+                                onChange={(e) => setForm({...form, empId: e.target.value})} 
+                            />
+                        </div>
+
+                        <div className='flex flex-row items-center gap-1'>
+                            <label htmlFor="fullname" className='font-bold w-1/6'>ชื่อ</label>
+                            <input 
+                                type="text"
+                                id="fullname"
+                                name="fullname"
+                                placeholder='กรุณากรอกรหัสพนักงาน'
+                                className='w-full p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0056FF] focus:border-[#0056FF]'
+                                value={form.fullname}
+                                onChange={(e) => setForm({...form, fullname: e.target.value})} 
+                            />
+                        </div>
+
+                        <div className='flex flex-row items-center gap-1'>
+                            <label htmlFor="phone" className='font-bold w-1/6'>เบอร์โทร</label>
+                            <input 
+                                type="text"
+                                id="phone"
+                                name="phone"
+                                placeholder='กรุณากรอกชื่อ'
+                                className='w-full p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0056FF] focus:border-[#0056FF]'
+                                value={form.phone}
+                                onChange={(e) => setForm({...form, phone: e.target.value})} 
+                            />
+                        </div>
+
+                        <div className='flex flex-row gap-1'>
+                            <label htmlFor="address" className='font-bold w-1/6'>ที่อยู่</label>
+                            <textarea
+                                id="address"
+                                name="address"
+                                placeholder='กรุณากรอกรที่อยู่'
+                                className='w-full p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0056FF] focus:border-[#0056FF]'
+                                value={form.address}
+                                onChange={(e) => setForm({...form, address: e.target.value})} 
+                                rows={4}
+                            />
+                        </div>
+
+                        <div className='flex flex-row items-center gap-1'>
+                            <label htmlFor="role" className='font-bold w-1/6'>บทบาท</label>
+                            <select 
+                                name="role" 
+                                id="role"
+                                className='w-full p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0056FF] focus:border-[#0056FF]'
+                                value={form.role}
+                                onChange={(e) => setForm({...form, role: e.target.value})}
+                            >
+                                <option value="">กรุณาเลือกบทบาท</option>
+                                <option value="admin">admin</option>
+                                <option value="user">user</option>
+                                <option value="guest">manager</option>
+                            </select>
+                        </div>
+
+                        <div className='flex flex-row items-center gap-1'>
+                            <label htmlFor="active" className='font-bold w-1/6'>ใช้งาน</label>
+                            <div>
+                                <span
+                                    className={`inline-flex items-center px-4 py-1 rounded-full text-xs font-medium cursor-pointer ${form.active ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}
+                                    onClick={() => handleActiveToggle(form.userId, form.active)}
+                                >
+                                    {form.active === true ? 'ใช้งาน' : 'ไม่ใช้งาน'}
+                                </span>
+                            </div>
+                        </div>
+
+                        <Divider className='flex my-2 w-full'/>
+
+                        <div className='flex flex-row items-center justify-center gap-8'>
+                            <button
+                                className='bg-[#0056FF] font-bold text-white p-2 rounded-lg'
+                                onClick={handleUpdateUser}
+                            >
+                                บันทึก
+                            </button>
+
+                            <button
+                                className='bg-red-500 font-bold text-white p-2 rounded-lg'
+                                onClick={handleCloseForm}
+                            >
+                                ยกเลิก
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
             </Dialog>
         </div>
     );

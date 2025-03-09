@@ -91,6 +91,7 @@ export default function EmpForm({ empData, mutate, handleClose }) {
         if (form.empId.length < 5) return setErrors({empId: "กรุณากรอกรหัสพนักงานให้ครบ 5 ตัว"});
         if (form.empId.match(/[^0-9]/)) return setErrors({empId: "กรุณากรอกรหัสพนักงานเป็นตัวเลขเท่านั้น"});
 
+        console.log('form', form);
         try {
             if (isEdit) {
                 await axios.put(`/api/emp/${form.empId}`, form);
@@ -138,7 +139,6 @@ export default function EmpForm({ empData, mutate, handleClose }) {
                         type="text" 
                         className={`border-2 rounded-lg px-2 py-1 w-full ${errors.teamGrop ? "border-red-500" : ""}`} 
                         name="teamGrop"
-                        maxLength={5}
                         placeholder="teamGrop"
                         value={form.teamGrop} 
                         onChange={(e) => handleTeamGrop(e.target.value)} 
@@ -155,7 +155,7 @@ export default function EmpForm({ empData, mutate, handleClose }) {
                         name="sex" 
                         id="sex"
                         className={`border-2 rounded-lg px-2 py-1 w-full ${errors.sex ? "border-red-500" : ""}`}
-                        value={form?.sex} 
+                        value={form.sex} 
                         onChange={(e) => setForm({...form, sex: e.target.value})}
                     >
                         <option value="">กรุณาเลือกเพศ</option>
@@ -173,7 +173,6 @@ export default function EmpForm({ empData, mutate, handleClose }) {
                         type="text" 
                         className={`border-2 rounded-lg px-2 py-1 w-full ${errors.name ? "border-red-500" : ""}`} 
                         name="name"
-                        maxLength={5}
                         placeholder="กรอกชื่อพนักงาน"
                         value={form.name} 
                         onChange={(e) => setForm({...form, name: e.target.value})} 
@@ -189,7 +188,6 @@ export default function EmpForm({ empData, mutate, handleClose }) {
                         type="text" 
                         className={`border-2 rounded-lg px-2 py-1 w-full ${errors.position ? "border-red-500" : ""}`} 
                         name="position"
-                        maxLength={5}
                         placeholder="กรอกชื่อพนักงาน"
                         value={form.position} 
                         onChange={(e) => setForm({...form, position: e.target.value})} 
@@ -204,7 +202,6 @@ export default function EmpForm({ empData, mutate, handleClose }) {
                         type="text" 
                         className={`border-2 rounded-lg px-2 py-1 w-full ${errors.chief_th ? "border-red-500" : ""}`} 
                         name="chief_th"
-                        maxLength={5}
                         placeholder="กรอกชื่อพนักงาน"
                         value={form.chief_th} 
                         onChange={(e) => setForm({...form, chief_th: e.target.value})} 
@@ -219,7 +216,6 @@ export default function EmpForm({ empData, mutate, handleClose }) {
                         type="text" 
                         className={`border-2 rounded-lg px-2 py-1 w-full ${errors.chief_eng ? "border-red-500" : ""}`} 
                         name="chief_eng"
-                        maxLength={5}
                         placeholder="กรอกชื่อพนักงาน"
                         value={form.chief_eng} 
                         onChange={(e) => setForm({...form, chief_eng: e.target.value})} 
@@ -234,7 +230,6 @@ export default function EmpForm({ empData, mutate, handleClose }) {
                         type="text" 
                         className={`border-2 rounded-lg px-2 py-1 w-full ${errors.group ? "border-red-500" : ""}`} 
                         name="group"
-                        maxLength={5}
                         placeholder="กรอกชื่อพนักงาน"
                         value={form.group} 
                         onChange={(e) => setForm({...form, group: e.target.value})} 
@@ -249,7 +244,6 @@ export default function EmpForm({ empData, mutate, handleClose }) {
                         type="text" 
                         className={`border-2 rounded-lg px-2 py-1 w-full ${errors.department ? "border-red-500" : ""}`} 
                         name="department"
-                        maxLength={5}
                         placeholder="กรอกชื่อพนักงาน"
                         value={form.department} 
                         onChange={(e) => setForm({...form, department: e.target.value})} 
@@ -264,7 +258,6 @@ export default function EmpForm({ empData, mutate, handleClose }) {
                         type="text" 
                         className={`border-2 rounded-lg px-2 py-1 w-full ${errors.branch ? "border-red-500" : ""}`} 
                         name="department"
-                        maxLength={5}
                         placeholder="กรอกชื่อพนักงาน"
                         value={form.branch} 
                         onChange={(e) => setForm({...form, branch: e.target.value})} 
@@ -275,7 +268,7 @@ export default function EmpForm({ empData, mutate, handleClose }) {
             <div className="flex flex-row justify-center items-center w-full mt-4">
                 <button
                     className="bg-[#0056FF] text-white px-4 py-2 rounded-lg"
-                    onClick={() => handleSave}
+                    onClick={handleSave}
                 >
                     {isEdit ? "แก้ไข" : "บันทึก"}
                 </button>

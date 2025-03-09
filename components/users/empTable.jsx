@@ -45,10 +45,12 @@ export default function EmpTable() {
 
     const columns =[
         { field: 'empId', headerName: 'EmpId', width: 100,},
+        { field: 'name', headerName: 'Name', width: 200,},
+        { field: 'sex', headerName: 'Sex', width: 80,},
         { field: 'teamGrop', headerName: 'TeamGroup', width: 100 },
         { field: 'group', headerName: 'Group', width: 100 },
         { field: 'position', headerName: 'Position', width: 100 },
-        { field: 'department', headerName: 'Department', width: 400 },
+        { field: 'department', headerName: 'Department', width: 200 },
         { field: 'chief_eng', headerName: 'ChiefEng', width: 100 },
         { field: 'chief_th', headerName: 'ChiefTh', width: 200 },
         { field: 'branch', headerName: 'Branch', width: 200 },
