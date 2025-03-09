@@ -58,9 +58,11 @@ export default function EmpTable() {
             renderCell: (params) => (
                 <div className="flex flex-row items-center justify-center gap-4 p-2">
                     <FaEdit size={25}
+                        className="text-[#0056FF] cursor-pointer"
                         onClick={() => handleSelectedEmp(params.row)}
                     />
                     <RiDeleteBinLine size={25} 
+                        className="text-[#FF0000] cursor-pointer"
                         onClick={() => handleDeleteEmp(params.row.empId)}
                     />
                 </div>

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { Divider } from "@mui/material";
+import { toast } from "react-toastify";
 
 export default function EmpForm({ empData, mutate, handleClose }) {
     // ตั้งค่าข้อมูลเริ่มต้นของฟอร์ม
@@ -49,9 +50,11 @@ export default function EmpForm({ empData, mutate, handleClose }) {
     
         // ตรวจสอบข้อผิดพลาด
         if (empId.length === 0) {
+            toast.error("กรุณากรอกรหัสพนักงาน");
             return setErrors({ empId: "กรุณากรอกรหัสพนักงาน" });
         }
         if (empId.length < 5) {
+            toast.error("กรุณากรอกรหัสพนักงานให้ครบ 5 ตัว");
             return setErrors({ empId: "กรุณากรอกรหัสพนักงานให้ครบ 5 ตัว" });
         }
     
@@ -60,9 +63,11 @@ export default function EmpForm({ empData, mutate, handleClose }) {
             try {
                 const res = await axios.get(`/api/emp/${empId}`);
                 if (res.data.data) {
+                    toast.error("รหัสพนักงานนี้มีอยู่ในระบบแล้ว");
                     return setErrors({ empId: "รหัสพนักงานนี้มีอยู่ในระบบแล้ว" });
                 }
             } catch (error) {
+                toast.error("ไม่สามารถตรวจสอบรหัสพนักงานได้");
                 console.error("Error checking empId:", error);
             }
         }
@@ -72,7 +77,10 @@ export default function EmpForm({ empData, mutate, handleClose }) {
     };
 
     const handleTeamGrop = async (teamGrop) => {
-        if (teamGrop === "") setErrors({ teamGrop: "กรุณากรอก teamGrop" });
+        if (teamGrop === "") {
+            toast.error("กรุณากรอก teamGrop");
+            setErrors({ teamGrop: "กรุณากรอก teamGrop" })
+        };
         setErrors({});
         setForm({ ...form, teamGrop: teamGrop });
     };
@@ -94,15 +102,18 @@ export default function EmpForm({ empData, mutate, handleClose }) {
         console.log('form', form);
         try {
             if (isEdit) {
-                await axios.put(`/api/emp/${form.empId}`, form);
+                await axios.put(`/api/emp/${form.empId}`, form);+
+                toast.success('อัปเดตข้อมูลพนักงานสําเร็จ');
                 mutate();
             } else {
                 await axios.post(`/api/emp`, form);
+                toast.success('เพิ่มข้อมูลพนักงานสําเร็จ');
                 mutate();
             }
             mutate();
             handleClear();
         } catch (error) {
+            toast.error('ไม่สามารถอัปเดตข้อมูลพนักงานได้');
             console.log(error);
         }
     }
