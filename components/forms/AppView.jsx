@@ -22,6 +22,7 @@ export default function AppView({ data }) {
   const [hasAnswered, setHasAnswered] = useState(false);
   const [isSubmit, setIsSubmit] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const { data: session } = useSession();
   const userId = session?.user?.id;
@@ -32,7 +33,10 @@ export default function AppView({ data }) {
     if (!data) return;
   }, [data]);
 
-  const { data: answersData, error } = useSWR(
+  console.log("answers", answers);
+  console.log("data", data);
+
+  const { data: answersData } = useSWR(
     `/api/forms/answers?formId=${id}&userId=${userId}`,
     fetcher
   );
@@ -53,7 +57,7 @@ export default function AppView({ data }) {
   }, [answersData, router]);
 
   const handleFieldChange = (e, field, index) => {
-    const { name, value } = e.target;
+    const { value } = e.target;
 
     setAnswers((prevAnswers) => {
       const updatedAnswers = [...prevAnswers];
@@ -62,24 +66,30 @@ export default function AppView({ data }) {
       );
 
       if (existingAnswerIndex !== -1) {
-        // Update existing answer
+        // อัปเดตค่าคำตอบของคำถามที่มีอยู่
         updatedAnswers[existingAnswerIndex] = {
-          ...updatedAnswers[existingAnswerIndex],
-          [name]: value,
+          index: index + 1,
+          fieldId: field._id, // ใช้ `_id` ของคำถามเพื่อเชื่อมโยงข้อมูล
+          answer: value,
         };
       } else {
-        // Add new answer
+        // เพิ่มคำตอบใหม่เข้าไปใน array
         updatedAnswers.push({
           index: index + 1,
-          [name]: value,
+          fieldId: field._id,
+          answer: value,
         });
       }
+
+      setErrors((prevErrors) => {
+        const newErrors = { ...prevErrors };
+        delete newErrors[index + 1];
+        return newErrors;
+      });
+
       return updatedAnswers;
     });
   };
-
-  console.log("data", data);
-  console.log("answers", answers);
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -98,8 +108,26 @@ export default function AppView({ data }) {
       return;
     }
 
+    // ตรวจสอบว่ามีคำถามที่ไม่ได้ตอบหรือไม่
+    const newErrors = {};
+    data.fields.forEach((field, index) => {
+      const answer =
+        answers.find((ans) => ans.index === index + 1)?.answer || "";
+      if (answer === "") {
+        newErrors[index + 1] = "กรุณาเลือกคำตอบ";
+      }
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error("คุณตอบคำถามยังไม่ครบทุกข้อ");
+      setLoading(false);
+      return;
+    }
+
     if (answers.length < data.fields.length) {
       toast.error("คุณตอบคำถามยังไม่ครบทุกข้อ");
+      setLoading(false);
       return;
     }
 
@@ -108,6 +136,7 @@ export default function AppView({ data }) {
       answers,
       userId,
     };
+
     try {
       const response = await axios.post("/api/forms/answers", newAnswers);
       if (response.status === 201) {
@@ -120,6 +149,7 @@ export default function AppView({ data }) {
           allowOutsideClick: false,
         }).then(() => {
           setLoading(false);
+          handleClear();
           router.back();
         });
       }
@@ -127,6 +157,13 @@ export default function AppView({ data }) {
       console.error(error);
       setLoading(false);
     }
+  };
+
+  const handleClear = () => {
+    setAnswers([]);
+    setErrors({});
+    setIsSubmit(false);
+    setHasAnswered(false);
   };
 
   if (loading) return <Loading />;
@@ -174,7 +211,9 @@ export default function AppView({ data }) {
               key={index}
               className="flex flex-col w-full mt-2 bg-white px-4 py-2 rounded-sm"
             >
-              <h1 className="text-xl font-bold">{field.title}</h1>
+              <h1 className="text-xl font-bold">
+                {index + 1}. {field.title}
+              </h1>
               <p className="text-md text-gray-400">{field.description}</p>
               {field.image && (
                 <div className="flex mt-2">
@@ -198,16 +237,21 @@ export default function AppView({ data }) {
                   />
                 </div>
               )}
+              {field.type === "option" && errors[index + 1] && (
+                <p className="text-red-500 text-sm mt-1">{errors[index + 1]}</p>
+              )}
               <div>
                 {field.type === "text" ? (
                   <div>
                     <textarea
-                      className="w-full mt-2 border-2 p-2 rounded-lg"
+                      className={`w-full mt-2 border-2 p-2 rounded-lg
+                        ${errors[index + 1] ? "border-red-500" : ""}
+                        `}
                       name="text"
                       placeholder="กรอกข้อมูล"
                       value={
                         answers.find((answer) => answer.index === index + 1)
-                          ?.text || ""
+                          ?.answer || ""
                       }
                       onChange={(e) => handleFieldChange(e, field, index)}
                       rows={3}
@@ -219,16 +263,18 @@ export default function AppView({ data }) {
                       <div key={optIndex} className="flex flex-row gap-2">
                         <input
                           type="radio"
-                          id={option}
-                          name="option"
+                          id={`${field._id}-${option}`} // ให้ id มีเอกลักษณ์
+                          name={`option-${field._id}`} // ให้แต่ละ field มี name แยกกัน
                           value={option}
                           checked={
-                            answers.find((answer) => answer.index === index + 1)
-                              ?.option === option
+                            answers.find((ans) => ans.fieldId === field._id)
+                              ?.answer === option
                           }
                           onChange={(e) => handleFieldChange(e, field, index)}
                         />
-                        <label htmlFor={option}>{option}</label>
+                        <label htmlFor={`${field._id}-${option}`}>
+                          {option}
+                        </label>
                       </div>
                     ))}
                   </div>
