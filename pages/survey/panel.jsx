@@ -456,10 +456,11 @@ const SurveyPanel = () => {
           <div key={index} className="flex flex-col px-2 w-full mb-1">
             <div className="flex flex-col bg-gray-200 rounded-xl p-1 w-full">
               <div className="flex flex-row w-full">
-                <div className="flex flex-col">
+                <div className="flex flex-col w-[40px] h-[40px]">
                   <Image
                     src={
-                      comment?.user?.role === "manager"
+                      comment?.user?.role === "manager" ||
+                      comment?.user?.role === "admin"
                         ? comment.user.pictureUrl || "/images/survey/3.svg"
                         : "/images/survey/3.svg"
                     }
@@ -474,7 +475,8 @@ const SurveyPanel = () => {
                 <div className="flex flex-col w-full text-left ml-2 px-1">
                   <div className="flex flex-row justify-between w-full ">
                     <span className="text-sm font-bold text-[#0056FF]">
-                      {comment?.user?.role === "manager"
+                      {comment?.user?.role === "manager" ||
+                      comment?.user?.role === "admin"
                         ? comment.user.fullname
                         : "ไม่ระบุ"}
                     </span>
@@ -557,7 +559,8 @@ const SurveyPanel = () => {
                       <div className="flex flex-col w-[50px]">
                         <Image
                           src={
-                            reply?.user?.role === "manager"
+                            reply?.user?.role === "manager" ||
+                            reply?.user?.role === "admin"
                               ? reply?.user?.pictureUrl ||
                                 "/images/survey/3.svg"
                               : "/images/survey/3.svg"
@@ -573,7 +576,8 @@ const SurveyPanel = () => {
                       <div className="flex flex-col w-full text-left ml-2 px-1">
                         <div className="flex flex-row justify-between w-full ">
                           <span className="text-sm font-bold text-[#0056FF]">
-                            {reply?.user?.role === "manager"
+                            {reply?.user?.role === "manager" ||
+                            reply?.user?.role === "admin"
                               ? reply?.user?.fullname
                               : "ไม่ระบุ"}
                           </span>

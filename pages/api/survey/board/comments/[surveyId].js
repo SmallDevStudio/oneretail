@@ -61,7 +61,7 @@ export default async function handler(req, res) {
                   const replyUser = await Users.findOne({
                     userId: reply.userId,
                   })
-                    .select("userId fullname pictureUrl")
+                    .select("userId fullname pictureUrl empId role")
                     .lean();
                   return {
                     ...reply,
