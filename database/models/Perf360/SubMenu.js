@@ -1,0 +1,31 @@
+import mongoose from "mongoose";
+
+const SubMenuSchema = new mongoose.Schema(
+  {
+    order: { type: Number },
+    menu: { type: String, ref: "Menu", required: true },
+    group: [{ type: String }],
+    title: { type: String },
+    descriptions: { type: String },
+    url: { type: String },
+    creator: { type: String, ref: "Users", required: true },
+    updated_users: [
+      {
+        userId: { type: String },
+        updatedAt: { type: Date, default: Date.now },
+      },
+    ],
+    image: { type: Array, default: {} },
+    active: { type: Boolean, default: true },
+    views: [
+      {
+        userId: { type: String },
+        updatedAt: { type: Date, default: Date.now },
+      },
+    ],
+  },
+  { timestamps: true }
+);
+
+export default mongoose.models.SubMenu ||
+  mongoose.model("SubMenu", SubMenuSchema);

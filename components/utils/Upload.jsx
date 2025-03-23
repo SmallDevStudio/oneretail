@@ -13,7 +13,7 @@ export default function Upload({ onClose, setFiles, folder, newUpload }) {
   const [uploadingFiles, setUploadingFiles] = useState([]);
 
   const { data: session } = useSession();
-  const userId = session?.user?.userId;
+  const userId = session?.user?.id;
 
   useEffect(() => {
     if (newUpload) {
@@ -43,8 +43,10 @@ export default function Upload({ onClose, setFiles, folder, newUpload }) {
     let totalSize = files.reduce((sum, file) => sum + file.size, 0);
     let uploadedSize = 0;
 
+    console.log(fileList);
+
     const uploadPromises = files.map(async (file, index) => {
-      return await uploadFile(file, folder || "forms", userId, (progress) => {
+      return await uploadFile(file, folder || "", userId, (progress) => {
         const parsedProgress = parseFloat(progress); // ✅ ให้แน่ใจว่าเป็น number
 
         setUploadingFiles((prev) =>
@@ -70,7 +72,7 @@ export default function Upload({ onClose, setFiles, folder, newUpload }) {
   };
 
   return (
-    <div className="flex flex-col w-[500px] p-4">
+    <div className="flex flex-col w-[320px] p-4 lg:w-[500px]">
       <div className="flex flex-row items-center justify-between w-full">
         <span className="text-xl font-bold text-orange-500">อัพโหลดไฟล์</span>
         <IoClose size={25} onClick={handleClose} className="cursor-pointer" />
