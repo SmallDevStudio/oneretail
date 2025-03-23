@@ -21,6 +21,7 @@ export default function Perf360() {
   const [news, setNews] = useState([]);
   const [popup, setPopup] = useState([]);
   const [openPopup, setOpenPopup] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { data: session, status } = useSession();
 
   useEffect(() => {
@@ -33,7 +34,11 @@ export default function Perf360() {
     }
   }, [popup]);
 
-  const { data, error } = useSWR("/api/perf360", fetcher, {
+  const {
+    data: perfData,
+    error,
+    isLoading,
+  } = useSWR("/api/perf360", fetcher, {
     revalidateOnMount: true,
     onSuccess: (data) => {
       setMenu(data.menu);
@@ -44,6 +49,8 @@ export default function Perf360() {
 
   const handleOpenPopup = () => setOpenPopup(true);
   const handleClosePopup = () => setOpenPopup(false);
+
+  if (isLoading || !perfData || loading || error) return <Loading />;
 
   return (
     <div className="flex flex-col pb-20 w-full">

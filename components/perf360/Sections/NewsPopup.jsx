@@ -1,0 +1,46 @@
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { IoClose } from "react-icons/io5";
+
+export default function NewsPopup({ news, onClose }) {
+  const handleLink = (url) => {
+    if (url) {
+      window.open(url, "_blank");
+    }
+  };
+
+  return (
+    <div className="flex flex-col w-full">
+      {/* Header */}
+      <div className="flex flex-row bg-[#0056FF] text-white items-center p-2 gap-4 w-full justify-between">
+        <h2 className="text-lg font-bold">{news.category}</h2>
+        <IoClose className="text-lg cursor-pointer" onClick={onClose} />
+      </div>
+
+      {/* Content */}
+      <div className="p-4">
+        <h2 className="text-lg font-bold">{news.title}</h2>
+        <div
+          className="tiptap w-full"
+          dangerouslySetInnerHTML={{ __html: news.content }}
+        />
+      </div>
+      <div className="flex flex-row gap-4 w-full justify-center p-4">
+        <button
+          className="bg-[#0056FF] text-white font-bold py-2 px-4 rounded-md"
+          onClick={() => handleLink(news.url)}
+        >
+          ดูรายละเอียด
+        </button>
+        <button>
+          <button
+            className="bg-gray-300 text-black font-bold py-2 px-4 rounded-md"
+            onClick={onClose}
+          >
+            ปิดหน้าต่างนี้
+          </button>
+        </button>
+      </div>
+    </div>
+  );
+}
