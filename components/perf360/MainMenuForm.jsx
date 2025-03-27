@@ -26,8 +26,8 @@ export default function MainMenuForm({ onClose, data, mutate, newData }) {
     active: true,
     title: "",
     descriptions: "",
+    group: "",
   });
-  const [group, setGroup] = useState(GroupData.map((g) => g.value));
   const [openImage, setOpenImage] = useState(false);
   const [files, setFiles] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,20 +44,20 @@ export default function MainMenuForm({ onClose, data, mutate, newData }) {
 
   useEffect(() => {
     if (data) {
-      setGroup(Array.isArray(data.group) ? data.group : []);
       setForm({
         active: data.active ?? true,
         title: data.title ?? "",
         descriptions: data.descriptions ?? "",
+        group: data.group ?? "",
       });
       if (data.files) setFiles(data.files);
     } else if (newData) {
       // ✅ กรณีสร้างใหม่ ให้เลือกทุก group
-      setGroup(GroupData.map((g) => g.value));
       setForm({
         active: true,
         title: "",
         descriptions: "",
+        group: "",
       });
     }
   }, [data, newData]);
@@ -104,7 +104,6 @@ export default function MainMenuForm({ onClose, data, mutate, newData }) {
     setIsSubmitting(true); // ✅ เริ่ม block
     const newData = {
       ...form,
-      group,
       image: files,
     };
 
@@ -146,17 +145,10 @@ export default function MainMenuForm({ onClose, data, mutate, newData }) {
       active: true,
       title: "",
       descriptions: "",
+      group: "",
     });
     setFiles(null);
-    setGroup(GroupData.map((g) => g.value));
     onClose();
-  };
-
-  const handleToggleGroup = (value) => {
-    if (!Array.isArray(group)) return;
-    setGroup((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
-    );
   };
 
   return (
@@ -181,20 +173,22 @@ export default function MainMenuForm({ onClose, data, mutate, newData }) {
           <label htmlFor="teamGrop" className="font-bold">
             กลุ่มพนักงาน
           </label>
-          <div className="flex flex-row items-center justify-between border border-gray-200 rounded-lg p-2 w-full">
-            {GroupData.map((g, index) => (
-              <div key={index} className="flex flex-row items-center gap-2">
-                <input
-                  type="checkbox"
-                  name="group"
-                  id={`group-${g.value}`}
-                  checked={Array.isArray(group) && group.includes(g.value)}
-                  onChange={() => handleToggleGroup(g.value)}
-                />
-                <label htmlFor={`group-${g.value}`}>{g.name}</label>
-              </div>
+
+          <select
+            type="checkbox"
+            name="group"
+            id="group"
+            className="border border-gray-300 rounded-md p-2 w-full"
+            value={form.group}
+            onChange={(e) => setForm({ ...form, group: e.target.value })}
+          >
+            <option value="">เลือกกลุ่ม</option>
+            {GroupData.map((group, index) => (
+              <option key={index} value={group.value}>
+                {group.name}
+              </option>
             ))}
-          </div>
+          </select>
         </div>
 
         <div className="flex flex-col w-full">

@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const MenuSchema = new mongoose.Schema(
   {
     order: { type: Number },
-    group: [{ type: String }],
+    group: { type: String },
     title: { type: String },
     descriptions: { type: String },
     creator: { type: String, ref: "Users", required: true },

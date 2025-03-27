@@ -1,4 +1,3 @@
-// /api/perf360/allmenu
 import connetMongoDB from "@/lib/services/database/mongodb";
 import Menu from "@/database/models/Perf360/Menu";
 import SubMenu from "@/database/models/Perf360/SubMenu";
@@ -14,23 +13,21 @@ export default async function handler(req, res) {
         const menu = await Menu.find().sort({ order: 1 }).lean();
         const submenu = await SubMenu.find().sort({ order: 1 }).lean();
 
-        // Build submenu grouped by menu
+        // Group submenu by menuId
         const submenuByMenu = {};
         submenu.forEach((sub) => {
           if (!submenuByMenu[sub.menu]) submenuByMenu[sub.menu] = [];
           submenuByMenu[sub.menu].push(sub);
         });
 
-        // Group data by group
+        // Group menus by group string
         const grouped = {};
-
         menu.forEach((m) => {
-          m.group.forEach((g) => {
-            const relevantSub = (submenuByMenu[m._id] || []).filter((s) =>
-              s.group.includes(g)
-            );
-            if (!grouped[g]) grouped[g] = [];
-            grouped[g].push({ menu: m, submenu: relevantSub });
+          const g = m.group;
+          if (!grouped[g]) grouped[g] = [];
+          grouped[g].push({
+            menu: m,
+            submenu: submenuByMenu[m._id?.toString()] || [],
           });
         });
 

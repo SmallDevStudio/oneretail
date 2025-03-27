@@ -4,7 +4,7 @@ const SubMenuSchema = new mongoose.Schema(
   {
     order: { type: Number },
     menu: { type: String, ref: "Menu", required: true },
-    group: [{ type: String }],
+    group: { type: String },
     title: { type: String },
     descriptions: { type: String },
     url: { type: String },

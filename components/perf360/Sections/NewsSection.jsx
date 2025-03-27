@@ -34,7 +34,6 @@ export default function NewsSection({ data }) {
   };
 
   const handleClick = (news) => {
-    console.log("news", news);
     if (news.display === "popup") {
       handleOpenPopup(news);
     } else {

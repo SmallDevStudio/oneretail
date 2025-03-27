@@ -48,12 +48,14 @@ export default function PopupSection({ data, onClose }) {
 
           {/* ปุ่มดูรายละเอียด */}
           <div className="mt-4 flex justify-center gap-4 w-full">
-            <button
-              className="bg-[#0056FF] text-white font-bold py-2 px-4 border border-gray-100 rounded-lg max-w-xs"
-              onClick={() => handleLink(currentItem.url)}
-            >
-              ดูรายละเอียด
-            </button>
+            {currentItem.url && (
+              <button
+                className="bg-[#0056FF] text-white font-bold py-2 px-4 border border-gray-100 rounded-lg max-w-xs"
+                onClick={() => handleLink(currentItem.url)}
+              >
+                ดูรายละเอียด
+              </button>
+            )}
 
             {currentIndex === data.length - 1 && (
               <button
