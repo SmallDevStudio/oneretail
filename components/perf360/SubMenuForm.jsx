@@ -30,9 +30,9 @@ export default function SubMenuForm({ onClose, data, mutate, newData }) {
     title: "",
     descriptions: "",
     url: "",
+    group: "",
   });
   const [menu, setMenu] = useState([]);
-  const [group, setGroup] = useState(GroupData.map((g) => g.value));
   const [openImage, setOpenImage] = useState(false);
   const [files, setFiles] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,24 +57,24 @@ export default function SubMenuForm({ onClose, data, mutate, newData }) {
 
   useEffect(() => {
     if (data) {
-      setGroup(Array.isArray(data.group) ? data.group : []);
       setForm({
         menu: data.menu ?? "",
         active: data.active ?? true,
         title: data.title ?? "",
         descriptions: data.descriptions ?? "",
         url: data.url ?? "",
+        group: data.group ?? "",
       });
       if (data.files) setFiles(data.files);
     } else if (newData) {
       // ✅ กรณีสร้างใหม่ ให้เลือกทุก group
-      setGroup(GroupData.map((g) => g.value));
       setForm({
         menu: "",
         active: true,
         title: "",
         descriptions: "",
         url: "",
+        group: "",
       });
     }
   }, [data, newData]);
@@ -134,7 +134,6 @@ export default function SubMenuForm({ onClose, data, mutate, newData }) {
     setIsSubmitting(true); // ✅ เริ่ม block
     const newData = {
       ...form,
-      group,
       image: files,
     };
 
@@ -181,17 +180,10 @@ export default function SubMenuForm({ onClose, data, mutate, newData }) {
       title: "",
       descriptions: "",
       url: "",
+      group: "",
     });
     setFiles(null);
-    setGroup(GroupData.map((g) => g.value));
     onClose();
-  };
-
-  const handleToggleGroup = (value) => {
-    if (!Array.isArray(group)) return;
-    setGroup((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
-    );
   };
 
   return (
@@ -245,19 +237,23 @@ export default function SubMenuForm({ onClose, data, mutate, newData }) {
           <label htmlFor="teamGrop" className="font-bold">
             กลุ่มพนักงาน
           </label>
-          <div className="flex flex-row items-center justify-between border border-gray-200 rounded-lg p-2 w-full">
-            {GroupData.map((g, index) => (
-              <div key={index} className="flex flex-row items-center gap-2">
-                <input
-                  type="checkbox"
-                  name="group"
-                  id={`group-${g.value}`}
-                  checked={Array.isArray(group) && group.includes(g.value)}
-                  onChange={() => handleToggleGroup(g.value)}
-                />
-                <label htmlFor={`group-${g.value}`}>{g.name}</label>
-              </div>
-            ))}
+
+          <div className="flex flex-row items-center gap-2">
+            <select
+              name="group"
+              id="group"
+              type="checkbox"
+              className="border rounded-md p-2 w-full"
+              value={form.group}
+              onChange={(e) => setForm({ ...form, group: e.target.value })}
+            >
+              <option value="">กรุณาเลือกกลุ่มพนักงาน</option>
+              {GroupData.map((item, index) => (
+                <option key={index} value={item.value}>
+                  {item.name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
