@@ -275,7 +275,7 @@ export default function Menu() {
                             </button>
                             {sub.title}
                           </div>
-                          <div className="text-sm flex gap-1 text-xs">
+                          <div className="flex gap-1 text-xs">
                             <span
                               className={`${
                                 sub.active ? "text-green-500" : "text-red-500"
