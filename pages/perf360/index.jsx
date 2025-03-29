@@ -36,6 +36,20 @@ export default function Perf360() {
     }
   }, [popup]);
 
+  useEffect(() => {
+    if (userId) {
+      const useActivity = async () => {
+        try {
+          await axios.post(`/api/perf360/activity`, { userId });
+        } catch (err) {
+          console.error("Click tracking error:", err);
+        }
+      };
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useActivity();
+    }
+  }, [userId]);
+
   const {
     data: perfData,
     error,
