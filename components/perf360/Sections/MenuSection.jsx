@@ -7,15 +7,21 @@ import Image from "next/image";
 
 export default function MenuSection({ menu }) {
   const router = useRouter();
-  const getImageSrc = (image) => {
-    if (!image || typeof image !== "object") return "/dist/img/simple.png";
-    if (!image.url || image.url === "") return "/dist/img/simple.png";
-    return image.url;
-  };
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
 
-  const handleLink = (url) => {
-    if (url) {
-      window.open(url, "_blank");
+  const handleLink = async (submenu) => {
+    if (submenu.url) {
+      try {
+        await axios.post("/api/perf360/submenu/activity", {
+          submenuId: submenu._id,
+          userId,
+          activity: "click",
+        });
+      } catch (err) {
+        console.error("Click tracking error:", err);
+      }
+      window.open(submenu.url, "_blank");
     }
   };
 
@@ -31,7 +37,7 @@ export default function MenuSection({ menu }) {
             <div className="flex flex-row gap-3 w-full">
               <div className="shrink-0 w-[60px] h-[60px] relative">
                 <Image
-                  src={getImageSrc(m.image)}
+                  src={m.image?.url ? m.image?.url : "/dist/img/simple.png"}
                   alt={m.title}
                   width={60}
                   height={60}
@@ -41,7 +47,7 @@ export default function MenuSection({ menu }) {
               <div className="flex flex-col w-full overflow-hidden">
                 <h2 className="text-base font-bold truncate">{m.title}</h2>
                 <p className="text-xs text-gray-500 break-words line-clamp-3 leading-snug">
-                  {m.descriptions}
+                  {m?.descriptions}
                 </p>
               </div>
             </div>
@@ -53,10 +59,10 @@ export default function MenuSection({ menu }) {
                   <div
                     key={subIndex}
                     className="flex flex-col items-center justify-center bg-gray-300 text-center border border-gray-100 rounded-lg p-2"
-                    onClick={() => handleLink(s.url)}
+                    onClick={() => handleLink(s)}
                   >
                     <Image
-                      src={getImageSrc(s.image)}
+                      src={s.image?.url ? s.image?.url : "/dist/img/simple.png"}
                       alt={s.title}
                       width={40}
                       height={40}

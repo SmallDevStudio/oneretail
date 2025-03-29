@@ -2,24 +2,56 @@ import connetMongoDB from "@/lib/services/database/mongodb";
 import Menu from "@/database/models/Perf360/Menu";
 import SubMenu from "@/database/models/Perf360/SubMenu";
 import News from "@/database/models/Perf360/News";
-import Popup from "@/database/models/Perf360/Popup"; // ✅ เพิ่ม import
+import Popup from "@/database/models/Perf360/Popup";
+import NewsActivity from "@/database/models/Perf360/NewsActivity";
+import Users from "@/database/models/users";
+import Emp from "@/database/models/emp";
 
 export default async function handler(req, res) {
   const { method } = req;
+  const { userId } = req.query;
 
   await connetMongoDB();
 
   switch (method) {
     case "GET":
       try {
-        const menu = await Menu.find({ active: true }).sort({ order: 1 });
-        const submenu = await SubMenu.find({ active: true }).sort({ order: 1 });
-        const news = await News.find({ active: true });
-        const popup = await Popup.find({ active: true }).sort({
-          createdAt: -1,
-        }); // ✅ ดึง popup
+        // ✅ ดึงข้อมูล Users และ Emp
+        const users = await Users.findOne({ active: true, userId: userId });
+        if (!users) {
+          return res
+            .status(404)
+            .json({ success: false, message: "User not found" });
+        }
 
-        // จัดกลุ่ม submenu เข้า menu
+        const emp = await Emp.findOne({ empId: users.empId });
+        if (!emp) {
+          return res
+            .status(404)
+            .json({ success: false, message: "Emp not found" });
+        }
+
+        const teamGroup = emp.teamGrop; // ✅ ใช้ teamGrop เพื่อตรวจสอบ group
+
+        // ✅ ดึงเฉพาะ popup, news, menu, submenu ที่ group ตรงกับ teamGrop
+        const popup = await Popup.find({
+          active: true,
+          group: { $in: teamGroup },
+        }).sort({ createdAt: -1 });
+        const news = await News.find({
+          active: true,
+          group: { $in: teamGroup },
+        });
+        const menu = await Menu.find({
+          active: true,
+          group: { $in: teamGroup },
+        }).sort({ order: 1 });
+        const submenu = await SubMenu.find({
+          active: true,
+          group: { $in: teamGroup },
+        }).sort({ order: 1 });
+
+        // ✅ จัดกลุ่ม submenu เข้า menu
         const menuWithSubmenus = menu.map((m) => {
           const relatedSubmenus = submenu.filter(
             (s) => s.menu === m._id.toString()
@@ -30,8 +62,51 @@ export default async function handler(req, res) {
           };
         });
 
-        // จัดกลุ่ม news ตาม category
-        const groupedNews = news.reduce((acc, item) => {
+        // ✅ ดึง activity ของ news
+        const newsIds = news.map((n) => n._id);
+        const activities = await NewsActivity.aggregate([
+          { $match: { newsId: { $in: newsIds } } },
+          {
+            $group: {
+              _id: { newsId: "$newsId", activity: "$activity" },
+              count: { $sum: 1 },
+            },
+          },
+        ]);
+
+        // ✅ รวม activity กับ news
+        const activityMap = {};
+        activities.forEach(({ _id, count }) => {
+          const { newsId, activity } = _id;
+          if (!activityMap[newsId]) {
+            activityMap[newsId] = { click: 0, views: 0 };
+          }
+          if (activity === "click") {
+            activityMap[newsId].click = count;
+          }
+          if (activity === "view") {
+            activityMap[newsId].views = count;
+          }
+        });
+
+        const enrichedNews = news.map((n) => ({
+          ...n.toObject(),
+          click: activityMap[n._id]?.click || 0,
+          views: activityMap[n._id]?.views || 0,
+        }));
+
+        const filteredNews = enrichedNews.filter((n) => {
+          // ถ้า news.position ไม่มีค่าให้แสดงทั้งหมด
+          if (!n.position || n.position.length === 0) return true;
+
+          // ถ้า news.position มีค่า ให้เช็คว่าตรงกับ emp.position หรือไม่
+          return n.position.some((pos) =>
+            userWithEmp.emp.position.includes(pos)
+          );
+        });
+
+        // ✅ จัดกลุ่ม news ตาม category
+        const groupedNews = filteredNews.reduce((acc, item) => {
           const category = item.category || "อื่นๆ";
           if (!acc[category]) acc[category] = [];
           acc[category].push(item);
@@ -41,9 +116,10 @@ export default async function handler(req, res) {
         // ✅ ส่งออกทุกอย่างรวมกัน
         res.status(200).json({
           success: true,
+          user: { ...users._doc, emp },
           menu: menuWithSubmenus,
           news: groupedNews,
-          popup: popup,
+          popup,
         });
       } catch (error) {
         console.error("Error fetching data:", error);

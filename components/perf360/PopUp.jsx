@@ -34,6 +34,8 @@ export default function PopUp() {
     }
   );
 
+  console.log("popup", popup);
+
   useEffect(() => {
     const normalize = (val) => val.toLowerCase().trim();
 
@@ -174,7 +176,8 @@ export default function PopUp() {
                   >
                     {item.active ? "เปิดใช้งาน" : "ไม่เปิดใช้งาน"}
                   </button>
-                  <span>| View {item.view ? item.view.length : 0}</span> |
+                  <span>| View: {item.views ? item.views : 0}</span> |
+                  <span> Click: {item.click ? item.click : 0}</span> |
                   <span
                     className="text-[#0056FF] cursor-point"
                     onClick={() => handleEdit(item)}

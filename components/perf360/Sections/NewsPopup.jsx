@@ -3,8 +3,17 @@ import axios from "axios";
 import { IoClose } from "react-icons/io5";
 
 export default function NewsPopup({ news, onClose }) {
-  const handleLink = (url) => {
+  const handleLink = async (url) => {
     if (url) {
+      try {
+        await axios.post("/api/perf360/news/activity", {
+          newsId: news._id,
+          userId,
+          activity: "click",
+        });
+      } catch (err) {
+        console.error("Click tracking error:", err);
+      }
       window.open(url, "_blank");
     }
   };
@@ -26,12 +35,14 @@ export default function NewsPopup({ news, onClose }) {
         />
       </div>
       <div className="flex flex-row gap-4 w-full justify-center p-4">
-        <button
-          className="bg-[#0056FF] text-white font-bold py-2 px-4 rounded-md"
-          onClick={() => handleLink(news.url)}
-        >
-          ดูรายละเอียด
-        </button>
+        {news.url && (
+          <button
+            className="bg-[#0056FF] text-white font-bold py-2 px-4 rounded-md"
+            onClick={() => handleLink(news.url)}
+          >
+            ดูรายละเอียด
+          </button>
+        )}
         <button>
           <button
             className="bg-gray-300 text-black font-bold py-2 px-4 rounded-md"

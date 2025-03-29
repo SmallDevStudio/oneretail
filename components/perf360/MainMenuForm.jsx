@@ -9,6 +9,7 @@ import { FaRegImage } from "react-icons/fa";
 import Upload from "../utils/Upload";
 import { deleteFile } from "@/lib/hook/useStorage";
 import { toast } from "react-toastify";
+import Loading from "../Loading";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -50,7 +51,7 @@ export default function MainMenuForm({ onClose, data, mutate, newData }) {
         descriptions: data.descriptions ?? "",
         group: data.group ?? "",
       });
-      if (data.files) setFiles(data.files);
+      if (data.image) setFiles(data.image);
     } else if (newData) {
       // ✅ กรณีสร้างใหม่ ให้เลือกทุก group
       setForm({
@@ -81,10 +82,9 @@ export default function MainMenuForm({ onClose, data, mutate, newData }) {
     }));
   };
 
-  const handleDeleteImage = async () => {
+  const handleDeleteImage = async (url, fileId) => {
     try {
-      await axios.delete(`/api/blob/delete?url=${files.url}`);
-      await deleteFile(files.fileId);
+      await deleteFile(fileId, url);
       setFiles(null);
       toast.success("ลบรูปแล้ว");
     } catch (error) {
@@ -95,7 +95,10 @@ export default function MainMenuForm({ onClose, data, mutate, newData }) {
 
   const handleUpload = (files) => {
     const file = files[0];
-    setFiles(file);
+    setFiles({
+      public_id: file.public_id,
+      url: file.url,
+    });
   };
 
   const handleSubmit = async () => {
@@ -150,6 +153,8 @@ export default function MainMenuForm({ onClose, data, mutate, newData }) {
     setFiles(null);
     onClose();
   };
+
+  if (loading) return <Loading />;
 
   return (
     <div className="flex flex-col w-full">
@@ -259,7 +264,7 @@ export default function MainMenuForm({ onClose, data, mutate, newData }) {
               />
               <div
                 className="absolute top-0 right-0 p-1 cursor-pointer bg-red-500 text-white rounded-full hover:bg-opacity-80"
-                onClick={handleDeleteImage}
+                onClick={() => handleDeleteImage(files.url, files.public_id)}
               >
                 <IoClose size={15} />
               </div>
@@ -301,7 +306,7 @@ export default function MainMenuForm({ onClose, data, mutate, newData }) {
         <Upload
           onClose={handleClickClose}
           setFiles={(files) => handleUpload(files)}
-          folder="popup"
+          folder="perf360"
           newUpload={!files}
         />
       </Dialog>

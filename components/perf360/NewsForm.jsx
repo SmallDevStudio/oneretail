@@ -158,11 +158,9 @@ export default function NewsForm({ onClose, data, mutate, newData }) {
     onClose();
   };
 
-  const handleDeleteImage = async () => {
-    const file = files[0];
+  const handleDeleteImage = async (url, public_id) => {
     try {
-      await axios.delete(`/api/blob/delete?url=${file.url}`);
-      await deleteFile(file.fileId);
+      await deleteFile(public_id, url);
       setFiles(null);
       toast.success("ลบรูปแล้ว");
     } catch (error) {
@@ -173,7 +171,10 @@ export default function NewsForm({ onClose, data, mutate, newData }) {
 
   const handleUpload = (files) => {
     const file = files[0];
-    setFiles(file);
+    setFiles({
+      public_id: file.public_id,
+      url: file.url,
+    });
   };
 
   const handleChangeActive = (value) => {
@@ -457,7 +458,7 @@ export default function NewsForm({ onClose, data, mutate, newData }) {
               />
               <div
                 className="absolute top-0 right-0 p-1 cursor-pointer bg-red-500 text-white rounded-full hover:bg-opacity-80"
-                onClick={handleDeleteImage}
+                onClick={() => handleDeleteImage(files.url, files.public_id)}
               >
                 <IoClose size={15} />
               </div>

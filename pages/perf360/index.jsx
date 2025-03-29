@@ -23,6 +23,8 @@ export default function Perf360() {
   const [openPopup, setOpenPopup] = useState(false);
   const [loading, setLoading] = useState(false);
   const { data: session, status } = useSession();
+  const router = useRouter();
+  const userId = session ? session.user.id : null;
 
   useEffect(() => {
     if (status === "loading" || !session) return;
@@ -38,7 +40,7 @@ export default function Perf360() {
     data: perfData,
     error,
     isLoading,
-  } = useSWR("/api/perf360", fetcher, {
+  } = useSWR(`/api/perf360?userId=${userId}`, fetcher, {
     revalidateOnMount: true,
     onSuccess: (data) => {
       setMenu(data.menu);
@@ -92,7 +94,11 @@ export default function Perf360() {
           },
         }}
       >
-        <PopupSection data={popup} onClose={handleClosePopup} />
+        <PopupSection
+          data={popup}
+          onClose={handleClosePopup}
+          open={openPopup}
+        />
       </Dialog>
     </div>
   );

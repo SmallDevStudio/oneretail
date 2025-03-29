@@ -150,6 +150,14 @@ export default function Menu() {
     mutate();
   };
 
+  const handleUpdateActiveSubmenu = async (submenuId, active) => {
+    await axios.put(`/api/perf360/submenu/${submenuId}`, {
+      active,
+    });
+    mutate();
+    toast.success("อัพเดตสถานะเมนูย่อยเรียบร้อย");
+  };
+
   return (
     <div className="flex flex-col w-full p-4">
       <div className="flex justify-center gap-4">
@@ -267,13 +275,25 @@ export default function Menu() {
                             </button>
                             {sub.title}
                           </div>
-                          <div className="text-sm flex gap-2">
+                          <div className="text-sm flex gap-1 text-xs">
+                            <span
+                              className={`${
+                                sub.active ? "text-green-500" : "text-red-500"
+                              }`}
+                              onClick={() =>
+                                handleUpdateActiveSubmenu(sub._id, !sub.active)
+                              }
+                            >
+                              {sub.active ? "online" : "offline"}
+                            </span>
+                            |
                             <span
                               className="text-blue-600 cursor-pointer"
                               onClick={() => handleEditSubMenu(sub)}
                             >
                               Edit
                             </span>
+                            |
                             <span
                               className="text-red-500 cursor-pointer"
                               onClick={() => handleDeleteSubMenu(sub._id)}

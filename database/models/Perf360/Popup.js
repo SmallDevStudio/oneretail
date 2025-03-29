@@ -15,14 +15,8 @@ const PopupSchema = new mongoose.Schema(
         updatedAt: { type: Date, default: Date.now },
       },
     ],
-    image: { type: Array, default: {} },
+    image: { public_id: { type: String }, url: { type: String } },
     active: { type: Boolean, default: true },
-    views: [
-      {
-        userId: { type: String },
-        updatedAt: { type: Date, default: Date.now },
-      },
-    ],
   },
   { timestamps: true }
 );

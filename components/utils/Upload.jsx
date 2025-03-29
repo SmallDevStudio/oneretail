@@ -43,8 +43,6 @@ export default function Upload({ onClose, setFiles, folder, newUpload }) {
     let totalSize = files.reduce((sum, file) => sum + file.size, 0);
     let uploadedSize = 0;
 
-    console.log(fileList);
-
     const uploadPromises = files.map(async (file, index) => {
       return await uploadFile(file, folder || "", userId, (progress) => {
         const parsedProgress = parseFloat(progress); // ✅ ให้แน่ใจว่าเป็น number

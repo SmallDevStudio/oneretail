@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import axios from "axios";
+import { useSession } from "next-auth/react";
 import moment from "moment";
 import Image from "next/image";
 import { Divider, Slide, Dialog } from "@mui/material";
@@ -13,13 +15,25 @@ export default function NewsSection({ data }) {
   const [selectedNews, setSelectedNews] = useState(null);
   const [activeTab, setActiveTab] = useState(Object.keys(data)[0] || "News");
 
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
+
   const handleTabClick = (tab) => {
     setActiveTab(tab);
   };
 
-  const handleLink = (url) => {
-    if (url) {
-      window.open(url, "_blank");
+  const handleLink = async (news) => {
+    if (news.url) {
+      try {
+        await axios.post("/api/perf360/news/activity", {
+          newsId: news._id,
+          userId,
+          activity: "click",
+        });
+      } catch (err) {
+        console.error("Click tracking error:", err);
+      }
+      window.open(news.url, "_blank");
     }
   };
 
@@ -33,11 +47,20 @@ export default function NewsSection({ data }) {
     setOpenPopup(false);
   };
 
-  const handleClick = (news) => {
+  const handleClick = async (news) => {
     if (news.display === "popup") {
+      try {
+        await axios.post("/api/perf360/news/activity", {
+          newsId: news._id,
+          userId,
+          activity: "view",
+        });
+      } catch (err) {
+        console.error("Click tracking error:", err);
+      }
       handleOpenPopup(news);
     } else {
-      handleLink(news.url);
+      handleLink(news);
     }
   };
 
@@ -87,8 +110,9 @@ export default function NewsSection({ data }) {
               dangerouslySetInnerHTML={{ __html: item.content }}
             />
             <div className="text-xs text-gray-500 mt-2">
-              Date: {moment(item.start_date).format("DD/MM/YYYY")} | View:{" "}
-              {item.views?.length || 0} | Comment: {item.Comment?.length || 0}
+              Date: {moment(item.start_date).format("DD/MM/YYYY")} |{" "}
+              <span>View: {item.views || 0}</span> |{" "}
+              <span>Comment: {item.Comment?.length || 0}</span>
             </div>
           </div>
         ))}

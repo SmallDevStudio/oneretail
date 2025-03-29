@@ -65,7 +65,7 @@ export default function SubMenuForm({ onClose, data, mutate, newData }) {
         url: data.url ?? "",
         group: data.group ?? "",
       });
-      if (data.files) setFiles(data.files);
+      if (data.image) setFiles(data.image);
     } else if (newData) {
       // ✅ กรณีสร้างใหม่ ให้เลือกทุก group
       setForm({
@@ -98,10 +98,9 @@ export default function SubMenuForm({ onClose, data, mutate, newData }) {
     }));
   };
 
-  const handleDeleteImage = async () => {
+  const handleDeleteImage = async (url, public_id) => {
     try {
-      await axios.delete(`/api/blob/delete?url=${files.url}`);
-      await deleteFile(files.fileId);
+      await deleteFile(public_id, url);
       setFiles(null);
       toast.success("ลบรูปแล้ว");
     } catch (error) {
@@ -112,7 +111,10 @@ export default function SubMenuForm({ onClose, data, mutate, newData }) {
 
   const handleUpload = (files) => {
     const file = files[0];
-    setFiles(file);
+    setFiles({
+      public_id: file.public_id,
+      url: file.url,
+    });
   };
 
   const handleChangeMenu = (e) => {
@@ -340,7 +342,7 @@ export default function SubMenuForm({ onClose, data, mutate, newData }) {
               />
               <div
                 className="absolute top-0 right-0 p-1 cursor-pointer bg-red-500 text-white rounded-full hover:bg-opacity-80"
-                onClick={handleDeleteImage}
+                onClick={() => handleDeleteImage(files.url, files.public_id)}
               >
                 <IoClose size={15} />
               </div>

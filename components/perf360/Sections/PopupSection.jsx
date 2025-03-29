@@ -1,25 +1,55 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
+import axios from "axios";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 
-export default function PopupSection({ data, onClose }) {
+export default function PopupSection({ data, onClose, open }) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [viewed, setViewed] = useState(false);
+  const timerRef = useRef(null);
   const router = useRouter();
-
-  const getImageSrc = (image) => {
-    if (!image || typeof image !== "object") return "/dist/img/simple.png";
-    if (!image.url || image.url === "") return "/dist/img/simple.png";
-    return image.url;
-  };
-
-  const handleLink = (url) => {
-    if (url) {
-      window.open(url, "_blank");
-    }
-  };
-
   const currentItem = data[currentIndex];
+
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
+
+  useEffect(() => {
+    if (!currentItem || !userId || viewed) return;
+
+    setViewed(false); // reset view flag
+    if (timerRef.current) clearTimeout(timerRef.current);
+
+    timerRef.current = setTimeout(async () => {
+      try {
+        await axios.post("/api/perf360/popup/activity", {
+          popupId: currentItem._id,
+          userId,
+          activity: "view",
+        });
+        setViewed(true);
+      } catch (err) {
+        console.error("View tracking error:", err);
+      }
+    }, 5000);
+
+    return () => clearTimeout(timerRef.current);
+  }, [currentIndex, currentItem, userId, viewed]);
+
+  const handleLink = async (url) => {
+    if (!url || !currentItem || !userId) return;
+    try {
+      await axios.post("/api/perf360/popup/activity", {
+        popupId: currentItem._id,
+        userId,
+        activity: "click",
+      });
+    } catch (err) {
+      console.error("Click tracking error:", err);
+    }
+    window.open(url, "_blank");
+  };
 
   return (
     <div className="flex flex-col items-center py-4 gap-4 w-full px-4">
@@ -35,15 +65,17 @@ export default function PopupSection({ data, onClose }) {
               dangerouslySetInnerHTML={{ __html: currentItem.content }}
             />
 
-            <div className="shrink-0 w-[100px] h-auto relative">
-              <Image
-                src={getImageSrc(currentItem.image)}
-                alt={currentItem.title}
-                width={100}
-                height={100}
-                className="object-contain"
-              />
-            </div>
+            {currentItem.image?.url && (
+              <div className="shrink-0 w-[100px] h-auto relative">
+                <Image
+                  src={currentItem.image.url}
+                  alt={currentItem.title}
+                  width={100}
+                  height={100}
+                  className="object-contain"
+                />
+              </div>
+            )}
           </div>
 
           {/* ปุ่มดูรายละเอียด */}

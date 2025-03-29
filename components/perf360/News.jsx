@@ -179,7 +179,8 @@ export default function News() {
                       >
                         {item.active ? "เปิดใช้งาน" : "ไม่เปิดใช้งาน"}
                       </button>
-                      <span>| View {item.views?.length || 0}</span> |
+                      <span>| View: {item.views || 0}</span> |
+                      <span> Click: {item.click || 0}</span> |
                       <span
                         className="text-[#0056FF] cursor-pointer"
                         onClick={() => handleEdit(item)}

@@ -16,16 +16,10 @@ const NewsSchema = new mongoose.Schema(
         updatedAt: { type: Date, default: Date.now },
       },
     ],
-    image: { type: Array, default: {} },
+    image: { public_id: { type: String }, url: { type: String } },
     display: { type: String },
     position: [{ type: String }],
     active: { type: Boolean, default: true },
-    views: [
-      {
-        userId: { type: String },
-        updatedAt: { type: Date, default: Date.now },
-      },
-    ],
   },
   { timestamps: true }
 );
