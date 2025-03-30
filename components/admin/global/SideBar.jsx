@@ -4,10 +4,24 @@ import { Box, IconButton, Typography } from "@mui/material";
 import Link from "next/link";
 import "react-pro-sidebar/dist/css/styles.css";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
-import { FaTachometerAlt, FaUsers, FaFileAlt, FaCalendarAlt, FaGift, FaGamepad, FaHome, FaFileSignature, FaFile } from 'react-icons/fa';
+import {
+  FaTachometerAlt,
+  FaUsers,
+  FaFileAlt,
+  FaCalendarAlt,
+  FaGift,
+  FaGamepad,
+  FaHome,
+  FaFileSignature,
+  FaFile,
+} from "react-icons/fa";
 import { LuGroup, LuVote } from "react-icons/lu";
 import { RiPagesLine } from "react-icons/ri";
-import { MdOutlineSubtitles, MdOutlineCampaign, MdOutlineHowToVote } from "react-icons/md";
+import {
+  MdOutlineSubtitles,
+  MdOutlineCampaign,
+  MdOutlineHowToVote,
+} from "react-icons/md";
 import { FcSurvey } from "react-icons/fc";
 import { GrArticle } from "react-icons/gr";
 import { GoFileMedia } from "react-icons/go";
@@ -21,34 +35,34 @@ import { LuBaby } from "react-icons/lu";
 import { TbSpeakerphone } from "react-icons/tb";
 import { FaWpforms } from "react-icons/fa";
 import { BiCalendarStar } from "react-icons/bi";
+import { RiCoupon3Line } from "react-icons/ri";
 import Image from "next/image";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
-   
-    return (
-      <MenuItem
-        active={selected === title}
-        style={{
-          color: "#000",
-          fontWeight: "bold !important",
-          fontWeight: "500 !important",
-        }}
-        onClick={() => setSelected(title)}
-        icon={icon}
-      >
-        <Typography style={{ fontFamily: "ttb" }}>{title}</Typography>
-        <Link href={to} />
-      </MenuItem>
-    );
-  };
-  
-  const Sidebar = () => {
-    const [isCollapsed, setIsCollapsed] = useState(false);
-    const [selected, setSelected] = useState("Dashboard");
-  
-    return (
-      <div className="relative">
-              <Box
+  return (
+    <MenuItem
+      active={selected === title}
+      style={{
+        color: "#000",
+        fontWeight: "bold !important",
+        fontWeight: "500 !important",
+      }}
+      onClick={() => setSelected(title)}
+      icon={icon}
+    >
+      <Typography style={{ fontFamily: "ttb" }}>{title}</Typography>
+      <Link href={to} />
+    </MenuItem>
+  );
+};
+
+const Sidebar = () => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [selected, setSelected] = useState("Dashboard");
+
+  return (
+    <div className="relative">
+      <Box
         sx={{
           "& .pro-sidebar": {
             zIndex: "50",
@@ -76,7 +90,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
             fontFamily: "ttb",
             color: "#000000",
             fontWeight: "500 !important",
-          }
+          },
         }}
       >
         <ProSidebar collapsed={isCollapsed}>
@@ -96,20 +110,22 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                   alignItems="center"
                   ml="15px"
                 >
-                 <Image src="/dist/img/logo-one-retail.png" alt="one-retail logo" width={200} height={200} style={{width: 'auto', height: 'auto'}}/>
+                  <Image
+                    src="/dist/img/logo-one-retail.png"
+                    alt="one-retail logo"
+                    width={200}
+                    height={200}
+                    style={{ width: "auto", height: "auto" }}
+                  />
                   <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                     <MenuOutlinedIcon />
                   </IconButton>
                 </Box>
               )}
             </MenuItem>
-  
-            {!isCollapsed && (
-              <Box mb="25px">
-                
-              </Box>
-            )}
-  
+
+            {!isCollapsed && <Box mb="25px"></Box>}
+
             <Box paddingLeft={isCollapsed ? undefined : "10%"}>
               <Item
                 title="Dashboard"
@@ -118,7 +134,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                 selected={selected}
                 setSelected={setSelected}
               />
-  
+
               <Item
                 title="จัดการผู้ใช้"
                 to="/admin/users"
@@ -126,12 +142,8 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                 selected={selected}
                 setSelected={setSelected}
               />
-              
-              <SubMenu
-                title="จัดการเนื้อหา"
-                icon={<FaFileAlt />}
-              >
 
+              <SubMenu title="จัดการเนื้อหา" icon={<FaFileAlt />}>
                 <Item
                   title="จัดการเนื้อหา"
                   to="/admin/contents"
@@ -171,7 +183,6 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                   selected={selected}
                   setSelected={setSelected}
                 />
-                
               </SubMenu>
 
               <Item
@@ -189,7 +200,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                 selected={selected}
                 setSelected={setSelected}
               />
-              
+
               <Item
                 title="จัดการ Events"
                 to="/admin/events"
@@ -205,13 +216,13 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                 setSelected={setSelected}
               />
 
-                <Item
-                  title="จัดการข้อสอบ"
-                  to="/admin/examinations"
-                  icon={<PiExam />}
-                  selected={selected}
-                  setSelected={setSelected}
-                  />
+              <Item
+                title="จัดการข้อสอบ"
+                to="/admin/examinations"
+                icon={<PiExam />}
+                selected={selected}
+                setSelected={setSelected}
+              />
 
               <Item
                 title="จัดการ Redeem"
@@ -220,17 +231,14 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                 selected={selected}
                 setSelected={setSelected}
               />
-              <SubMenu
-                title="Campaign"
-                icon={<MdOutlineCampaign />}
-              >
+              <SubMenu title="Campaign" icon={<MdOutlineCampaign />}>
                 <Item
                   title="จัดการ Campaigns"
                   to="/admin/campaigns"
                   icon={<MdOutlineCampaign />}
                   selected={selected}
                   setSelected={setSelected}
-                  />
+                />
 
                 <Item
                   title="ส่งชื่อประกวด"
@@ -238,7 +246,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                   icon={<MdOutlineHowToVote />}
                   selected={selected}
                   setSelected={setSelected}
-                  />
+                />
 
                 <Item
                   title="SocialMedia Club"
@@ -246,155 +254,148 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
                   icon={<IoShareSocialOutline />}
                   selected={selected}
                   setSelected={setSelected}
-                  />
-
+                />
               </SubMenu>
 
-              <SubMenu
-                title="จัดการเกมส์"
-                icon={<FaGamepad />}
-              >
-                  <Item
+              <SubMenu title="จัดการเกมส์" icon={<FaGamepad />}>
+                <Item
                   title="เกมส์คำถาม"
                   to="/admin/games/quiz"
                   icon={<FaGift />}
                   selected={selected}
                   setSelected={setSelected}
-                  />
+                />
 
-                  <Item
+                <Item
                   title="เกมส์จับคู่"
                   to="/admin/games/matching"
                   icon={<FaGift />}
                   selected={selected}
                   setSelected={setSelected}
-                  />
+                />
 
-                  <Item
+                <Item
                   title="เกมส์"
                   to="/admin/games/games"
                   icon={<FaGamepad />}
                   selected={selected}
                   setSelected={setSelected}
-                  />
-
+                />
               </SubMenu>
 
-                  <Item
-                  title="จัดการ Badges"
-                  to="/admin/badges"
-                  icon={<SlBadge />}
-                  selected={selected}
-                  setSelected={setSelected}
-                  />
+              <Item
+                title="จัดการ Badges"
+                to="/admin/badges"
+                icon={<SlBadge />}
+                selected={selected}
+                setSelected={setSelected}
+              />
 
-                  <Item
-                  title="จัดการ Stickers"
-                  to="/admin/stickers"
-                  icon={<LuSticker />}
-                  selected={selected}
-                  setSelected={setSelected}
-                  />
+              <Item
+                title="จัดการ Stickers"
+                to="/admin/stickers"
+                icon={<LuSticker />}
+                selected={selected}
+                setSelected={setSelected}
+              />
 
-                  <Item
-                  title="จัดการ Vote"
-                  to="/admin/votes"
-                  icon={<LuVote />}
-                  selected={selected}
-                  setSelected={setSelected}
-                  />
+              <Item
+                title="จัดการ Coupons"
+                to="/admin/coupons"
+                icon={<RiCoupon3Line />}
+                selected={selected}
+                setSelected={setSelected}
+              />
 
-                <SubMenu
-                title="จัดการ Gallery"
-                icon={<GoFileMedia />}
-                >
-                  <Item
+              <Item
+                title="จัดการ Vote"
+                to="/admin/votes"
+                icon={<LuVote />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+
+              <SubMenu title="จัดการ Gallery" icon={<GoFileMedia />}>
+                <Item
                   title="จัดการ Gallery"
                   to="/admin/galleries"
                   icon={<GoFileMedia />}
                   selected={selected}
                   setSelected={setSelected}
-                  />
+                />
 
-                  <Item
+                <Item
                   title="จัดการ Media"
                   to="/admin/medias"
                   icon={<GoFileMedia />}
                   selected={selected}
                   setSelected={setSelected}
-                  />
-                </SubMenu>
-              
+                />
+              </SubMenu>
 
-                <SubMenu
-                  title="จัดการหน้าแรก"
-                  icon={<FaHome />}
-                  >
-
-                  <Item
+              <SubMenu title="จัดการหน้าแรก" icon={<FaHome />}>
+                <Item
                   title="จัดการ Slide"
                   to="/admin/homeoptions"
                   icon={<TfiLayoutSlider />}
                   selected={selected}
                   setSelected={setSelected}
-                  />
+                />
 
-                  <Item
+                <Item
                   title="จัดการ Ads"
                   to="/admin/ads"
                   icon={<TbSpeakerphone />}
                   selected={selected}
                   setSelected={setSelected}
-                  />
-                </SubMenu>
+                />
+              </SubMenu>
 
-                  <Item
-                  title="Survey"
-                  to="/admin/survey"
-                  icon={<FcSurvey />}
-                  selected={selected}
-                  setSelected={setSelected}
-                  />
+              <Item
+                title="Survey"
+                to="/admin/survey"
+                icon={<FcSurvey />}
+                selected={selected}
+                setSelected={setSelected}
+              />
 
-                  <Item
-                  title="Satisfaction"
-                  to="/admin/satisfactions"
-                  icon={<FcSurvey />}
-                  selected={selected}
-                  setSelected={setSelected}
-                  />    
+              <Item
+                title="Satisfaction"
+                to="/admin/satisfactions"
+                icon={<FcSurvey />}
+                selected={selected}
+                setSelected={setSelected}
+              />
 
-                  <Item
-                  title="Form"
-                  to="/admin/forms"
-                  icon={<FaWpforms />}
-                  selected={selected}
-                  setSelected={setSelected}
-                  />
+              <Item
+                title="Form"
+                to="/admin/forms"
+                icon={<FaWpforms />}
+                selected={selected}
+                setSelected={setSelected}
+              />
 
-                  <Item
-                  title="Report"
-                  to="/admin/reports"
-                  icon={<TbReportAnalytics />}
-                  selected={selected}
-                  setSelected={setSelected}
-                  />
+              <Item
+                title="Report"
+                to="/admin/reports"
+                icon={<TbReportAnalytics />}
+                selected={selected}
+                setSelected={setSelected}
+              />
 
-                  <Item
-                  title="Log"
-                  to="/admin/logs"
-                  icon={<FaFileSignature />}
-                  selected={selected}
-                  setSelected={setSelected}
-                  />
-  
-             
+              <Item
+                title="Log"
+                to="/admin/logs"
+                icon={<FaFileSignature />}
+                selected={selected}
+                setSelected={setSelected}
+              />
             </Box>
           </Menu>
         </ProSidebar>
       </Box>
-      </div>
-    );
-  };
-  
-  export default Sidebar;
+    </div>
+  );
+};
+
+export default Sidebar;

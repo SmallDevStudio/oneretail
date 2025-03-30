@@ -102,8 +102,8 @@ export default function RewardPanel() {
               <Image
                 src={item.icon}
                 alt="Point"
-                width={30}
-                height={30}
+                width={200}
+                height={200}
                 className={`object-contain h-16 w-full ${
                   index + 1 <= currentDay ? "" : "grayscale"
                 }`}
