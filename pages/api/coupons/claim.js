@@ -26,7 +26,7 @@ export default async function handler(req, res) {
         if (now < coupon.start_date || now > coupon.end_date) {
           return res.status(400).json({
             success: false,
-            message: "Coupon is not available at this time",
+            message: "คูปองหมดอายุแล้ว",
           });
         }
 
@@ -38,7 +38,7 @@ export default async function handler(req, res) {
         if (amountLeft <= 0) {
           return res
             .status(400)
-            .json({ success: false, message: "Coupon is out of stock" });
+            .json({ success: false, message: "คูปองหมดแล้ว" });
         }
 
         // ตรวจสอบว่าผู้ใช้เคยใช้คูปองนี้ไปแล้วหรือไม่
@@ -51,7 +51,7 @@ export default async function handler(req, res) {
           if (alreadyUsed) {
             return res.status(400).json({
               success: false,
-              message: "User has already claimed this coupon",
+              message: "คุณได้ใช้คูปองนี้แล้ว",
             });
           }
         }

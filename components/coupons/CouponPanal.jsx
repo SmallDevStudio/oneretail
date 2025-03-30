@@ -19,7 +19,12 @@ export default function CouponPanal({ onClose, mutate }) {
   const handleClaimCoupon = async () => {
     setIsClaimed(true);
     if (!code || code.trim() === "") {
-      toast.error("กรุณากรอกโค้ด");
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "กรุณากรอกโค้ด",
+        confirmButtonText: "OK",
+      });
       return;
     }
     try {
@@ -27,6 +32,7 @@ export default function CouponPanal({ onClose, mutate }) {
         code,
         userId: session.user.id,
       });
+
       if (response.data.success) {
         onClose();
         setCode("");
@@ -37,18 +43,26 @@ export default function CouponPanal({ onClose, mutate }) {
           text: "คุณได้รับคูปองเรียบร้อยแล้ว",
           confirmButtonText: "OK",
         });
-      } else {
-        setCode("");
-        onClose();
-        await Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: response.data.message,
-          confirmButtonText: "OK",
-        });
       }
     } catch (error) {
       console.error(error);
+      let errorMessage = "เกิดข้อผิดพลาด กรุณาลองใหม่";
+
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        errorMessage = error.response.data.message;
+      }
+      onClose();
+      setCode("");
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: errorMessage,
+        confirmButtonText: "OK",
+      });
     } finally {
       setIsClaimed(false);
     }
