@@ -59,13 +59,41 @@ export default async function handler(req, res) {
 
         let nextDay = (reward.dayLogged % 7) + 1;
         const rewardData = [
-          { day: 1, point: 1, icon: "/images/reward/day1.png" },
-          { day: 2, point: 2, icon: "/images/reward/day2.png" },
-          { day: 3, point: 3, icon: "/images/reward/day3.png" },
-          { day: 4, point: 3, icon: "/images/reward/day4.png" },
-          { day: 5, point: 3, icon: "/images/reward/day5.png" },
-          { day: 6, point: 3, icon: "/images/reward/day6.png" },
-          { day: 7, point: 10, icon: "/images/reward/day7.png" },
+          {
+            day: 1,
+            point: 1,
+            icon: "/images/reward/day1.png",
+          },
+          {
+            day: 2,
+            point: 2,
+            icon: "/images/reward/day2.png",
+          },
+          {
+            day: 3,
+            point: 3,
+            icon: "/images/reward/day3.png",
+          },
+          {
+            day: 4,
+            point: 3,
+            icon: "/images/reward/day4.png",
+          },
+          {
+            day: 5,
+            point: 3,
+            icon: "/images/reward/day5.png",
+          },
+          {
+            day: 6,
+            point: 3,
+            icon: "/images/reward/day6.png",
+          },
+          {
+            day: 7,
+            point: 10,
+            icon: "/images/reward/day7.png",
+          },
         ];
 
         const earnedPoints = rewardData.find((r) => r.day === nextDay);
@@ -84,11 +112,10 @@ export default async function handler(req, res) {
         });
         await pointEntry.save();
 
-        if (pointEntry.type === "earn") {
-          // ส่งข้อความไปที่ LINE
-          const message = `คุณได้รับ ${earnedPoints.point} คะแนน จากการเช็คอินวันที่ ${nextDay} 🎉`;
-          sendLineMessage(userId, message, earnedPoints.icon);
-        }
+        // ส่งข้อความ + รูปภาพไป LINE
+        const message = `คุณได้รับ ${earnedPoints.point} คะแนน จากการเช็คอินวันที่ ${nextDay} 🎉`;
+        sendLineMessage(userId, message);
+
         res.status(200).json({ dayLogged: reward.dayLogged });
       } catch (error) {
         res.status(500).json({ error: "Internal Server Error" });

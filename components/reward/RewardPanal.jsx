@@ -58,6 +58,7 @@ export default function RewardPanel() {
       setClaimedToday(true);
       setAnimate(true);
       setTimeout(() => setAnimate(false), 1000);
+
       const earnedReward = rewardData.find((r) => r.day === res.data.dayLogged);
 
       if (earnedReward) {
