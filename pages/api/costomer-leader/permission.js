@@ -27,6 +27,16 @@ export default async function handler(req, res) {
             .json({ success: false, message: "Costomer Permission not found" });
         }
 
+        if (user.role === "admin") {
+          const hasUser = true;
+          return res.status(200).json({ success: true, hasUser });
+        }
+
+        if (user.role === "manager") {
+          const hasUser = true;
+          return res.status(200).json({ success: true, hasUser });
+        }
+
         // เช็คว่า user.empId อยู่ใน costomerPermission.users หรือไม่
         const hasUser = costomerPermission.users.includes(user.empId);
 
