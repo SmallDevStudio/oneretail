@@ -24,7 +24,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const ShareYourStory = () => {
+export default function CostomerLeader() {
   const { data: session } = useSession();
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]); // เก็บโพสต์ที่กรองแล้ว
@@ -45,7 +45,7 @@ const ShareYourStory = () => {
     },
   });
 
-  const folder = "share-your-story";
+  const folder = "costomer-leader";
 
   const { data: user, mutate: mutateUser } = useSWR(
     `/api/users/${session?.user?.id}`,
@@ -125,7 +125,7 @@ const ShareYourStory = () => {
         tagusers: data.selectedUsers,
         pinned: false,
         userId,
-        page: "share-your-story",
+        page: "costomer-leader",
       });
 
       const post = response.data.data;
@@ -135,11 +135,11 @@ const ShareYourStory = () => {
           const response = await axios.post("/api/notifications", {
             userId: user.userId,
             senderId: userId,
-            description: `ได้แท็คโพสใน Share Your Story`,
+            description: `ได้แท็คโพสใน Costomer Leader`,
             referId: post._id,
-            path: "Share Your Story",
+            path: "Costomer Leader",
             subpath: "Post",
-            url: `${window.location.origin}stores?tab=share-your-story#${post._id}`,
+            url: `${window.location.origin}costomer-leader#${post._id}`,
             type: "Tag",
           });
         }
@@ -188,11 +188,11 @@ const ShareYourStory = () => {
           await axios.post("/api/notifications", {
             userId: user.userId,
             senderId: userId,
-            description: `ได้แท็คโพสใน Share Your Story`,
+            description: `ได้แท็คโพสใน Costomer Leader`,
             referId: post._id,
-            path: "Share Your Story",
+            path: "Costomer Leader",
             subpath: "Comment",
-            url: `${window.location.origin}stores?tab=share-your-story#${post._id}`,
+            url: `${window.location.origin}costomer-leader#${post._id}`,
             type: "Tag",
           });
         }
@@ -242,11 +242,11 @@ const ShareYourStory = () => {
           await axios.post("/api/notifications", {
             userId: user.userId,
             senderId: userId,
-            description: `ได้แท็คโพสใน Share Your Story`,
+            description: `ได้แท็คโพสใน Costomer Leader`,
             referId: post._id,
-            path: "Share Your Story",
+            path: "Costomer Leader",
             subpath: "Reply",
-            url: `${window.location.origin}stores?tab=share-your-story#${post.commentId}`,
+            url: `${window.location.origin}costomer-leader#${post.commentId}`,
             type: "Tag",
           });
         }
@@ -421,9 +421,9 @@ const ShareYourStory = () => {
       try {
         await axios.post("/api/points/point", {
           userId: post.user._id,
-          description: `ได้ Point จากโพส Share Your Story`,
+          description: `ได้ Point จากโพส Costomer Leader`,
           contentId: post._id,
-          path: "share your story",
+          path: "costomer-leader",
           subpath: "post",
           points: 500,
           type: "earn",
@@ -469,8 +469,8 @@ const ShareYourStory = () => {
     );
 
   return (
-    <div className="flex flex-col text-white text-sm overflow-x-hidden w-full">
-      <div className="flex flex-col w-full px-5 py-2">
+    <div className="text-white text-sm">
+      <div className="px-5 py-2">
         <div className="flex flex-row bg-gray-50 border rounded-xl px-2 py-1 relative w-full">
           <input
             type="text"
@@ -485,14 +485,6 @@ const ShareYourStory = () => {
         </div>
       </div>
 
-      <div className="flex flex-col w-full px-5 py-2  mb-2">
-        <div className=" text-gray-500 text-left text-xs px-2 py-1">
-          <strong className="text-[#0056FF]">Share Your Story</strong> คือ
-          การแบ่งปันเรื่องราว ความรู้ ทักษะ เทคนิคหรือกระบวนการต่างๆ
-          ที่ทำให้เข้าใจลูกค้ามากขึ้น แบบง่ายๆ ตรงประเด็น เพื่อให้เพื่อนๆ
-          ได้ศึกษา และร่วมสร้าง Financial Well-Being ให้กับลูกค้าของเราไปด้วยกัน
-        </div>
-      </div>
       {/* Input Post */}
       <div className="flex flex-col w-full">
         <div className="flex flex-row items-center justify-center px-2 w-full gap-1">
@@ -519,7 +511,7 @@ const ShareYourStory = () => {
       </div>
 
       {/* Post Container */}
-      <div className="flex flex-col w-full align-top mt-2 bg-gray-300 min-h-[100vh] text-gray-700 mb-20">
+      <div className="mt-2 bg-gray-300 min-h-[100vh] text-gray-700">
         {Array.isArray(filteredPosts) &&
           filteredPosts.map((post, index) => (
             <div
@@ -1034,6 +1026,4 @@ const ShareYourStory = () => {
       </Dialog>
     </div>
   );
-};
-
-export default ShareYourStory;
+}

@@ -21,7 +21,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const Feed = ({ user, posts, mutate }) => {
+const PostPanel = ({ user, posts, mutate }) => {
   const { data: session } = useSession();
   const [showComments, setShowComments] = useState({});
   const [showReply, setShowReply] = useState({});
@@ -36,7 +36,7 @@ const Feed = ({ user, posts, mutate }) => {
 
   const router = useRouter();
 
-  const folder = "post";
+  const folder = "costomer-leader";
 
   useEffect(() => {
     if (posts.length) {
@@ -86,12 +86,11 @@ const Feed = ({ user, posts, mutate }) => {
       const userId = session?.user?.id;
 
       // Check if there is either post content or media content
-      if (!data.post || !data.media || data.media.length === 0) {
+      if (!data.post && (!data.media || data.media.length === 0)) {
         setCheckError("กรุณากรอกข้อความหรือเพิ่มรูปภาพ");
         setLoading(false);
-        return; // Exit the function if the condition is not met
+        return;
       }
-
       const response = await axios.post("/api/posts", {
         post: data.post,
         link: data.link,
@@ -100,7 +99,7 @@ const Feed = ({ user, posts, mutate }) => {
         tagusers: data.selectedUsers,
         pinned: false,
         userId,
-        page: "post",
+        page: "costomer-leader",
       });
 
       const post = response.data.data;
@@ -110,11 +109,11 @@ const Feed = ({ user, posts, mutate }) => {
           const response = await axios.post("/api/notifications", {
             userId: user.userId,
             senderId: userId,
-            description: `ได้แท็คโพสใน Prompt Share`,
+            description: `ได้แท็คโพสใน Costomer Leader`,
             referId: post._id,
-            path: "post",
+            path: "CostomerLeader",
             subpath: "Post",
-            url: `${window.location.origin}prompt-share#${post._id}`,
+            url: `${window.location.origin}costomer-leader#${post._id}`,
             type: "Tag",
           });
         }
@@ -163,11 +162,11 @@ const Feed = ({ user, posts, mutate }) => {
           await axios.post("/api/notifications", {
             userId: user.userId,
             senderId: userId,
-            description: `ได้แท็คโพสใน Prompt Share`,
+            description: `ได้แท็คโพสใน Costomer Leader`,
             referId: post._id,
-            path: "post",
+            path: "CostomerLeader",
             subpath: "Comment",
-            url: `${window.location.origin}prompt-share#${post._id}`,
+            url: `${window.location.origin}costomer-leader#${post._id}`,
             type: "Tag",
           });
         }
@@ -217,11 +216,11 @@ const Feed = ({ user, posts, mutate }) => {
           await axios.post("/api/notifications", {
             userId: user.userId,
             senderId: userId,
-            description: `ได้แท็คโพสใน Prompt Share`,
+            description: `ได้แท็คโพสใน Costomer Leader`,
             referId: post._id,
-            path: "post",
+            path: "CostomerLeader",
             subpath: "Reply",
-            url: `${window.location.origin}prompt-share#${post.commentId}`,
+            url: `${window.location.origin}costomer-leader#${post.commentId}`,
             type: "Tag",
           });
         }
@@ -394,7 +393,7 @@ const Feed = ({ user, posts, mutate }) => {
   };
 
   return (
-    <div className="flex flex-col max-w-screen">
+    <div className="flex flex-col overflow-x-hidden w-full">
       {/* Input Post */}
       <div className="flex flex-col bg-white py-2">
         <div className="flex flex-row items-center justify-center px-2 w-full gap-2">
@@ -417,7 +416,7 @@ const Feed = ({ user, posts, mutate }) => {
       </div>
 
       {/* Post Container */}
-      <div className="flex flex-col bg-gray-300 text-gray-700 mt-2 max-w-screen">
+      <div className="bg-gray-300 text-gray-700 mt-2 max-w-screen">
         {posts.map((post, index) =>
           !post ? (
             <CircularProgress key={index} />
@@ -1099,4 +1098,4 @@ const Feed = ({ user, posts, mutate }) => {
   );
 };
 
-export default Feed;
+export default PostPanel;
