@@ -81,7 +81,7 @@ export default function CostomerLeaderPage() {
     <div className="flex flex-col min-h-screen overflow-x-hidden w-full">
       {/* Header */}
       <div>
-        <div className="flex flex-row justify-between py-2 px-4w-full">
+        <div className="flex flex-row justify-between py-2 px-4 w-full">
           <IoIosArrowBack className="text-2xl" onClick={() => router.back()} />
           <div className="flex flex-row items-center gap-2">
             {showSearch && (
