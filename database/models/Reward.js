@@ -1,9 +1,14 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const RewardSchema = new mongoose.Schema({
-  userId: { type: String, ref: 'Users', required: true },
-  date: { type: Date, default: Date.now },
-  points: { type: Number, required: true },
+  userId: { type: String, ref: "Users", required: true },
+  claim: [
+    {
+      date: { type: Date, default: Date.now },
+      points: { type: Number, required: true },
+    },
+  ],
+  dayLogged: { type: Number, default: 0 },
 });
 
-export default mongoose.models.Reward || mongoose.model('Reward', RewardSchema);
+export default mongoose.models.Reward || mongoose.model("Reward", RewardSchema);

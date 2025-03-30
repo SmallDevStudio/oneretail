@@ -1,92 +1,101 @@
-import connetMongoDB from '@/lib/services/database/mongodb';
-import Reward from '@/database/models/Reward';
-import UserReward from '@/database/models/UserReward';
+import connetMongoDB from "@/lib/services/database/mongodb";
+import Reward from "@/database/models/Reward";
+import Point from "@/database/models/Point";
+import sendLineMessage from "@/lib/sendLineMessage";
+
 export default async function handler(req, res) {
   await connetMongoDB();
 
-  if (req.method === 'POST') {
-    const { userId } = req.body;
-    if (!userId) return res.status(400).json({ error: 'User ID is required' });
+  switch (req.method) {
+    case "GET":
+      try {
+        const { userId } = req.query;
+        if (!userId)
+          return res.status(400).json({ error: "User ID is required" });
 
-    try {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+        let reward = await Reward.findOne({ userId });
+        if (!reward) {
+          reward = await Reward.create({ userId, claim: [], dayLogged: 0 });
+        }
 
-      // หา UserReward ว่ามีอยู่แล้วหรือไม่
-      let userReward = await UserReward.findOne({ userId });
+        const lastClaim = reward.claim.length
+          ? reward.claim[reward.claim.length - 1].date
+          : null;
+        const lastClaimDate = lastClaim
+          ? new Date(lastClaim).setHours(0, 0, 0, 0)
+          : null;
 
-      if (!userReward) {
-        // ถ้ายังไม่มีให้สร้างใหม่
-        userReward = new UserReward({
-          userId,
-          dayLogged: 1,
-          lastRewardDate: today,
+        res.status(200).json({
+          dayLogged: reward.dayLogged,
+          lastRewardDate: lastClaimDate,
         });
-      } else {
-        const lastDate = new Date(userReward.lastRewardDate);
-        lastDate.setHours(0, 0, 0, 0);
+      } catch (error) {
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+      break;
 
-        // ตรวจสอบว่าเป็นวันใหม่หรือไม่
-        if (today.getTime() === lastDate.getTime()) {
-          return res.status(400).json({ error: 'Reward already claimed today' });
+    case "POST":
+      try {
+        const { userId } = req.body;
+        if (!userId)
+          return res.status(400).json({ error: "User ID is required" });
+
+        let reward = await Reward.findOne({ userId });
+        if (!reward) {
+          reward = await Reward.create({ userId, claim: [], dayLogged: 0 });
         }
 
-        // ตรวจสอบว่าวันที่ต่อเนื่องหรือไม่
-        const diffDays = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
-        if (diffDays === 1) {
-          userReward.dayLogged += 1;
-        } else {
-          userReward.dayLogged = 1; // รีเซ็ตหากไม่ได้เข้าใช้งานต่อเนื่อง
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const lastClaim = reward.claim.length
+          ? new Date(reward.claim[reward.claim.length - 1].date)
+          : null;
+        lastClaim?.setHours(0, 0, 0, 0);
+
+        if (lastClaim?.getTime() === today.getTime()) {
+          return res.status(400).json({ error: "Already claimed today" });
         }
 
-        userReward.lastRewardDate = today;
+        let nextDay = (reward.dayLogged % 7) + 1;
+        const rewardData = [
+          { day: 1, point: 1, icon: "/images/reward/day1.png" },
+          { day: 2, point: 2, icon: "/images/reward/day2.png" },
+          { day: 3, point: 3, icon: "/images/reward/day3.png" },
+          { day: 4, point: 3, icon: "/images/reward/day4.png" },
+          { day: 5, point: 3, icon: "/images/reward/day5.png" },
+          { day: 6, point: 3, icon: "/images/reward/day6.png" },
+          { day: 7, point: 10, icon: "/images/reward/day7.png" },
+        ];
+
+        const earnedPoints = rewardData.find((r) => r.day === nextDay);
+        reward.claim.push({ date: new Date(), points: earnedPoints.point });
+        reward.dayLogged = nextDay;
+
+        await reward.save();
+
+        const pointEntry = new Point({
+          userId,
+          description: `Check in reward`,
+          contentId: null,
+          path: "reward",
+          type: "earn",
+          point: earnedPoints.point,
+        });
+        await pointEntry.save();
+
+        if (pointEntry.type === "earn") {
+          // ส่งข้อความไปที่ LINE
+          const message = `คุณได้รับ ${earnedPoints.point} คะแนน จากการเช็คอินวันที่ ${nextDay} 🎉`;
+          sendLineMessage(userId, message, earnedPoints.icon);
+        }
+        res.status(200).json({ dayLogged: reward.dayLogged });
+      } catch (error) {
+        res.status(500).json({ error: "Internal Server Error" });
       }
+      break;
 
-      // คำนวณ point ตามเงื่อนไข
-      let points = userReward.dayLogged;
-      if (userReward.dayLogged === 7) {
-        points = 7 * 7;
-      } else if (userReward.dayLogged > 7) {
-        userReward.dayLogged = 1; // รีเซ็ตหลังจากวันที่ 7
-        points = 1;
-      }
-
-      // สร้าง Reward record
-      const reward = new Reward({
-        userId,
-        date: today,
-        points,
-      });
-
-      await reward.save();
-      await userReward.save();
-
-      return res.status(200).json({ success: true, points, dayLogged: userReward.dayLogged });
-    } catch (error) {
-      return res.status(500).json({ error: 'Internal Server Error' });
-    }
-  } else if (req.method === 'GET') {
-    const { userId } = req.query;
-    if (!userId) {
-      return res.status(400).json({ error: 'User ID is required' });
-    }
-
-    try {
-      const userReward = await UserReward.findOne({ userId });
-
-      if (!userReward) {
-        return res.status(200).json({ dayLogged: 0, lastRewardDate: null });
-      }
-
-      return res.status(200).json({
-        dayLogged: userReward.dayLogged,
-        lastRewardDate: userReward.lastRewardDate || null,
-      });
-
-    } catch (error) {
-      return res.status(500).json({ error: 'Internal Server Error' });
-    }
+    default:
+      res.status(405).json({ error: "Method Not Allowed" });
   }
-
-  return res.status(405).json({ error: 'Method Not Allowed' });
 }
