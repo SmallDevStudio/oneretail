@@ -73,7 +73,7 @@ export default function BadgeForm({ data, onClose, mutate, newData }) {
       if (newData) {
         await axios.post("/api/badges", Data);
       } else {
-        await axios.put(`/api/badges/${data.id}`, Data);
+        await axios.put(`/api/badges?id=${data.id}`, Data);
       }
       mutate();
       handleClose();

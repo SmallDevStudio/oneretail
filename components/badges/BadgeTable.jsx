@@ -23,7 +23,7 @@ const BadgeTable = () => {
   const [selectedData, setSelectedData] = useState(null);
   const [showForm, setShowForm] = useState(false);
 
-  const { data: badgesData, mutate } = useSWR("/api/badges", fetcher, {
+  const { data: badgesData, mutate } = useSWR("/api/badges/admin", fetcher, {
     onSuccess: (data) => {
       setBadges(data.data);
     },
@@ -67,6 +67,17 @@ const BadgeTable = () => {
   const handleclose = () => {
     setSelectedData(null);
     setShowForm(false);
+  };
+
+  const handleActive = async (badge) => {
+    try {
+      await axios.put(`/api/badges?id=${badge._id}`, { active: !badge.active });
+      toast.success("เปลี่ยนสถานะ Badges เรียบร้อย");
+      mutate();
+    } catch (error) {
+      console.error("Error updating badge status:", error);
+      toast.error("เปลี่ยนสถานะ Badges ไม่สําเร็จ");
+    }
   };
 
   return (
@@ -123,6 +134,7 @@ const BadgeTable = () => {
                             ? "bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full"
                             : "bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full"
                         }
+                        onClick={() => handleActive(badge)}
                       >
                         {badge.active ? "Active" : "Inactive"}
                       </button>
