@@ -48,7 +48,7 @@ export default function NewsForm({ onClose, data, mutate, newData }) {
   const [openImage, setOpenImage] = useState(false);
   const [files, setFiles] = useState(null);
   const [group, setGroup] = useState(GroupData.map((g) => g.value));
-  const [position, setPosition] = useState(null);
+  const [position, setPosition] = useState([]);
   const [openCategory, setOpenCategory] = useState(false);
   const [category, setCategory] = useState("");
 
@@ -149,7 +149,7 @@ export default function NewsForm({ onClose, data, mutate, newData }) {
     setContent(`<p>พิมพ์ข้อความข่าวสารที่ต้องการแสดง</p>`);
     setGroup(GroupData.map((g) => g.value));
     setFiles(null);
-    setPosition(null);
+    setPosition([]);
     onClose();
   };
 
@@ -191,10 +191,19 @@ export default function NewsForm({ onClose, data, mutate, newData }) {
     );
   };
 
-  const handleTogglePosition = (value) => {
-    setPosition((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
-    );
+  const handleAddPosition = (e) => {
+    if (e.key === " " || e.key === "Enter") {
+      e.preventDefault();
+      const value = e.target.value.trim();
+      if (value && !position.includes(value)) {
+        setPosition([...position, value]);
+        e.target.value = ""; // เคลียร์ค่า input หลังจากเพิ่ม
+      }
+    }
+  };
+
+  const handleDeletePosition = (index) => {
+    setPosition(position.filter((_, i) => i !== index));
   };
 
   const handleOpenCategory = () => {
@@ -430,16 +439,31 @@ export default function NewsForm({ onClose, data, mutate, newData }) {
           <label htmlFor="position" className="font-bold">
             ตำแหน่งพนักงานที่เข้าใช้งาน
           </label>
-          <div className="flex flex-row items-center border border-gray-300 rounded-md p-2 w-full">
-            <input
-              name="position"
-              id="position"
-              value={position}
-              className="focus:outline-none"
-              onChange={(e) => handleTogglePosition(e.target.value)}
-              placeholder="พิมพ์ตำแหน่งพนักงาน"
-            />
+
+          <div className="flex flex-wrap gap-2 mb-2">
+            {position &&
+              position.map((pos, index) => (
+                <div
+                  key={index}
+                  className="text-xs bg-gray-200 px-3 py-0.5 rounded-full flex items-center"
+                >
+                  <span>{pos}</span>
+                  <button
+                    className="ml-2 text-red-500"
+                    onClick={() => handleDeletePosition(index)}
+                  >
+                    x
+                  </button>
+                </div>
+              ))}
           </div>
+
+          <input
+            type="text"
+            className="border rounded-md p-2 w-full"
+            placeholder="พิมพ์ตำแหน่งแล้วกด Spacebar หรือ Enter"
+            onKeyDown={handleAddPosition}
+          />
         </div>
 
         <div className="flex flex-row items-center gap-2 mt-2 w-full">

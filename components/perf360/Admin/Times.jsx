@@ -43,7 +43,7 @@ export default function Times() {
               id="group"
               className="border border-gray-300 rounded-md p-2 w-full"
             >
-              <option value="">เลือกกลุ่ม</option>
+              <option value="">ทุกกลุ่ม</option>
               {GroupData.map((item, index) => (
                 <option key={index} value={item.value}>
                   {item.name}

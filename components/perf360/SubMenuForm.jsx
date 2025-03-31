@@ -33,6 +33,7 @@ export default function SubMenuForm({ onClose, data, mutate, newData }) {
     group: "",
   });
   const [menu, setMenu] = useState([]);
+  const [position, setPosition] = useState([]);
   const [openImage, setOpenImage] = useState(false);
   const [files, setFiles] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -66,6 +67,7 @@ export default function SubMenuForm({ onClose, data, mutate, newData }) {
         group: data.group ?? "",
       });
       if (data.image) setFiles(data.image);
+      if (data.position) setPosition(data.position);
     } else if (newData) {
       // ✅ กรณีสร้างใหม่ ให้เลือกทุก group
       setForm({
@@ -76,6 +78,8 @@ export default function SubMenuForm({ onClose, data, mutate, newData }) {
         url: "",
         group: "",
       });
+      setFiles(null);
+      setPosition([]);
     }
   }, [data, newData]);
 
@@ -137,6 +141,7 @@ export default function SubMenuForm({ onClose, data, mutate, newData }) {
     const newData = {
       ...form,
       image: files,
+      position,
     };
 
     try {
@@ -185,7 +190,23 @@ export default function SubMenuForm({ onClose, data, mutate, newData }) {
       group: "",
     });
     setFiles(null);
+    setPosition([]);
     onClose();
+  };
+
+  const handleAddPosition = (e) => {
+    if (e.key === " " || e.key === "Enter") {
+      e.preventDefault();
+      const value = e.target.value.trim();
+      if (value && !position.includes(value)) {
+        setPosition([...position, value]);
+        e.target.value = ""; // เคลียร์ค่า input หลังจากเพิ่ม
+      }
+    }
+  };
+
+  const handleDeletePosition = (index) => {
+    setPosition(position.filter((_, i) => i !== index));
   };
 
   return (
@@ -257,6 +278,37 @@ export default function SubMenuForm({ onClose, data, mutate, newData }) {
               ))}
             </select>
           </div>
+        </div>
+
+        <div className="flex flex-col flex-wrap w-full">
+          <label htmlFor="position" className="font-bold">
+            ตำแหน่งพนักงานที่เข้าใช้งาน
+          </label>
+
+          <div className="flex flex-wrap gap-2 mb-2">
+            {position &&
+              position.map((pos, index) => (
+                <div
+                  key={index}
+                  className="text-xs bg-gray-200 px-3 py-0.5 rounded-full flex items-center"
+                >
+                  <span>{pos}</span>
+                  <button
+                    className="ml-2 text-red-500"
+                    onClick={() => handleDeletePosition(index)}
+                  >
+                    x
+                  </button>
+                </div>
+              ))}
+          </div>
+
+          <input
+            type="text"
+            className="border rounded-md p-2 w-full"
+            placeholder="พิมพ์ตำแหน่งแล้วกด Spacebar หรือ Enter"
+            onKeyDown={handleAddPosition}
+          />
         </div>
 
         <div className="flex flex-col w-full">

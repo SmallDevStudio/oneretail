@@ -5,6 +5,7 @@ import moment from "moment";
 import Image from "next/image";
 import { Divider, Slide, Dialog } from "@mui/material";
 import NewsPopup from "./NewsPopup";
+import NewsComments from "@/components/perf360/News/NewsComments";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -14,6 +15,7 @@ export default function NewsSection({ data }) {
   const [openPopup, setOpenPopup] = useState(false);
   const [selectedNews, setSelectedNews] = useState(null);
   const [activeTab, setActiveTab] = useState(Object.keys(data)[0] || "News");
+  const [openComments, setOpenComments] = useState(false);
 
   const { data: session } = useSession();
   const userId = session?.user?.id;
@@ -64,6 +66,16 @@ export default function NewsSection({ data }) {
     }
   };
 
+  const handleOpenComments = (news) => {
+    setSelectedNews(news);
+    setOpenComments(true);
+  };
+
+  const handleCloseComments = () => {
+    setSelectedNews(null);
+    setOpenComments(false);
+  };
+
   return (
     <div className="flex flex-col gap-2 p-2 w-full">
       {/* Header */}
@@ -102,17 +114,23 @@ export default function NewsSection({ data }) {
           <div
             key={item._id}
             className="flex flex-col bg-gray-100 rounded-lg px-4 py-2 shadow"
-            onClick={() => handleClick(item)}
           >
-            <p className="font-semibold">{item.title}</p>
-            <div
-              className="tiptap w-full line-clamp-3 text-gray-500"
-              dangerouslySetInnerHTML={{ __html: item.content }}
-            />
+            <div onClick={() => handleClick(item)}>
+              <p className="font-semibold">{item.title}</p>
+              <div
+                className="tiptap w-full line-clamp-3 text-gray-500"
+                dangerouslySetInnerHTML={{ __html: item.content }}
+              />
+            </div>
             <div className="text-xs text-gray-500 mt-2">
               Date: {moment(item.start_date).format("DD/MM/YYYY")} |{" "}
               <span>View: {item.views || 0}</span> |{" "}
-              <span>Comment: {item.Comment?.length || 0}</span>
+              <span
+                className="cursor-pointer"
+                onClick={() => handleOpenComments(item)}
+              >
+                Comment: {item.commentsLength || 0}
+              </span>
             </div>
           </div>
         ))}
@@ -136,6 +154,20 @@ export default function NewsSection({ data }) {
       >
         {selectedNews && (
           <NewsPopup news={selectedNews} onClose={handleClosePopup} />
+        )}
+      </Dialog>
+
+      <Dialog
+        fullScreen
+        open={openComments}
+        TransitionComponent={Transition}
+        keepMounted
+        onClose={handleCloseComments}
+        aria-describedby="alert-dialog-slide-description"
+        zIndex={500}
+      >
+        {selectedNews && (
+          <NewsComments news={selectedNews} onClose={handleCloseComments} />
         )}
       </Dialog>
     </div>

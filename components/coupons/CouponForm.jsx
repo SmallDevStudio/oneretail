@@ -106,11 +106,7 @@ export default function CouponForm({ onClose, mutate, data, newCoupon }) {
       setErr({ ...err, code: "กรุณากรอกรหัสคูปอง" });
       return;
     }
-    if (form.stock <= 0) {
-      toast.error("กรุณากรอกจํานวนคูปอง");
-      setErr({ ...err, stock: "กรุณากรอกจํานวนคูปอง" });
-      return;
-    }
+
     if (isSubmitting) return; // ❌ ป้องกันการกดซ้ำ
 
     setIsSubmitting(true); // ✅ เริ่มการบล็อค

@@ -2,6 +2,7 @@ import connetMongoDB from "@/lib/services/database/mongodb";
 import Menu from "@/database/models/Perf360/Menu";
 import SubMenu from "@/database/models/Perf360/SubMenu";
 import News from "@/database/models/Perf360/News";
+import NewsComments from "@/database/models/Perf360/NewsComments";
 import Popup from "@/database/models/Perf360/Popup";
 import NewsActivity from "@/database/models/Perf360/NewsActivity";
 import Users from "@/database/models/users";
@@ -51,6 +52,15 @@ export default async function handler(req, res) {
           group: { $in: teamGroup },
         }).sort({ order: 1 });
 
+        // ✅ จัดกลุ่ม submenu ตาม position
+        const filteredSubMenu = submenu.filter((s) => {
+          // ถ้า position เป็น [] หรือไม่มี ให้แสดงทั้งหมด
+          if (!s.position || s.position.length === 0) return true;
+
+          // ถ้า emp.position ตรงกับ submenu.position อย่างน้อย 1 ค่า ให้แสดงผล
+          return emp.position && s.position.includes(emp.position);
+        });
+
         // ✅ จัดกลุ่ม submenu เข้า menu
         const menuWithSubmenus = menu.map((m) => {
           const relatedSubmenus = submenu.filter(
@@ -74,7 +84,24 @@ export default async function handler(req, res) {
           },
         ]);
 
-        // ✅ รวม activity กับ news
+        // ✅ ดึงจำนวน comments ของแต่ละ news
+        const commentsCount = await NewsComments.aggregate([
+          { $match: { newsId: { $in: newsIds } } },
+          {
+            $group: {
+              _id: "$newsId",
+              count: { $sum: 1 },
+            },
+          },
+        ]);
+
+        // ✅ แปลง commentsCount เป็น Map
+        const commentsMap = commentsCount.reduce((acc, { _id, count }) => {
+          acc[_id] = count;
+          return acc;
+        }, {});
+
+        // ✅ รวม activity กับ news และเพิ่ม comments.length
         const activityMap = {};
         activities.forEach(({ _id, count }) => {
           const { newsId, activity } = _id;
@@ -93,6 +120,7 @@ export default async function handler(req, res) {
           ...n.toObject(),
           click: activityMap[n._id]?.click || 0,
           views: activityMap[n._id]?.views || 0,
+          commentsLength: commentsMap[n._id] || 0, // ✅ เพิ่ม comments.length
         }));
 
         const filteredNews = enrichedNews.filter((n) => {

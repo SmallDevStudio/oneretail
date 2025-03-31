@@ -16,6 +16,7 @@ const SubMenuSchema = new mongoose.Schema(
       },
     ],
     image: { public_id: { type: String }, url: { type: String } },
+    position: [{ type: String }],
     active: { type: Boolean, default: true },
   },
   { timestamps: true }

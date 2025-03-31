@@ -715,6 +715,14 @@ img.mx-auto {
   outline: 2px solid #007bff;
 }
 
+.swal2-custom-zindex {
+  z-index: 2000 !important;
+}
+
+.swal2-container {
+  z-index: 2000;
+}
+
 @media screen and (max-width: 768px) {
   .toolbar {
     display: flex;

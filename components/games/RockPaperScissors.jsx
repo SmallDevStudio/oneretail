@@ -23,12 +23,12 @@ const RockPaperScissors = ({ userId, user }) => {
   const [hasTodayPlayed, setHasTodayPlayed] = useState(false);
 
   const choices = ["rock", "paper", "scissors"];
-  
+
   const imageIconChoices = {
     rock: "/images/game3/rock_b.png",
     paper: "/images/game3/paper_b.png",
     scissors: "/images/game3/scissors_b.png",
-  }
+  };
 
   useEffect(() => {
     const fetchHasPlayedToday = async () => {
@@ -54,7 +54,7 @@ const RockPaperScissors = ({ userId, user }) => {
     if (timer === 0 && !userChoice) {
       handleAutoPick();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timer, userChoice]);
 
   const handleAutoPick = () => {
@@ -80,7 +80,6 @@ const RockPaperScissors = ({ userId, user }) => {
       setCpuScore(cpuScore + 1);
       setResult("คุณแพ้!");
     }
-
   };
 
   useEffect(() => {
@@ -144,114 +143,125 @@ const RockPaperScissors = ({ userId, user }) => {
 
   return (
     <div className="flex flex-col p-4 bg-[#0056FF] min-h-screen pb-32">
-      
-        <div className="flex flex-row items-center justify-between gap-4 mb-4 mt-2">
-          <div className="flex items-center">
-            <IoIosArrowBack
-              size={30}
-              className="text-white"
-              onClick={() => router.back()}
-            />
-          </div>
-          <span className="flex text-3xl font-bold text-white">เป่ายิ้งฉุบ</span>
-          <span></span>
+      <div className="flex flex-row items-center justify-between gap-4 mb-4 mt-2">
+        <div className="flex items-center">
+          <IoIosArrowBack
+            size={30}
+            className="text-white"
+            onClick={() => router.back()}
+          />
         </div>
+        <span className="flex text-3xl font-bold text-white">เป่ายิ้งฉุบ</span>
+        <span></span>
+      </div>
 
-        <div className="flex flex-row items-center justify-center mb-2">
-          <span className="text-3xl text-white font-black">
-            รอบที่ {round}
-          </span>
-        </div>
+      <div className="flex flex-row items-center justify-center mb-2">
+        <span className="text-3xl text-white font-black">รอบที่ {round}</span>
+      </div>
 
       <div className="flex flex-col justify-between bg-white rounded-2xl min-h-[75vh] p-2 ">
         <div className="flex flex-row items-center justify-center gap-4 w-full">
           <span className="text-xl font-bold text-[#0056FF]">คุณ</span>
-          <span className="font-bold text-[3em] text-[#F2871F]">{userScore}</span>
+          <span className="font-bold text-[3em] text-[#F2871F]">
+            {userScore}
+          </span>
           <span className="text-3xl font-bold text-black">:</span>
-          <span className="font-bold text-[3em] text-[#0056FF]">{cpuScore}</span>
+          <span className="font-bold text-[3em] text-[#0056FF]">
+            {cpuScore}
+          </span>
           <span className="text-xl font-bold text-[#F2871F]">คอม</span>
         </div>
-      
+
         <div className="flex flex-col mt-2">
           <div className="flex flex-col gap-7 items-center justify-evenly p-4 min-h-[80%]">
-              {cpuChoice && (
+            {cpuChoice && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.5 }}
+                transition={{ duration: 0.5 }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="flex flex-col items-center gap-1"
+              >
+                <span className="text-xl font-bold text-[#F2871F]">
+                  OneRetail
+                </span>
+                <Image
+                  src={imageIconChoices[cpuChoice]}
+                  alt={cpuChoice}
+                  width={100}
+                  height={100}
+                  className="text-[#F2871F]"
+                />
+              </motion.div>
+            )}
+
+            <div className="flex flex-col items-center w-full min-h-[80px]">
+              {result ? (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.5 }}
-                  transition={{ duration: 0.5 }}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="flex flex-col items-center gap-1"
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.5, opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className={`flex flex-col items-center mt-4 py-2 px-4 rounded-full w-5/6 mb-2 ${
+                    result === "คุณชนะ!"
+                      ? "animate-bounce bg-[#0056FF]"
+                      : result === "คุณเสมอ!"
+                      ? "bg-[#F2871F] animate-bounce"
+                      : "bg-[#0056FF] animate-bounce"
+                  }`}
                 >
-                  <span className="text-xl font-bold text-[#F2871F]">OneRetail</span>
-                  <Image
-                    src={imageIconChoices[cpuChoice]}
-                    alt={cpuChoice}
-                    width={100}
-                    height={100}
-                    className="text-[#F2871F]"
-                  />
+                  <span
+                    className="text-3xl font-bold text-white"
+                    onClick={handleNextRound}
+                  >
+                    {result}
+                  </span>
+                  <span className="text-sm font-bold text-white">
+                    คลิกเพื่อเริ่มรอบถัดไป
+                  </span>
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.5, opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="inline-block px-9 py-4 text-[2.5em] font-bold text-white bg-[#0056FF] rounded-full"
+                >
+                  {timer}
                 </motion.div>
               )}
+            </div>
 
-              <div className="flex flex-col items-center w-full min-h-[80px]">
-                {result ? (
-                  <motion.div
-                    initial={{ scale: 0.5, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.5, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className={`flex flex-col items-center mt-4 py-2 px-4 rounded-full w-5/6 mb-2 ${
-                      result === "คุณชนะ!"
-                        ? "animate-bounce bg-[#0056FF]"
-                        : result === "คุณเสมอ!"
-                        ? "bg-[#F2871F] animate-bounce"
-                        : "bg-[#0056FF] animate-bounce"
-                    }`}
-                  >
-                    <span className="text-3xl font-bold text-white" onClick={handleNextRound}>
-                      {result}
-                    </span>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    initial={{ scale: 0.5, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.5, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="inline-block px-9 py-4 text-[2.5em] font-bold text-white bg-[#0056FF] rounded-full"
-                  >
-                    {timer}
-                  </motion.div>
-                )}
-              </div>
-
-              {userChoice && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.5 }}
-                  transition={{ duration: 0.5 }}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="flex flex-col items-center gap-1"
-                >
-                  <Image
-                    src={imageIconChoices[userChoice]}
-                    alt={userChoice}
-                    width={100}
-                    height={100}
-                    className="text-[#0056FF]"
-                  />
-                  <span className="text-xl font-bold text-[#0056FF]">{user?.fullname}</span>
-                </motion.div>
-              )}
-            </div>;
-         
+            {userChoice && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.5 }}
+                transition={{ duration: 0.5 }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="flex flex-col items-center gap-1"
+              >
+                <Image
+                  src={imageIconChoices[userChoice]}
+                  alt={userChoice}
+                  width={100}
+                  height={100}
+                  className="text-[#0056FF]"
+                />
+                <span className="text-xl font-bold text-[#0056FF]">
+                  {user?.fullname}
+                </span>
+              </motion.div>
+            )}
           </div>
+          ;
+        </div>
 
-          <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center">
           <div className="flex flex-row justify-evenly mt-2 mb-2 gap-4 w-full">
             {choices.map((choice) => (
               <div key={choice}>
@@ -261,46 +271,47 @@ const RockPaperScissors = ({ userId, user }) => {
                   width={70}
                   height={70}
                   className={`cursor-pointer transition ${
-                    result ? "grayscale pointer-events-none cursor-not-allowed" : ""
+                    result
+                      ? "grayscale pointer-events-none cursor-not-allowed"
+                      : ""
                   }`}
-                  onClick={!result ? () => handleChoiceClick(choice) : undefined}
+                  onClick={
+                    !result ? () => handleChoiceClick(choice) : undefined
+                  }
                 />
               </div>
             ))}
           </div>
-            
-            
-
-          </div>
-          {showModal && (
-            <Modal 
-              isOpen={showModal} 
-              onClose={handleModalClose}
-            >
-              <div className="flex flex-col justify-center items-center">
-                
-                <span className={`text-2xl font-bold mb-4 ${userScore === 3 ? "text-green-500" : "text-red-500"}`}>
-                  {userScore === 3 ? "คุณชนะเกม!" : "คุณแพ้เกม!"}
+        </div>
+        {showModal && (
+          <Modal isOpen={showModal} onClose={handleModalClose}>
+            <div className="flex flex-col justify-center items-center">
+              <span
+                className={`text-2xl font-bold mb-4 ${
+                  userScore === 3 ? "text-green-500" : "text-red-500"
+                }`}
+              >
+                {userScore === 3 ? "คุณชนะเกม!" : "คุณแพ้เกม!"}
+              </span>
+              {!hasTodayPlayed && userScore === 3 && (
+                <span className="text-3xl font-bold mb-4">
+                  คุณได้รับ 5 Point
                 </span>
-                {!hasTodayPlayed && userScore === 3 && (
-                  <span className="text-3xl font-bold mb-4">
-                    คุณได้รับ 5 Point
-                  </span>
-                )}
-                {hasTodayPlayed && (
-                  <span className="text-2xl font-bold mb-4">
-                    วันนี้คุณได้เล่นเกมแล้ว
-                  </span>
-                )}
-                <button
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                  onClick={handleModalClose}
-                >
-                  ตกลง
-                </button>
-              </div>
-            </Modal>
-          )}
+              )}
+              {hasTodayPlayed && (
+                <span className="text-2xl font-bold mb-4">
+                  วันนี้คุณได้เล่นเกมแล้ว
+                </span>
+              )}
+              <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                onClick={handleModalClose}
+              >
+                ตกลง
+              </button>
+            </div>
+          </Modal>
+        )}
       </div>
     </div>
   );
