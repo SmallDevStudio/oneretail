@@ -17,7 +17,6 @@ export default async function handler(req, res) {
   switch (method) {
     case "GET":
       try {
-        // ✅ ดึงข้อมูล Users และ Emp
         const users = await Users.findOne({ active: true, userId: userId });
         if (!users) {
           return res
@@ -32,36 +31,47 @@ export default async function handler(req, res) {
             .json({ success: false, message: "Emp not found" });
         }
 
-        const teamGroup = emp.teamGrop; // ✅ ใช้ teamGrop เพื่อตรวจสอบ group
+        const teamGroup = emp.teamGrop;
+        const now = new Date(); // เวลาปัจจุบัน
 
-        // ✅ ดึงเฉพาะ popup, news, menu, submenu ที่ group ตรงกับ teamGrop
+        // ✅ กรอง popup และ news ตามช่วงเวลา
         const popup = await Popup.find({
           active: true,
           group: { $in: teamGroup },
+          $or: [
+            { start_date: { $exists: false }, end_date: { $exists: false } }, // ไม่มี start_date, end_date
+            { start_date: { $lte: now }, end_date: { $exists: false } }, // มี start_date แต่ไม่มี end_date
+            { start_date: { $exists: false }, end_date: { $gte: now } }, // ไม่มี start_date แต่มี end_date
+            { start_date: { $lte: now }, end_date: { $gte: now } }, // อยู่ในช่วงระหว่าง start_date และ end_date
+          ],
         }).sort({ createdAt: -1 });
+
         const news = await News.find({
           active: true,
           group: { $in: teamGroup },
+          $or: [
+            { start_date: { $exists: false }, end_date: { $exists: false } },
+            { start_date: { $lte: now }, end_date: { $exists: false } },
+            { start_date: { $exists: false }, end_date: { $gte: now } },
+            { start_date: { $lte: now }, end_date: { $gte: now } },
+          ],
         });
+
         const menu = await Menu.find({
           active: true,
           group: { $in: teamGroup },
         }).sort({ order: 1 });
+
         const submenu = await SubMenu.find({
           active: true,
           group: { $in: teamGroup },
         }).sort({ order: 1 });
 
-        // ✅ จัดกลุ่ม submenu ตาม position
         const filteredSubMenu = submenu.filter((s) => {
-          // ถ้า position เป็น [] หรือไม่มี ให้แสดงทั้งหมด
           if (!s.position || s.position.length === 0) return true;
-
-          // ถ้า emp.position ตรงกับ submenu.position อย่างน้อย 1 ค่า ให้แสดงผล
           return emp.position && s.position.includes(emp.position);
         });
 
-        // ✅ จัดกลุ่ม submenu เข้า menu
         const menuWithSubmenus = menu.map((m) => {
           const relatedSubmenus = filteredSubMenu.filter(
             (s) => s.menu === m._id.toString()
@@ -72,7 +82,6 @@ export default async function handler(req, res) {
           };
         });
 
-        // ✅ ดึง activity ของ news
         const newsIds = news.map((n) => n._id);
         const activities = await NewsActivity.aggregate([
           { $match: { newsId: { $in: newsIds } } },
@@ -84,7 +93,6 @@ export default async function handler(req, res) {
           },
         ]);
 
-        // ✅ ดึงจำนวน comments ของแต่ละ news
         const commentsCount = await NewsComments.aggregate([
           { $match: { newsId: { $in: newsIds } } },
           {
@@ -95,13 +103,11 @@ export default async function handler(req, res) {
           },
         ]);
 
-        // ✅ แปลง commentsCount เป็น Map
         const commentsMap = commentsCount.reduce((acc, { _id, count }) => {
           acc[_id] = count;
           return acc;
         }, {});
 
-        // ✅ รวม activity กับ news และเพิ่ม comments.length
         const activityMap = {};
         activities.forEach(({ _id, count }) => {
           const { newsId, activity } = _id;
@@ -120,20 +126,14 @@ export default async function handler(req, res) {
           ...n.toObject(),
           click: activityMap[n._id]?.click || 0,
           views: activityMap[n._id]?.views || 0,
-          commentsLength: commentsMap[n._id] || 0, // ✅ เพิ่ม comments.length
+          commentsLength: commentsMap[n._id] || 0,
         }));
 
         const filteredNews = enrichedNews.filter((n) => {
-          // ถ้า news.position ไม่มีค่าให้แสดงทั้งหมด
           if (!n.position || n.position.length === 0) return true;
-
-          // ถ้า news.position มีค่า ให้เช็คว่าตรงกับ emp.position หรือไม่
-          return n.position.some((pos) =>
-            userWithEmp.emp.position.includes(pos)
-          );
+          return n.position.some((pos) => emp.position.includes(pos));
         });
 
-        // ✅ จัดกลุ่ม news ตาม category
         const groupedNews = filteredNews.reduce((acc, item) => {
           const category = item.category || "อื่นๆ";
           if (!acc[category]) acc[category] = [];
@@ -141,7 +141,6 @@ export default async function handler(req, res) {
           return acc;
         }, {});
 
-        // ✅ ส่งออกทุกอย่างรวมกัน
         res.status(200).json({
           success: true,
           user: { ...users._doc, emp },

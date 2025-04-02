@@ -89,21 +89,60 @@ export default function NewsSection({ data }) {
       </div>
 
       {/* Tabs */}
-      <div className="grid grid-cols-3 justify-around items-center px-2 py-2 gap-1">
-        {Object.keys(data).map((tab) => (
-          <button
+
+      {data.length > 0 ? (
+        Object.keys(data).map((tab) => (
+          <div
             key={tab}
+            className="grid grid-cols-3 justify-around items-center px-2 py-2 gap-1"
+          >
+            <button
+              key={tab}
+              className={`text-md px-6 py-2 rounded-t-lg border-b-8 font-semibold ${
+                activeTab === tab
+                  ? "bg-[#0056FF]/50 border-[#0056FF] text-white font-bold"
+                  : "bg-gray-200 border-gray-400 text-gray-400"
+              }`}
+              onClick={() => handleTabClick(tab)}
+            >
+              {tab}
+            </button>
+          </div>
+        ))
+      ) : (
+        <div className="grid grid-cols-3 justify-around items-center px-2 py-2 gap-1">
+          <button
             className={`text-md px-6 py-2 rounded-t-lg border-b-8 font-semibold ${
-              activeTab === tab
+              activeTab === "Scheme"
                 ? "bg-[#0056FF]/50 border-[#0056FF] text-white font-bold"
                 : "bg-gray-200 border-gray-400 text-gray-400"
             }`}
-            onClick={() => handleTabClick(tab)}
+            onClick={() => handleTabClick("Scheme")}
           >
-            {tab}
+            {"Scheme"}
           </button>
-        ))}
-      </div>
+          <button
+            className={`text-md px-6 py-2 rounded-t-lg border-b-8 font-semibold ${
+              activeTab === "Campaign"
+                ? "bg-[#0056FF]/50 border-[#0056FF] text-white font-bold"
+                : "bg-gray-200 border-gray-400 text-gray-400"
+            }`}
+            onClick={() => handleTabClick("Campaign")}
+          >
+            {"Campaign"}
+          </button>
+          <button
+            className={`text-md px-6 py-2 rounded-t-lg border-b-8 font-semibold ${
+              activeTab === "News"
+                ? "bg-[#0056FF]/50 border-[#0056FF] text-white font-bold"
+                : "bg-gray-200 border-gray-400 text-gray-400"
+            }`}
+            onClick={() => handleTabClick("News")}
+          >
+            {"News"}
+          </button>
+        </div>
+      )}
 
       {/* News Items */}
       <div className="flex flex-col gap-2 mt-2">
