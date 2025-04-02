@@ -78,7 +78,7 @@ export default function NewsForm({ onClose, data, mutate, newData }) {
       setContent(data.content);
       setFiles(data.image);
       setGroup(data.group);
-      setPosition(data.position);
+      setPosition(data.position ?? []);
     }
   }, [data]);
 
@@ -195,9 +195,9 @@ export default function NewsForm({ onClose, data, mutate, newData }) {
     if (e.key === " " || e.key === "Enter") {
       e.preventDefault();
       const value = e.target.value.trim();
-      if (value && !position.includes(value)) {
+      if (value && Array.isArray(position) && !position.includes(value)) {
         setPosition([...position, value]);
-        e.target.value = ""; // เคลียร์ค่า input หลังจากเพิ่ม
+        e.target.value = ""; // Clear input after adding
       }
     }
   };
