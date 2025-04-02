@@ -63,7 +63,7 @@ export default async function handler(req, res) {
 
         // ✅ จัดกลุ่ม submenu เข้า menu
         const menuWithSubmenus = menu.map((m) => {
-          const relatedSubmenus = submenu.filter(
+          const relatedSubmenus = filteredSubMenu.filter(
             (s) => s.menu === m._id.toString()
           );
           return {
