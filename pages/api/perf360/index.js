@@ -130,8 +130,13 @@ export default async function handler(req, res) {
         }));
 
         const filteredNews = enrichedNews.filter((n) => {
-          if (!n.position || n.position.length === 0) return true;
-          return n.position.some((pos) => emp.position.includes(pos));
+          if (!Array.isArray(n.position) || n.position.length === 0)
+            return true;
+          return (
+            emp.position &&
+            Array.isArray(emp.position) &&
+            emp.position.some((pos) => n.position.includes(pos))
+          );
         });
 
         const groupedNews = filteredNews.reduce((acc, item) => {
