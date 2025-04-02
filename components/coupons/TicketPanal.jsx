@@ -6,7 +6,6 @@ import { IoClose } from "react-icons/io5";
 import { RiCoupon3Line } from "react-icons/ri";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
-import zIndex from "@mui/material/styles/zIndex";
 
 export default function TicketPanal({ onClose, mutate }) {
   const [code, setCode] = useState("");
