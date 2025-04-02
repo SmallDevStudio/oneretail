@@ -85,12 +85,14 @@ export default function TicketPanal({ onClose, mutate }) {
 
         {/* Ticket Body */}
         <div className="bg-white p-4 rounded-b-lg relative pb-6">
-          <div className="absolute -left-2 top-1/2 transform -translate-y-1/2 bg-gray-600 w-4 h-4 rounded-full"></div>
-          <div className="absolute -right-2 top-1/2 transform -translate-y-1/2 bg-gray-600 w-4 h-4 rounded-full"></div>
+          <div className="absolute -left-3 top-1/2 transform -translate-y-1/2 bg-gray-600 w-6 h-6 rounded-full"></div>
+          <div className="absolute -right-3 top-1/2 transform -translate-y-1/2 bg-gray-600 w-6 h-6 rounded-full"></div>
 
           {/* Form */}
-          <div>
-            <label htmlFor="code">โค้ด:</label>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="code" className="font-bold">
+              โค้ดคูปอง:
+            </label>
             <div className="flex flex-row items-center gap-2">
               <input
                 type="text"
@@ -98,7 +100,7 @@ export default function TicketPanal({ onClose, mutate }) {
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 className="border border-gray-300 rounded-md px-2 py-1 w-full"
-                placeholder="กรุณากรอกโค้ด"
+                placeholder="กรุณากรอกโค้ดคูปอง"
               />
               <button
                 type="button"
