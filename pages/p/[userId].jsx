@@ -35,6 +35,8 @@ import Messager from "@/components/utils/Messager";
 import FeedSkeleton from "@/components/SkeletonLoader/FeedSkeleton";
 import { MdOutlinePostAdd } from "react-icons/md";
 import UserModal from "@/components/UserModal";
+import { IoTicketOutline } from "react-icons/io5";
+import TicketPanal from "@/components/coupons/TicketPanal";
 
 moment.locale("th");
 
@@ -63,6 +65,7 @@ const ProfilePage = () => {
   const [percentage, setPercentage] = useState(0);
   const [tabs, setTabs] = useState("posts");
   const [openUserPanel, setOpenUserPanel] = useState(false);
+  const [openTicket, setOpenTicket] = useState(false);
 
   const { data: session } = useSession();
   const router = useRouter();
@@ -463,6 +466,14 @@ const ProfilePage = () => {
     setOpenUserPanel(false);
   };
 
+  const handleOpenTicket = () => {
+    setOpenTicket(true);
+  };
+
+  const handleClosedTicket = () => {
+    setOpenTicket(false);
+  };
+
   return !userData ? (
     <Loading />
   ) : (
@@ -491,6 +502,7 @@ const ProfilePage = () => {
               )}
               <IoSearch size={24} />
               <Messager userId={userId} size={24} />
+              <IoTicketOutline size={24} onClick={handleOpenTicket} />
             </div>
           </div>
 
@@ -1273,6 +1285,24 @@ const ProfilePage = () => {
       {tabs === "video" && (
         <VideoTab userId={userId} videoData={userData?.video} />
       )}
+
+      <Dialog
+        open={openTicket}
+        onClose={handleClosedTicket}
+        TransitionComponent={Transition}
+        sx={{
+          "& .MuiDialog-paper": {
+            width: "100%",
+            maxWidth: "100%",
+            margin: "10px",
+            padding: "0px",
+            backgroundColor: "transparent",
+            boxShadow: "none",
+          },
+        }}
+      >
+        <TicketPanal userId={userId} onClose={handleClosedTicket} />
+      </Dialog>
     </div>
   );
 };
