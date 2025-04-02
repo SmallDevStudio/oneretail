@@ -75,7 +75,7 @@ export default function TicketPanal({ onClose, mutate }) {
 
   return (
     <div className="flex flex-col w-full">
-      <div className="relative bg-gray-600 p-4 rounded-lg shadow-lg w-[350px]">
+      <div className="relative bg-gray-600 p-4 shadow-lg w-full">
         {/* Ticket Header */}
         <div className="flex flex-row items-center justify-between bg-[#0056FF] text-white font-bold p-3 rounded-t-lg border-b border-gray-500 shadow-xl">
           แลกคูปอง

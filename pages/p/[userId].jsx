@@ -1294,7 +1294,7 @@ const ProfilePage = () => {
           "& .MuiDialog-paper": {
             width: "100%",
             maxWidth: "100%",
-            margin: "10px",
+            margin: "0px",
             padding: "0px",
             backgroundColor: "transparent",
             boxShadow: "none",
