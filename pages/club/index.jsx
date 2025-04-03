@@ -26,7 +26,7 @@ export default function Club() {
     <div className="flex flex-col justify-center items-center w-screen h-[100vh]">
       <div>
         <Image
-          src={"/images/coming-soon.jpg"}
+          src={"/images/club2025.png"}
           alt="Leaderboard"
           width={500}
           height={500}
@@ -35,10 +35,6 @@ export default function Club() {
           style={{ width: "auto", height: "auto" }}
         />
       </div>
-      <h1 className="text-3xl font-bold">
-        <span className="text-[#0056FF]">One</span>
-        <span className="text-[#F68B1F]">Retail</span> Club
-      </h1>
     </div>
   );
 }
