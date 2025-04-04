@@ -63,6 +63,8 @@ export default function Perf360() {
     },
   });
 
+  console.log("perfData", perfData);
+
   const handleOpenPopup = () => setOpenPopup(true);
   const handleClosePopup = () => setOpenPopup(false);
 
