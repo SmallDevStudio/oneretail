@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Times from "./Admin/Times";
-import Use from "./Admin/Use";
+import UseApp from "./Admin/UseApp";
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState("times");
@@ -20,8 +20,8 @@ export default function Admin() {
           </li>
           <li
             className={`px-6 py-2 rounded-t-lg
-            ${activeTab === "use" ? "bg-[#0056FF]/50" : "bg-gray-200"}`}
-            onClick={() => setActiveTab("use")}
+            ${activeTab === "useapp" ? "bg-[#0056FF]/50" : "bg-gray-200"}`}
+            onClick={() => setActiveTab("useapp")}
           >
             การเข้าใช้งาน
           </li>
@@ -29,7 +29,7 @@ export default function Admin() {
       </div>
       <div>
         {activeTab === "times" && <Times />}
-        {activeTab === "use" && <Use />}
+        {activeTab === "useapp" && <UseApp />}
       </div>
     </div>
   );

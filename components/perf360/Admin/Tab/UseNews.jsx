@@ -1,10 +1,25 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
-import { Divider, Slide, Dialog } from "@mui/material";
+import useSWR from "swr";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  Cell,
+} from "recharts";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import moment from "moment";
+import "moment/locale/th";
+import { Dialog, Slide } from "@mui/material";
+import { Fragment, forwardRef } from "react";
+import Image from "next/image";
 import * as XLSX from "xlsx";
+
+moment.locale("th");
 
 const GroupData = [
   { name: "Retail", value: "Retail" },
@@ -13,7 +28,13 @@ const GroupData = [
   { name: "PB", value: "PB" },
 ];
 
-export default function Use() {
+const Transition = forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+
+const fetcher = (url) => fetch(url).then((res) => res.json());
+
+export default function UseNews() {
   const [group, setGroup] = useState("");
   const [start_date, setStartDate] = useState(null);
   const [end_date, setEndDate] = useState(null);
@@ -23,7 +44,7 @@ export default function Use() {
       {/* Header */}
       <div className="flex flex-col w-full">
         <h2 className="flex font-bold items-center justify-center w-full">
-          การเข้าใช้งานระบบ
+          การเข้าใช้งานระบบ News
         </h2>
         {/* filter */}
         <div className="flex flex-col gap-2 mt-2 w-full">
