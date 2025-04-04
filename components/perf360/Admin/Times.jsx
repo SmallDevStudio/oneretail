@@ -208,7 +208,7 @@ export default function Times() {
             <XAxis dataKey="date" />
             <YAxis />
             <Tooltip />
-            <Legend />
+            <Legend wrapperStyle={{ display: "none" }} />
             <Bar dataKey="total" radius={[6, 6, 0, 0]} onClick={handleBarClick}>
               {chartData.map((entry, index) => (
                 <Cell
