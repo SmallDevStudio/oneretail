@@ -24,12 +24,12 @@ export default function Club() {
 
   return (
     <div className="flex flex-col justify-center items-center w-screen h-[100vh]">
-      <div>
+      <div className="w-[60%] h-auto">
         <Image
           src={"/images/club2025.png"}
           alt="Leaderboard"
-          width={500}
-          height={500}
+          width={200}
+          height={200}
           className="object-contain"
           loading="lazy"
           style={{ width: "auto", height: "auto" }}
