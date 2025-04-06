@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Dialog, Slide, Divider } from "@mui/material";
 import { IoIosCloseCircleOutline } from "react-icons/io";
+import Zoom from "react-medium-image-zoom";
+import "react-medium-image-zoom/dist/styles.css";
 
 const rules = [
   { image: "/images/club/rules/0.png" },
@@ -80,13 +82,15 @@ export default function NewRules() {
             <IoIosCloseCircleOutline className="w-6 h-6 text-[#0056FF] bg-white rounded-full" />
           </button>
           {selectedImage && (
-            <Image
-              src={selectedImage}
-              alt="rule"
-              width={500}
-              height={500}
-              className="object-contain"
-            />
+            <Zoom>
+              <Image
+                src={selectedImage}
+                alt="rule"
+                width={500}
+                height={500}
+                className="object-contain"
+              />
+            </Zoom>
           )}
         </div>
       </Dialog>
