@@ -59,23 +59,22 @@ export default function PopupSection({ data, onClose, open }) {
             {currentItem.title}
           </h2>
 
-          <div className="flex flex-row gap-4 w-full">
-            <div
-              className="tiptap w-full"
-              dangerouslySetInnerHTML={{ __html: currentItem.content }}
-            />
-
+          <div className="flex flex-col items-center gap-2 w-full">
             {currentItem.image?.url && (
-              <div className="shrink-0 w-[100px] h-auto relative">
+              <div className="flex w-[300px] h-auto relative">
                 <Image
                   src={currentItem.image.url}
                   alt={currentItem.title}
-                  width={100}
-                  height={100}
+                  width={300}
+                  height={300}
                   className="object-contain"
                 />
               </div>
             )}
+            <div
+              className="tiptap w-full"
+              dangerouslySetInnerHTML={{ __html: currentItem.content }}
+            />
           </div>
 
           {/* ปุ่มดูรายละเอียด */}
