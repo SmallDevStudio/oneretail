@@ -41,6 +41,16 @@ export default function Club() {
                 ? "text-[#0056FF] border-[#F2871F]"
                 : "border-transparent hover:text-[#0056FF] hover:border-[#F2871F]"
             }`}
+            onClick={() => handleTabClick("hall-of-fame")}
+          >
+            Hall of Fame
+          </li>
+          <li
+            className={`inline-block px-2 border-b-2 rounded-t-lg font-bold ${
+              activeTab === "leaderboard"
+                ? "text-[#0056FF] border-[#F2871F]"
+                : "border-transparent hover:text-[#0056FF] hover:border-[#F2871F]"
+            }`}
             onClick={() => handleTabClick("leaderboard")}
           >
             Leaderboard
@@ -62,6 +72,7 @@ export default function Club() {
       <div className="mt-4">
         {activeTab === "rules" && <NewRules />}
         {activeTab === "leaderboard" && <ComingSoon />}
+        {activeTab === "hall-of-fame" && <ComingSoon />}
       </div>
     </div>
   );

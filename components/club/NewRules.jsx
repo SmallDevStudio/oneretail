@@ -45,19 +45,36 @@ export default function NewRules() {
   };
 
   return (
-    <div className="flex w-full min-h-screen">
-      <div className="flex flex-col w-full">
-        {rules.map((item, index) => (
-          <Image
-            key={index}
-            src={item.image}
-            alt={`rule-${index}`}
-            width={500}
-            height={500}
-            className="object-contain"
-            onClick={() => handleOpenImage(item.image)}
-          />
-        ))}
+    <div className="flex w-full bg-gray-200 min-h-screen">
+      <div className="flex flex-col bg-white w-full">
+        <Image
+          src="/images/club/rules/new-logo.png"
+          alt="new-rules"
+          width={500}
+          height={500}
+          className="object-contain px-8"
+        />
+        <div className="flex flex-col px-4 py-4 tracking-tight items-center text-center text-[13px] bg-white">
+          <span className="text-blue-950">
+            คือการแข่งขันเพื่อค้นหาสุดยอดคนเก่ง แห่งชาว Retail และ AL
+            เพื่อเข้าคลับสุดพิเศษ เพื่อยกระดับศักยภาพ สร้างแรงบันดาลใจ
+            และมอบสิทธิพิเศษสุดพรีเมียมสำหรับ Top Sales ที่ไม่หยุดพัฒนา Target:
+            Top Sales ตั้งแต่ผลงานระดับ V ขึ้นไป ของทุกตำแหน่ง (E-V Performance)
+          </span>
+        </div>
+        <div className="flex flex-col tracking-tight items-center text-center gap-2">
+          {rules.map((item, index) => (
+            <Image
+              key={index}
+              src={item.image}
+              alt={`rule-${index}`}
+              width={500}
+              height={500}
+              className="object-contain"
+              onClick={() => handleOpenImage(item.image)}
+            />
+          ))}
+        </div>
       </div>
 
       <Dialog
