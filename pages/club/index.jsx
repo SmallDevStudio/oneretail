@@ -37,7 +37,7 @@ export default function Club() {
         <ul className="flex flex-row items-center justify-center flex-wrap gap-6">
           <li
             className={`inline-block px-2 border-b-2 rounded-t-lg font-bold ${
-              activeTab === "leaderboard"
+              activeTab === "hall-of-fame"
                 ? "text-[#0056FF] border-[#F2871F]"
                 : "border-transparent hover:text-[#0056FF] hover:border-[#F2871F]"
             }`}
