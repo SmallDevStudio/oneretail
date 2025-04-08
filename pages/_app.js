@@ -10,10 +10,20 @@ import Head from "next/head";
 import "@/styles/editor.scss";
 import useUserActivity from "@/lib/hook/useUserActivity";
 import useNetworkStatus from "@/lib/hook/useNetworkStatus";
-import {AppLayout} from "@/themes";
-import {AdminLayout} from "@/themes";
+import { AppLayout } from "@/themes";
+import { AdminLayout } from "@/themes";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import {
+  trackClick,
+  trackScrollOnce,
+  trackPageTime,
+} from "@/utils/privacypolicy";
+import dynamic from "next/dynamic";
+
+const CookieConsent = dynamic(() => import("@/lib/CookieConsent"), {
+  ssr: false,
+});
 
 function App({ Component, pageProps: { session, ...pageProps } }) {
   const getLayout = Component.getLayout || ((page) => page);
@@ -39,15 +49,34 @@ function App({ Component, pageProps: { session, ...pageProps } }) {
     };
   }, [router.events]);
 
-  if (isAds || isPulseSurvey  || isLogin || isRegister || isMessagerId || isShare) {
+  useEffect(() => {
+    const handleClick = (e) => trackClick(e.target.outerHTML);
+    document.addEventListener("click", handleClick);
+    trackPageTime();
+    trackScrollOnce();
+    return () => document.removeEventListener("click", handleClick);
+  }, []);
+
+  if (
+    isAds ||
+    isPulseSurvey ||
+    isLogin ||
+    isRegister ||
+    isMessagerId ||
+    isShare
+  ) {
     return (
       <SessionProvider session={session}>
         <UserActivityWrapper>
           <Head>
             <title>One Retail</title>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <meta
+              name="viewport"
+              content="width=device-width, initial-scale=1.0"
+            />
           </Head>
           <Component {...pageProps} />
+          <CookieConsent />
           <ToastContainer position="top-right" autoClose={3000} />
           <SpeedInsights />
           <Analytics />
@@ -64,9 +93,13 @@ function App({ Component, pageProps: { session, ...pageProps } }) {
         <Layout>
           <Head>
             <title>One Retail</title>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <meta
+              name="viewport"
+              content="width=device-width, initial-scale=1.0"
+            />
           </Head>
           <Component {...pageProps} />
+          <CookieConsent />
           <ToastContainer position="top-right" autoClose={3000} />
           <SpeedInsights />
           <Analytics />
@@ -83,4 +116,3 @@ function UserActivityWrapper({ children }) {
 }
 
 export default App;
-
