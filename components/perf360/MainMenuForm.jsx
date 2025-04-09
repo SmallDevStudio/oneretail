@@ -15,14 +15,13 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const GroupData = [
-  { name: "Retail", value: "Retail" },
-  { name: "AL", value: "AL" },
-  { name: "TCON", value: "TCON" },
-  { name: "PB", value: "PB" },
-];
-
-export default function MainMenuForm({ onClose, data, mutate, newData }) {
+export default function MainMenuForm({
+  onClose,
+  data,
+  mutate,
+  newData,
+  GroupData,
+}) {
   const [form, setForm] = useState({
     active: true,
     title: "",
@@ -41,7 +40,7 @@ export default function MainMenuForm({ onClose, data, mutate, newData }) {
 
   useEffect(() => {
     if (!GroupData) return;
-  }, []);
+  }, [GroupData]);
 
   useEffect(() => {
     if (data) {

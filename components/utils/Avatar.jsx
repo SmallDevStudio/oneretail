@@ -35,12 +35,10 @@ export default function Avatar({ src, size, userId }) {
         alt="Avatar"
         width={100}
         height={100}
-        className="rounded-full cursor-pointer"
+        className="rounded-full cursor-pointer object-contain bg-white"
         style={{
-          width: size,
-          height: size,
-          objectFit: "cover",
-          objectPosition: "center",
+          width: size ? size : "auto",
+          height: size ? size : "auto",
         }}
         loading="lazy"
         onClick={() => router.push(url)}

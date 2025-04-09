@@ -25,6 +25,7 @@ export default function PopUp() {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState("");
+  const [GroupData, setGroupData] = useState([]);
 
   const { data, error, isLoading, mutate } = useSWR(
     `/api/perf360/popup`,
@@ -34,7 +35,19 @@ export default function PopUp() {
     }
   );
 
-  console.log("popup", popup);
+  const { data: teamgroup, mutate: mutateTeamGroup } = useSWR(
+    "/api/perf360/teamgroup",
+    fetcher,
+    {
+      onSuccess: (data) => {
+        setGroupData(data.data);
+      },
+    }
+  );
+
+  useEffect(() => {
+    if (!GroupData) return;
+  }, [GroupData]);
 
   useEffect(() => {
     const normalize = (val) => val.toLowerCase().trim();
@@ -208,7 +221,12 @@ export default function PopUp() {
         aria-describedby="alert-dialog-slide-description"
       >
         {/* Content */}
-        <PopUpForm onClose={handleClose} data={selected} mutate={mutate} />
+        <PopUpForm
+          onClose={handleClose}
+          data={selected}
+          mutate={mutate}
+          GroupData={GroupData}
+        />
       </Dialog>
     </div>
   );

@@ -21,14 +21,7 @@ const TiptapEditor = dynamic(() => import("@/components/Tiptap/TiptapEditor"), {
   ssr: false,
 });
 
-const GroupData = [
-  { name: "Retail", value: "Retail" },
-  { name: "AL", value: "AL" },
-  { name: "TCON", value: "TCON" },
-  { name: "PB", value: "PB" },
-];
-
-export default function PopUpForm({ onClose, data, mutate }) {
+export default function PopUpForm({ onClose, data, mutate, GroupData }) {
   const [form, setForm] = useState({
     start_date: "",
     end_date: "",
@@ -48,6 +41,16 @@ export default function PopUpForm({ onClose, data, mutate }) {
   useEffect(() => {
     if (status === "loading") return;
   }, [status]);
+
+  useEffect(() => {
+    if (!GroupData) return;
+  }, [GroupData]);
+
+  useEffect(() => {
+    if (GroupData) {
+      setGroup(GroupData.map((g) => g.value));
+    }
+  }, [GroupData]);
 
   useEffect(() => {
     if (data) {

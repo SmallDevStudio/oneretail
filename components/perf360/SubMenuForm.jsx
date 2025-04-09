@@ -16,14 +16,13 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
-const GroupData = [
-  { name: "Retail", value: "Retail" },
-  { name: "AL", value: "AL" },
-  { name: "TCON", value: "TCON" },
-  { name: "PB", value: "PB" },
-];
-
-export default function SubMenuForm({ onClose, data, mutate, newData }) {
+export default function SubMenuForm({
+  onClose,
+  data,
+  mutate,
+  newData,
+  GroupData,
+}) {
   const [form, setForm] = useState({
     menu: "",
     active: true,
@@ -54,7 +53,7 @@ export default function SubMenuForm({ onClose, data, mutate, newData }) {
 
   useEffect(() => {
     if (!GroupData) return;
-  }, []);
+  }, [GroupData]);
 
   useEffect(() => {
     if (data) {
@@ -224,7 +223,7 @@ export default function SubMenuForm({ onClose, data, mutate, newData }) {
       {/* Form */}
       <div className="flex flex-col px-4 py-2 gap-2 w-full">
         <h2 className="font-bold text-lg text-[#0056FF]">
-          {newData ? "เพิ่ม" : "แก้ไข"} Popup
+          {newData ? "เพิ่ม" : "แก้ไข"} SubMenu
         </h2>
 
         <div className="flex flex-col w-full">
@@ -248,7 +247,7 @@ export default function SubMenuForm({ onClose, data, mutate, newData }) {
               menu.length > 0 &&
               menu.map((item, index) => (
                 <option key={index} value={item._id}>
-                  {item.title}
+                  {item.title} ({item.group})
                 </option>
               ))
             )}

@@ -10,6 +10,7 @@ import "moment/locale/th";
 import Swal from "sweetalert2";
 import { Tooltip } from "@mui/material";
 import { toast } from "react-toastify";
+import Loading from "../Loading";
 
 moment.locale("th");
 
@@ -25,6 +26,7 @@ export default function News() {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState("");
+  const [GroupData, setGroupData] = useState([]);
 
   const { data, error, isLoading, mutate } = useSWR(
     `/api/perf360/news`,
@@ -33,6 +35,16 @@ export default function News() {
       onSuccess: (data) => setNews(data.data),
     }
   );
+
+  const {
+    data: teamgroup,
+    mutate: mutateTeamGroup,
+    isLoading: isLoadingGroup,
+  } = useSWR("/api/perf360/teamgroup", fetcher, {
+    onSuccess: (data) => {
+      setGroupData(data.data);
+    },
+  });
 
   const {
     data: categoryData,
@@ -50,6 +62,10 @@ export default function News() {
       setFilterData(categoryData.data.map((cat) => cat.name));
     }
   }, [categoryData, filterData.length]);
+
+  useEffect(() => {
+    if (!GroupData) return;
+  }, [GroupData]);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -100,6 +116,8 @@ export default function News() {
       toast.error("อัพเดทสถานะการใช้งานไม่สำเร็จ");
     }
   };
+
+  if (isLoading || isLoadingGroup) return <Loading />;
 
   return (
     <div className="flex flex-col w-full mt-2 px-4">
@@ -217,6 +235,7 @@ export default function News() {
           data={selected}
           mutate={mutate}
           newData={!selected}
+          GroupData={GroupData}
         />
       </Dialog>
     </div>

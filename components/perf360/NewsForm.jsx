@@ -25,14 +25,13 @@ const TiptapEditor = dynamic(() => import("@/components/Tiptap/TiptapEditor"), {
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
-const GroupData = [
-  { name: "Retail", value: "Retail" },
-  { name: "AL", value: "AL" },
-  { name: "TCON", value: "TCON" },
-  { name: "PB", value: "PB" },
-];
-
-export default function NewsForm({ onClose, data, mutate, newData }) {
+export default function NewsForm({
+  onClose,
+  data,
+  mutate,
+  newData,
+  GroupData,
+}) {
   const [form, setForm] = useState({
     category: "",
     start_date: "",
@@ -63,6 +62,16 @@ export default function NewsForm({ onClose, data, mutate, newData }) {
   useEffect(() => {
     if (status === "loading") return;
   }, [status]);
+
+  useEffect(() => {
+    if (!GroupData) return;
+  }, [GroupData]);
+
+  useEffect(() => {
+    if (GroupData) {
+      setGroup(GroupData.map((g) => g.value));
+    }
+  }, [GroupData]);
 
   useEffect(() => {
     if (data) {
@@ -287,18 +296,19 @@ export default function NewsForm({ onClose, data, mutate, newData }) {
             กลุ่มพนักงาน
           </label>
           <div className="flex flex-row items-center justify-between border border-gray-200 rounded-lg p-2 w-full">
-            {GroupData.map((g, index) => (
-              <div key={index} className="flex flex-row items-center gap-2">
-                <input
-                  type="checkbox"
-                  name="group"
-                  id={`group-${g.value}`}
-                  checked={Array.isArray(group) && group.includes(g.value)}
-                  onChange={() => handleToggleGroup(g.value)}
-                />
-                <label htmlFor={`group-${g.value}`}>{g.name}</label>
-              </div>
-            ))}
+            {GroupData &&
+              GroupData.map((g, index) => (
+                <div key={index} className="flex flex-row items-center gap-2">
+                  <input
+                    type="checkbox"
+                    name="group"
+                    id={`group-${g.value}`}
+                    checked={Array.isArray(group) && group.includes(g.value)}
+                    onChange={() => handleToggleGroup(g.value)}
+                  />
+                  <label htmlFor={`group-${g.value}`}>{g.name}</label>
+                </div>
+              ))}
           </div>
         </div>
 

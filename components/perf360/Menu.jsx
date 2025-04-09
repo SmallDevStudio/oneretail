@@ -10,6 +10,8 @@ import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import MainMenuForm from "./MainMenuForm";
 import SubMenuForm from "./SubMenuForm";
+import TeamGroup from "./TeamGroup";
+import Loading from "../Loading";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -17,14 +19,8 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
-const GroupData = [
-  { name: "Retail", value: "Retail" },
-  { name: "AL", value: "AL" },
-  { name: "TCON", value: "TCON" },
-  { name: "PB", value: "PB" },
-];
-
 export default function Menu() {
+  const [GroupData, setGroupData] = useState([]);
   const [menu, setMenu] = useState({});
   const [selected, setSelected] = useState(null);
   const [openMainMenuForm, setMainMenuForm] = useState(false);
@@ -32,15 +28,32 @@ export default function Menu() {
   const [selectedSub, setSelectedSub] = useState(null);
   const [group, setGroup] = useState(GroupData.map((g) => g.value));
   const [expandedMenus, setExpandedMenus] = useState({});
+  const [openTeamGroup, setOpenTeamGroup] = useState(false);
   const { data: session, status } = useSession();
 
   const { data, mutate } = useSWR("/api/perf360/allmenu", fetcher, {
     onSuccess: (data) => setMenu(data.data),
   });
 
+  const {
+    data: teamgroup,
+    mutate: mutateTeamGroup,
+    isLoading,
+  } = useSWR("/api/perf360/teamgroup", fetcher, {
+    onSuccess: (data) => {
+      setGroupData(data.data);
+    },
+  });
+
   useEffect(() => {
     if (status === "loading") return;
   }, [status]);
+
+  useEffect(() => {
+    if (teamgroup) {
+      setGroup(teamgroup.data.map((g) => g.value));
+    }
+  }, [teamgroup]);
 
   const handleToggleGroup = (value) => {
     setGroup((prev) =>
@@ -158,6 +171,18 @@ export default function Menu() {
     toast.success("อัพเดตสถานะเมนูย่อยเรียบร้อย");
   };
 
+  const handleOpenTeamGroup = () => {
+    setOpenTeamGroup(true);
+  };
+
+  const handleCloseTeamGroup = () => {
+    setOpenTeamGroup(false);
+  };
+
+  const handleUpdate = () => mutateTeamGroup();
+
+  if (isLoading) return <Loading />;
+
   return (
     <div className="flex flex-col w-full p-4">
       <div className="flex justify-center gap-4">
@@ -177,16 +202,25 @@ export default function Menu() {
 
       {/* Filter */}
       <div className="mt-4 flex gap-2 justify-between border rounded-lg p-2">
-        {GroupData.map((g) => (
-          <label key={g.value} className="flex items-center gap-1">
-            <input
-              type="checkbox"
-              checked={group.includes(g.value)}
-              onChange={() => handleToggleGroup(g.value)}
-            />
-            {g.name}
-          </label>
-        ))}
+        {GroupData &&
+          GroupData.map((g) => (
+            <label key={g.value} className="flex items-center gap-1">
+              <input
+                type="checkbox"
+                checked={group.includes(g.value)}
+                onChange={() => handleToggleGroup(g.value)}
+              />
+              {g.name}
+            </label>
+          ))}
+      </div>
+      <div className="flex justify-end">
+        <span
+          className="text-sm font-bold text-[#0056FF] cursor-pointer"
+          onClick={handleOpenTeamGroup}
+        >
+          เพิ่มกลุ่ม
+        </span>
       </div>
 
       {/* Content */}
@@ -331,6 +365,7 @@ export default function Menu() {
           mutate={mutate}
           data={selected}
           newData={!selected}
+          GroupData={GroupData}
         />
       </Dialog>
 
@@ -346,6 +381,21 @@ export default function Menu() {
           mutate={mutate}
           data={selectedSub}
           newData={!selectedSub}
+          GroupData={GroupData}
+        />
+      </Dialog>
+
+      <Dialog
+        fullScreen
+        open={openTeamGroup}
+        onClose={handleCloseTeamGroup}
+        TransitionComponent={Transition}
+        keepMounted
+      >
+        <TeamGroup
+          onClose={handleCloseTeamGroup}
+          mutate={handleUpdate}
+          data={GroupData}
         />
       </Dialog>
     </div>
