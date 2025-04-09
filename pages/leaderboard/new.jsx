@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import Avatar from "@/components/utils/Avatar";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -24,33 +25,35 @@ export default function NewLeaderBoard() {
   const [activeTab, setActiveTab] = useState("All");
   const [currentUser, setCurrentUser] = useState(null);
   const [top3, setTop3] = useState([]);
+  const [isFetching, setIsFetching] = useState(false);
 
   const { data: session, status } = useSession();
   const userId = session?.user?.id;
 
-  const { data, error, isLoading } = useSWR(
+  const router = useRouter();
+
+  const leaderboardUrl =
     teamGrop === "All"
       ? "/api/newleaderboard"
-      : `/api/newleaderboard?teamGrop=${teamGrop}`,
-    fetcher,
-    {
-      onSuccess: (data) => {
-        setLeaderboard(data.data.rank);
-        if (userId) {
-          const found = data.data.rank.find((item) => item.userId === userId);
-          setCurrentUser(found);
-        }
-        if (data.data.rank?.length >= 3) {
-          const reordered = [
-            data.data.rank[1],
-            data.data.rank[0],
-            data.data.rank[2],
-          ]; // 2 1 3
-          setTop3(reordered);
-        }
-      },
-    }
-  );
+      : `/api/newleaderboard?teamGrop=${teamGrop}`;
+
+  const { data, error, mutate, isLoading } = useSWR(leaderboardUrl, fetcher, {
+    onSuccess: (data) => {
+      setLeaderboard(data.data.rank);
+      if (userId) {
+        const found = data.data.rank.find((item) => item.userId === userId);
+        setCurrentUser(found);
+      }
+      if (data.data.rank?.length >= 3) {
+        const reordered = [
+          data.data.rank[1],
+          data.data.rank[0],
+          data.data.rank[2],
+        ]; // 2 1 3
+        setTop3(reordered);
+      }
+    },
+  });
 
   useEffect(() => {
     if (status === "loading") return;
@@ -58,7 +61,7 @@ export default function NewLeaderBoard() {
   }, [status, session]);
 
   useEffect(() => {
-    if (data && data.data.group) {
+    if (data && data.data?.group) {
       const rhGroups = Object.entries(data.data.group)
         .filter(([groupName]) =>
           ["RH1", "RH2", "RH3", "RH4", "RH5"].includes(groupName)
@@ -72,11 +75,33 @@ export default function NewLeaderBoard() {
     }
   }, [data]);
 
-  if (status === "loading" || isLoading) return <Loading />;
+  useEffect(() => {
+    if (router.query.tab) {
+      setActiveTab(router.query.tab);
+      setTeamGrop(router.query.tab);
+    } else {
+      setActiveTab("All");
+      setTeamGrop("All");
+      window.history.pushState(null, "", `?tab=All`);
+    }
+  }, [router.query.tab]);
 
-  const handleActiveTab = (tab) => {
+  if (status === "loading") return <Loading />;
+  if (isLoading || !data || !leaderboard) return <Loading />;
+
+  const handleActiveTab = async (tab) => {
     setActiveTab(tab);
     setTeamGrop(tab);
+    window.history.pushState(null, "", `?tab=${tab}`);
+    setIsFetching(true);
+
+    const url =
+      tab === "All"
+        ? "/api/newleaderboard"
+        : `/api/newleaderboard?teamGrop=${tab}`;
+
+    await mutate(url);
+    setIsFetching(false);
   };
 
   return (
@@ -143,6 +168,7 @@ export default function NewLeaderBoard() {
                     alt={user.fullname}
                     className="w-full h-full object-cover"
                     userId={user.userId}
+                    key={user.userId}
                   />
                 </div>
 
@@ -169,57 +195,63 @@ export default function NewLeaderBoard() {
 
       {/* Leaderboard */}
       <div className="mt-4">
-        {/* current user card */}
-        {currentUser && (
-          <div className="flex flex-row items-center justify-between px-4 py-2 border rounded-full bg-[#0056FF] mb-2 shadow">
-            <div className="flex flex-row items-center space-x-4">
-              <span className="text-sm font-bold text-white">
-                {currentUser.rank}
-              </span>
-              <Avatar
-                src={currentUser.pictureUrl}
-                size={40}
-                userId={currentUser.userId}
-              />
-              <span className="text-sm font-semibold text-white">
-                {currentUser.fullname}
-              </span>
-            </div>
-            <span className="text-sm font-bold bg-[#F68B1F] text-white px-2 py-1 rounded-full">
-              {currentUser.totalPoints}
-            </span>
-          </div>
-        )}
-
-        {/* user card */}
-        <div className="flex flex-col w-full px-2 py-2 gap-2">
-          {leaderboard
-            .filter((l) => (group.length === 0 ? l.rank > 3 : true))
-            .map((l, lindex) => (
-              <div
-                key={lindex}
-                className="flex flex-row items-center justify-between px-2 py-1 border rounded-full bg-gray-100"
-              >
+        {isFetching ? (
+          <CircularProgress />
+        ) : (
+          <>
+            {/* current user card */}
+            {currentUser && (
+              <div className="flex flex-row items-center justify-between px-4 py-2 border rounded-full bg-[#0056FF] mb-2 shadow">
                 <div className="flex flex-row items-center space-x-4">
-                  <span className="text-sm font-bold text-[#0056FF]">
-                    {l.rank}
+                  <span className="text-sm font-bold text-white">
+                    {currentUser.rank}
                   </span>
                   <Avatar
-                    src={l.pictureUrl}
+                    src={currentUser.pictureUrl}
                     size={40}
-                    userId={l.userId}
-                    key={lindex}
+                    userId={currentUser.userId}
                   />
+                  <span className="text-sm font-semibold text-white">
+                    {currentUser.fullname}
+                  </span>
                 </div>
-                <span className="text-sm text-[#0056FF] font-bold">
-                  {l.fullname}
-                </span>
-                <span className="text-sm font-bold bg-[#0056FF] text-white px-2 py-1 rounded-full">
-                  {l.totalPoints}
+                <span className="text-sm font-bold bg-[#F68B1F] text-white px-2 py-1 rounded-full">
+                  {currentUser.totalPoints}
                 </span>
               </div>
-            ))}
-        </div>
+            )}
+
+            {/* user card */}
+            <div className="flex flex-col w-full px-2 py-2 gap-2">
+              {leaderboard
+                .filter((l) => (group.length === 0 ? l.rank > 3 : true))
+                .map((l, lindex) => (
+                  <div
+                    key={lindex}
+                    className="flex flex-row items-center justify-between px-2 py-1 border rounded-full bg-gray-100"
+                  >
+                    <div className="flex flex-row items-center space-x-4">
+                      <span className="text-sm font-bold text-[#0056FF]">
+                        {l.rank}
+                      </span>
+                      <Avatar
+                        src={l.pictureUrl}
+                        size={40}
+                        userId={l.userId}
+                        key={l.userId}
+                      />
+                    </div>
+                    <span className="text-sm text-[#0056FF] font-bold">
+                      {l.fullname}
+                    </span>
+                    <span className="text-sm font-bold bg-[#0056FF] text-white px-2 py-1 rounded-full">
+                      {l.totalPoints}
+                    </span>
+                  </div>
+                ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
