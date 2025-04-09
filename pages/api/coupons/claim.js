@@ -14,6 +14,9 @@ export default async function handler(req, res) {
       try {
         const { userId, code } = req.body;
 
+        console.log("userId:", userId);
+        console.log("code:", code);
+
         // ตรวจสอบว่ามี coupon หรือไม่ และต้องเป็น active
         const coupon = await Coupons.findOne({ code, active: true });
         if (!coupon) {
@@ -22,8 +25,13 @@ export default async function handler(req, res) {
             .json({ success: false, message: "Coupon not found or inactive" });
         }
 
+        // แก้จุดนี้ 👇
         const now = new Date();
-        if (now < coupon.start_date || now > coupon.end_date) {
+
+        const endOfDay = new Date(coupon.end_date);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        if (now < new Date(coupon.start_date) || now > endOfDay) {
           return res.status(400).json({
             success: false,
             message: "คูปองหมดอายุแล้ว",

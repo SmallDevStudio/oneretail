@@ -11,6 +11,7 @@ export default function TicketPanal({ onClose, mutate }) {
   const [code, setCode] = useState("");
   const [isClaimed, setIsClaimed] = useState(false);
   const { data: session, status } = useSession();
+  const userId = session?.user?.id;
 
   useEffect(() => {
     if (status === "loading") return;
@@ -30,13 +31,12 @@ export default function TicketPanal({ onClose, mutate }) {
     try {
       const response = await axios.post("/api/coupons/claim", {
         code,
-        userId: session.user.id,
+        userId: userId,
       });
 
       if (response.data.success) {
         onClose();
         setCode("");
-        mutate();
         await Swal.fire({
           icon: "success",
           title: "Success",
