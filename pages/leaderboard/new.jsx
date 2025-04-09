@@ -113,7 +113,14 @@ export default function NewLeaderBoard() {
       {/* Group */}
       <div className="bg-[#0056FF] px-2 py-4 rounded-b-xl text-white">
         <div className="flex justify-around items-end w-full">
-          {(group.length > 0 ? group : top3).map((item, idx) => {
+          {(group.length > 0
+            ? [...group].sort((a, b) => {
+                const getNumber = (name) =>
+                  parseInt(name.replace("RH", "")) || 0;
+                return getNumber(a.name) - getNumber(b.name);
+              })
+            : top3
+          ).map((item, idx) => {
             const user = group.length > 0 ? item.users[0] : item;
             const isCenter = !group.length && user.rank === 1;
 
@@ -124,6 +131,7 @@ export default function NewLeaderBoard() {
                   isCenter ? "scale-110" : "scale-100"
                 } w-24`}
               >
+                {/* อันดับหรือชื่อกลุ่ม */}
                 <span className="text-sm font-bold mb-2 whitespace-nowrap">
                   {group.length > 0 ? item.name : `อันดับ ${user.rank}`}
                 </span>
@@ -132,8 +140,9 @@ export default function NewLeaderBoard() {
                 <div className="w-16 h-16 rounded-full bg-white overflow-hidden mb-2 border-2 border-white">
                   <Avatar
                     src={user.pictureUrl}
-                    userId={user.userId}
+                    alt={user.fullname}
                     className="w-full h-full object-cover"
+                    userId={user.userId}
                   />
                 </div>
 
@@ -144,7 +153,7 @@ export default function NewLeaderBoard() {
                     display: "-webkit-box",
                     WebkitLineClamp: 2,
                     WebkitBoxOrient: "vertical",
-                    minHeight: "2.6em", // 2 lines height
+                    minHeight: "2.6em",
                   }}
                 >
                   {user.fullname}
