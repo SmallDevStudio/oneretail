@@ -3,10 +3,10 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import NewRules from "@/components/club/NewRules";
 import ComingSoon from "@/components/club/ComingSoon";
+import NewLeaderboard from "@/components/club/NewLeaderBoard";
 
 export default function Club() {
   const [activeTab, setActiveTab] = useState("rules");
-
   const router = useRouter();
 
   useEffect(() => {
@@ -71,7 +71,7 @@ export default function Club() {
       {/* Content */}
       <div className="mt-4">
         {activeTab === "rules" && <NewRules />}
-        {activeTab === "leaderboard" && <ComingSoon />}
+        {activeTab === "leaderboard" && <NewLeaderboard />}
         {activeTab === "hall-of-fame" && <ComingSoon />}
       </div>
     </div>
