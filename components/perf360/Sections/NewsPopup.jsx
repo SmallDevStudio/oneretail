@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import Image from "next/image";
 import { IoClose } from "react-icons/io5";
 
 export default function NewsPopup({ news, onClose }) {
@@ -29,6 +30,19 @@ export default function NewsPopup({ news, onClose }) {
       {/* Content */}
       <div className="p-4">
         <h2 className="text-lg font-bold">{news.title}</h2>
+        {news?.image?.url && (
+          <div className="flex flex-row gap-4 w-full justify-center p-4">
+            <div className="flex w-[300px] h-auto relative">
+              <Image
+                src={news.image.url}
+                alt="news"
+                width={500}
+                height={500}
+                className="object-contain"
+              />
+            </div>
+          </div>
+        )}
         <div
           className="tiptap w-full"
           dangerouslySetInnerHTML={{ __html: news.content }}
