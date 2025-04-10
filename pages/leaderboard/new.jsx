@@ -13,10 +13,11 @@ const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 const team = [
   { name: "All", value: "All" },
-  { name: "BBD", value: "Retail" },
-  { name: "AL", value: "AL" },
-  { name: "TCON", value: "TCON" },
-  { name: "PB", value: "PB" },
+  { name: "RH1", value: "RH1" },
+  { name: "RH2", value: "RH2" },
+  { name: "RH3", value: "RH3" },
+  { name: "RH4", value: "RH4" },
+  { name: "RH5", value: "RH5" },
 ];
 export default function NewLeaderBoard() {
   const [group, setGroup] = useState([]);
@@ -32,28 +33,48 @@ export default function NewLeaderBoard() {
 
   const router = useRouter();
 
-  const leaderboardUrl =
-    teamGrop === "All"
-      ? "/api/newleaderboard"
-      : `/api/newleaderboard?teamGrop=${teamGrop}`;
+  const { data, error, mutate, isLoading } = useSWR(
+    "/api/newleaderboard",
+    fetcher,
+    {
+      onSuccess: (data) => {
+        if (!data?.data?.group) return;
 
-  const { data, error, mutate, isLoading } = useSWR(leaderboardUrl, fetcher, {
-    onSuccess: (data) => {
-      setLeaderboard(data.data.rank);
-      if (userId) {
-        const found = data.data.rank.find((item) => item.userId === userId);
-        setCurrentUser(found);
-      }
-      if (data.data.rank?.length >= 3) {
-        const reordered = [
-          data.data.rank[1],
-          data.data.rank[0],
-          data.data.rank[2],
-        ]; // 2 1 3
-        setTop3(reordered);
-      }
-    },
-  });
+        // รวม user จากทุก group
+        const allUsers = Object.values(data.data.group).flat();
+
+        // จัดเรียงใหม่โดย totalPoints มากไปน้อย
+        const sorted = [...allUsers].sort(
+          (a, b) => b.totalPoints - a.totalPoints
+        );
+
+        // เพิ่ม rank ใหม่
+        const ranked = sorted.map((user, index) => ({
+          ...user,
+          rank: index + 1,
+        }));
+
+        setLeaderboard(ranked); // ✅ ใช้ใน tab "All"
+        setCurrentUser(ranked.find((u) => u.userId === userId) || null);
+
+        // สร้าง top3 แบบ 2-1-3
+        if (ranked.length >= 3) {
+          setTop3([ranked[1], ranked[0], ranked[2]]);
+        }
+
+        // เซ็ต group RH1–RH5 เหมือนเดิม
+        const rhGroups = Object.entries(data.data.group)
+          .filter(([groupName]) =>
+            ["RH1", "RH2", "RH3", "RH4", "RH5"].includes(groupName)
+          )
+          .map(([groupName, users]) => ({
+            name: groupName,
+            users,
+          }));
+        setGroup(rhGroups);
+      },
+    }
+  );
 
   useEffect(() => {
     if (status === "loading") return;
@@ -78,30 +99,19 @@ export default function NewLeaderBoard() {
   useEffect(() => {
     if (router.query.tab) {
       setActiveTab(router.query.tab);
-      setTeamGrop(router.query.tab);
     } else {
       setActiveTab("All");
-      setTeamGrop("All");
       window.history.pushState(null, "", `?tab=All`);
     }
   }, [router.query.tab]);
 
   if (status === "loading") return <Loading />;
-  if (isLoading || !data || !leaderboard) return <Loading />;
+  if (isLoading || !data) return <Loading />;
 
   const handleActiveTab = async (tab) => {
     setActiveTab(tab);
     setTeamGrop(tab);
     window.history.pushState(null, "", `?tab=${tab}`);
-    setIsFetching(true);
-
-    const url =
-      tab === "All"
-        ? "/api/newleaderboard"
-        : `/api/newleaderboard?teamGrop=${tab}`;
-
-    await mutate(url);
-    setIsFetching(false);
   };
 
   return (
@@ -115,14 +125,13 @@ export default function NewLeaderBoard() {
           Leaderboard
         </h1>
       </div>
-
       {/* Tabs */}
       <div className="flex flex-col w-full">
         <ul className="flex flex-row items-center justify-between">
           {team.map((item, index) => (
             <li
               key={index}
-              className={`px-6 py-1 rounded-t-lg ${
+              className={`px-4 py-1 rounded-t-lg ${
                 teamGrop === item.value
                   ? "bg-[#0056FF] text-white font-bold"
                   : "bg-gray-200"
@@ -134,124 +143,156 @@ export default function NewLeaderBoard() {
           ))}
         </ul>
       </div>
-
       {/* Group */}
       <div className="bg-[#0056FF] px-2 py-4 rounded-b-xl text-white">
-        <div className="flex justify-around items-end w-full">
-          {(group.length > 0
-            ? [...group].sort((a, b) => {
-                const getNumber = (name) =>
-                  parseInt(name.replace("RH", "")) || 0;
-                return getNumber(a.name) - getNumber(b.name);
-              })
-            : top3
-          ).map((item, idx) => {
-            const user = group.length > 0 ? item.users[0] : item;
-            const isCenter = !group.length && user.rank === 1;
-
-            return (
-              <div
-                key={item.name || user.userId}
-                className={`flex flex-col items-center justify-end transition-transform duration-300 ${
-                  isCenter ? "scale-110" : "scale-100"
-                } w-24`}
-              >
-                {/* อันดับหรือชื่อกลุ่ม */}
-                <span className="text-sm font-bold mb-2 whitespace-nowrap">
-                  {group.length > 0 ? item.name : `อันดับ ${user.rank}`}
-                </span>
-
-                {/* Avatar */}
-                <div className="w-16 h-16 rounded-full bg-white overflow-hidden mb-2 border-2 border-white">
-                  <Avatar
-                    src={user.pictureUrl}
-                    alt={user.fullname}
-                    className="w-full h-full object-cover"
-                    userId={user.userId}
-                    key={user.userId}
-                  />
-                </div>
-
-                {/* Fullname: 2 lines fixed */}
-                <span
-                  className="text-[13px] font-semibold text-center leading-tight text-white mb-1 overflow-hidden text-ellipsis"
-                  style={{
-                    display: "-webkit-box",
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: "vertical",
-                    minHeight: "2.6em",
-                  }}
-                >
-                  {user.fullname}
-                </span>
-
-                {/* Total Points */}
-                <span className="font-bold text-lg">{user.totalPoints}</span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Leaderboard */}
-      <div className="mt-4">
-        {isFetching ? (
-          <CircularProgress />
-        ) : (
-          <>
-            {/* current user card */}
-            {currentUser && (
-              <div className="flex flex-row items-center justify-between px-4 py-2 border rounded-full bg-[#0056FF] mb-2 shadow">
-                <div className="flex flex-row items-center space-x-4">
-                  <span className="text-sm font-bold text-white">
-                    {currentUser.rank}
-                  </span>
-                  <Avatar
-                    src={currentUser.pictureUrl}
-                    size={40}
-                    userId={currentUser.userId}
-                  />
-                  <span className="text-sm font-semibold text-white">
-                    {currentUser.fullname}
-                  </span>
-                </div>
-                <span className="text-sm font-bold bg-[#F68B1F] text-white px-2 py-1 rounded-full">
-                  {currentUser.totalPoints}
-                </span>
-              </div>
-            )}
-
-            {/* user card */}
-            <div className="flex flex-col w-full px-2 py-2 gap-2">
-              {leaderboard
-                .filter((l) => (group.length === 0 ? l.rank > 3 : true))
-                .map((l, lindex) => (
+        {activeTab === "All" ? (
+          <div className="bg-[#0056FF] px-2 py-4 rounded-b-xl text-white">
+            <div className="grid grid-cols-5 gap-1 w-full">
+              {[4, 2, 1, 3, 5]
+                .map((targetRank) =>
+                  leaderboard.find((u) => u.rank === targetRank)
+                )
+                .filter(Boolean)
+                .map((user) => (
                   <div
-                    key={lindex}
-                    className="flex flex-row items-center justify-between px-2 py-1 border rounded-full bg-gray-100"
+                    key={user.userId}
+                    className={`flex flex-col items-center justify-end transition-transform duration-300 ${
+                      user.rank === 1 ? "scale-105" : ""
+                    }`}
                   >
-                    <div className="flex flex-row items-center space-x-4">
-                      <span className="text-sm font-bold text-[#0056FF]">
-                        {l.rank}
-                      </span>
+                    <span className="text-xs font-bold whitespace-nowrap mb-1">
+                      อันดับ {user.rank}
+                    </span>
+                    <span className="text-[11px] text-white font-light mb-2 text-center">
+                      {user.emp?.group || "-"}
+                    </span>
+
+                    <div className="w-14 h-14 rounded-full bg-white overflow-hidden mb-2 border-2 border-white">
                       <Avatar
-                        src={l.pictureUrl}
-                        size={40}
-                        userId={l.userId}
-                        key={l.userId}
+                        src={user.pictureUrl}
+                        alt={user.fullname}
+                        className="w-full h-full object-cover"
+                        userId={user.userId}
+                        key={user.userId}
                       />
                     </div>
-                    <span className="text-sm text-[#0056FF] font-bold">
-                      {l.fullname}
+
+                    <span
+                      className="text-[11px] font-semibold text-center leading-tight text-white mb-1 overflow-hidden text-ellipsis"
+                      style={{
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        minHeight: "2.4em",
+                      }}
+                    >
+                      {user.fullname}
                     </span>
-                    <span className="text-sm font-bold bg-[#0056FF] text-white px-2 py-1 rounded-full">
-                      {l.totalPoints}
+
+                    <span className="font-bold text-sm">
+                      {user.totalPoints}
                     </span>
                   </div>
                 ))}
             </div>
-          </>
+          </div>
+        ) : (
+          <div className="flex justify-around items-end w-full">
+            {group
+              .find((g) => g.name === activeTab)
+              ?.users.slice(0, 5)
+              .sort((a, b) => {
+                const customOrder = [4, 2, 1, 3, 5];
+                return (
+                  customOrder.indexOf(a.rank) - customOrder.indexOf(b.rank)
+                );
+              })
+              .map((user) => (
+                <div
+                  key={user.userId}
+                  className={`flex flex-col items-center justify-end w-24 ${
+                    user.rank === 1 ? "scale-110" : ""
+                  } transition-transform duration-300`}
+                >
+                  <span className="text-sm font-bold mb-2 whitespace-nowrap">
+                    อันดับ {user.rank}
+                  </span>
+                  <div className="w-16 h-16 rounded-full bg-white overflow-hidden mb-2 border-2 border-white">
+                    <Avatar
+                      src={user.pictureUrl}
+                      alt={user.fullname}
+                      className="w-full h-full object-cover"
+                      userId={user.userId}
+                      key={user.userId}
+                    />
+                  </div>
+                  <span
+                    className="text-[13px] font-semibold text-center leading-tight text-white mb-1 overflow-hidden text-ellipsis"
+                    style={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      minHeight: "2.6em",
+                    }}
+                  >
+                    {user.fullname}
+                  </span>
+                  <span className="font-bold text-lg">{user.totalPoints}</span>
+                </div>
+              ))}
+          </div>
         )}
+      </div>
+
+      {/* Leaderboard */}
+      <div className="mt-4">
+        {currentUser && (
+          <div className="flex flex-row items-center justify-between px-4 py-2 border rounded-full bg-[#0056FF] mb-2 shadow">
+            <div className="flex flex-row items-center space-x-4">
+              <span className="text-sm font-bold text-white">
+                {currentUser.rank}
+              </span>
+              <Avatar
+                src={currentUser.pictureUrl}
+                size={40}
+                userId={currentUser.userId}
+              />
+              <span className="text-sm font-semibold text-white">
+                {currentUser.fullname}
+              </span>
+            </div>
+            <span className="text-sm font-bold bg-[#F68B1F] text-white px-2 py-1 rounded-full">
+              {currentUser.totalPoints}
+            </span>
+          </div>
+        )}
+
+        <div className="flex flex-col w-full px-2 py-2 gap-2">
+          {(activeTab === "All"
+            ? leaderboard
+            : group.find((g) => g.name === activeTab)?.users || []
+          )
+            .filter((u) => u.rank > 5)
+            .map((u) => (
+              <div
+                key={u.userId}
+                className="flex flex-row items-center justify-between px-2 py-1 border rounded-full bg-gray-100"
+              >
+                <div className="flex flex-row items-center space-x-4">
+                  <span className="text-sm font-bold text-[#0056FF]">
+                    {u.rank}
+                  </span>
+                  <Avatar src={u.pictureUrl} size={40} userId={u.userId} />
+                </div>
+                <span className="text-sm text-[#0056FF] font-bold">
+                  {u.fullname}
+                </span>
+                <span className="text-sm font-bold bg-[#0056FF] text-white px-2 py-1 rounded-full">
+                  {u.totalPoints}
+                </span>
+              </div>
+            ))}
+        </div>
       </div>
     </div>
   );

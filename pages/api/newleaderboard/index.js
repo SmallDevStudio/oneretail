@@ -1,4 +1,3 @@
-// /api/newleaderboard
 import connetMongoDB from "@/lib/services/database/mongodb";
 import Point from "@/database/models/Point";
 import Users from "@/database/models/users";
@@ -12,9 +11,7 @@ export default async function handler(req, res) {
   switch (method) {
     case "GET":
       try {
-        const { teamGrop } = req.query;
-
-        // 1. ดึงเฉพาะ point.type = "earn"
+        // 1. ดึง point เฉพาะ type: "earn"
         const points = await Point.find({ type: "earn" });
 
         // 2. รวมคะแนนตาม userId
@@ -28,7 +25,7 @@ export default async function handler(req, res) {
         }, {});
         const userPointsArray = Object.values(userPoints);
 
-        // 3. ดึงข้อมูล user และ emp
+        // 3. ดึงข้อมูล Users และ Emp
         const users = await Users.find({
           userId: { $in: userPointsArray.map((u) => u.userId) },
         })
@@ -39,13 +36,12 @@ export default async function handler(req, res) {
           empId: { $in: users.map((u) => u.empId) },
         }).lean();
 
-        // 4. รวมข้อมูลและกรอง teamGrop ถ้ามี
+        // 4. รวมข้อมูลทั้งหมด
         const leaderboard = userPointsArray
           .map((up) => {
             const user = users.find((u) => u.userId === up.userId);
             const emp = emps.find((e) => e.empId === user?.empId);
-            if (user && emp) {
-              if (teamGrop && emp.teamGrop !== teamGrop) return null; // ถ้ามี teamGrop ให้กรอง
+            if (user && emp && /^RH[1-5]$/.test(emp.group)) {
               return {
                 userId: user.userId,
                 empId: user.empId,
@@ -57,34 +53,34 @@ export default async function handler(req, res) {
             }
             return null;
           })
-          .filter((item) => item !== null);
+          .filter(Boolean);
 
-        // 5. จัดอันดับตามคะแนน
-        leaderboard.sort((a, b) => b.totalPoints - a.totalPoints);
-        leaderboard.forEach((entry, index) => (entry.rank = index + 1));
+        // 5. แยกตาม group และจัดเรียงในแต่ละกลุ่ม
+        const grouped = {};
 
-        // 6. หา top 1 ของแต่ละ group
-        const groupTop = {};
         leaderboard.forEach((entry) => {
-          const group = entry.emp?.group || "unknown";
-          if (
-            !groupTop[group] ||
-            entry.totalPoints > groupTop[group].totalPoints
-          ) {
-            groupTop[group] = entry;
+          const group = entry.emp.group;
+          if (!grouped[group]) {
+            grouped[group] = [];
           }
+          grouped[group].push(entry);
         });
 
-        // 7. จัดโครงสร้างข้อมูล
-        const result = {
-          rank: leaderboard,
-          group: Object.entries(groupTop).reduce((acc, [group, user]) => {
-            acc[group] = [user];
-            return acc;
-          }, {}),
-        };
+        // 6. จัดเรียงคะแนนและใส่ rank ภายในแต่ละ group
+        for (const group in grouped) {
+          grouped[group].sort((a, b) => b.totalPoints - a.totalPoints);
+          grouped[group].forEach((entry, index) => {
+            entry.rank = index + 1;
+          });
+        }
 
-        res.status(200).json({ success: true, data: result });
+        // 7. ส่งผลลัพธ์
+        res.status(200).json({
+          success: true,
+          data: {
+            group: grouped,
+          },
+        });
       } catch (error) {
         res.status(400).json({ success: false, error: error.message });
       }
