@@ -27,10 +27,12 @@ export default async function handler(req, res) {
           ? dayjs(endDate).endOf("day")
           : dayjs().endOf("day");
 
+        // 1. ดึงข้อมูลเรียงตามเวลาเก่า → ใหม่
         const activities = await UserActivity.find({
           createdAt: { $gte: start.toDate(), $lte: end.toDate() },
         }).sort({ createdAt: 1 });
 
+        // 2. เก็บแค่ record แรกของแต่ละ user ต่อวัน
         const groupedActivities = {};
         activities.forEach((act) => {
           const day = dayjs(act.createdAt).format("YYYY-MM-DD");
@@ -42,6 +44,7 @@ export default async function handler(req, res) {
 
         const limitedActivities = Object.values(groupedActivities);
 
+        // 3. ดึงข้อมูล Users
         const userIds = limitedActivities.map((act) => act.userId);
         const users = await Users.find({ userId: { $in: userIds } }).select(
           "userId fullname empId"
@@ -51,6 +54,7 @@ export default async function handler(req, res) {
           return acc;
         }, {});
 
+        // 4. ดึงข้อมูล Emp
         const empIds = users.map((user) => user.empId);
         const emps = await Emp.find({ empId: { $in: empIds } });
         const empMap = emps.reduce((acc, emp) => {
@@ -58,11 +62,15 @@ export default async function handler(req, res) {
           return acc;
         }, {});
 
+        // 5. รวมข้อมูล UserActivity + Users + Emp
         const result = limitedActivities.map((act) => ({
           ...act._doc,
           user: userMap[act.userId] || null,
           emp: userMap[act.userId] ? empMap[userMap[act.userId].empId] : null,
         }));
+
+        // 6. เรียงใหม่ → เก่า
+        result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
         res.status(200).json({ success: true, data: result });
       } catch (error) {
