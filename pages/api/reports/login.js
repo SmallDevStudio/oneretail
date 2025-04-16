@@ -1,62 +1,77 @@
 import connectMongoDB from "@/lib/services/database/mongodb";
-import Point from "@/database/models/Point";
+import UserActivity from "@/database/models/UserActivity";
 import Users from "@/database/models/users";
-import moment from "moment";
-import "moment/locale/th";
-
-moment.locale('th');
+import Emp from "@/database/models/emp";
+import dayjs from "dayjs";
 
 export const config = {
-    api: {
-        responseLimit: false,
-    },
+  api: {
+    responseLimit: false,
+  },
 };
 
 export default async function handler(req, res) {
-    const { method } = req;
+  const { method, query } = req;
 
-    await connectMongoDB();
+  await connectMongoDB();
 
-    switch (method) {
-        case "GET":
-            try {
-                // ดึงข้อมูล Point ที่มี description เป็น "Login Reward"
-                const points = await Point.find({ description: "Login Reward" }).sort({ createdAt: -1 });
-                
-                // ดึง userId จากข้อมูล Point
-                const userIds = points.map(point => point.userId);
-                
-                // ดึงข้อมูล Users ที่มี userId ตรงกัน
-                const users = await Users.find({ userId: { $in: userIds } });
+  switch (method) {
+    case "GET":
+      try {
+        const { startDate, endDate } = query;
 
-                // สร้าง map ของ Users สำหรับการเข้าถึงที่ง่าย
-                const userMap = users.reduce((acc, user) => {
-                    acc[user.userId] = user;
-                    return acc;
-                }, {});
+        const start = startDate
+          ? dayjs(startDate).startOf("day")
+          : dayjs().subtract(7, "days").startOf("day");
+        const end = endDate
+          ? dayjs(endDate).endOf("day")
+          : dayjs().endOf("day");
 
-                // รวมข้อมูล Point และ Users
-                const populatedData = points.map(point => {
-                    const user = userMap[point.userId];
-                    
-                    return {
-                        userId: point.userId,
-                        empId: user ? user.empId : null,
-                        fullname: user ? user.fullname : null,
-                        date: moment(point.createdAt).format('D'),
-                        month: moment(point.createdAt).format('MMMM'),
-                        createdAt: moment(point.createdAt).local('th').format('LLL'),
-                    };
-                });
+        const activities = await UserActivity.find({
+          createdAt: { $gte: start.toDate(), $lte: end.toDate() },
+        }).sort({ createdAt: 1 });
 
-                res.status(200).json({ success: true, data: populatedData });
-            } catch (error) {
-                res.status(400).json({ success: false, error: error.message });
-            }
-            break;
+        const groupedActivities = {};
+        activities.forEach((act) => {
+          const day = dayjs(act.createdAt).format("YYYY-MM-DD");
+          const key = `${act.userId}-${day}`;
+          if (!groupedActivities[key]) {
+            groupedActivities[key] = act;
+          }
+        });
 
-        default:
-            res.status(405).json({ success: false, message: "Method not allowed" });
-            break;
-    }
+        const limitedActivities = Object.values(groupedActivities);
+
+        const userIds = limitedActivities.map((act) => act.userId);
+        const users = await Users.find({ userId: { $in: userIds } }).select(
+          "userId fullname empId"
+        );
+        const userMap = users.reduce((acc, user) => {
+          acc[user.userId] = user;
+          return acc;
+        }, {});
+
+        const empIds = users.map((user) => user.empId);
+        const emps = await Emp.find({ empId: { $in: empIds } });
+        const empMap = emps.reduce((acc, emp) => {
+          acc[emp.empId] = emp;
+          return acc;
+        }, {});
+
+        const result = limitedActivities.map((act) => ({
+          ...act._doc,
+          user: userMap[act.userId] || null,
+          emp: userMap[act.userId] ? empMap[userMap[act.userId].empId] : null,
+        }));
+
+        res.status(200).json({ success: true, data: result });
+      } catch (error) {
+        res.status(400).json({ success: false, error: error.message });
+      }
+      break;
+
+    default:
+      res.status(405).json({ success: false, message: "Method not allowed" });
+      break;
+  }
 }
