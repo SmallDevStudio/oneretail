@@ -20,6 +20,7 @@ import {
   trackPageTime,
 } from "@/utils/privacypolicy";
 import dynamic from "next/dynamic";
+import { useSession } from "next-auth/react";
 
 const CookieConsent = dynamic(() => import("@/lib/CookieConsent"), {
   ssr: false,
@@ -48,14 +49,6 @@ function App({ Component, pageProps: { session, ...pageProps } }) {
       router.events.off("routeChangeComplete", handleRouteChange);
     };
   }, [router.events]);
-
-  useEffect(() => {
-    const handleClick = (e) => trackClick(e.target.outerHTML);
-    document.addEventListener("click", handleClick);
-    trackPageTime();
-    trackScrollOnce();
-    return () => document.removeEventListener("click", handleClick);
-  }, []);
 
   if (
     isAds ||
@@ -110,8 +103,27 @@ function App({ Component, pageProps: { session, ...pageProps } }) {
 }
 
 function UserActivityWrapper({ children }) {
-  useUserActivity(); // ใช้ custom hook เพื่อบันทึก user activity
-  useNetworkStatus(); // เรียกใช้ useNetworkStatus หลัง SessionProvider
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      trackPageTime(session.user.id);
+    } else {
+      trackPageTime("anonymous");
+    }
+
+    const handleClick = (e) => {
+      const element = e.target.outerHTML;
+      trackClick(element, session?.user?.id || "anonymous");
+    };
+    document.addEventListener("click", handleClick);
+    trackScrollOnce(session?.user?.id || "anonymous");
+
+    return () => document.removeEventListener("click", handleClick);
+  }, [session]);
+
+  useUserActivity();
+  useNetworkStatus();
   return <>{children}</>;
 }
 

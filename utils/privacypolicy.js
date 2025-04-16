@@ -1,50 +1,47 @@
 import { db } from "@/lib/firebase1";
 import { collection, addDoc } from "firebase/firestore";
-import { getSession } from "next-auth/react";
 
-export const trackClick = async (element) => {
-  const session = await getSession();
+export const trackClick = async (element, userId = "anonymous") => {
   await addDoc(collection(db, "user_clicks"), {
-    userId: session?.user?.id || "anonymous",
+    userId,
     element,
     time: new Date(),
   });
 };
 
-export const trackPageTime = () => {
+export const trackPageTime = (userId = "anonymous") => {
   const start = Date.now();
+
   const beforeUnload = async () => {
-    const session = await getSession();
     const duration = Date.now() - start;
+
     await addDoc(collection(db, "user_page_time"), {
-      userId: session?.user?.id || "anonymous",
+      userId,
       duration, // ms
       url: window.location.href,
       time: new Date(),
     });
   };
+
   window.addEventListener("beforeunload", beforeUnload);
 };
 
-export const trackScrollOnce = () => {
+export const trackScrollOnce = (userId = "anonymous") => {
   const start = Date.now();
   let hasTracked = false;
 
   const onScroll = async () => {
-    if (hasTracked) return; // ✅ ป้องกันเรียกหลายครั้ง
+    if (hasTracked) return;
     hasTracked = true;
 
-    const session = await getSession();
     const duration = Date.now() - start;
-
     await addDoc(collection(db, "user_scroll_time"), {
-      userId: session?.user?.id || "anonymous",
-      duration, // เวลาที่ใช้ก่อน scroll
+      userId,
+      duration,
       url: window.location.href,
       time: new Date(),
     });
 
-    // ✅ ลบ event หลังจากส่งแล้ว
     window.removeEventListener("scroll", onScroll);
   };
 
