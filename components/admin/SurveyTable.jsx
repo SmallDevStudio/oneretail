@@ -83,6 +83,7 @@ const SurveyTable = () => {
         "Emp ID": row.empId || "",
         ชื่อ: row.fullname || "",
         teamGrop: row.emp?.teamGrop || "",
+        group: row.emp?.group || "",
         ตำแหน่ง: row.emp?.position || "",
         แผนก: row.emp?.department || "",
         สาขา: row.emp?.branch || "",

@@ -4,6 +4,7 @@ import LinearProgress from "@mui/material/LinearProgress";
 import * as XLSX from "xlsx";
 import moment from "moment";
 import "moment/locale/th";
+import { group } from "console";
 
 moment.locale("th");
 
@@ -31,6 +32,7 @@ const LoginReport = () => {
         "Emp ID": item.emp?.empId || "",
         ชื่อ: item.user?.fullname || "",
         teamGrop: item.emp?.teamGrop || "",
+        group: item.emp?.group || "",
         ตำแหน่ง: item.emp?.position || "",
         แผนก: item.emp?.department || "",
         สาขา: item.emp?.branch || "",
