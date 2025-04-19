@@ -7,6 +7,7 @@ import Loading from "@/components/Loading";
 export default function Ebook() {
   const [url, setUrl] = useState("");
   const [redirected, setRedirected] = useState(false);
+  const [isActive, setIsActive] = useState(false);
   const router = useRouter();
   const { id } = router.query;
   const { data: session, status } = useSession();
@@ -18,7 +19,11 @@ export default function Ebook() {
       try {
         const res = await axios.get(`/api/ebook/${id}`);
         const ebookUrl = res.data.data?.url;
+        const active = res.data.data?.active;
         setUrl(ebookUrl);
+        setIsActive(active);
+
+        if (!active) return;
 
         if (ebookUrl) {
           await axios.post("/api/ebook/useebook", {
@@ -39,5 +44,19 @@ export default function Ebook() {
     }
   }, [id, session, status, redirected]);
 
-  return <Loading />;
+  return !isActive ? (
+    <div className="flex flex-col items-center justify-center h-screen">
+      <h1 className="text-3xl font-bold mb-4 text-[#0056FF]">
+        Ebook ปิดการใช้งาน
+      </h1>
+      <button
+        className="bg-[#F2871F] hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        onClick={() => router.push("/")}
+      >
+        กลับสู้หน้าแรก
+      </button>
+    </div>
+  ) : (
+    <Loading />
+  );
 }
