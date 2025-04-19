@@ -36,6 +36,7 @@ import { TbSpeakerphone } from "react-icons/tb";
 import { FaWpforms } from "react-icons/fa";
 import { BiCalendarStar } from "react-icons/bi";
 import { RiCoupon3Line } from "react-icons/ri";
+import { LuNotebookText } from "react-icons/lu";
 import Image from "next/image";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
@@ -303,6 +304,14 @@ const Sidebar = () => {
                 title="จัดการ Coupons"
                 to="/admin/coupons"
                 icon={<RiCoupon3Line />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+
+              <Item
+                title="จัดการ ebooks"
+                to="/admin/ebooks"
+                icon={<LuNotebookText />}
                 selected={selected}
                 setSelected={setSelected}
               />
