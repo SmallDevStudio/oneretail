@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { HiUpload } from "react-icons/hi";
 import { IoClose } from "react-icons/io5";
 import { Divider, LinearProgress } from "@mui/material";
-import { uploadFile } from "@/lib/hook/useStorage";
+import { uploadFile } from "@/lib/hook/useFirebaseStorage";
 
 export default function Upload({ onClose, setFiles, folder, newUpload }) {
   const [uploadProgress, setUploadProgress] = useState(false);

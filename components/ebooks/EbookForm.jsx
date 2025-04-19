@@ -5,6 +5,8 @@ import { IoIosArrowBack } from "react-icons/io";
 import { GiBookCover } from "react-icons/gi";
 import { LuNotebookText } from "react-icons/lu";
 import { toast } from "react-toastify";
+import Image from "next/image";
+import axios from "axios";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -23,23 +25,62 @@ export default function EbookForm({ onClose, userId }) {
   });
   const [openUpload, setOpenUpload] = useState(null);
 
+  useEffect(() => {
+    if (form.ebook?.file_name) {
+      setForm((prev) => ({
+        ...prev,
+        title: prev.title === "" ? form.ebook.file_name : prev.title,
+        url: form.ebook.url,
+      }));
+    }
+  }, [form.ebook]);
+
   const handleUploadImage = (image) => {
     const imageData = image[0];
     setForm({ ...form, image: imageData });
   };
 
-  const handleUploadEbook = (ebook) => {
-    const ebookData = ebook[0];
+  const handleUploadEbook = (files) => {
+    console.log("files", files);
+    const ebookData = files[0];
     setForm({
       ...form,
       ebook: ebookData,
-      url: ebookData.url,
-      type: ebookData.mime_type,
     });
   };
 
   const handleSubmit = async () => {
-    console.log("form", form);
+    if (form.title === "") {
+      toast.error("กรุณากรอกชื่อหนังสือ");
+      return;
+    }
+
+    if (form.ebook === null) {
+      toast.error("กรุณาเลือกไฟล์หนังสือ");
+      return;
+    }
+
+    const ebookData = {
+      title: form.title,
+      description: form.description,
+      image: form.image?.url ? form.image : undefined, // ✅ ส่งเมื่อมีค่า
+      ebook: form.ebook,
+      url: form.url || "",
+      category: form.category,
+      group: form.group,
+      type: form.ebook?.mime_type || "",
+      creator: userId,
+    };
+
+    try {
+      const response = await axios.post("/api/ebook", ebookData);
+      console.log(response.data);
+      toast.success("เพิ่มหนังสือเรียบร้อย");
+      onClose();
+    } catch (error) {
+      console.error(error);
+      toast.error("เพิ่มหนังสือไม่สําเร็จ");
+    }
   };
 
   const handleClear = () => {
@@ -53,6 +94,8 @@ export default function EbookForm({ onClose, userId }) {
       group: "",
       type: "",
     });
+    setOpenUpload(null);
+    onClose();
   };
 
   const handleOpenUpload = (type) => {
@@ -60,6 +103,29 @@ export default function EbookForm({ onClose, userId }) {
   };
   const handleCloseUpload = () => {
     setOpenUpload(null);
+  };
+
+  const handleFileIcon = (type) => {
+    if (type === "application/pdf") {
+      return "/images/iconfiles/pdf.png";
+    } else if (type === "application/msword") {
+      return "/images/iconfiles/doc.png";
+    } else if (
+      type ===
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ) {
+      return "/images/iconfiles/doc.png";
+    } else if (
+      type ===
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    ) {
+      return "/images/iconfiles/xls.png";
+    } else if (
+      type ===
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+    ) {
+      return "/images/iconfiles/ppt.png";
+    }
   };
 
   return (
@@ -77,7 +143,19 @@ export default function EbookForm({ onClose, userId }) {
           {/* Ebook */}
           <div className="flex flex-col gap-2">
             {/* preview */}
-            <div></div>
+            <div>
+              {form?.ebook && form?.ebook.url && (
+                <div className="flex justify-center">
+                  <Image
+                    src={handleFileIcon(form?.ebook?.mime_type)}
+                    alt="preview"
+                    width={100}
+                    height={100}
+                    className="object-contain"
+                  />
+                </div>
+              )}
+            </div>
             {/* botton */}
             <div
               className="flex flex-row items-center border border-gray-200 rounded-xl p-4 gap-2 hover:bg-gray-200 cursor-pointer shadow-lg"
@@ -94,7 +172,19 @@ export default function EbookForm({ onClose, userId }) {
           {/* Cover */}
           <div className="flex flex-col gap-2">
             {/* preview */}
-            <div></div>
+            <div>
+              {form?.image && form?.image?.url && (
+                <div>
+                  <Image
+                    src={form?.image.url}
+                    alt="preview"
+                    width={100}
+                    height={100}
+                    className="object-contain"
+                  />
+                </div>
+              )}
+            </div>
             {/* botton */}
             <div
               className="flex flex-row items-center border border-gray-200 rounded-xl p-4 gap-2 hover:bg-gray-200 cursor-pointer shadow-lg"
