@@ -9,6 +9,7 @@ const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 export default function NewLeaderBoard() {
   const [expandedBranches, setExpandedBranches] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const { data: session, status } = useSession();
   const userId = session?.user?.id;
 
@@ -32,6 +33,22 @@ export default function NewLeaderBoard() {
     .map((targetRank) => groupData.find((g) => g.rank === targetRank))
     .filter(Boolean);
 
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value.toLowerCase());
+  };
+
+  const filteredBranches = branchData
+    .map((branch) => {
+      const filteredUsers = branch.users.filter(
+        (u) =>
+          u.empId.toLowerCase().includes(searchTerm) ||
+          u.fullname.toLowerCase().includes(searchTerm) ||
+          branch.branch.toLowerCase().includes(searchTerm)
+      );
+      return { ...branch, users: filteredUsers };
+    })
+    .filter((branch) => branch.users.length > 0);
+
   return (
     <div className="flex flex-col w-full pb-20">
       <div className="flex flex-col items-center justify-center w-full p-4">
@@ -52,9 +69,20 @@ export default function NewLeaderBoard() {
         </div>
       </div>
 
+      {/* Search Bar */}
+      <div className="flex justify-center mt-4 px-4 w-full">
+        <input
+          type="text"
+          placeholder="ค้นหา"
+          value={searchTerm}
+          onChange={handleSearch}
+          className="px-4 py-1 rounded-2xl border w-full"
+        />
+      </div>
+
       {/* Branch Leaderboard */}
       <div className="mt-4 px-2">
-        {branchData.map((branch) => (
+        {filteredBranches.map((branch) => (
           <div
             key={branch.branch}
             className="mb-2 border rounded-md overflow-hidden shadow-sm"
@@ -92,6 +120,7 @@ export default function NewLeaderBoard() {
                         size={40}
                         userId={user.userId}
                       />
+                      <span className="text-sm">{user.empId}</span>
                       <span className="text-sm">{user.fullname}</span>
                     </div>
                     <span className="text-sm font-bold text-gray-800">
