@@ -9,6 +9,8 @@ const RewardSchema = new mongoose.Schema({
     },
   ],
   dayLogged: { type: Number, default: 0 },
+  lastRewardDate: Date,
+  lastResetDate: Date,
 });
 
 export default mongoose.models.Reward || mongoose.model("Reward", RewardSchema);

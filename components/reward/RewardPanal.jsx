@@ -37,22 +37,16 @@ export default function RewardPanel() {
       const res = await axios.get(`/api/reward?userId=${userId}`);
 
       const today = new Date();
-      const isMonday = today.getDay() === 1; // 0 = Sunday, 1 = Monday
+      today.setHours(0, 0, 0, 0);
 
-      if (isMonday && res.data.dayLogged > 0) {
-        // รีเซตใน backend
-        await axios.post("/api/reward/reset", { userId });
-        setCurrentDay(0);
-        setClaimedToday(false);
+      setCurrentDay(res.data.dayLogged);
+
+      if (res.data.lastRewardDate) {
+        const lastRewardDate = new Date(res.data.lastRewardDate);
+        lastRewardDate.setHours(0, 0, 0, 0);
+        setClaimedToday(lastRewardDate.getTime() === today.getTime());
       } else {
-        setCurrentDay(res.data.dayLogged);
-
-        if (res.data.lastRewardDate) {
-          const lastRewardDate = new Date(res.data.lastRewardDate);
-          lastRewardDate.setHours(0, 0, 0, 0);
-          today.setHours(0, 0, 0, 0);
-          setClaimedToday(lastRewardDate.getTime() === today.getTime());
-        }
+        setClaimedToday(false);
       }
     } catch (error) {
       console.error("Error fetching reward data:", error);

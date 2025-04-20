@@ -15,19 +15,38 @@ export default async function handler(req, res) {
 
         let reward = await Reward.findOne({ userId });
         if (!reward) {
-          reward = await Reward.create({ userId, claim: [], dayLogged: 0 });
+          reward = await Reward.create({
+            userId,
+            claim: [],
+            dayLogged: 0,
+            lastResetDate: null,
+          });
+        }
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const isMonday = today.getDay() === 1;
+
+        // ตรวจสอบว่าเคย reset วันนี้หรือยัง
+        const lastReset = reward.lastResetDate
+          ? new Date(reward.lastResetDate).setHours(0, 0, 0, 0)
+          : null;
+
+        if (isMonday && lastReset !== today.getTime()) {
+          reward.dayLogged = 0;
+          reward.lastResetDate = today;
+          await reward.save();
         }
 
         const lastClaim = reward.claim.length
-          ? reward.claim[reward.claim.length - 1].date
+          ? new Date(reward.claim[reward.claim.length - 1].date)
           : null;
-        const lastClaimDate = lastClaim
-          ? new Date(lastClaim).setHours(0, 0, 0, 0)
-          : null;
+
+        lastClaim?.setHours(0, 0, 0, 0);
 
         res.status(200).json({
           dayLogged: reward.dayLogged,
-          lastRewardDate: lastClaimDate,
+          lastRewardDate: lastClaim?.getTime() || null,
         });
       } catch (error) {
         res.status(500).json({ error: "Internal Server Error" });
