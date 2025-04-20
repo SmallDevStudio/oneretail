@@ -35,7 +35,7 @@ export default function FooterContant() {
     <div className="relative w-full footer-content mt-4">
       <div className="flex flex-col items-start px-2">
         <span className="text-xl text-[#0056FF] font-bold">วีดีโอแนะนำ</span>
-        <Divider className="w-full mb-1" />
+        <Divider className="w-full mb-2" />
         <div className="flex w-full">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {Array.isArray(data.data) &&
@@ -102,8 +102,8 @@ export default function FooterContant() {
       {articles.data.length > 0 && (
         <div className="flex flex-col items-start px-2 mt-4">
           <span className="text-xl text-[#0056FF] font-bold">บทความแนะนำ</span>
-          <Divider className="w-full mb-1" />
-          <div className="flex items-center justify-center w-full">
+          <Divider className="w-full mb-2" />
+          <div className="flex w-full">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {Array.isArray(articles.data) &&
                 articles.data.map((item, index) => {
