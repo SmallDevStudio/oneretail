@@ -22,320 +22,362 @@ moment.locale("th");
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function Redeem() {
-    const [activeTab, setActiveTab] = useState("redeem");
-    const { data: session } = useSession();
-    const [modalIsOpen, setModalIsOpen] = useState(false);
-    const [notificationModalIsOpen, setNotificationModalIsOpen] = useState(false);
-    const [notificationMessage, setNotificationMessage] = useState("");
-    const [redeemModalIsOpen, setRedeemModalIsOpen] = useState(false);
-    const [successModal, setSuccessModal] = useState(false);
-    const [selectedRedeem, setSelectedRedeem] = useState(null);
-    const [conversionRate, setConversionRate] = useState(25);
-    const [userPoints, setUserPoints] = useState(0);
-    const [userCoins, setUserCoins] = useState(0);
-    const [redeems, setRedeems] = useState(null);
-    const [redeemTransData, setRedeemTransData] = useState(null);
-    const [loading, setLoading] = useState(false);
-  
-    const openModal = () => setModalIsOpen(true);
-    const closeModal = () => setModalIsOpen(false);
-    const openNotificationModal = (message) => {
-      setNotificationMessage(message);
-      setNotificationModalIsOpen(true);
-    };
-    const closeNotificationModal = () => setNotificationModalIsOpen(false);
-    const openRedeemModal = (redeemItem) => {
-      setSelectedRedeem(redeemItem);
-      setRedeemModalIsOpen(true);
-    };
-    const closeRedeemModal = () => {
-      setRedeemModalIsOpen(false);
-      setSelectedRedeem(null);
-    };
-  
-    const { data: level, mutate: mutateLevel } = useSWR('/api/level/user?userId=' + session?.user?.id, fetcher, {
+  const [activeTab, setActiveTab] = useState("redeem");
+  const { data: session, status } = useSession();
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [notificationModalIsOpen, setNotificationModalIsOpen] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [redeemModalIsOpen, setRedeemModalIsOpen] = useState(false);
+  const [successModal, setSuccessModal] = useState(false);
+  const [selectedRedeem, setSelectedRedeem] = useState(null);
+  const [conversionRate, setConversionRate] = useState(25);
+  const [userPoints, setUserPoints] = useState(0);
+  const [userCoins, setUserCoins] = useState(0);
+  const [redeems, setRedeems] = useState(null);
+  const [redeemTransData, setRedeemTransData] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (status === "loading") return; // Do nothing while loading
+  }, [status]);
+
+  const openModal = () => setModalIsOpen(true);
+  const closeModal = () => setModalIsOpen(false);
+  const openNotificationModal = (message) => {
+    setNotificationMessage(message);
+    setNotificationModalIsOpen(true);
+  };
+  const closeNotificationModal = () => setNotificationModalIsOpen(false);
+  const openRedeemModal = (redeemItem) => {
+    setSelectedRedeem(redeemItem);
+    setRedeemModalIsOpen(true);
+  };
+  const closeRedeemModal = () => {
+    setRedeemModalIsOpen(false);
+    setSelectedRedeem(null);
+  };
+
+  const { data: level, mutate: mutateLevel } = useSWR(
+    "/api/level/user?userId=" + session?.user?.id,
+    fetcher,
+    {
       onSuccess: (data) => {
         setUserPoints(data.point);
-      }
-    });
-    const { data: coins, mutate: mutateCoins } = useSWR('/api/coins/user?userId=' + session?.user?.id, fetcher, {
+      },
+    }
+  );
+  const { data: coins, mutate: mutateCoins } = useSWR(
+    "/api/coins/user?userId=" + session?.user?.id,
+    fetcher,
+    {
       onSuccess: (data) => {
         setUserCoins(data.coins);
-      }
-    });
+      },
+    }
+  );
 
-    const { data: redeem, mutate: mutateRedeem } = useSWR('/api/redeem', fetcher, {
+  const { data: redeem, mutate: mutateRedeem } = useSWR(
+    "/api/redeem",
+    fetcher,
+    {
       onSuccess: (data) => {
         setRedeems(data.data);
-      }
-    });
-  
-    const { data: redeemtrans, mutate: mutateRedeemTrans } = useSWR('/api/redeemtrans?userId=' + session?.user?.id, fetcher, {
+      },
+    }
+  );
+
+  const { data: redeemtrans, mutate: mutateRedeemTrans } = useSWR(
+    "/api/redeemtrans?userId=" + session?.user?.id,
+    fetcher,
+    {
       onSuccess: (data) => {
         setRedeemTransData(data.data);
-      }
-    });
-  
-  
-    const handleRedeemClick = async (redeemItem) => {
-      setSelectedRedeem(redeemItem);
-       if (redeemItem.stock <= 0) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: 'สิทธิ์ของคุณหมดแล้ว.',
-        });
-       }
+      },
+    }
+  );
 
-       if (userCoins < redeemItem.coins) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: 'ยอด coins ของคุณไม่เพียงพอ.',
-        });
+  const handleRedeemClick = async (redeemItem) => {
+    setSelectedRedeem(redeemItem);
+    if (redeemItem.stock <= 0) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "สิทธิ์ของคุณหมดแล้ว.",
+      });
+    }
 
-       } else {
-        const result = await Swal.fire({
-          title: 'ยืนยันการแลกสินค้า',
-          text: `คุณต้องการแลก ${redeemItem.name} ใช่หรือไม่`,
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'ใช่',
-          cancelButtonText: 'ไม่ใช่',
-        });
+    if (userCoins < redeemItem.coins) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "ยอด coins ของคุณไม่เพียงพอ.",
+      });
+    } else {
+      const result = await Swal.fire({
+        title: "ยืนยันการแลกสินค้า",
+        text: `คุณต้องการแลก ${redeemItem.name} ใช่หรือไม่`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "ใช่",
+        cancelButtonText: "ไม่ใช่",
+      });
 
-        if (result.isConfirmed) {
-          try {
-            const response = await axios.post('/api/redeemtrans', {
-              redeemId: redeemItem._id,
-              userId: session?.user?.id,
-            });
-            
-            if (response.data.success) {
-              setSelectedRedeem(null);
-              closeRedeemModal();
-              Swal.fire('สําเร็จ', 'แลกสินค้าสําเร็จ', 'success');
-              mutateCoins();
-              mutateRedeem();
-              mutateRedeemTrans();
-              setActiveTab('redeemtrans');
-            } else {
-              Swal.fire('เกิดข้อผิดพลาด', 'แลกสินค้าไม่สําเร็จ', 'error');
-            }
-          } catch (error) {
-            console.error(error);
-            Swal.fire('เกิดข้อผิดพลาด', 'แลกสินค้าไม่สําเร็จ', 'error');
+      if (result.isConfirmed) {
+        try {
+          const response = await axios.post("/api/redeemtrans", {
+            redeemId: redeemItem._id,
+            userId: session?.user?.id,
+          });
+
+          if (response.data.success) {
+            setSelectedRedeem(null);
+            closeRedeemModal();
+            Swal.fire("สําเร็จ", "แลกสินค้าสําเร็จ", "success");
+            mutateCoins();
+            mutateRedeem();
+            mutateRedeemTrans();
+            setActiveTab("redeemtrans");
+          } else {
+            Swal.fire("เกิดข้อผิดพลาด", "แลกสินค้าไม่สําเร็จ", "error");
           }
+        } catch (error) {
+          console.error(error);
+          Swal.fire("เกิดข้อผิดพลาด", "แลกสินค้าไม่สําเร็จ", "error");
         }
-       }
-    };
-  
-    const handleTabClick = (tab) => {
-      setActiveTab(tab);
-    };
-
-    const onExchangeAdd = async () => {
-        mutateCoins();
-        mutateLevel();
+      }
     }
+  };
 
-    const closeSuccessModal = () => {
-      setSuccessModal(false);
-    }
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+  };
 
-    if (!level || !coins || !redeem || !redeemtrans) return <Loading />;
-  
-    return (
-      <main className="flex flex-col bg-white min-w-[100vw]">
-        {/* Header */}
-        <div className="flex flex-col items-center justify-center mt-10">
-          {/* Avatar */}
-          <div className="flex flex-col items-center justify-center mb-8">
-            <Image
-              src={level?.user?.pictureUrl}
-              alt="User Avatar"
-              width={100}
-              height={100}
-              className="rounded-full"
-            />
-            <Image
-              src="/images/profile/Badge.svg"
-              alt="Badge"
-              width={140}
-              height={140}
-              className="absolute z-12 mb-5"
-            />
-            <span className="relative z-12 text-white font-bold mt-5 text-[10px]">
-              LEVEL {level?.level}
-            </span>
-          </div>
-          {/* Point & Coins */}
-          <div className="flex items-center justify-between w-full px-5 pz-5">
-            <div className="flex items-end">
-              <div className="flex flex-row items-end gap-2" style={{
-                fontFamily: "Ekachon",
-                fontSmoothing: "auto",
-                fontWeight: "black",
-                alignItems: "end",
-              }}>
-                <Image
-                  src="/images/profile/Coin.svg"
-                  alt="coins"
-                  width={32}
-                  height={32}
-                  className="flex"
-                />
-                <span className="text-xl text-[#0056FF] font-black">
-                  {userCoins ? userCoins : 0}
-                </span>
-                <span className="text-lg text-[#0056FF] font-black">
-                  Coins
-                </span>
-              </div>
-            </div>
-            <div className="flex items-end">
-              <div className="flex flex-row items-end gap-2" style={{
-                fontFamily: "Ekachon",
-                fontSmoothing: "auto",
-                fontWeight: "black",
-                alignItems: "end",
-              }}>
-                <Image
-                  src="/images/profile/Point.svg"
-                  alt="points"
-                  width={30}
-                  height={30}
-                  className="flex"
-                />
-                <span className="text-lg text-[#0056FF] font-bold">
-                  Total Point
-                </span>
-                <span className="text-lg text-[#0056FF] font-bold">
-                  {userPoints ? userPoints : 0}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center justify-end mr-5 mb-2 mt-1">
-          <span className="text-xs text-[#1E3060] font-bold">
-            เปลี่ยนคะแนน เป็น คอยน์
-            <button>
-              <span className="text-[#F68B1F] font-bold ml-1" onClick={openModal}>คลิก</span>
-            </button>
+  const onExchangeAdd = async () => {
+    mutateCoins();
+    mutateLevel();
+  };
+
+  const closeSuccessModal = () => {
+    setSuccessModal(false);
+  };
+
+  if (!level || !coins || !redeem || !redeemtrans) return <Loading />;
+
+  return (
+    <main className="flex flex-col bg-white min-w-[100vw]">
+      {/* Header */}
+      <div className="flex flex-col items-center justify-center mt-10">
+        {/* Avatar */}
+        <div className="flex flex-col items-center justify-center mb-8">
+          <Image
+            src={level?.user?.pictureUrl}
+            alt="User Avatar"
+            width={100}
+            height={100}
+            className="rounded-full"
+          />
+          <Image
+            src="/images/profile/Badge.svg"
+            alt="Badge"
+            width={140}
+            height={140}
+            className="absolute z-12 mb-5"
+          />
+          <span className="relative z-12 text-white font-bold mt-5 text-[10px]">
+            LEVEL {level?.level}
           </span>
         </div>
-        {/* Tabs */}
-        <div className="flex items-center justify-center">
-          <ul className="flex flex-row w-[340px] font-bold">
-            <li>
-              <div className={`flex  w-[170px] h-[40px] items-center justify-center text-center rounded-l-3xl ${activeTab === 'redeem' ? 'bg-[#0056FF] text-white' : 'bg-gray-300 text-black'}`}
-                onClick={() => handleTabClick('redeem')}
-              >
-                <span>แลกของรางวัล</span>
-              </div>
-            </li>
-            <li>
-              <div className={`flex  w-[170px] h-[40px] items-center justify-center text-center rounded-r-3xl ${activeTab === 'redeemtrans' ? 'bg-[#F68B1F] text-white' : 'bg-gray-300 text-black'}`}
-                onClick={() => handleTabClick('redeemtrans')}
-              >
-                <span>ของที่แลกแล้ว</span>
-              </div>
-            </li>
-          </ul>
-        </div>
-        <ExchangeModal
-          isOpen={modalIsOpen}
-          onRequestClose={closeModal}
-          points={level?.point}
-          conversionRate={conversionRate}
-          userId={session?.user?.id}
-          onExchangeAdd={onExchangeAdd}
-          setLoading={setLoading}
-          loading={loading}
-        />
-        <NotificationModal
-          isOpen={notificationModalIsOpen}
-          onRequestClose={closeNotificationModal}
-          message={notificationMessage}
-        />
-
-        <RedeemSuccessModal
-          isOpen={successModal}
-          onRequestClose={closeSuccessModal}
-          redeemItem={selectedRedeem}
-        />
-
-        {redeemModalIsOpen && (
-          <Modal
-            open={redeemModalIsOpen}
-            onClose={closeRedeemModal}
+        {/* Point & Coins */}
+        <div className="flex items-center justify-between w-full px-5 pz-5">
+          <div className="flex items-end">
+            <div
+              className="flex flex-row items-end gap-2"
+              style={{
+                fontFamily: "Ekachon",
+                fontSmoothing: "auto",
+                fontWeight: "black",
+                alignItems: "end",
+              }}
             >
-              <div className='flex flex-col items-center text-center justify-center'>
-                <Image 
-                    src={selectedRedeem.image} 
-                    width={300} 
-                    height={300} 
-                    alt={selectedRedeem.name} 
-                    style={{width: '300px', height: 'auto', objectFit: 'contain'}}
-                />
-                <h2 className='text-xl font-bold text-[#0056FF]'>{selectedRedeem.name}</h2>
-                <p className='text-sm text-gray-600'>{selectedRedeem.description}</p>
-                <div className='flex flex-row justify-center items-center gap-2'>
-                  <span className="text-sm font-bold">
-                      คงเหลือ
-                  </span>
-                  <span className="text-md font-bold text-red-500">
-                    {selectedRedeem.stock}
-                  </span>
-                  <span className="text-sm">
-                      ชิ้น
-                  </span>
-                </div>
-                <div className='flex justify-center items-center mt-4'>
-                    <span className='text-sm font-bold'>Coins:</span>
-                    <span className='ml-2 text-lg text-[#0056FF] font-bold'>{selectedRedeem.coins}</span>
-                    <Image
-                        src="/images/profile/Coin.svg"
-                        alt="coins"
-                        width={15}
-                        height={15}
-                        className="ml-2"
-                    />
-                </div>
-                {selectedRedeem.point > 0 ? (
-                <div className='mt-2'>
-                    <span className='text-sm font-bold'>Points:</span>
-                    <span className='ml-2 text-lg text-[#0056FF] font-bold'>{selectedRedeem.point}</span>
-                </div>) : ''
-                }
-
-                <div>
-                    <button
-                        className='w-full bg-[#F68B1F] text-white font-bold py-2 px-4 rounded-full mt-4'
-                        onClick={selectedRedeem.stock <= 0 ? closeRedeemModal : () => handleRedeemClick(selectedRedeem)}
-                        desable={selectedRedeem.stock <= 0 ? true : false}
-                    >
-                        {selectedRedeem.stock <= 0 ? 'สินค้าหมดแล้ว' : 'แลกของรางวัล'}
-                    </button>
-                </div>
-                
+              <Image
+                src="/images/profile/Coin.svg"
+                alt="coins"
+                width={32}
+                height={32}
+                className="flex"
+              />
+              <span className="text-xl text-[#0056FF] font-black">
+                {userCoins ? userCoins : 0}
+              </span>
+              <span className="text-lg text-[#0056FF] font-black">Coins</span>
             </div>
-            </Modal>
-          )}
-        {/* Content */}
-        <div className="flex flex-col p-4 gap-2 mb-20">
-          {activeTab === 'redeem' && (
-            <Suspense fallback={<LoadingFeed />}>
-              {redeems?.map((group, index) => (
-                <div key={index} className="flex flex-col">
-                  <span className="font-bold">{group.group}</span>
+          </div>
+          <div className="flex items-end">
+            <div
+              className="flex flex-row items-end gap-2"
+              style={{
+                fontFamily: "Ekachon",
+                fontSmoothing: "auto",
+                fontWeight: "black",
+                alignItems: "end",
+              }}
+            >
+              <Image
+                src="/images/profile/Point.svg"
+                alt="points"
+                width={30}
+                height={30}
+                className="flex"
+              />
+              <span className="text-lg text-[#0056FF] font-bold">
+                Total Point
+              </span>
+              <span className="text-lg text-[#0056FF] font-bold">
+                {userPoints ? userPoints : 0}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="flex items-center justify-end mr-5 mb-2 mt-1">
+        <span className="text-xs text-[#1E3060] font-bold">
+          เปลี่ยนคะแนน เป็น คอยน์
+          <button>
+            <span className="text-[#F68B1F] font-bold ml-1" onClick={openModal}>
+              คลิก
+            </span>
+          </button>
+        </span>
+      </div>
+      {/* Tabs */}
+      <div className="flex items-center justify-center">
+        <ul className="flex flex-row w-[340px] font-bold">
+          <li>
+            <div
+              className={`flex  w-[170px] h-[40px] items-center justify-center text-center rounded-l-3xl ${
+                activeTab === "redeem"
+                  ? "bg-[#0056FF] text-white"
+                  : "bg-gray-300 text-black"
+              }`}
+              onClick={() => handleTabClick("redeem")}
+            >
+              <span>แลกของรางวัล</span>
+            </div>
+          </li>
+          <li>
+            <div
+              className={`flex  w-[170px] h-[40px] items-center justify-center text-center rounded-r-3xl ${
+                activeTab === "redeemtrans"
+                  ? "bg-[#F68B1F] text-white"
+                  : "bg-gray-300 text-black"
+              }`}
+              onClick={() => handleTabClick("redeemtrans")}
+            >
+              <span>ของที่แลกแล้ว</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <ExchangeModal
+        isOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        points={level?.point}
+        conversionRate={conversionRate}
+        userId={session?.user?.id}
+        onExchangeAdd={onExchangeAdd}
+        setLoading={setLoading}
+        loading={loading}
+      />
+      <NotificationModal
+        isOpen={notificationModalIsOpen}
+        onRequestClose={closeNotificationModal}
+        message={notificationMessage}
+      />
 
-                  <div className="flex flex-col gap-2 mt-1">
+      <RedeemSuccessModal
+        isOpen={successModal}
+        onRequestClose={closeSuccessModal}
+        redeemItem={selectedRedeem}
+      />
+
+      {redeemModalIsOpen && (
+        <Modal open={redeemModalIsOpen} onClose={closeRedeemModal}>
+          <div className="flex flex-col items-center text-center justify-center">
+            <Image
+              src={selectedRedeem.image}
+              width={300}
+              height={300}
+              alt={selectedRedeem.name}
+              style={{ width: "300px", height: "auto", objectFit: "contain" }}
+            />
+            <h2 className="text-xl font-bold text-[#0056FF]">
+              {selectedRedeem.name}
+            </h2>
+            <p className="text-sm text-gray-600">
+              {selectedRedeem.description}
+            </p>
+            <div className="flex flex-row justify-center items-center gap-2">
+              <span className="text-sm font-bold">คงเหลือ</span>
+              <span className="text-md font-bold text-red-500">
+                {selectedRedeem.stock}
+              </span>
+              <span className="text-sm">ชิ้น</span>
+            </div>
+            <div className="flex justify-center items-center mt-4">
+              <span className="text-sm font-bold">Coins:</span>
+              <span className="ml-2 text-lg text-[#0056FF] font-bold">
+                {selectedRedeem.coins}
+              </span>
+              <Image
+                src="/images/profile/Coin.svg"
+                alt="coins"
+                width={15}
+                height={15}
+                className="ml-2"
+              />
+            </div>
+            {selectedRedeem.point > 0 ? (
+              <div className="mt-2">
+                <span className="text-sm font-bold">Points:</span>
+                <span className="ml-2 text-lg text-[#0056FF] font-bold">
+                  {selectedRedeem.point}
+                </span>
+              </div>
+            ) : (
+              ""
+            )}
+
+            <div>
+              <button
+                className="w-full bg-[#F68B1F] text-white font-bold py-2 px-4 rounded-full mt-4"
+                onClick={
+                  selectedRedeem.stock <= 0
+                    ? closeRedeemModal
+                    : () => handleRedeemClick(selectedRedeem)
+                }
+                desable={selectedRedeem.stock <= 0 ? true : false}
+              >
+                {selectedRedeem.stock <= 0 ? "สินค้าหมดแล้ว" : "แลกของรางวัล"}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+      {/* Content */}
+      <div className="flex flex-col p-4 gap-2 mb-20">
+        {activeTab === "redeem" && (
+          <Suspense fallback={<LoadingFeed />}>
+            {redeems?.map((group, index) => (
+              <div key={index} className="flex flex-col">
+                <span className="font-bold">{group.group}</span>
+
+                <div className="flex flex-col gap-2 mt-1">
                   {group?.redeems?.map((redeemItem) => (
-                    <div key={redeemItem._id} className="grid grid-cols-3 w-full bg-gray-300 rounded-xl cursor-pointer" 
+                    <div
+                      key={redeemItem._id}
+                      className="grid grid-cols-3 w-full bg-gray-300 rounded-xl cursor-pointer"
                       onClick={() => openRedeemModal(redeemItem)}
                     >
                       <div className="flex flex-col col-span-1 items-center justify-center">
@@ -351,7 +393,6 @@ export default function Redeem() {
                             objectFit: "contain",
                           }}
                         />
-                        
                       </div>
 
                       <div className="flex flex-col col-span-2 justify-between flex-grow p-2">
@@ -367,99 +408,90 @@ export default function Redeem() {
                         </div>
                         <div className="flex items-center justify-between pt-2">
                           <div className="flex-col text-left">
-                            <span className="text-[0.7em]">
-                              คงเหลือ
-                            </span>
+                            <span className="text-[0.7em]">คงเหลือ</span>
                             <span className="flex font-bold mt-[-5px]">
                               {redeemItem.stock} สิทธิ์
                             </span>
                           </div>
-                          <button
-                            className="bg-[#F68B1F] rounded-full text-white font-bold h-8 px-4"
-                          >
+                          <button className="bg-[#F68B1F] rounded-full text-white font-bold h-8 px-4">
                             redeem
                           </button>
                         </div>
                       </div>
-
                     </div>
                   ))}
-                  </div>
-                  <Divider 
-                    className="mt-4 mb-2"
-                  />
                 </div>
-              ))}
-            </Suspense>
-          )}
-  
-          {activeTab === 'redeemtrans' && (
-            <Suspense fallback={<LoadingFeed />}>
-              {redeemTransData?.map((transItem) => (
-                <div key={transItem._id} className="flex flex-row w-full bg-gray-300 rounded-xl p-1">
-                  <Image
-                    src={transItem?.redeemId?.image}
-                    alt={transItem?.redeemId?.name}
-                    width={150}
-                    height={150}
-                    className="flex p-2"
-                    style={{
-                      minWidth: "150px",
-                      maxHeight: "120px",
-                      objectFit: "contain",
-                    }}
-                  />
-                  <div className="flex flex-col justify-between flex-grow p-2">
-                    <div className="flex flex-col">
-                      <div className="flex justify-end mb-[-10px]">
-                        <span className="flex text-[10px] font-bold">
-                            {moment(transItem?.createdAt).fromNow()}
-                        </span>
-                      </div>
-                        <div className="flex text-lg font-bold text-[#0056FF]">
-                          {transItem?.redeemId?.name}
-                        </div>
-                      <div>
-                        <span className="text-[12px] line-clamp-2">
-                          {transItem?.redeemId?.description}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between pt-2">
-                      <div className="flex text-left">
-                        <span className="text-[0.7em] font-bold">
-                        {transItem?.status}
-                        </span>
-                      </div>
+                <Divider className="mt-4 mb-2" />
+              </div>
+            ))}
+          </Suspense>
+        )}
 
-                      {transItem?.redeemId?.coins > 0 && (
-                        <div className="text-left">
-                        <span className="text-[0.7em] font-bold">
-                          Coins
-                        </span>
+        {activeTab === "redeemtrans" && (
+          <Suspense fallback={<LoadingFeed />}>
+            {redeemTransData?.map((transItem) => (
+              <div
+                key={transItem._id}
+                className="flex flex-row w-full bg-gray-300 rounded-xl p-1"
+              >
+                <Image
+                  src={transItem?.redeemId?.image}
+                  alt={transItem?.redeemId?.name}
+                  width={150}
+                  height={150}
+                  className="flex p-2"
+                  style={{
+                    minWidth: "150px",
+                    maxHeight: "120px",
+                    objectFit: "contain",
+                  }}
+                />
+                <div className="flex flex-col justify-between flex-grow p-2">
+                  <div className="flex flex-col">
+                    <div className="flex justify-end mb-[-10px]">
+                      <span className="flex text-[10px] font-bold">
+                        {moment(transItem?.createdAt).fromNow()}
+                      </span>
+                    </div>
+                    <div className="flex text-lg font-bold text-[#0056FF]">
+                      {transItem?.redeemId?.name}
+                    </div>
+                    <div>
+                      <span className="text-[12px] line-clamp-2">
+                        {transItem?.redeemId?.description}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between pt-2">
+                    <div className="flex text-left">
+                      <span className="text-[0.7em] font-bold">
+                        {transItem?.status}
+                      </span>
+                    </div>
+
+                    {transItem?.redeemId?.coins > 0 && (
+                      <div className="text-left">
+                        <span className="text-[0.7em] font-bold">Coins</span>
                         <span className="font-bold ml-1 text-[#0056FF]">
                           {transItem?.coins}
                         </span>
                       </div>
-                      )}
-                      {transItem?.redeemId?.points > 0 && (
-                        <div className="text-left ml-2">
-                          <span className="text-[0.7em]">
-                            Points
-                          </span>
-                          <span className="font-bold ml-1">
-                            {transItem?.redeemId?.points}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                    )}
+                    {transItem?.redeemId?.points > 0 && (
+                      <div className="text-left ml-2">
+                        <span className="text-[0.7em]">Points</span>
+                        <span className="font-bold ml-1">
+                          {transItem?.redeemId?.points}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
-              ))}
-            </Suspense>
-          )}
-        </div>
-      </main>
-    );
-  }
-  
+              </div>
+            ))}
+          </Suspense>
+        )}
+      </div>
+    </main>
+  );
+}
