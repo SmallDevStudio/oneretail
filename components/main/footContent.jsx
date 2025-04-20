@@ -51,7 +51,7 @@ export default function FooterContant() {
                     key={index}
                     onClick={() =>
                       handleClick(
-                        item.categories?.title || "articles",
+                        item.categories?.title || "learning",
                         item._id
                       )
                     }
@@ -116,12 +116,7 @@ export default function FooterContant() {
                   return (
                     <div
                       key={index}
-                      onClick={() =>
-                        handleClick(
-                          item.categories?.title || "articles",
-                          item._id
-                        )
-                      }
+                      onClick={() => router.push(`/articles/${item._id}`)}
                       className="bg-gray-100 rounded-lg overflow-hidden shadow-sm flex flex-col h-[200px] cursor-pointer"
                     >
                       {/* IMAGE/VIDEO THUMBNAIL */}
