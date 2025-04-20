@@ -11,21 +11,19 @@ export default async function handler(req, res) {
   switch (method) {
     case "GET":
       try {
-        // 1. ดึง point เฉพาะ type: "earn"
+        // 1. Get point type: "earn"
         const points = await Point.find({ type: "earn" });
 
-        // 2. รวมคะแนนตาม userId
-        const userPoints = points.reduce((acc, point) => {
+        // 2. Aggregate points per userId
+        const userPointsMap = points.reduce((acc, point) => {
           const userId = point.userId.toString();
-          if (!acc[userId]) {
-            acc[userId] = { userId, totalPoints: 0 };
-          }
+          if (!acc[userId]) acc[userId] = { userId, totalPoints: 0 };
           acc[userId].totalPoints += point.point;
           return acc;
         }, {});
-        const userPointsArray = Object.values(userPoints);
+        const userPointsArray = Object.values(userPointsMap);
 
-        // 3. ดึงข้อมูล Users และ Emp
+        // 3. Get Users & Emps
         const users = await Users.find({
           userId: { $in: userPointsArray.map((u) => u.userId) },
         })
@@ -36,12 +34,12 @@ export default async function handler(req, res) {
           empId: { $in: users.map((u) => u.empId) },
         }).lean();
 
-        // 4. รวมข้อมูลทั้งหมด
-        const leaderboard = userPointsArray
+        // 4. Merge all user + emp + point
+        const enriched = userPointsArray
           .map((up) => {
             const user = users.find((u) => u.userId === up.userId);
             const emp = emps.find((e) => e.empId === user?.empId);
-            if (user && emp && /^RH[1-5]$/.test(emp.group)) {
+            if (user && emp) {
               return {
                 userId: user.userId,
                 empId: user.empId,
@@ -55,30 +53,63 @@ export default async function handler(req, res) {
           })
           .filter(Boolean);
 
-        // 5. แยกตาม group และจัดเรียงในแต่ละกลุ่ม
-        const grouped = {};
-
-        leaderboard.forEach((entry) => {
+        // --- Group by RH1–RH5 and calculate group total & rank ---
+        const rhGroups = {};
+        enriched.forEach((entry) => {
           const group = entry.emp.group;
-          if (!grouped[group]) {
-            grouped[group] = [];
+          if (/^RH[1-5]$/.test(group)) {
+            if (!rhGroups[group]) rhGroups[group] = [];
+            rhGroups[group].push(entry);
           }
-          grouped[group].push(entry);
         });
 
-        // 6. จัดเรียงคะแนนและใส่ rank ภายในแต่ละ group
-        for (const group in grouped) {
-          grouped[group].sort((a, b) => b.totalPoints - a.totalPoints);
-          grouped[group].forEach((entry, index) => {
-            entry.rank = index + 1;
-          });
-        }
+        const groupSummary = Object.entries(rhGroups)
+          .map(([group, users]) => {
+            const totalPoints = users.reduce(
+              (sum, u) => sum + u.totalPoints,
+              0
+            );
+            return {
+              group,
+              totalPoints,
+              userCount: users.length,
+            };
+          })
+          .sort((a, b) => b.totalPoints - a.totalPoints)
+          .map((item, index) => ({ ...item, rank: index + 1 }));
 
-        // 7. ส่งผลลัพธ์
+        // --- Group by Branch ---
+        const branchMap = {};
+        enriched.forEach((entry) => {
+          const branch = entry.emp.branch || "Unknown";
+          if (!branchMap[branch]) branchMap[branch] = [];
+          branchMap[branch].push(entry);
+        });
+
+        const branchSummary = Object.entries(branchMap)
+          .map(([branch, users]) => {
+            const totalPoints = users.reduce(
+              (sum, u) => sum + u.totalPoints,
+              0
+            );
+            const sortedUsers = [...users]
+              .sort((a, b) => b.totalPoints - a.totalPoints)
+              .map((user, index) => ({ ...user, rank: index + 1 }));
+
+            return {
+              branch,
+              totalPoints,
+              users: sortedUsers,
+            };
+          })
+          .sort((a, b) => b.totalPoints - a.totalPoints)
+          .map((b, index) => ({ ...b, rank: index + 1 }));
+
         res.status(200).json({
           success: true,
           data: {
-            group: grouped,
+            groupByRH: groupSummary,
+            branchSummary,
           },
         });
       } catch (error) {
