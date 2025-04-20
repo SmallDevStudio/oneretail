@@ -14,6 +14,7 @@ import Swal from "sweetalert2";
 import moment from "moment";
 import "moment/locale/th";
 import Avatar from "@/components/utils/Avatar";
+import { useViewTracker } from "@/utils/useViewTracker";
 
 moment.locale("th");
 
@@ -566,7 +567,10 @@ const Feed = ({ user, posts, mutate }) => {
                   )}
                   {post?.medias.length > 0 && (
                     <ImageGallery
-                      medias={post.medias}
+                      medias={post.medias.map((m) => ({
+                        ...m,
+                        postId: post._id,
+                      }))}
                       userId={session?.user?.id}
                     />
                   )}
