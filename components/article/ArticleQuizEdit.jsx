@@ -1,137 +1,133 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 
-const ArticleQuizEdit = ({ handleQuizClose, saveQuiz, data, edit}) => {
-    const [question, setQuestion] = useState('');
-    const [options, setOptions] = useState(['', '', '', '']);
-    const [correctAnswer, setCorrectAnswer] = useState(0);
-    const [quizId, setQuizId] = useState(null); // Add a state for quiz ID
-    const [index, setIndex] = useState(null);
+const ArticleQuizEdit = ({ handleQuizClose, saveQuiz, data, edit }) => {
+  const [question, setQuestion] = useState("");
+  const [options, setOptions] = useState(["", "", "", ""]);
+  const [correctAnswer, setCorrectAnswer] = useState(0);
+  const [quizId, setQuizId] = useState(null); // Add a state for quiz ID
+  const [index, setIndex] = useState(null);
 
-    useEffect(() => {
-        if (edit) {
-            if (data) {
-                setQuestion(data.question);
-                setOptions(data.options);
-                setCorrectAnswer(data.correctAnswer);
-                setQuizId(data._id); // Set quiz ID when editing
-                setIndex(data.index);
-            }
-        } else {
-            setQuestion('');
-            setOptions(['', '', '', '']);
-            setCorrectAnswer(0);
-            setQuizId(null); // Clear quiz ID for new questions
-        }
-    }, [edit, data]);
+  useEffect(() => {
+    if (edit) {
+      if (data) {
+        setQuestion(data.question);
+        setOptions(data.options);
+        setCorrectAnswer(data.correctAnswer);
+        setQuizId(data._id); // Set quiz ID when editing
+        setIndex(data.index);
+      }
+    } else {
+      setQuestion("");
+      setOptions(["", "", "", ""]);
+      setCorrectAnswer(0);
+      setQuizId(null); // Clear quiz ID for new questions
+    }
+  }, [edit, data]);
 
-    const handleOptions = (index, value) => {
-        const newOptions = [...options];
-        newOptions[index] = value;
-        setOptions(newOptions);
-    };
+  const handleOptions = (index, value) => {
+    const newOptions = [...options];
+    newOptions[index] = value;
+    setOptions(newOptions);
+  };
 
-    const handleSubmit = () => {
-        if (index !== undefined || index !== null) {
-            const quizData = {
-                question,
-                options,
-                correctAnswer,
-                _id: quizId, // Pass the quiz ID if it exists
-                index: index,
-                
-            };
-            saveQuiz(quizData);
-        }else {
-            const quizData = {
-                question,
-                options,
-                correctAnswer,
-                _id: quizId, // Pass the quiz ID if it exists
-            
-            };
-            saveQuiz(quizData);
-        }
-        handleClose();
-    };
-        
+  const handleSubmit = () => {
+    if (index !== undefined || index !== null) {
+      const quizData = {
+        question,
+        options,
+        correctAnswer,
+        _id: quizId, // Pass the quiz ID if it exists
+        index: index,
+      };
+      saveQuiz(quizData);
+    } else {
+      const quizData = {
+        question,
+        options,
+        correctAnswer,
+        _id: quizId, // Pass the quiz ID if it exists
+      };
+      saveQuiz(quizData);
+    }
+    handleClose();
+  };
 
-    const handleClose = () => {
-        setQuestion('');
-        setOptions(['', '', '', '']);
-        setCorrectAnswer(0);
-        setQuizId(null);
-        handleQuizClose();
-    };
+  const handleClose = () => {
+    setQuestion("");
+    setOptions(["", "", "", ""]);
+    setCorrectAnswer(0);
+    setQuizId(null);
+    handleQuizClose();
+  };
 
+  return (
+    <div className="flex flex-col w-full gap-4 border-2 px-4 py-2 rounded-3xl text-xs">
+      <div className="flex flex-row w-full items-center gap-4">
+        <label className="flex text-black font-bold" htmlFor="question">
+          คำถาม
+        </label>
+        <textarea
+          placeholder="คำถาม"
+          name="question"
+          value={data.question}
+          className="flex text-black border-2 p-1 rounded-xl"
+          onChange={(e) => setQuestion(e.target.value)}
+          required
+        />
+      </div>
 
-    return (
-        <div className="flex flex-col w-full gap-4 border-2 px-4 py-2 rounded-3xl text-xs">
-            <div className="flex flex-row w-full items-center gap-4">
-                <label className="flex text-black font-bold" htmlFor="question">
-                    คำถาม
-                </label>
-                <input
-                    type="text"
-                    placeholder="คำถาม"
-                    name="question"
-                    value={data.question}
-                    className="flex text-black border-2 p-1 rounded-xl"
-                    onChange={(e) => setQuestion(e.target.value)}
-                    required
-                />
-            </div>
+      <div className="flex flex-row w-full items-center">
+        {options.map((option, index) => (
+          <div key={index} className="flex flex-row w-full items-center gap-4">
+            <label className="flex text-black font-bold" htmlFor="options">
+              ตัวเลือก {index + 1}
+            </label>
+            <input
+              type="text"
+              placeholder="ตัวเลือก"
+              name="options"
+              value={option}
+              className="flex text-black border-2 p-1 rounded-xl"
+              onChange={(e) => handleOptions(index, e.target.value)}
+            />
+          </div>
+        ))}
+      </div>
 
-            <div className="flex flex-row w-full items-center">
-                {options.map((option, index) => (
-                    <div key={index} className="flex flex-row w-full items-center gap-4">
-                        <label className="flex text-black font-bold" htmlFor="options">
-                            ตัวเลือก {index + 1}
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="ตัวเลือก"
-                            name="options"
-                            value={option}
-                            className="flex text-black border-2 p-1 rounded-xl"
-                            onChange={(e) => handleOptions(index, e.target.value)}
-                        />
-                    </div>
-                ))}
-            </div>
+      <div className="flex flex-row w-full items-center gap-4">
+        <label className="flex text-black font-bold" htmlFor="correctAnswer">
+          คำตอบ
+        </label>
+        <select
+          className="flex text-black border-2 p-1 rounded-xl"
+          name="correctAnswer"
+          value={data.correctAnswer}
+          onChange={(e) => setCorrectAnswer(e.target.value)}
+        >
+          {options.map((_, index) => (
+            <option key={index} value={index}>
+              {index + 1}
+            </option>
+          ))}
+        </select>
+      </div>
 
-            <div className="flex flex-row w-full items-center gap-4">
-                <label className="flex text-black font-bold" htmlFor="correctAnswer">
-                    คำตอบ
-                </label>
-                <select
-                    className="flex text-black border-2 p-1 rounded-xl"
-                    name="correctAnswer"
-                    value={data.correctAnswer}
-                    onChange={(e) => setCorrectAnswer(e.target.value)}
-                >
-                    {options.map((_, index) => (
-                        <option key={index} value={index}>
-                            {index + 1}
-                        </option>
-                    ))}
-                </select>
-            </div>
-
-            <div className="flex flex-row w-full items-center gap-4">
-                <button className="bg-[#0056FF] text-white p-2 rounded-full w-20"
-                    onClick={handleSubmit}
-                >
-                    {edit ? "อัปเดต" : "เพิ่ม"}
-                </button>
-                <button className="bg-[#F68B1F] text-white p-2 rounded-full w-20" 
-                    onClick={handleClose}
-                >
-                    ยกเลิก
-                </button>
-            </div>
-        </div>
-
-    );
+      <div className="flex flex-row w-full items-center gap-4">
+        <button
+          className="bg-[#0056FF] text-white p-2 rounded-full w-20"
+          onClick={handleSubmit}
+        >
+          {edit ? "อัปเดต" : "เพิ่ม"}
+        </button>
+        <button
+          className="bg-[#F68B1F] text-white p-2 rounded-full w-20"
+          onClick={handleClose}
+        >
+          ยกเลิก
+        </button>
+      </div>
+    </div>
+  );
 };
 
 export default ArticleQuizEdit;
