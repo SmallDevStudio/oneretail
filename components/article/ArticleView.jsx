@@ -468,7 +468,7 @@ const ArticleView = ({ articleId }) => {
                     )}
                   </div>
                 ))}
-              <p className="text-gray-500 whitespace-pre-line">
+              <p className="text-gray-500 whitespace-pre-line px-4 leading-normal">
                 {article?.content}
               </p>
             </div>
