@@ -11,6 +11,7 @@ export default function MenuSection({ menu }) {
   const userId = session?.user?.id;
 
   const handleLink = async (submenu) => {
+    console.log(submenu);
     if (submenu.url) {
       try {
         await axios.post("/api/perf360/submenu/activity", {

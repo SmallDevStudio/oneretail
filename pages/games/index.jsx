@@ -4,6 +4,27 @@ import Image from "next/image";
 import Link from "next/link";
 import Modal from "@/components/Modal";
 
+const gameData = [
+  {
+    id: 1,
+    title: "ตอบคำถามรับพอยท์ประจำวัน",
+    image: "/images/games/3.png",
+    link: "/games/quiz",
+  },
+  {
+    id: 2,
+    title: "จับคู่รับพอยท์",
+    image: "/images/games/2.png",
+    link: "/games/memory-card-game",
+  },
+  {
+    id: 3,
+    title: "เป่ายิ้งฉุบรับพอยท์",
+    image: "/images/games/1.png",
+    link: "/games/rock-paper-scissors",
+  },
+];
+
 export default function Games() {
   const [open, setOpen] = useState(false);
 
@@ -17,114 +38,34 @@ export default function Games() {
 
   return (
     <>
-      <div className="relative p-3 mb-20 max-h-[100vh]">
-        <div className="flex flex-col items-center text-center justify-center p-2 px-1 pz-1 gap-14">
+      <div className="relative pb-20">
+        <div className="flex flex-col items-center text-center justify-center p-4">
           <div className="relative p-3 ">
-            <div className="flex items-center text-center justify-center p-2 px-1 pz-1 ">
+            <div className="flex items-center text-center justify-center p-2">
               <span className="text-[35px] font-black text-[#0056FF] dark:text-white">
                 Games Center
               </span>
             </div>
           </div>
-          <div
-            className="flex items-center text-center justify-center"
-            style={{
-              width: "100%",
-            }}
-          >
-            <Link href="/games/quiz">
-              <Image
-                src={"/images/gamecenter/Asset25.png"}
-                alt="games"
-                width={100}
-                height={100}
-                priority
-                style={{
-                  position: "absolute",
-                  top: "14%",
-                  left: "50%",
-                  zIndex: "1",
-                  width: "120px",
-                  height: "120px",
-                  transform: "translateX(-50%)",
-                }}
-              />
-              <div
-                className="flex bg-[#0056FF] rounded-3xl items-center justify-center"
-                style={{
-                  width: "320px",
-                  height: "150px",
-                }}
-              >
-                <span className="text-xl font-black text-white mt-10">
-                  ตอบคำถามรับพอยท์ประจำวัน
-                </span>
+          <div className="flex flex-col items-center text-center justify-center gap-4">
+            {gameData.map((game) => (
+              <div key={game.id} className="relative">
+                <Link href={game.link}>
+                  <div className="relative w-full">
+                    <Image
+                      src={game.image}
+                      width={400}
+                      height={400}
+                      alt={game.title}
+                      className="rounded-3xl"
+                    />
+                    <span className="absolute bottom-2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[25px] font-black text-white w-full">
+                      {game.title}
+                    </span>
+                  </div>
+                </Link>
               </div>
-            </Link>
-          </div>
-          <div className="flex items-center text-center justify-center p-2 px-1 pz-1">
-            <Link href="/games/memory-card-game">
-              <Image
-                src={"/images/gamecenter/Asset24.png"}
-                alt="games"
-                width={150}
-                height={150}
-                className="relative w-full h-full"
-                priority
-                style={{
-                  position: "absolute",
-                  top: "42%",
-                  left: "50%",
-                  zIndex: "1",
-                  width: "120px",
-                  height: "120px",
-                  transform: "translateX(-50%)",
-                }}
-              />
-              <div
-                className="flex bg-[#f68b1f] rounded-3xl items-center justify-center "
-                style={{
-                  width: "320px",
-                  height: "150px",
-                }}
-              >
-                <span className="text-xl font-black text-white mt-10">
-                  จับคู่รับพอยท์
-                </span>
-              </div>
-            </Link>
-          </div>
-          <div className="flex items-center text-center justify-center p-2 px-1 pz-1">
-            <Link href="/games/rock-paper-scissors">
-              <Image
-                src={"/images/gamecenter/Asset23.png"}
-                alt="games"
-                width={150}
-                height={150}
-                className="relative w-full h-full"
-                priority
-                style={{
-                  position: "absolute",
-                  bottom: "14%",
-                  left: "50%",
-                  zIndex: "1",
-                  width: "120px",
-                  height: "120px",
-                  transform: "translateX(-50%)",
-                }}
-              />
-              <div
-                className="flex bg-[#29345f] rounded-3xl items-center justify-center"
-                style={{
-                  width: "320px",
-                  height: "150px",
-                }}
-              >
-                <span className="text-xl font-black text-white mt-10">
-                  เร็วๆนี้
-                </span>
-              </div>
-            </Link>
+            ))}
           </div>
         </div>
 
