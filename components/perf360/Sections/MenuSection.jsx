@@ -10,19 +10,37 @@ export default function MenuSection({ menu }) {
   const { data: session } = useSession();
   const userId = session?.user?.id;
 
-  const handleLink = async (submenu) => {
-    console.log(submenu);
+  const handleLink = (submenu) => {
     if (submenu.url) {
-      try {
-        await axios.post("/api/perf360/submenu/activity", {
+      // เปิดหน้าว่างไว้ก่อน
+      const newTab = window.open("about:blank");
+
+      // ถ้า browser block popup (newTab === null)
+      const openFallback = () => {
+        window.location.href = submenu.url;
+      };
+
+      axios
+        .post("/api/perf360/submenu/activity", {
           submenuId: submenu._id,
           userId,
           activity: "click",
+        })
+        .then(() => {
+          if (newTab) {
+            newTab.location.href = submenu.url;
+          } else {
+            openFallback();
+          }
+        })
+        .catch((err) => {
+          console.error("Click tracking error:", err);
+          if (newTab) {
+            newTab.location.href = submenu.url;
+          } else {
+            openFallback();
+          }
         });
-      } catch (err) {
-        console.error("Click tracking error:", err);
-      }
-      window.open(submenu.url, "_blank");
     }
   };
 
