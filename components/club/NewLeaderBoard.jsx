@@ -8,6 +8,9 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import Avatar from "@/components/utils/Avatar";
 import CircularProgress from "@mui/material/CircularProgress";
+import moment from "moment";
+import "moment/locale/th";
+moment.locale("th");
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -27,9 +30,28 @@ const team = [
   { name: "UC", value: "UC" },
 ];
 
+const thaiMonths = [
+  "มกราคม",
+  "กุมภาพันธ์",
+  "มีนาคม",
+  "เมษายน",
+  "พฤษภาคม",
+  "มิถุนายน",
+  "กรกฎาคม",
+  "สิงหาคม",
+  "กันยายน",
+  "ตุลาคม",
+  "พฤศจิกายน",
+  "ธันวาคม",
+];
+
 export default function NewLeaderboard() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [activeTab, setActiveTab] = useState("BM");
+  const [availableMonths, setAvailableMonths] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState(1);
+  const [selectedYear, setSelectedYear] = useState(2025);
+
   const { data: session, status } = useSession();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -39,6 +61,15 @@ export default function NewLeaderboard() {
     onSuccess: (data) => {
       setLoading(false);
       setLeaderboard(data.data);
+      const parsed = data.months.map((m) => {
+        const [year, month] = m.split("-");
+        return { year: +year, month: +month };
+      });
+      setAvailableMonths(parsed);
+      // auto select latest
+      const latest = parsed[parsed.length - 1];
+      setSelectedMonth(latest?.month);
+      setSelectedYear(latest?.year);
     },
   });
 
@@ -57,9 +88,17 @@ export default function NewLeaderboard() {
     setActiveTab(tab);
   };
 
+  const filteredLeaderboard = (leaderboard[activeTab] || []).filter(
+    (item) => item.month === selectedMonth && item.year === selectedYear
+  );
+
   const currentUserClub =
-    leaderboard[activeTab]?.find((item) => item.empId === user.user?.empId) ||
-    null;
+    (leaderboard[activeTab] || []).find(
+      (item) =>
+        item.empId === user.user?.empId &&
+        item.month === selectedMonth &&
+        item.year === selectedYear
+    ) || null;
 
   if (loading || !leaderboard || !user) return <Loading />;
 
@@ -73,6 +112,25 @@ export default function NewLeaderboard() {
         >
           Leaderboard
         </h1>
+        {/* Month */}
+        <div className="mt-2 flex gap-2 items-center">
+          <span>เดือน</span>
+          <select
+            value={`${selectedYear}-${selectedMonth}`}
+            onChange={(e) => {
+              const [year, month] = e.target.value.split("-");
+              setSelectedYear(+year);
+              setSelectedMonth(+month);
+            }}
+            className="px-2 py-1 outline-none"
+          >
+            {availableMonths.map((m, i) => (
+              <option key={i} value={`${m.year}-${m.month}`}>
+                {thaiMonths[m.month - 1]} {m.year}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Tabs */}
@@ -127,7 +185,7 @@ export default function NewLeaderboard() {
       <div className="mt-4">
         {/* Leaderboard */}
         <div className="flex flex-col w-full px-2 py-2 gap-2">
-          {(leaderboard[activeTab] || []).map((item, index) => (
+          {filteredLeaderboard.map((item, index) => (
             <div
               key={item._id || index}
               className="grid grid-cols-5 items-center px-4 py-1 border rounded-full bg-gray-100"

@@ -7,7 +7,6 @@ import { TbZoomScan } from "react-icons/tb";
 import axios from "axios";
 import { GrView } from "react-icons/gr";
 import { Dialog, DialogContent, Slide } from "@mui/material";
-import { TransitionProps } from "@mui/material/transitions";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -58,9 +57,7 @@ const ImageGallery = ({ medias, userId }) => {
     } else if (media.type === "video") {
       // video view count
       try {
-        const res = await axios.get(
-          `/api/libraries/views?publicId=${publicId}`
-        );
+        const res = await axios.get(`/api/libraries/views/${publicId}`);
         const views = res?.data?.data?.views || 0;
         setVideoViews((prev) => ({ ...prev, [publicId]: views }));
       } catch (err) {
@@ -167,6 +164,11 @@ const ImageGallery = ({ medias, userId }) => {
           startTime: new Date(now - duration),
           endTime: new Date(now),
           duration: videoDurations.current[index],
+        });
+
+        await axios.post("/api/libraries/views", {
+          publicId,
+          userId,
         });
 
         setHasSentView((prev) => ({ ...prev, [index]: true }));

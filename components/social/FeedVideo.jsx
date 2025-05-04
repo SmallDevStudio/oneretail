@@ -1,21 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
-import useSWR from "swr";
+import { Dialog, Slide } from "@mui/material";
+import { GrView } from "react-icons/gr";
+import { FaRegPlayCircle } from "react-icons/fa";
+import { IoIosCloseCircleOutline } from "react-icons/io";
 import axios from "axios";
-import { Dialog, Slide, CircularProgress, Menu, MenuItem } from "@mui/material";
-import Image from "next/image";
-import { BsThreeDotsVertical } from "react-icons/bs";
-import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
-import CommentInput from "@/components/comments/CommentInput";
-import PostInput from "@/components/comments/PostInput";
-import ReplyInput from "@/components/comments/ReplyInput";
-import { PiUserCircleDuotone } from "react-icons/pi";
-import ImageGallery from "../main/ImageGallery";
-import Swal from "sweetalert2";
 import moment from "moment";
 import "moment/locale/th";
-import { BsPinAngleFill } from "react-icons/bs";
 import Loading from "@/components/Loading";
 
 moment.locale("th");
@@ -24,418 +15,120 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const FeedVideo = ({ user, posts }) => {
+const FeedVideo = ({ posts }) => {
   const { data: session } = useSession();
-  const [showComments, setShowComments] = useState({});
-  const [showReply, setShowReply] = useState({});
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [currentDialog, setCurrentDialog] = useState(null);
+  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [currentOption, setCurrentOption] = useState(null);
-  const [likes, setLikes] = useState({});
-  const [checkError, setCheckError] = useState(null);
-
-  const router = useRouter();
-
-  const folder = "share-your-story";
+  const [currentMedia, setCurrentMedia] = useState(null);
+  const [videoViews, setVideoViews] = useState({});
+  const [hasSentView, setHasSentView] = useState({});
+  const videoRef = useRef(null);
+  const videoStart = useRef(null);
+  const videoDuration = useRef(0);
 
   useEffect(() => {
-    if (posts.length) {
-      const initialLikes = posts.reduce((acc, post) => {
-        acc[post._id] = post.likes.some(
-          (like) => like.userId === session?.user?.id
-        );
-        post?.comments.forEach((comment) => {
-          acc[comment._id] = comment?.likes?.some(
-            (like) => like.userId === session?.user?.id
+    setLoading(true);
+    const fetchAllViews = async () => {
+      const allMedia = posts
+        .flatMap((post) => post.medias || [])
+        .filter((media) => media.type === "video" && media.public_id);
+
+      const viewMap = {};
+
+      for (const media of allMedia) {
+        try {
+          const res = await axios.get(
+            `/api/libraries/views/${media.public_id}`
           );
-          comment?.reply?.forEach((reply) => {
-            acc[reply._id] = reply?.likes?.some(
-              (like) => like.userId === session?.user?.id
-            );
-          });
-        });
-        return acc;
-      }, {});
-      setLikes(initialLikes);
+          viewMap[media.public_id] = res?.data?.data?.views || 0;
+        } catch (err) {
+          console.error(`Error fetching views for ${media.public_id}:`, err);
+          viewMap[media.public_id] = 0;
+        }
+      }
+
+      setVideoViews(viewMap);
+      setLoading(false);
+    };
+
+    if (posts?.length > 0) {
+      fetchAllViews();
     }
-  }, [posts, session]);
+  }, [posts]);
 
-  const handleOptionClick = (event, type, id) => {
-    setAnchorEl(event.currentTarget);
-    setCurrentOption({ type, id });
-  };
+  const handleOpen = async (media) => {
+    setCurrentMedia(media);
+    setOpen(true);
 
-  const handleOptionClose = () => {
-    setAnchorEl(null);
-    setCurrentOption(null);
-  };
-
-  const handleClickOpen = (type, id) => {
-    setCurrentDialog({ type, id });
-    setIsDialogOpen(true);
+    try {
+      const res = await axios.get(`/api/libraries/views/${media.public_id}`);
+      const views = res?.data?.data?.views || 0;
+      setVideoViews((prev) => ({
+        ...prev,
+        [media.public_id]: views,
+      }));
+    } catch (err) {
+      console.error("Fetch views error:", err);
+    }
   };
 
   const handleClose = () => {
-    setIsDialogOpen(false);
-    setCurrentDialog(null);
+    setOpen(false);
+    setCurrentMedia(null);
+    videoStart.current = null;
+    videoDuration.current = 0;
   };
 
-  const handlePostSubmit = async (data) => {
-    setLoading(true);
-    try {
-      const userId = session?.user?.id;
-
-      // Check if there is either post content or media content
-      if (!data.post && (!data.media || data.media.length === 0)) {
-        setCheckError("กรุณากรอกข้อความหรือเพิ่มรูปภาพ");
-        setLoading(false);
-        return; // Exit the function if the condition is not met
-      }
-
-      const response = await axios.post("/api/posts", {
-        post: data.post,
-        link: data.link,
-        medias: data.media,
-        files: data.files,
-        tagusers: data.selectedUsers,
-        pinned: false,
-        userId,
-        page: "post",
-      });
-
-      const post = response.data.data;
-
-      if (data.selectedUsers && data.selectedUsers.length > 0) {
-        for (const user of data.selectedUsers) {
-          const response = await axios.post("/api/notifications", {
-            userId: user.userId,
-            senderId: userId,
-            description: `ได้แท็คโพสใน Share Your Story`,
-            referId: post._id,
-            path: "Share Your Story",
-            subpath: "Post",
-            url: `${window.location.origin}stores?tab=share-your-story#${post._id}`,
-            type: "Tag",
-          });
-        }
-      }
-
-      setLoading(false);
-      setCheckError(null);
-      handleClose();
-      mutate();
-    } catch (error) {
-      console.error(error);
-      setLoading(false);
-    }
+  const handlePlay = () => {
+    if (!videoStart.current) videoStart.current = Date.now();
   };
 
-  const handleCommentSubmit = async (postId, data) => {
-    setLoading(true);
-    try {
-      const userId = session?.user?.id;
+  const handlePauseOrEnd = async (ended = false) => {
+    const start = videoStart.current;
+    const now = Date.now();
 
-      // Check if there is either post content or media content
-      if (
-        !data.sticker &&
-        !data.post &&
-        (!data.media || data.media.length === 0)
-      ) {
-        setCheckError("กรุณากรอกข้อความหรือเพิ่มรูปภาพ");
-        setLoading(false);
-        return; // Exit the function if the condition is not met
-      }
+    if (!start || !currentMedia || hasSentView[currentMedia.public_id]) return;
 
-      const response = await axios.post("/api/posts/comments", {
-        comment: data.post,
-        medias: data.media,
-        files: data.files,
-        tagusers: data.selectedUsers,
-        sticker: data.sticker,
-        postId,
-        userId,
-      });
+    videoDuration.current += now - start;
+    videoStart.current = null;
 
-      const post = response.data.data;
+    const video = videoRef.current;
+    const percentPlayed = (video.currentTime / video.duration) * 100;
 
-      if (data.selectedUsers && data.selectedUsers.length > 0) {
-        for (const user of data.selectedUsers) {
-          await axios.post("/api/notifications", {
-            userId: user.userId,
-            senderId: userId,
-            description: `ได้แท็คโพสใน Share Your Story`,
-            referId: post._id,
-            path: "Share Your Story",
-            subpath: "Comment",
-            url: `${window.location.origin}stores?tab=share-your-story#${post._id}`,
-            type: "Tag",
-          });
-        }
-      }
-
-      setLoading(false);
-      setCheckError(null);
-      mutate();
-      handleClose();
-      setShowComments({ ...showComments, [postId]: true });
-    } catch (error) {
-      console.error(error);
-      setLoading(false);
-    }
-  };
-
-  const handleReplySubmit = async (commentId, data) => {
-    setLoading(true);
-    try {
-      const userId = session?.user?.id;
-
-      // Check if there is either post content or media content
-      if (
-        !data.sticker &&
-        !data.post &&
-        (!data.media || data.media.length === 0)
-      ) {
-        setCheckError("กรุณากรอกข้อความหรือเพิ่มรูปภาพ");
-        setLoading(false);
-        return; // Exit the function if the condition is not met
-      }
-
-      const response = await axios.post("/api/posts/replys", {
-        reply: data.post,
-        medias: data.media,
-        files: data.files,
-        tagusers: data.selectedUsers,
-        sticker: data.sticker,
-        commentId,
-        userId,
-      });
-
-      const post = response.data.data;
-
-      if (data.selectedUsers && data.selectedUsers.length > 0) {
-        for (const user of data.selectedUsers) {
-          await axios.post("/api/notifications", {
-            userId: user.userId,
-            senderId: userId,
-            description: `ได้แท็คโพสใน Share Your Story`,
-            referId: post._id,
-            path: "Share Your Story",
-            subpath: "Reply",
-            url: `${window.location.origin}stores?tab=share-your-story#${post.commentId}`,
-            type: "Tag",
-          });
-        }
-      }
-
-      setLoading(false);
-      setCheckError(null);
-      mutate();
-      handleClose();
-      setShowReply({ ...showReply, [commentId]: true });
-    } catch (error) {
-      console.error(error);
-      setLoading(false);
-    }
-  };
-
-  const handleLike = async (postId) => {
-    const userId = session?.user?.id;
-
-    try {
-      await axios.put("/api/posts/like", {
-        postId,
-        userId,
-      });
-
-      setLikes((prevLikes) => ({
-        ...prevLikes,
-        [postId]: !prevLikes[postId],
-      }));
-      mutate();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleCommentLike = async (commentId) => {
-    const userId = session?.user?.id;
-
-    try {
-      await axios.put("/api/posts/commentlike", {
-        commentId,
-        userId,
-      });
-
-      setLikes((prevLikes) => ({
-        ...prevLikes,
-        [commentId]: !prevLikes[commentId],
-      }));
-      mutate();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleReplyLike = async (replyId, postId) => {
-    const userId = session?.user?.id;
-
-    try {
-      await axios.put("/api/posts/replylike", {
-        replyId,
-        userId,
-        postId,
-      });
-
-      setLikes((prevLikes) => ({
-        ...prevLikes,
-        [replyId]: !prevLikes[replyId],
-      }));
-      mutate();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleDelete = async (postId) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "Do you really want to delete this post? This process cannot be undone.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!",
-      cancelButtonText: "Cancel",
-    });
-
-    if (result.isConfirmed) {
-      setLoading(true);
-      const userId = session?.user?.id;
+    if (ended || percentPlayed >= 60) {
       try {
-        await axios.delete(`/api/posts?postId=${postId}&userId=${userId}`);
-        mutate();
-      } catch (error) {
-        console.error(error);
-        Swal.fire("Error!", "There was an issue deleting the post.", "error");
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
-
-  const handleCommentDelete = async (commentId) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "Do you really want to delete this comment? This process cannot be undone.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!",
-      cancelButtonText: "Cancel",
-    });
-
-    if (result.isConfirmed) {
-      setLoading(true);
-      try {
-        await axios.delete(`/api/posts/comments?commentId=${commentId}`);
-        mutate();
-      } catch (error) {
-        console.error("Error deleting comment:", error);
-        Swal.fire(
-          "Error!",
-          "There was an issue deleting the comment.",
-          "error"
-        );
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
-
-  const handleReplyDelete = async (replyId) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "Do you really want to delete this reply? This process cannot be undone.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!",
-      cancelButtonText: "Cancel",
-    });
-
-    if (result.isConfirmed) {
-      setLoading(true);
-      try {
-        await axios.delete(`/api/posts/replys?replyId=${replyId}`);
-        mutate();
-      } catch (error) {
-        console.error(error);
-        Swal.fire("Error!", "There was an issue deleting the reply.", "error");
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
-
-  const handlePoints = async (post) => {
-    const result = await Swal.fire({
-      title: "คุณแน่ใจ?",
-      text: `ที่จะให้ 500 Points กับ ${post.user.fullname} หรือไม่`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes!",
-      cancelButtonText: "Cancel",
-    });
-
-    if (result.isConfirmed) {
-      setLoading(true);
-      try {
-        await axios.post("/api/points/point", {
-          userId: post.user._id,
-          description: `ได้ Point จากโพส Share Your Story`,
-          contentId: post._id,
-          path: "share your story",
-          subpath: "post",
-          points: 500,
-          type: "earn",
+        await axios.post("/api/posts/viewlog", {
+          publicId: currentMedia.public_id,
+          postId: currentMedia.postId,
+          userId: session?.user?.id,
+          mediaType: "video",
+          startTime: new Date(now - videoDuration.current),
+          endTime: new Date(now),
+          duration: videoDuration.current,
         });
-        mutate();
+
+        await axios.post("/api/libraries/views", {
+          publicId: currentMedia.public_id,
+          userId: session?.user?.id,
+        });
+
+        setHasSentView((prev) => ({
+          ...prev,
+          [currentMedia.public_id]: true,
+        }));
+        setVideoViews((prev) => ({
+          ...prev,
+          [currentMedia.public_id]: (prev[currentMedia.public_id] || 0) + 1,
+        }));
       } catch (error) {
-        console.error(error);
-        Swal.fire("Error!", "There was an issue deleting the post.", "error");
-      } finally {
-        setLoading(false);
+        console.error("View log error:", error);
       }
-    }
-  };
-
-  const handlePinned = async (postId, pinned) => {
-    if (!pinned || pinned === false || pinned === null) {
-      pinned = true;
-    } else {
-      pinned = false;
-    }
-
-    try {
-      await axios.put("/api/posts/pinned", {
-        id: postId,
-        pinned,
-      });
-      mutate();
-    } catch (error) {
-      console.error(error);
     }
   };
 
   if (!posts) return <Loading />;
 
-  console;
+  if (loading) return <Loading />;
 
   return (
     <div className="flex flex-col w-full">
@@ -444,59 +137,65 @@ const FeedVideo = ({ user, posts }) => {
           .filter((post) =>
             post?.medias?.some((media) => media.type === "video")
           )
-          .map((post, postIndex) => (
-            <div key={postIndex} className="p-2">
-              <ImageGallery
-                medias={post.medias
-                  .filter((media) => media.type === "video")
-                  .map((media) => ({ ...media, postId: post._id }))}
-                userId={session?.user?.id}
-              />
-            </div>
-          ))}
+          .map((post) =>
+            post.medias
+              .filter((media) => media.type === "video")
+              .map((media, index) => (
+                <div
+                  key={index}
+                  className="relative group cursor-pointer"
+                  onClick={() => handleOpen({ ...media, postId: post._id })}
+                >
+                  <video
+                    src={media.url}
+                    muted
+                    className="w-full h-auto object-cover rounded-md"
+                    style={{ maxHeight: 200 }}
+                    preload="metadata"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition">
+                    <FaRegPlayCircle className="text-white text-4xl" />
+                  </div>
+                  <div className="absolute top-2 right-2 bg-white/70 flex items-center gap-1 rounded-full px-2 py-1 text-xs">
+                    <GrView />
+                    <span>{videoViews[media.public_id] ?? 0}</span>
+                  </div>
+                </div>
+              ))
+          )}
       </div>
+
       <Dialog
         fullScreen
-        open={isDialogOpen}
+        open={open}
         onClose={handleClose}
         TransitionComponent={Transition}
       >
-        <div className="flex flex-col mt-2 p-2 max-h-screen">
-          {currentDialog?.type === "post" && (
-            <PostInput
-              handleSubmit={handlePostSubmit}
-              userId={session?.user?.id}
-              handleClose={handleClose}
-              checkError={checkError}
-              folder={folder}
-            />
-          )}
-          {currentDialog?.type === "comment" && (
-            <CommentInput
-              handleSubmit={(data) =>
-                handleCommentSubmit(currentDialog.id, data)
-              }
-              userId={session?.user?.id}
-              handleClose={handleClose}
-              checkError={checkError}
-              folder={folder}
-            />
-          )}
-          {currentDialog?.type === "reply" && (
-            <ReplyInput
-              handleSubmit={(data) => handleReplySubmit(currentDialog.id, data)}
-              userId={session?.user?.id}
-              handleClose={handleClose}
-              checkError={checkError}
-              folder={folder}
-            />
-          )}
+        <div className="flex justify-end p-2">
+          <IoIosCloseCircleOutline
+            size={28}
+            className="text-orange-500 cursor-pointer"
+            onClick={handleClose}
+          />
         </div>
-      </Dialog>
-      <Dialog open={loading} onClose={() => setIsLoading(false)}>
-        <div className="flex justify-center items-center w-full h-full p-10">
-          <CircularProgress />
-        </div>
+        {currentMedia && (
+          <div className="w-full h-full flex justify-center items-center bg-black">
+            <video
+              ref={videoRef}
+              src={currentMedia.url}
+              controls
+              autoPlay
+              className="max-w-full max-h-full"
+              onPlay={handlePlay}
+              onPause={() => handlePauseOrEnd(false)}
+              onEnded={() => handlePauseOrEnd(true)}
+            />
+            <div className="absolute bottom-4 right-4 text-sm text-white bg-black/60 px-3 py-1 rounded-full">
+              <GrView className="inline-block mr-1" />
+              {videoViews[currentMedia.public_id] ?? 0} views
+            </div>
+          </div>
+        )}
       </Dialog>
     </div>
   );

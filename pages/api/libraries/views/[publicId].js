@@ -1,5 +1,4 @@
 // /api/libraries/views.js
-
 import connectMongoDB from "@/lib/services/database/mongodb";
 import LibraryView from "@/database/models/LibraryView";
 import Users from "@/database/models/users";
@@ -16,7 +15,10 @@ export default async function handler(req, res) {
         // 1. Find library view
         const libraryView = await LibraryView.findOne({ public_id: publicId });
         if (!libraryView) {
-          return res.status(404).json({ success: false, message: "Not found" });
+          return res.status(200).json({
+            success: true,
+            data: { views: 0, user: [] },
+          });
         }
 
         const userIds = libraryView.user.map((u) => u.userId);

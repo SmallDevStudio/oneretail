@@ -25,7 +25,12 @@ export default async function handler(req, res) {
           grouped[pos].sort((a, b) => a.rank - b.rank);
         });
 
-        res.status(200).json({ success: true, data: grouped });
+        const allMonths = [
+          ...new Set(allClubs.map((c) => `${c.year}-${c.month}`)),
+        ];
+        res
+          .status(200)
+          .json({ success: true, data: grouped, months: allMonths });
       } catch (error) {
         res.status(400).json({ success: false, error: error.message });
       }
