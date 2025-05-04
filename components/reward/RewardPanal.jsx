@@ -90,8 +90,8 @@ export default function RewardPanel() {
 
   return (
     <div className="flex w-full">
-      <div className="flex flex-col bg-[#f68b1f] px-2 py-4 items-center gap-2 rounded-xl w-full">
-        <div className="flex flex-row items-start justify-between w-full">
+      <div className="flex flex-col bg-[#f68b1f] px-2 py-2 items-center gap-2 rounded-xl w-full mx-4">
+        <div className="flex flex-row items-start justify-between w-full gap-1">
           {rewardData.map((item, index) => (
             <motion.div
               key={index}
@@ -124,7 +124,7 @@ export default function RewardPanel() {
             height={30}
           />
           <motion.button
-            className={`px-8 py-2 bg-[#933100] text-white font-bold rounded-full transition-all ${
+            className={`px-8 py-1 bg-[#933100] text-white font-bold rounded-full transition-all ${
               claimedToday || loading ? "opacity-50 cursor-not-allowed" : ""
             }`}
             disabled={claimedToday || loading}
