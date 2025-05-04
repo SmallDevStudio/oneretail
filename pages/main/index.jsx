@@ -212,7 +212,7 @@ const MainPage = () => {
               onUplad={onUplad}
             />
           </div>
-          <div className="mb-4">
+          <div className="mb-4 max-w-screen-sm mx-auto">
             <RewardPanal />
           </div>
           <div className="flex items-center justify-center w-full px-6 pb-2 max-w-[100vw]">
