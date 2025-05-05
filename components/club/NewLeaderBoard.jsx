@@ -100,6 +100,33 @@ export default function NewLeaderboard() {
         item.year === selectedYear
     ) || null;
 
+  const getPreviousRankMap = () => {
+    const monthsSorted = [...availableMonths].sort((a, b) => {
+      if (a.year === b.year) return a.month - b.month;
+      return a.year - b.year;
+    });
+
+    const currentIndex = monthsSorted.findIndex(
+      (m) => m.year === selectedYear && m.month === selectedMonth
+    );
+    const prevMonth = monthsSorted[currentIndex - 1];
+    if (!prevMonth) return {};
+
+    const prevData =
+      (leaderboard[activeTab] || []).filter(
+        (item) => item.month === prevMonth.month && item.year === prevMonth.year
+      ) || [];
+
+    const rankMap = {};
+    prevData.forEach((item) => {
+      rankMap[item.empId] = item.rank;
+    });
+
+    return rankMap;
+  };
+
+  const previousRankMap = getPreviousRankMap();
+
   if (loading || !leaderboard || !user) return <Loading />;
 
   return (
@@ -188,30 +215,68 @@ export default function NewLeaderboard() {
           {filteredLeaderboard.map((item, index) => (
             <div
               key={item._id || index}
-              className="grid grid-cols-5 items-center px-4 py-1 border rounded-full bg-gray-100"
+              className="grid grid-cols-[auto_1fr_auto] items-center px-4 py-2 border rounded-xl bg-white shadow-sm hover:shadow-md transition-all duration-300 ease-in-out"
             >
-              <div className="flex flex-row items-center gap-3">
-                <span className="text-sm font-bold text-[#0056FF]">
-                  {item.rank}
-                </span>
-                <span className="text-sm font-bold text-[#F2871F]">
-                  {item.empId}
-                </span>
+              {/* Rank + empId + arrow */}
+              <div className="flex flex-col items-start">
+                <div className="flex flex-row items-center gap-1">
+                  <span className="text-sm font-bold text-[#0056FF]">
+                    {item.rank}
+                  </span>
+                  <span className="text-sm font-bold text-[#F2871F]">
+                    {item.empId}
+                  </span>
+                  <span className="ml-1 whitespace-nowrap">
+                    {(() => {
+                      const prevRank = previousRankMap[item.empId];
+                      if (prevRank === undefined) {
+                        return (
+                          <span className="text-xs text-blue-500 font-semibold">
+                            🆕
+                          </span>
+                        );
+                      } else if (prevRank > item.rank) {
+                        return (
+                          <span className="text-sm text-green-500 font-bold leading-none">
+                            ▲
+                          </span>
+                        );
+                      } else if (prevRank < item.rank) {
+                        return (
+                          <span className="text-sm text-red-500 font-bold leading-none">
+                            ▼
+                          </span>
+                        );
+                      } else {
+                        return (
+                          <span className="text-sm text-yellow-500 font-bold leading-none">
+                            –
+                          </span>
+                        );
+                      }
+                    })()}
+                  </span>
+                </div>
               </div>
-              <div className="flex flex-col col-span-3">
-                <span className="text-sm text-[#0056FF] font-bold ">
+
+              {/* Name + Info */}
+              <div className="flex flex-col px-2">
+                <span className="text-sm text-[#0056FF] font-bold truncate">
                   {item.name}
                 </span>
                 <div className="flex flex-row flex-wrap items-center gap-2 text-[10px] text-gray-500">
                   {item.region && <span>{item.region}</span>}
-                  {item.branch && <span>{item.branch}</span>}
                   {item.zone && <span>{item.zone}</span>}
                   {item.team && <span>{item.team}</span>}
                 </div>
               </div>
-              <span className="flex items-center justify-center text-sm font-bold bg-[#0056FF] text-white px-2 py-0.5 rounded-full">
-                {item.achieve ? item.achieve : item.kpi}%
-              </span>
+
+              {/* Percent */}
+              <div className="flex flex-row items-center gap-2">
+                <span className="text-sm font-bold bg-[#0056FF] text-white px-2 py-0.5 rounded-full whitespace-nowrap">
+                  {item.achieve ? item.achieve : item.kpi}%
+                </span>
+              </div>
             </div>
           ))}
         </div>
