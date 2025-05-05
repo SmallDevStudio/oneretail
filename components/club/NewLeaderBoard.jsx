@@ -219,43 +219,43 @@ export default function NewLeaderboard() {
             >
               {/* Rank + empId + arrow */}
               <div className="flex flex-col items-start">
-                <div className="flex flex-row items-center gap-1">
+                <div className="flex flex-row items-center gap-1 whitespace-nowrap">
                   <span className="text-sm font-bold text-[#0056FF]">
                     {item.rank}
                   </span>
                   <span className="text-sm font-bold text-[#F2871F]">
                     {item.empId}
                   </span>
-                  <span className="ml-1 whitespace-nowrap">
-                    {(() => {
-                      const prevRank = previousRankMap[item.empId];
-                      if (prevRank === undefined) {
-                        return (
-                          <span className="text-xs text-blue-500 font-semibold">
-                            🆕
-                          </span>
-                        );
-                      } else if (prevRank > item.rank) {
-                        return (
-                          <span className="text-sm text-green-500 font-bold leading-none">
-                            ▲
-                          </span>
-                        );
-                      } else if (prevRank < item.rank) {
-                        return (
-                          <span className="text-sm text-red-500 font-bold leading-none">
-                            ▼
-                          </span>
-                        );
-                      } else {
-                        return (
-                          <span className="text-sm text-yellow-500 font-bold leading-none">
-                            –
-                          </span>
-                        );
-                      }
-                    })()}
-                  </span>
+
+                  {/* เพิ่มตำแหน่งเก่า */}
+                  {(() => {
+                    const prevRank = previousRankMap[item.empId];
+                    if (prevRank === undefined) {
+                      return (
+                        <span className="text-xs text-blue-500 ml-1 font-semibold">
+                          🆕
+                        </span>
+                      );
+                    } else if (prevRank > item.rank) {
+                      return (
+                        <span className="text-xs text-green-500 font-semibold ml-1">
+                          ↑({prevRank})
+                        </span>
+                      );
+                    } else if (prevRank < item.rank) {
+                      return (
+                        <span className="text-xs text-red-500 font-semibold ml-1">
+                          ↓({prevRank})
+                        </span>
+                      );
+                    } else {
+                      return (
+                        <span className="text-xs text-yellow-500 font-semibold ml-1">
+                          –
+                        </span>
+                      );
+                    }
+                  })()}
                 </div>
               </div>
 
