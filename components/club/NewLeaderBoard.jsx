@@ -10,6 +10,10 @@ import Avatar from "@/components/utils/Avatar";
 import CircularProgress from "@mui/material/CircularProgress";
 import moment from "moment";
 import "moment/locale/th";
+import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import RemoveIcon from "@mui/icons-material/Remove";
+import FiberNewIcon from "@mui/icons-material/FiberNew";
 moment.locale("th");
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
@@ -233,25 +237,25 @@ export default function NewLeaderboard() {
                     if (prevRank === undefined) {
                       return (
                         <span className="text-xs text-blue-500 ml-1 font-semibold">
-                          🆕
+                          <FiberNewIcon fontSize="small" />
                         </span>
                       );
                     } else if (prevRank > item.rank) {
                       return (
                         <span className="text-xs text-green-500 font-semibold ml-1">
-                          ↑({prevRank})
+                          <ArrowDropUpIcon fontSize="small" />({prevRank})
                         </span>
                       );
                     } else if (prevRank < item.rank) {
                       return (
                         <span className="text-xs text-red-500 font-semibold ml-1">
-                          ↓({prevRank})
+                          <ArrowDropDownIcon fontSize="small" />({prevRank})
                         </span>
                       );
                     } else {
                       return (
                         <span className="text-xs text-yellow-500 font-semibold ml-1">
-                          –
+                          <RemoveIcon fontSize="small" />
                         </span>
                       );
                     }
