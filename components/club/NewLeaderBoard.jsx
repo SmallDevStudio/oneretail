@@ -233,7 +233,18 @@ export default function NewLeaderboard() {
 
                   {/* เพิ่มตำแหน่งเก่า */}
                   {(() => {
+                    const monthsSorted = [...availableMonths].sort((a, b) =>
+                      a.year === b.year ? a.month - b.month : a.year - b.year
+                    );
+                    const isFirstMonth =
+                      monthsSorted.length &&
+                      monthsSorted[0].year === selectedYear &&
+                      monthsSorted[0].month === selectedMonth;
+
+                    if (isFirstMonth) return null; // ❌ ไม่ต้องแสดงอะไรเลยถ้าเป็นเดือนแรก
+
                     const prevRank = previousRankMap[item.empId];
+
                     if (prevRank === undefined) {
                       return (
                         <span className="text-xs text-blue-500 ml-1 font-semibold">
