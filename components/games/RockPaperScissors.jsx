@@ -169,7 +169,7 @@ const RockPaperScissors = ({ userId, user }) => {
           <span className="font-bold text-[3em] text-[#0056FF]">
             {cpuScore}
           </span>
-          <span className="text-xl font-bold text-[#F2871F]">คอม</span>
+          <span className="text-xl font-bold text-[#F2871F]">น้องวัลลี่</span>
         </div>
 
         <div className="flex flex-col mt-2">
@@ -185,7 +185,7 @@ const RockPaperScissors = ({ userId, user }) => {
                 className="flex flex-col items-center gap-1"
               >
                 <span className="text-xl font-bold text-[#F2871F]">
-                  OneRetail
+                  น้องวัลลี่
                 </span>
                 <Image
                   src={imageIconChoices[cpuChoice]}

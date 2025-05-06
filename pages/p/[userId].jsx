@@ -601,7 +601,7 @@ const ProfilePage = () => {
         {/* Badge */}
         <div className="flex flex-col justify-center items-center mt-1 bg-white p-2 w-full">
           <div className="flex bg-[#0056FF] text-white font-bold text-lg rounded-full px-4 py-0.5">
-            <span>Learning Badge</span>
+            <span>One retail club</span>
           </div>
           <div className="flex flex-row justify-between items-center gap-2 w-full">
             {badges.data.map((badge, index) => (

@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
 import { IoClose } from "react-icons/io5";
 import { RiCoupon3Line } from "react-icons/ri";
 import Swal from "sweetalert2";
-import { toast } from "react-toastify";
 
 export default function TicketPanal({ onClose, mutate }) {
   const [code, setCode] = useState("");

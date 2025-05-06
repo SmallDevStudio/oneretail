@@ -36,6 +36,10 @@ export default function Redeem() {
   const [redeems, setRedeems] = useState(null);
   const [redeemTransData, setRedeemTransData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [code, setCode] = useState("");
+  const [isClaimed, setIsClaimed] = useState(false);
+
+  const userId = session?.user?.id;
 
   useEffect(() => {
     if (status === "loading") return; // Do nothing while loading
@@ -163,30 +167,65 @@ export default function Redeem() {
     setSuccessModal(false);
   };
 
+  const handleClaimCoupon = async () => {
+    setIsClaimed(true);
+    if (!code || code.trim() === "") {
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "กรุณากรอกโค้ด",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
+    try {
+      const response = await axios.post("/api/coupons/claim", {
+        code,
+        userId: userId,
+      });
+
+      if (response.data.success) {
+        setCode("");
+        await Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "คุณได้รับคูปองเรียบร้อยแล้ว",
+          confirmButtonText: "OK",
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      let errorMessage = "เกิดข้อผิดพลาด กรุณาลองใหม่";
+
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        errorMessage = error.response.data.message;
+      }
+      setCode("");
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: errorMessage,
+        confirmButtonText: "OK",
+      });
+    } finally {
+      setIsClaimed(false);
+    }
+  };
+
   if (!level || !coins || !redeem || !redeemtrans) return <Loading />;
 
   return (
     <main className="flex flex-col bg-white min-w-[100vw]">
       {/* Header */}
-      <div className="flex flex-col items-center justify-center mt-10">
+      <div className="flex flex-col items-center justify-center mt-6">
         {/* Avatar */}
-        <div className="flex flex-col items-center justify-center mb-8">
-          <Image
-            src={level?.user?.pictureUrl}
-            alt="User Avatar"
-            width={100}
-            height={100}
-            className="rounded-full"
-          />
-          <Image
-            src="/images/profile/Badge.svg"
-            alt="Badge"
-            width={140}
-            height={140}
-            className="absolute z-12 mb-5"
-          />
-          <span className="relative z-12 text-white font-bold mt-5 text-[10px]">
-            LEVEL {level?.level}
+        <div className="flex flex-col justify-start items-start mb-4 w-full px-6">
+          <span className="text-lg font-bold">
+            สวัสดี {level?.user?.fullname}
           </span>
         </div>
         {/* Point & Coins */}
@@ -241,7 +280,7 @@ export default function Redeem() {
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-end mr-5 mb-2 mt-1">
+      <div className="flex items-center justify-end mr-5 mb-1 mt-1">
         <span className="text-xs text-[#1E3060] font-bold">
           เปลี่ยนคะแนน เป็น คอยน์
           <button>
@@ -250,6 +289,29 @@ export default function Redeem() {
             </span>
           </button>
         </span>
+      </div>
+      {/* Claim */}
+      <div className="flex px-4 mb-4">
+        <div className="flex flex-col w-full bg-[#0056FF] rounded-xl px-4 py-4 gap-1">
+          <span className="text-white font-bold">Code :</span>
+          <div className="flex flex-row items-center gap-2 mb-2">
+            <input
+              type="text"
+              className="w-full border rounded-full px-2 py-1 text-black"
+              placeholder="ใส่รหัสโค้ดที่นี่"
+              id="code"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+            />
+            <button
+              className="flex items-center justify-center bg-[#F68B1F] rounded-full px-4 py-1 text-white"
+              onClick={handleClaimCoupon}
+              disabled={isClaimed}
+            >
+              ยืนยัน
+            </button>
+          </div>
+        </div>
       </div>
       {/* Tabs */}
       <div className="flex items-center justify-center">
