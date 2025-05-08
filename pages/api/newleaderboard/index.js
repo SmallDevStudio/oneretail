@@ -78,16 +78,22 @@ export default async function handler(req, res) {
           .sort((a, b) => b.totalPoints - a.totalPoints)
           .map((item, index) => ({ ...item, rank: index + 1 }));
 
-        // --- Group by Branch ---
-        const branchMap = {};
-        enriched.forEach((entry) => {
-          const branch = entry.emp.branch || "Unknown";
-          if (!branchMap[branch]) branchMap[branch] = [];
-          branchMap[branch].push(entry);
+        // --- Filter by group: only Retail or AL ---
+        const filteredByGroup = enriched.filter(
+          (entry) =>
+            entry.emp.teamGrop === "Retail" || entry.emp.teamGrop === "AL"
+        );
+
+        // --- Group by Department ---
+        const departmentMap = {};
+        filteredByGroup.forEach((entry) => {
+          const department = entry.emp.department || "Unknown";
+          if (!departmentMap[department]) departmentMap[department] = [];
+          departmentMap[department].push(entry);
         });
 
-        const branchSummary = Object.entries(branchMap)
-          .map(([branch, users]) => {
+        const departmentSummary = Object.entries(departmentMap)
+          .map(([department, users]) => {
             const totalPoints = users.reduce(
               (sum, u) => sum + u.totalPoints,
               0
@@ -97,7 +103,7 @@ export default async function handler(req, res) {
               .map((user, index) => ({ ...user, rank: index + 1 }));
 
             return {
-              branch,
+              department,
               totalPoints,
               users: sortedUsers,
             };
@@ -109,7 +115,7 @@ export default async function handler(req, res) {
           success: true,
           data: {
             groupByRH: groupSummary,
-            branchSummary,
+            departmentSummary,
           },
         });
       } catch (error) {

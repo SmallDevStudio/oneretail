@@ -8,7 +8,7 @@ import { useSession } from "next-auth/react";
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 export default function NewLeaderBoard() {
-  const [expandedBranches, setExpandedBranches] = useState([]);
+  const [expandedDepartments, setExpandedDepartments] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const { data: session, status } = useSession();
   const userId = session?.user?.id;
@@ -18,13 +18,13 @@ export default function NewLeaderBoard() {
   if (status === "loading" || isLoading || !data) return <Loading />;
 
   const groupData = data.data.groupByRH;
-  const branchData = data.data.branchSummary;
+  const departmentData = data.data.departmentSummary;
 
-  const toggleBranch = (branchName) => {
-    setExpandedBranches((prev) =>
-      prev.includes(branchName)
-        ? prev.filter((b) => b !== branchName)
-        : [...prev, branchName]
+  const toggleDepartment = (departmentName) => {
+    setExpandedDepartments((prev) =>
+      prev.includes(departmentName)
+        ? prev.filter((d) => d !== departmentName)
+        : [...prev, departmentName]
     );
   };
 
@@ -37,17 +37,19 @@ export default function NewLeaderBoard() {
     setSearchTerm(e.target.value.toLowerCase());
   };
 
-  const filteredBranches = branchData
-    .map((branch) => {
-      const filteredUsers = branch.users.filter(
+  const filteredDepartments = departmentData
+    .map((dept) => {
+      const filteredUsers = dept.users.filter(
         (u) =>
           u.empId.toLowerCase().includes(searchTerm) ||
           u.fullname.toLowerCase().includes(searchTerm) ||
-          branch.branch.toLowerCase().includes(searchTerm)
+          dept.department.toLowerCase().includes(searchTerm)
       );
-      return { ...branch, users: filteredUsers };
+      return { ...dept, users: filteredUsers };
     })
-    .filter((branch) => branch.users.length > 0);
+    .filter((dept) => dept.users.length > 0);
+
+  console.log(filteredDepartments);
 
   return (
     <div className="flex flex-col w-full pb-20">
@@ -80,33 +82,33 @@ export default function NewLeaderBoard() {
         />
       </div>
 
-      {/* Branch Leaderboard */}
+      {/* Department Leaderboard */}
       <div className="mt-4 px-2">
-        {filteredBranches.map((branch) => (
+        {filteredDepartments.map((dept) => (
           <div
-            key={branch.branch}
+            key={dept.department}
             className="mb-2 border rounded-md overflow-hidden shadow-sm"
           >
             <div
               className="flex justify-between items-center px-4 py-2 bg-gray-100 cursor-pointer"
-              onClick={() => toggleBranch(branch.branch)}
+              onClick={() => toggleDepartment(dept.department)}
             >
               <div className="flex flex-col text-sm">
                 <span className="font-bold text-[#0056FF]">
-                  อันดับ {branch.rank}: {branch.branch}
+                  อันดับ {dept.rank}: {dept.department}
                 </span>
                 <span className="text-xs text-gray-600">
-                  คะแนนรวม: {branch.totalPoints}
+                  คะแนนรวม: {dept.totalPoints}
                 </span>
               </div>
               <div className="text-xs text-gray-500">
-                {expandedBranches.includes(branch.branch) ? "▲" : "▼"}
+                {expandedDepartments.includes(dept.department) ? "▲" : "▼"}
               </div>
             </div>
 
-            {expandedBranches.includes(branch.branch) && (
+            {expandedDepartments.includes(dept.department) && (
               <div className="bg-white px-4 py-2">
-                {branch.users.map((user) => (
+                {dept.users.map((user) => (
                   <div
                     key={user.userId}
                     className="flex justify-between items-center border-b py-1"
@@ -121,7 +123,21 @@ export default function NewLeaderBoard() {
                         userId={user.userId}
                       />
                       <span className="text-sm">{user.empId}</span>
-                      <span className="text-sm">{user.fullname}</span>
+                      <div>
+                        <span className="text-sm font-bold text-[#0056FF]">
+                          {user.fullname}
+                        </span>
+                        <div
+                          className={`text-xs text-white px-1 py-0.5 rounded-full w-16 text-center
+                          ${
+                            user.emp.teamGrop === "Retail"
+                              ? "bg-[#0056FF]"
+                              : "bg-[#F2871F]"
+                          }`}
+                        >
+                          {user.emp.teamGrop}
+                        </div>
+                      </div>
                     </div>
                     <span className="text-sm font-bold text-gray-800">
                       {user.totalPoints}
