@@ -309,7 +309,15 @@ const Sidebar = () => {
               />
 
               <Item
-                title="จัดการ ebooks"
+                title="จัดการของขวัญปีใหม่"
+                to="/admin/gifts"
+                icon={<FaGift />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+
+              <Item
+                title="จัดการ Ebooks"
                 to="/admin/ebooks"
                 icon={<LuNotebookText />}
                 selected={selected}
