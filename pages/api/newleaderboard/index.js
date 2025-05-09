@@ -87,7 +87,7 @@ export default async function handler(req, res) {
         // --- Group by Department ---
         const departmentMap = {};
         filteredByGroup.forEach((entry) => {
-          const department = entry.emp.department || "Unknown";
+          const department = entry.emp.departmentshort || "Unknown";
           if (!departmentMap[department]) departmentMap[department] = [];
           departmentMap[department].push(entry);
         });

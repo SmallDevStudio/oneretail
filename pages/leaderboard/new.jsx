@@ -49,8 +49,6 @@ export default function NewLeaderBoard() {
     })
     .filter((dept) => dept.users.length > 0);
 
-  console.log(filteredDepartments);
-
   return (
     <div className="flex flex-col w-full pb-20">
       <div className="flex flex-col items-center justify-center w-full p-4">
