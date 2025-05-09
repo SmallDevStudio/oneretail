@@ -140,7 +140,7 @@ export default function ApproveSection({ active }) {
                       <span>
                         งบประมาณ{" "}
                         <strong className="text-[#F2871F] font-bold text-sm">
-                          {b.budget}
+                          {b.budget.toFixed(2)}
                         </strong>{" "}
                         บาท
                       </span>
