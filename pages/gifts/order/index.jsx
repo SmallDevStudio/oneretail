@@ -32,9 +32,12 @@ export default function GiftsDetails() {
   const [openSelect, setOpenSelect] = useState(null);
   const [openGift, setOpenGift] = useState(null);
   const [showGift, setShowGift] = useState(null);
+  const [isEdit, setIsEdit] = useState(false);
+  const [orderId, setOrderId] = useState(null);
+  const [isOrderLoaded, setIsOrderLoaded] = useState(false);
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { branchId, id } = router.query;
+  const { branchId } = router.query;
 
   const { data: budgets } = useSWR(`/api/gift/budget/${branchId}`, fetcher, {
     onSuccess: (data) => {
@@ -51,27 +54,40 @@ export default function GiftsDetails() {
 
   useEffect(() => {
     const fetchOrder = async () => {
-      if (id) {
-        try {
-          const res = await axios.get(`/api/gift/order?id=${id}`);
-          const data = res.data;
+      try {
+        const res = await axios.get(`/api/gift/order/${branchId}`);
+        const data = res.data;
+        if (data.success && data.data) {
+          const order = data.data;
 
-          // แปลงให้ใช้งานกับ selectedGift
-          const giftsWithDetails = data.gifts.map((g) => ({
-            ...g.giftId, // populate รายละเอียดของขวัญ
-            qty: g.qty,
-            total: g.total,
-          }));
+          // แปลง order.gifts จาก Array<[]>
+          const flatGifts = order.gifts.flat(); // ✅ fix รูปแบบ gift ซ้อน []
 
-          setSelectedGift(giftsWithDetails);
-        } catch (error) {
-          console.error("Error fetching order:", error);
+          const updatedGiftList = gift.map((g) => {
+            const matched = flatGifts.find(
+              (og) => og._id === g._id || og.code === g.code
+            );
+            return matched
+              ? { ...g, qty: matched.qty, total: matched.total }
+              : g;
+          });
+
+          setGift(updatedGiftList);
+          setSelectedGift(flatGifts);
+          setIsEdit(true);
+          setOrderId(order._id);
         }
+      } catch (error) {
+        console.error("Error fetching order:", error);
+      } finally {
+        setIsOrderLoaded(true);
       }
     };
 
-    fetchOrder();
-  }, [id]);
+    if (branchId && gift.length > 0 && !isOrderLoaded) {
+      fetchOrder();
+    }
+  }, [branchId, gift, isOrderLoaded]);
 
   useEffect(() => {
     const total = selectedGift.reduce((acc, g) => acc + g.qty * g.price, 0);
@@ -82,7 +98,7 @@ export default function GiftsDetails() {
   const handleQtyChange = () => {
     if (!openSelect) return;
 
-    const selected = gift.find((g) => g.id === openSelect);
+    const selected = gift.find((g) => g._id === openSelect);
     const qty = parseInt(inputQty, 10);
 
     if (qty === 0) {
@@ -110,9 +126,7 @@ export default function GiftsDetails() {
     if (!session?.user?.id) return;
 
     const giftsToSave = selectedGift.map((gift) => ({
-      giftId: gift._id || gift.id,
-      qty: gift.qty,
-      total: gift.total,
+      ...gift, // ส่ง gift ทั้ง object
     }));
 
     const dataToSave = {
@@ -120,18 +134,24 @@ export default function GiftsDetails() {
       branchId: branchId,
       gifts: giftsToSave,
       status,
-      update_by: [
-        {
-          userId: session.user.id,
-          update_at: new Date(),
-        },
-      ],
     };
 
     try {
-      if (id) {
+      if (isEdit && orderId) {
+        const update_by = {
+          update_by: [
+            {
+              userId: session.user.id,
+              update_at: new Date(),
+            },
+          ],
+        };
+        dataToSave.update_by = update_by.update_by;
         // update
-        await axios.put(`/api/gift/order/${id}`, dataToSave);
+        await axios.put(`/api/gift/order/${branchId}`, {
+          newData: dataToSave,
+          orderId, // for logging if needed
+        });
         toast.success("อัปเดตรายการสำเร็จ");
       } else {
         // create
@@ -211,7 +231,7 @@ export default function GiftsDetails() {
               </thead>
               <tbody>
                 {gift?.map((item, index) => (
-                  <tr key={item.id}>
+                  <tr key={item._id}>
                     <td className="border px-2 py-2 text-center">
                       <div className="flex flex-col items-center justify-start gap-2">
                         {index + 1}
@@ -234,12 +254,12 @@ export default function GiftsDetails() {
                             <span className="text-gray-500">เลือกจำนวน:</span>
                             {(() => {
                               const selected = selectedGift.find(
-                                (g) => g.id === item.id
+                                (g) => g._id === item._id
                               );
                               return (
                                 <div
                                   onClick={() => {
-                                    setOpenSelect(item.id);
+                                    setOpenSelect(item._id);
                                     setInputQty(selected?.qty || 0);
                                   }}
                                   className="flex items-center gap-2 border rounded-md px-2 py-1 cursor-pointer"
@@ -264,7 +284,7 @@ export default function GiftsDetails() {
                             </span>
                             <div className="border rounded-md px-2 py-1">
                               {selectedGift
-                                .find((g) => g.id === item.id)
+                                .find((g) => g._id === item._id)
                                 ?.total?.toFixed(2) || "0.00"}
                             </div>
                           </div>

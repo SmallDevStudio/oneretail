@@ -4,17 +4,7 @@ const OrderGiftsSchema = new mongoose.Schema(
   {
     userId: { type: String, required: true },
     branchId: { type: String, required: true },
-    gifts: [
-      {
-        giftId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Gifts",
-          required: true,
-        },
-        qty: { type: Number, required: true },
-        total: { type: Number, required: true },
-      },
-    ],
+    gifts: { type: Array, default: [] },
     status: {
       type: String,
       required: true,

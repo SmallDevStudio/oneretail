@@ -4,14 +4,14 @@ import OrderGiftLogs from "@/database/models/Gifts/OrderGiftLogs";
 
 export default async function handler(req, res) {
   const { method, query } = req;
-  const { id } = query;
+  const { branchId } = query;
 
   await connetMongoDB();
 
   switch (method) {
     case "GET":
       try {
-        const order = await OrderGifts.findById(id);
+        const order = await OrderGifts.findOne({ branchId: branchId });
         res.status(200).json({ success: true, data: order });
       } catch (error) {
         res.status(400).json({ success: false });
@@ -19,17 +19,20 @@ export default async function handler(req, res) {
       break;
 
     case "PUT":
-      const newData = req.body;
+      const { newData } = req.body;
+      const { update_by, ...dataWithoutUpdateBy } = newData;
 
       // ดึงข้อมูลเดิมก่อนอัปเดต
-      const existingOrder = await OrderGifts.findById(id).lean();
+      const existingOrder = await OrderGifts.findOne({
+        branchId: branchId,
+      }).lean();
 
       if (!existingOrder) return res.status(404).json({ error: "Not found" });
 
-      const updated = await OrderGifts.findByIdAndUpdate(
-        id,
+      const updated = await OrderGifts.findOneAndUpdate(
+        { branchId },
         {
-          ...newData,
+          ...dataWithoutUpdateBy,
           $push: {
             update_by: {
               userId: newData.userId,
@@ -49,7 +52,7 @@ export default async function handler(req, res) {
 
       // บันทึก log การแก้ไข
       await OrderGiftLogs.create({
-        orderId: id,
+        orderId: existingOrder._id,
         userId: newData.userId,
         action: "update",
         changedFields,
@@ -62,7 +65,7 @@ export default async function handler(req, res) {
 
     case "DELETE":
       try {
-        const order = await OrderGifts.findByIdAndDelete(id);
+        const order = await OrderGifts.findOneAndDelete({ branchId: branchId });
         res.status(200).json({ success: true, data: order });
       } catch (error) {
         res.status(400).json({ success: false });

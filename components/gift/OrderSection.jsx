@@ -27,6 +27,8 @@ export default function OrderSection() {
   const getStatus = (status) => {
     if (status === "order") {
       return "สาขาคลิกเพื่อสั่งจองของขวัญ";
+    } else if (status === "draft") {
+      return "แบบร่าง";
     } else if (status === "pending") {
       return "รอการอนุมัติ";
     } else if (status === "approve") {
@@ -46,8 +48,11 @@ export default function OrderSection() {
       );
     } else if (branch.status === "draft") {
       return (
-        <button className="bg-red-500 text-white px-2 py-2 rounded-lg">
-          ดราฟ
+        <button
+          className="bg-red-500 text-white px-2 py-2 rounded-lg"
+          onClick={() => router.push(`/gifts/order?branchId=${branch._id}`)}
+        >
+          แบบร่าง
         </button>
       );
     } else if (branch.status === "pending") {
