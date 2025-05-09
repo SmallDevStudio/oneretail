@@ -3,36 +3,41 @@ import { useSession } from "next-auth/react";
 import axios from "axios";
 import useSWR from "swr";
 import { useRouter } from "next/router";
-import Image from "next/image";
-import { IoChevronBack } from "react-icons/io5";
-import { Dialog, Slide, Divider } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
-import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
-import { toast } from "react-toastify";
-import Swal from "sweetalert2";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
-export default function OrderSection() {
+export default function OrderSection({ active }) {
   const [branch, setBranch] = useState([]);
   const { data: session } = useSession();
   const router = useRouter();
 
-  const { data, error } = useSWR("/api/gift/budget", fetcher, {
+  const { data, error, mutate } = useSWR("/api/gift/budget", fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnMount: true,
     onSuccess: (data) => {
       setBranch(data.data);
     },
   });
 
+  useEffect(() => {
+    if (active) {
+      mutate(); // ดึงข้อมูลใหม่เมื่อ tab ถูกเปิด
+    }
+  }, [active, mutate]);
+
   const getStatus = (status) => {
     if (status === "order") {
-      return "สาขาคลิกเพื่อสั่งจองของขวัญ";
+      return (
+        <span className="bg-gray-500 font-bold">
+          สาขาคลิกเพื่อสั่งจองของขวัญ
+        </span>
+      );
     } else if (status === "draft") {
-      return "แบบร่าง";
+      return <span className="text-red-500 font-bold">แบบร่าง</span>;
     } else if (status === "pending") {
-      return "รอการอนุมัติ";
-    } else if (status === "approve") {
-      return "อนุมัติแล้ว";
+      return <span className="text-yellow-500 font-bold">รอการอนุมัติ</span>;
+    } else if (status === "approved") {
+      return <span className="text-green-500 font-bold">อนุมัติแล้ว</span>;
     }
   };
 
@@ -40,7 +45,7 @@ export default function OrderSection() {
     if (branch.status === "order") {
       return (
         <button
-          className="bg-gray-300 text-gray-800 px-2 py-2 rounded-lg"
+          className="bg-gray-300 font-bold text-gray-800 px-2 py-2 rounded-lg"
           onClick={() => router.push(`/gifts/order?branchId=${branch._id}`)}
         >
           สั่งของขวัญ
@@ -49,7 +54,7 @@ export default function OrderSection() {
     } else if (branch.status === "draft") {
       return (
         <button
-          className="bg-red-500 text-white px-2 py-2 rounded-lg"
+          className="bg-red-500 font-bold text-white px-2 py-2 rounded-lg"
           onClick={() => router.push(`/gifts/order?branchId=${branch._id}`)}
         >
           แบบร่าง
@@ -57,13 +62,13 @@ export default function OrderSection() {
       );
     } else if (branch.status === "pending") {
       return (
-        <button className="bg-[#FFC107] text-white px-2 py-2 rounded-lg">
+        <button className="bg-[#FFC107] font-bold text-white px-2 py-2 rounded-lg">
           รอการอนุมัติ
         </button>
       );
-    } else if (branch.status === "approve") {
+    } else if (branch.status === "approved") {
       return (
-        <button className="bg-green-500 text-white px-2 py-2 rounded-lg">
+        <button className="bg-green-500 font-bold text-white px-2 py-2 rounded-lg">
           อนุมัติแล้ว
         </button>
       );

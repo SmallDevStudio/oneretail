@@ -5,7 +5,6 @@ import useSWR from "swr";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { IoChevronBack } from "react-icons/io5";
-import { MdDisplaySettings } from "react-icons/md";
 import { Breadcrumbs, Dialog, Slide, Divider } from "@mui/material";
 import { FaHome } from "react-icons/fa";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -14,6 +13,7 @@ import { toast } from "react-toastify";
 import { IoClose } from "react-icons/io5";
 import { IoIosArrowDown } from "react-icons/io";
 import Swal from "sweetalert2";
+import InfoForm from "@/components/gift/InfoForm";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -35,6 +35,8 @@ export default function GiftsDetails() {
   const [isEdit, setIsEdit] = useState(false);
   const [orderId, setOrderId] = useState(null);
   const [isOrderLoaded, setIsOrderLoaded] = useState(false);
+  const [info, setInfo] = useState(null);
+  const [openInfo, setOpenInfo] = useState(false);
   const { data: session, status } = useSession();
   const router = useRouter();
   const { branchId } = router.query;
@@ -74,6 +76,7 @@ export default function GiftsDetails() {
 
           setGift(updatedGiftList);
           setSelectedGift(flatGifts);
+          setInfo(order.info ? order.info : null);
           setIsEdit(true);
           setOrderId(order._id);
         }
@@ -125,6 +128,23 @@ export default function GiftsDetails() {
   const handleSaveOrder = async (status) => {
     if (!session?.user?.id) return;
 
+    if (status === "pending" && selectedGift.length > 0) {
+      const result = await Swal.fire({
+        title: "ยืนยันการสั่งจอง",
+        icon: "warning",
+        text: "การสั่งจองจะไม่สามารถยกเลิก และแก้ไขได้ คุณแน่ใจหรือไม่",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "ยืนยัน",
+        cancelButtonText: "ยกเลิก",
+      });
+
+      if (!result.isConfirmed) {
+        return;
+      }
+    }
+
     const giftsToSave = selectedGift.map((gift) => ({
       ...gift, // ส่ง gift ทั้ง object
     }));
@@ -133,6 +153,7 @@ export default function GiftsDetails() {
       userId: session.user.id,
       branchId: branchId,
       gifts: giftsToSave,
+      info,
       status,
     };
 
@@ -173,6 +194,39 @@ export default function GiftsDetails() {
   const handleCloseGift = () => {
     setShowGift(null);
     setOpenGift(null);
+  };
+
+  const handleOpenConfirm = () => {
+    if (remainingBudget < 0) {
+      Swal.fire({
+        icon: "error",
+        title: "งบประมาณไม่เพียงพอ",
+        html: `
+            <p>งบประมาณ: <b>${budget.budget.toFixed(2)}</b></p>
+            <p>จำนวนเงินที่ใช้ทั้งหมด: <b>${totalAmount.toFixed(2)}</b></p>
+            <p>ยอดงบคงเหลือ: <b class='text-red-500'>${remainingBudget.toFixed(
+              2
+            )}</b></p>
+            <br/>
+            <b>ระบบไม่อนุญาตให้บันทึกรายการสั่งของขวัญ</b>
+          `,
+      });
+    } else {
+      setOpenConfirm(true);
+    }
+  };
+
+  const handleOpenInfo = () => {
+    if (!info) {
+      setOpenInfo(true);
+    } else {
+      handleOpenConfirm();
+    }
+  };
+
+  const handleCloseInfo = () => {
+    setOpenInfo(false);
+    handleOpenConfirm();
   };
 
   return (
@@ -305,14 +359,14 @@ export default function GiftsDetails() {
               <div className="flex flex-col items-center w-1/3">
                 <span className=" text-sm font-bold">งบประมาณที่ได้รับ</span>
                 <div className="border rounded-md px-2 py-1 text-center bg-blue-950 text-white font-bold w-full">
-                  {budget.budget}
+                  {budget?.budget?.toFixed(2)}
                 </div>
               </div>
 
               <div className="flex flex-col items-center w-1/3">
                 <span className=" text-sm font-bold">จำนวนเงินที่ใช้</span>
                 <div className="border rounded-md px-2 py-1 text-center bg-blue-500 text-white font-bold w-full">
-                  {totalAmount.toFixed(2)}
+                  {totalAmount?.toFixed(2)}
                 </div>
               </div>
 
@@ -323,7 +377,7 @@ export default function GiftsDetails() {
                     remainingBudget < 0 ? "bg-red-500" : "bg-green-500"
                   } text-white`}
                 >
-                  {remainingBudget.toFixed(2)}
+                  {remainingBudget?.toFixed(2)}
                 </div>
               </div>
             </div>
@@ -332,27 +386,7 @@ export default function GiftsDetails() {
           <div className="flex justify-center gap-2 px-4 py-2 w-full">
             <button
               className="bg-[#F2871F] text-white font-bold px-4 py-2 rounded-lg"
-              onClick={() => {
-                if (remainingBudget < 0) {
-                  Swal.fire({
-                    icon: "error",
-                    title: "งบประมาณไม่เพียงพอ",
-                    html: `
-                      <p>งบประมาณ: <b>${budget.budget.toFixed(2)}</b></p>
-                      <p>จำนวนเงินที่ใช้ทั้งหมด: <b>${totalAmount.toFixed(
-                        2
-                      )}</b></p>
-                      <p>ยอดงบคงเหลือ: <b class='text-red-500'>${remainingBudget.toFixed(
-                        2
-                      )}</b></p>
-                      <br/>
-                      <b>ระบบไม่อนุญาตให้บันทึกรายการสั่งของขวัญ</b>
-                    `,
-                  });
-                } else {
-                  setOpenConfirm(true);
-                }
-              }}
+              onClick={() => handleOpenInfo()}
             >
               บันทึก
             </button>
@@ -368,7 +402,7 @@ export default function GiftsDetails() {
         onClose={() => setOpenConfirm(false)}
         TransitionComponent={Transition}
       >
-        <div className="flex flex-col gap-4 p-4 w-full">
+        <div className="flex flex-col gap-2 p-4 w-full">
           <div className="absolute top-2 right-2">
             <IoClose
               className="text-red-500 text-lg cursor-pointer"
@@ -381,16 +415,68 @@ export default function GiftsDetails() {
           <p className="text-sm text-center">
             คุณต้องการยืนยันการสั่งซื้อของขวัญหรือไม่?
           </p>
+          <div>
+            <table className="table-auto w-full text-xs">
+              <thead className="bg-gray-300">
+                <tr>
+                  <th className="py-1">รายการ</th>
+                  <th className="py-1">จํานวน</th>
+                  <th className="py-1">ราคา</th>
+                </tr>
+              </thead>
+              <tbody>
+                {selectedGift.map((item) => (
+                  <tr key={item._id}>
+                    <td className="py-1">{item.name}</td>
+                    <td className="py-1">{item.price}</td>
+                    <td className="py-1">{item.total}</td>
+                  </tr>
+                ))}
+                <tr>
+                  <td className="py-1">รวมทั้งหมด</td>
+                  <td
+                    className="bg-green-500 font-bold text-white py-1"
+                    colspan="2"
+                  >
+                    {totalAmount?.toFixed(2)}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="py-1">งบประมาณที่ได้รับ</td>
+                  <td
+                    className="bg-orange-500 font-bold text-white py-1"
+                    colspan="2"
+                  >
+                    {budget?.budget?.toFixed(2)}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="py-1">งบประมาณคงเหลือ</td>
+                  <td
+                    className="bg-blue-500 font-bold text-white py-1"
+                    colspan="2"
+                  >
+                    {remainingBudget?.toFixed(2)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p className="text-sm text-red-500 text-center">
+            หากยืนยันการสั่งซื้อของขวัญ จะไม่สามารถแก้ไขได้
+          </p>
+
           <div className="flex justify-center gap-2">
             <button
               className="bg-[#F2871F] text-white font-bold px-4 py-2 rounded-lg"
               onClick={() => handleSaveOrder("draft")}
             >
-              ยืนยันดร๊าฟ
+              ยืนยันแบบร่าง
             </button>
             <button
               className="bg-[#0056FF] text-white font-bold px-4 py-2 rounded-lg"
-              onClick={() => handleSaveOrder("order")}
+              onClick={() => handleSaveOrder("pending")}
             >
               ยืนยันบันทึก
             </button>
@@ -507,6 +593,20 @@ export default function GiftsDetails() {
             </div>
           </div>
         </div>
+      </Dialog>
+
+      <Dialog
+        open={openInfo}
+        onClose={handleCloseInfo}
+        TransitionComponent={Transition}
+        sx={{
+          "& .MuiDialog-paper": {
+            width: "100%",
+            maxWidth: "none",
+          },
+        }}
+      >
+        <InfoForm onClose={handleCloseInfo} info={info} setInfo={setInfo} />
       </Dialog>
     </div>
   );

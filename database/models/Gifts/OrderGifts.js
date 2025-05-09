@@ -10,7 +10,7 @@ const OrderGiftsSchema = new mongoose.Schema(
       required: true,
       default: "order" /* draft || order || pending ||approve */,
     },
-    info: { type: Array },
+    info: { type: mongoose.Schema.Types.Mixed, default: null },
     update_by: [
       {
         userId: { type: String, required: true },

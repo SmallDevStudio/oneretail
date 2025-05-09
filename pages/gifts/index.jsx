@@ -6,7 +6,6 @@ import Image from "next/image";
 import { IoChevronBack } from "react-icons/io5";
 import OrderSection from "@/components/gift/OrderSection";
 import ApproveSection from "@/components/gift/ApproveSection";
-import BudgetSection from "@/components/gift/BudgetSection";
 import { MdDisplaySettings } from "react-icons/md";
 
 export default function GiftsPage() {
@@ -56,29 +55,6 @@ export default function GiftsPage() {
             <div
               className={`flex flex-col items-center justify-center text-center p-2 gap-2
                 ${
-                  activeTab === "budget"
-                    ? "bg-[#F2871F]/30 text-[#0056FF] font-bold border border-[#F2871F] rounded-xl"
-                    : ""
-                }
-                `}
-              onClick={() => handleActive("budget")}
-            >
-              <Image
-                src="/images/gift/calculator.png"
-                width={50}
-                height={50}
-                alt="calculator"
-                className={`object-contain ${
-                  activeTab === "budget" ? "" : "grayscale"
-                }
-                `}
-              />
-
-              <span className="leading-4 text-sm">โซนอนุมมัติงบประมาณ</span>
-            </div>
-            <div
-              className={`flex flex-col items-center justify-center text-center p-2 gap-2
-                ${
                   activeTab === "order"
                     ? "bg-[#F2871F]/30 text-[#0056FF] font-bold border border-[#F2871F] rounded-xl"
                     : ""
@@ -124,9 +100,12 @@ export default function GiftsPage() {
         </div>
         {/* active */}
         <div className="flex items-center justify-center w-full">
-          {activeTab === "approve" && <ApproveSection />}
-          {activeTab === "budget" && <BudgetSection />}
-          {activeTab === "order" && <OrderSection />}
+          {activeTab === "approve" && (
+            <ApproveSection active={activeTab === "approve"} />
+          )}
+          {activeTab === "order" && (
+            <OrderSection active={activeTab === "order"} />
+          )}
         </div>
       </div>
     </div>
