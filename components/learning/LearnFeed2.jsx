@@ -3,9 +3,20 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import ReactPlayer from "react-player";
+import { FaShareFromSquare } from "react-icons/fa6";
+import { useRouter } from "next/router";
+import Qrcode from "@/components/forms/Qrcode";
+import { Dialog, Slide, Divider } from "@mui/material";
+import { IoChevronBack } from "react-icons/io5";
 
-const LearnFeed2 = ({ contents }) => {
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+
+const LearnFeed2 = ({ contents, tab }) => {
   const { data: session } = useSession();
+  const router = useRouter();
+  const { group, subgroup } = router.query;
 
   // Get unique group names and add "NewFeed"
   const groups = [
@@ -24,6 +35,8 @@ const LearnFeed2 = ({ contents }) => {
   const [selectedSubGroup, setSelectedSubGroup] = useState(null);
   const [subGroups, setSubGroups] = useState([]);
   const [videoUrl, setVideoUrl] = useState(null);
+  const [openShare, setOpenShare] = useState(false);
+  const [url, setUrl] = useState(null);
 
   useEffect(() => {
     // Treat "NewFeed" like "All"
@@ -56,6 +69,15 @@ const LearnFeed2 = ({ contents }) => {
     }
   }, [selectedGroup, contents]);
 
+  useEffect(() => {
+    if (group) {
+      setSelectedGroup(group);
+    } else {
+      setSelectedGroup("NewFeed");
+      window.history.pushState(null, "", `?tab=${tab}&group=NewFeed`);
+    }
+  }, [group, tab]);
+
   const filteredContents = contents.filter(
     (content) =>
       // Treat "NewFeed" like "All"
@@ -68,6 +90,23 @@ const LearnFeed2 = ({ contents }) => {
             )
           : content.subgroups && content.subgroups.name === selectedSubGroup))
   );
+
+  const handleSelectGroup = (group) => {
+    setSelectedGroup(group);
+    setSelectedSubGroup(null);
+    window.history.pushState(null, "", `?tab=${tab}&group=${group}`);
+  };
+
+  const handleOpenShare = (group) => {
+    const url = `${window.location.origin}/learning/?tab=${tab}&group=${group}`;
+    setUrl(url);
+    setOpenShare(!openShare);
+  };
+
+  const handleCloseShare = () => {
+    setOpenShare(!openShare);
+    setUrl(null);
+  };
 
   return (
     <div className="flex flex-col w-full">
@@ -86,10 +125,7 @@ const LearnFeed2 = ({ contents }) => {
                   ? "bg-[#0056FF] text-white"
                   : "bg-[#0056FF]/20 text-black"
               }`}
-              onClick={() => {
-                setSelectedGroup(group);
-                setSelectedSubGroup(null);
-              }}
+              onClick={() => handleSelectGroup(group)}
             >
               {group}
             </li>
@@ -131,6 +167,14 @@ const LearnFeed2 = ({ contents }) => {
         </div>
       )}
       <div className="flex flex-col w-full mb-20 p-2">
+        {/* Share */}
+        <div className="flex justify-start items-center gap-2 mb-2">
+          <h2 className="text-lg font-bold text-[#0056FF]">{selectedGroup}</h2>
+          <FaShareFromSquare
+            className="text-lg cursor-pointer text-gray-500"
+            onClick={() => handleOpenShare(selectedGroup)}
+          />
+        </div>
         {filteredContents.map((content) => {
           const hasViewed = content.contentviews.some(
             (view) => view.userId === session?.user?.id
@@ -184,6 +228,15 @@ const LearnFeed2 = ({ contents }) => {
           );
         })}
       </div>
+
+      {openShare && (
+        <Qrcode
+          open={openShare}
+          onClose={handleCloseShare}
+          url={url}
+          title="แชร์คอนเทนต์"
+        />
+      )}
     </div>
   );
 };

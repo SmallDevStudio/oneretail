@@ -20,6 +20,7 @@ export default function Stores() {
   const [contents, setContents] = useState([]);
 
   const router = useRouter();
+  const { tab } = router.query;
 
   useUserActivity(activeTab); // ใช้ useUserActivity พร้อมกับ activeTab
 
@@ -34,9 +35,13 @@ export default function Stores() {
   );
 
   useEffect(() => {
-    const tab = router.query.tab || "secret-sauce";
-    setActiveTab(tab);
-  }, [router.query.tab]);
+    if (tab) {
+      setActiveTab(tab);
+    } else {
+      setActiveTab("secret-sauce");
+      window.history.pushState(null, "", `?tab=secret-sauce`);
+    }
+  }, [router.query.tab, tab]);
 
   const {
     data: contentsData,
@@ -48,10 +53,10 @@ export default function Stores() {
     },
   });
 
-  const handleTabClick = useCallback((tab) => {
+  const handleTabClick = (tab) => {
     setActiveTab(tab);
     window.history.pushState(null, "", `?tab=${tab}`);
-  }, []);
+  };
 
   if (!contents || !video) return <Loading />;
   if (contentsError) return <p>Error: {contentsError.message}</p>;
@@ -111,11 +116,11 @@ export default function Stores() {
           (isLoading ? (
             <SuccessSkeleton />
           ) : (
-            <SuccessFeed contents={contents} />
+            <SuccessFeed contents={contents} tab={activeTab} />
           ))}
         {activeTab === "share-your-story" && (
           <div className="w-full">
-            <ShareYourStory />
+            <ShareYourStory active={activeTab === "share-your-story"} />
           </div>
         )}
       </div>

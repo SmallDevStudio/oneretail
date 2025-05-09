@@ -23,11 +23,16 @@ export default function Learning() {
   const [contents3, setContents3] = useState([]);
 
   const router = useRouter();
+  const { tab } = router.query;
 
   useEffect(() => {
-    const tab = router.query.tab || "learn";
-    setActiveTab(tab);
-  }, [router.query.tab]);
+    if (tab) {
+      setActiveTab(tab);
+    } else {
+      setActiveTab("learn");
+      window.history.pushState(null, "", `?tab=learn`);
+    }
+  }, [router.query.tab, tab]);
 
   const { data: contentsData, error: contentsError } = useSWR(
     `/api/content/category?categoryId=${category}`,
@@ -89,7 +94,7 @@ export default function Learning() {
         <ul className="flex flex-wrap gap-6">
           <li className="me-2">
             <Link
-              href="#learn"
+              href="?tab=learn"
               className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${
                 activeTab === "learn"
                   ? "text-[#0056FF] border-[#F2871F]"
@@ -102,7 +107,7 @@ export default function Learning() {
           </li>
           <li className="me-2">
             <Link
-              href="#learn2"
+              href="?tab=learn2"
               className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${
                 activeTab === "learn2"
                   ? "text-[#0056FF] border-[#F2871F]"
@@ -115,7 +120,7 @@ export default function Learning() {
           </li>
           <li className="me-2">
             <Link
-              href="#article"
+              href="?tab=article"
               className={`inline-block p-2 border-b-2 rounded-t-lg font-bold ${
                 activeTab === "article"
                   ? "text-[#0056FF] border-[#F2871F]"
@@ -134,7 +139,7 @@ export default function Learning() {
         {activeTab === "learn" && (
           <>
             {contents2.length > 0 ? (
-              <LearnFeed2 contents={contents2} />
+              <LearnFeed2 contents={contents2} tab={activeTab} />
             ) : (
               <LearnSkeleton />
             )}
@@ -144,14 +149,14 @@ export default function Learning() {
         {activeTab === "learn2" && (
           <>
             {contents3.length > 0 ? (
-              <LearnFeed2 contents={contents3} />
+              <LearnFeed2 contents={contents3} tab={activeTab} />
             ) : (
               <LearnSkeleton />
             )}
           </>
         )}
 
-        {activeTab === "article" && <ArticleList />}
+        {activeTab === "article" && <ArticleList tab={activeTab} />}
       </div>
     </div>
   );
