@@ -80,8 +80,7 @@ export default async function handler(req, res) {
 
         // --- Filter by group: only Retail or AL ---
         const filteredByGroup = enriched.filter(
-          (entry) =>
-            entry.emp.teamGrop === "Retail" || entry.emp.teamGrop === "AL"
+          (entry) => entry.emp.teamGrop === "Retail"
         );
 
         // --- Group by Department ---

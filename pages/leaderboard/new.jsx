@@ -52,7 +52,7 @@ export default function NewLeaderBoard() {
   return (
     <div className="flex flex-col w-full pb-20">
       <div className="flex flex-col items-center justify-center w-full p-4">
-        <h1 className="text-3xl font-bold text-[#0056FF]">Leaderboard</h1>
+        <h1 className="text-3xl font-bold text-[#0056FF]">Leaderboard BBD</h1>
       </div>
 
       {/* Group By RH */}
