@@ -3,6 +3,7 @@ import Reward from "@/database/models/Reward";
 import Point from "@/database/models/Point";
 import sendLineMessage from "@/lib/sendLineMessage";
 import moment from "moment-timezone"; // ⬅️ เพิ่ม
+import { isSameWeek, parseISO } from "date-fns";
 
 export default async function handler(req, res) {
   await connetMongoDB();
@@ -27,12 +28,16 @@ export default async function handler(req, res) {
         // ใช้ moment timezone
         const today = moment().tz("Asia/Bangkok").startOf("day");
         const isMonday = today.day() === 1; // moment().day() => 0=Sunday, 1=Monday
+        const lastRewardDate = reward.claim[reward.claim.length - 1]?.date;
+        const isWeekend = isSameWeek(lastRewardDate, new Date(), {
+          weekStartsOn: 1,
+        });
 
         const lastReset = reward.lastResetDate
           ? moment(reward.lastResetDate).tz("Asia/Bangkok").startOf("day")
           : null;
 
-        if (isMonday && (!lastReset || !lastReset.isSame(today))) {
+        if (!isWeekend && (!lastReset || !lastReset.isSame(today))) {
           reward.dayLogged = 0;
           reward.lastResetDate = today.toDate(); // แปลงกลับเป็น Date
           await reward.save();
@@ -92,6 +97,7 @@ export default async function handler(req, res) {
         const earnedPoints = rewardData.find((r) => r.day === nextDay);
         reward.claim.push({ date: new Date(), points: earnedPoints.point });
         reward.dayLogged = nextDay;
+        reward.lastRewardDate = new Date();
         await reward.save();
 
         const pointEntry = new Point({
