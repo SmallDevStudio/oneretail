@@ -7,11 +7,13 @@ import { useRouter } from "next/router";
 import Qrcode from "@/components/forms/Qrcode";
 import { Dialog, Slide, Divider } from "@mui/material";
 import { FaShareFromSquare } from "react-icons/fa6";
+import { useSearchParams } from "next/navigation";
 
 const SuccessFeed = ({ contents, tab }) => {
   const { data: session } = useSession();
   const router = useRouter();
-  const { group } = router.query;
+  const params = useSearchParams();
+  const group = params.get("group");
 
   // Get unique group names and add "NewFeed"
   const groups = [
@@ -32,6 +34,16 @@ const SuccessFeed = ({ contents, tab }) => {
   const [videoUrl, setVideoUrl] = useState(null);
   const [openShare, setOpenShare] = useState(false);
   const [url, setUrl] = useState(null);
+
+  useEffect(() => {
+    if (group) {
+      const decoded = decodeURIComponent(group);
+      setSelectedGroup(decoded);
+    } else {
+      setSelectedGroup("NewFeed");
+      window.history.pushState(null, "", `?tab=${tab}&group=NewFeed`);
+    }
+  }, [group, tab]);
 
   useEffect(() => {
     // Treat "NewFeed" like "All"
@@ -64,15 +76,6 @@ const SuccessFeed = ({ contents, tab }) => {
     }
   }, [selectedGroup, contents]);
 
-  useEffect(() => {
-    if (group) {
-      setSelectedGroup(group);
-    } else {
-      setSelectedGroup("NewFeed");
-      window.history.pushState(null, "", `?tab=${tab}&group=NewFeed`);
-    }
-  }, [group, tab]);
-
   const filteredContents = contents.filter(
     (content) =>
       // Treat "NewFeed" like "All"
@@ -92,8 +95,13 @@ const SuccessFeed = ({ contents, tab }) => {
     window.history.pushState(null, "", `?tab=${tab}&group=${group}`);
   };
 
+  function generateUrl(input) {
+    return encodeURIComponent(input);
+  }
+
   const handleOpenShare = (group) => {
-    const url = `${window.location.origin}/learning/?tab=${tab}&group=${group}`;
+    const text = generateUrl(group);
+    const url = `${window.location.origin}/stores/?tab=${tab}&group=${text}`;
     setUrl(url);
     setOpenShare(!openShare);
   };
