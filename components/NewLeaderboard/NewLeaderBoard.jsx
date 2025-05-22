@@ -59,9 +59,11 @@ export default function NewLeaderBoard() {
       <div className="bg-[#0056FF] text-white px-4 py-4 rounded-b-xl">
         <div className="grid grid-cols-5 gap-4 text-center text-sm font-bold">
           {sortedGroupData.map((group) => (
-            <div key={group.group} className="flex flex-col items-center">
+            <div key={group.group} className="flex flex-col items-center gap-1">
               <span className="text-white">อันดับ {group.rank}</span>
-              <span className="text-2xl font-bold">{group.group}</span>
+              <div className="bg-[#F2871F] p-2 rounded-full">
+                <span className="text-2xl font-bold">{group.group}</span>
+              </div>
               <span className="text-sm font-bold">{group.totalPoints}</span>
               <span className="text-[11px]">Users: {group.userCount}</span>
             </div>
