@@ -60,15 +60,6 @@ export default function LeaderBoard() {
 
   return (
     <div className="w-full mb-20">
-      <div className="flex justify-center mt-5">
-        <h1
-          className="text-[35px] font-black text-[#0056FF]"
-          style={{ fontFamily: "Ekachon" }}
-        >
-          Leaderboard
-        </h1>
-      </div>
-
       <div className="relative bg-[#0056FF] min-h-[30vh] rounded-b-2xl p-2 shadow-lg">
         <div className="flex justify-center bg-[#0056FF]">
           {["All", "Retail", "AL", "TCON", "PB"].map((team) => (

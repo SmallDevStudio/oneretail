@@ -29,8 +29,16 @@ export default function LeaderBoardPage() {
 
   return (
     <div className="flex flex-col w-full pb-20">
+      <div className="flex flex-row justify-center items-center p-4">
+        <h2
+          className="text-4xl font-bold text-[#0056FF]"
+          style={{ fontFamily: "Ekachon" }}
+        >
+          Leaderboard
+        </h2>
+      </div>
       {/* Tabs */}
-      <div className="flex flex-row justify-center items-center mt-4">
+      <div className="flex flex-row justify-center items-center">
         <ul className="flex flex-row gap-4">
           <li
             className={`inline-block p-1 border-b-2 rounded-t-lg font-bold ${
@@ -40,7 +48,7 @@ export default function LeaderBoardPage() {
             }`}
             onClick={() => handleTabClick("newleaderboard")}
           >
-            Zone and Region BBD
+            (BBD) Zone & Region
           </li>
           <li
             className={`inline-block p-1 border-b-2 rounded-t-lg font-bold ${
@@ -50,7 +58,7 @@ export default function LeaderBoardPage() {
             }`}
             onClick={() => handleTabClick("leaderboard")}
           >
-            Leaderboard
+            BBD, AL, TCON
           </li>
         </ul>
       </div>
