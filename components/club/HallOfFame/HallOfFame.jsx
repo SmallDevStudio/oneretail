@@ -247,8 +247,8 @@ export default function HallOfFame() {
                         <Image
                           src={componentPath("rank")}
                           alt="rank-badge"
-                          width={50}
-                          height={50}
+                          width={30}
+                          height={30}
                         />
                         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xs ">
                           {user.rank}
@@ -262,8 +262,8 @@ export default function HallOfFame() {
                           <Image
                             src={user.user.pictureUrl}
                             alt="avatar-badge"
-                            width={50}
-                            height={50}
+                            width={100}
+                            height={100}
                             className="object-cover rounded-full"
                             style={{
                               width: "100px",
