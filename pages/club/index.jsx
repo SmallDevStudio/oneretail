@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import NewRules from "@/components/club/NewRules";
 import ComingSoon from "@/components/club/ComingSoon";
 import NewLeaderboard from "@/components/club/NewLeaderBoard";
+import HallOfFame from "@/components/club/HallOfFame/HallOfFame";
 
 export default function Club() {
   const [activeTab, setActiveTab] = useState("rules");
@@ -72,7 +73,7 @@ export default function Club() {
       <div className="mt-4">
         {activeTab === "rules" && <NewRules />}
         {activeTab === "leaderboard" && <NewLeaderboard />}
-        {activeTab === "hall-of-fame" && <ComingSoon />}
+        {activeTab === "hall-of-fame" && <HallOfFame />}
       </div>
     </div>
   );
