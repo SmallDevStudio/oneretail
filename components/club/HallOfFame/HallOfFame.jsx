@@ -163,15 +163,17 @@ export default function HallOfFame() {
     setOpen(false);
   };
 
-  console.log("selectedUser", selectedUser);
-
   return (
     <div
-      className={`bg-[${style.color}] text-[${style.textColor}] min-h-screen pb-20`}
+      className={`bg-[${style.color}] text-${style.textColor} min-h-screen pb-20`}
     >
       {/* Header */}
-      <div className="flex flex-row items-center justify-end px-2 pt-1">
-        <IoClose size={25} className="cursor-pointer" />
+      <div className="flex flex-row items-center justify-end px-2 pt-1 gap-2">
+        <IoClose
+          size={25}
+          className="cursor-pointer"
+          onClick={() => router.back()}
+        />
       </div>
       {/* Content */}
       <div className="flex flex-col">
@@ -222,7 +224,7 @@ export default function HallOfFame() {
           return (
             <div key={positionKey}>
               {image && (
-                <div className="flex justify-center mb-4 mt-2">
+                <div className="flex justify-center mt-2">
                   <Image
                     src={image}
                     alt={positionKey}
