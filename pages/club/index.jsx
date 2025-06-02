@@ -73,7 +73,7 @@ export default function Club() {
       <div className="mt-4">
         {activeTab === "rules" && <NewRules />}
         {activeTab === "leaderboard" && <NewLeaderboard />}
-        {activeTab === "hall-of-fame" && <HallOfFame />}
+        {activeTab === "hall-of-fame" && <ComingSoon />}
       </div>
     </div>
   );
