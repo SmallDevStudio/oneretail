@@ -1,9 +1,15 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { IoClose } from "react-icons/io5";
+import { Slide, Dialog } from "@mui/material";
+import ECer from "./ECer";
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 export default function UserPanel({ data, onClose }) {
-  const [user, setUser] = useState(null);
+  const [openCer, setOpenCer] = useState(false);
 
   return (
     <div>
@@ -35,8 +41,30 @@ export default function UserPanel({ data, onClose }) {
           <p>
             KPI: <span className="font-bold">{data?.achieve}</span>
           </p>
+          <div className="mt-4">
+            <button
+              className="bg-[#0056FF] text-white px-4 py-2 rounded-md"
+              onClick={() => setOpenCer(true)}
+            >
+              ใบรับรอง
+            </button>
+          </div>
         </div>
       </div>
+      <Dialog
+        open={openCer}
+        TransitionComponent={Transition}
+        onClose={() => setOpenCer(false)}
+        sx={{
+          "& .MuiDialog-paper": {
+            width: "100%",
+            maxWidth: "100%",
+            padding: "0px",
+          },
+        }}
+      >
+        <ECer data={data} onClose={() => setOpenCer(false)} />
+      </Dialog>
     </div>
   );
 }
