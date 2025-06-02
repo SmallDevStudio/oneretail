@@ -119,25 +119,7 @@ export default function HallOfFame() {
     fetchMeta();
   }, []);
 
-  useEffect(() => {
-    if (!type) {
-      return;
-    }
-
-    const decode = decodeURIComponent(type);
-
-    if (decode === "Grand Ambassador") {
-      setStyle({
-        color: "#373332",
-        textColor: "white",
-      });
-    } else {
-      setStyle({
-        color: "#EAEAEA",
-        textColor: "black",
-      });
-    }
-  }, [type]);
+  const isGrand = decodeURIComponent(type || "") === "Grand Ambassador";
 
   const badgePath = (position) => {
     const decode = decodeURIComponent(type || "");
@@ -165,7 +147,9 @@ export default function HallOfFame() {
 
   return (
     <div
-      className={`bg-[${style.color}] text-${style.textColor} min-h-screen pb-20`}
+      className={`${
+        isGrand ? "bg-[#373332] text-white" : "bg-[#EAEAEA] text-black"
+      } min-h-screen pb-20`}
     >
       {/* Header */}
       <div className="flex flex-row items-center justify-end px-2 pt-1 gap-2">
@@ -192,7 +176,9 @@ export default function HallOfFame() {
             <select
               value={month}
               onChange={(e) => setMonth(parseInt(e.target.value))}
-              className={`bg-[${style.color}]`}
+              className={`${
+                isGrand ? "bg-[#373332] text-white" : "bg-[#EAEAEA] text-black"
+              }`}
             >
               {monthOptions.map((m) => (
                 <option key={m.value} value={m.value}>
@@ -204,7 +190,9 @@ export default function HallOfFame() {
             <select
               value={year}
               onChange={(e) => setYear(parseInt(e.target.value))}
-              className={`bg-[${style.color}]`}
+              className={`${
+                isGrand ? "bg-[#373332] text-white" : "bg-[#EAEAEA] text-black"
+              }`}
             >
               {yearOptions.map((y) => (
                 <option key={y.value} value={y.value}>
