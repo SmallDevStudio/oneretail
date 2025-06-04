@@ -6,6 +6,7 @@ const HallOfFameSchema = new mongoose.Schema({
   name: { type: String },
   branch: { type: String },
   zone: { type: String },
+  team: { type: String },
   region: { type: String },
   achieve: { type: Number },
   rating: { type: String },
@@ -14,6 +15,7 @@ const HallOfFameSchema = new mongoose.Schema({
   rewerdtype: { type: String },
   month: { type: Number },
   year: { type: Number },
+  points: { type: Number },
 });
 
 export default mongoose.models.HallOfFame ||

@@ -1,161 +1,220 @@
-import React, { useState } from 'react';
-import useSWR from 'swr';
-import Image from 'next/image';
-import Loading from '@/components/Loading';
-import { Tab, Tabs, Avatar } from '@mui/material';
-import ClubLeaderBoardModal from '../ClubLeaderBoardModal';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule';
+import { useState, useEffect } from "react";
+import axios from "axios";
+import useSWR from "swr";
+import Image from "next/image";
+import Loading from "@/components/Loading";
+import { useSession } from "next-auth/react";
+import moment from "moment";
+import "moment/locale/th";
+import { useRouter } from "next/router";
+moment.locale("th");
 
-const fetcher = (url) => fetch(url).then((res) => res.json());
+const fetcher = (url) => axios.get(url).then((res) => res.data);
 
-const rewardTypeImages = {
-    Ambassador: '/images/club/badge/Ambassador.png',
-    Diamond: '/images/club/badge/diamond.png',
-    Platinum: '/images/club/badge/Platinum.png',
-    Gold: '/images/club/badge/gold.png',
-};
+const position = [
+  { name: "BM", value: "BM" },
+  { name: "CLSM", value: "CLSM" },
+  { name: "CLSA", value: "CLSA" },
+  { name: "CFSA", value: "CFSA" },
+  { name: "CISA", value: "CISA" },
+  { name: "WCRM", value: "WCRM" },
+  { name: "PBCRM ", value: "PBCRM" },
+  { name: "EWS", value: "EWS" },
+  { name: "MDS", value: "MDS" },
+  { name: "MAL", value: "MAL" },
+  { name: "GH", value: "GH" },
+  { name: "NC", value: "NC" },
+  { name: "UC", value: "UC" },
+  { name: "CFSA_YINDEE", value: "CFSA_YINDEE" },
+  { name: "CISA_OutIn", value: "CISA_OutIn" },
+];
 
-const normalizeRewardType = (rewardtype) => {
-    if (!rewardtype) return '';
-    return rewardtype.charAt(0).toUpperCase() + rewardtype.slice(1).toLowerCase();
-};
+const thaiMonths = [
+  "มกราคม",
+  "กุมภาพันธ์",
+  "มีนาคม",
+  "เมษายน",
+  "พฤษภาคม",
+  "มิถุนายน",
+  "กรกฎาคม",
+  "สิงหาคม",
+  "กันยายน",
+  "ตุลาคม",
+  "พฤศจิกายน",
+  "ธันวาคม",
+];
 
-const LeaderBoard = () => {
-    const { data, error } = useSWR('/api/club/leaderboard', fetcher);
-    const [selectedType, setSelectedType] = useState("BM");
-    const [modalOpen, setModalOpen] = useState(false);
-    const [selectedItem, setSelectedItem] = useState(null);
+export default function ClubLeaderboard() {
+  const [leaderboard, setLeaderboard] = useState({});
+  const [availableMonths, setAvailableMonths] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState(3);
+  const [selectedYear, setSelectedYear] = useState(2025);
+  const [activeTab, setActiveTab] = useState("BM");
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
-    if (error) return <div>Failed to load</div>;
-    if (!data) return <Loading />;
+  const { data, error } = useSWR(
+    selectedMonth && selectedYear
+      ? `/api/club/hall-of-fame/leaderboard?month=${selectedMonth}&year=${selectedYear}`
+      : null,
+    fetcher,
+    {
+      onSuccess: (data) => {
+        setLeaderboard(data.data);
 
-    const types = ["BM", "CAB", "CYC", "GEN", "GH", "IVS", "LS", "NC", "PB", "RPB", "UC", "WB"];
+        const parsed = (data.months || []).map((m) => {
+          const [year, month] = m.split("-");
+          return { year: +year, month: +month };
+        });
 
-    const handleTabChange = (event, newValue) => {
-        setSelectedType(newValue);
-    };
+        parsed.sort((a, b) =>
+          a.year === b.year ? b.month - a.month : b.year - a.year
+        );
 
-    const onRequestClose = () => {
-        setModalOpen(false);
-        setSelectedItem(null);
-    };
+        setAvailableMonths(parsed);
 
-    const handleItemClick = (item) => {
-        setSelectedItem(item);
-        setModalOpen(true);
-    };
+        if (!selectedMonth || !selectedYear) {
+          setSelectedYear(parsed[0]?.year);
+          setSelectedMonth(parsed[0]?.month);
+        }
+      },
+    }
+  );
 
-    const filteredData = selectedType === "All" ? data.data : Object.fromEntries(
-        Object.entries(data.data).map(([key, value]) => [key, value.filter(item => item.type === selectedType)])
-    );
+  const getCurrentUserData = () => {
+    for (const rewardKey in leaderboard) {
+      const reward = leaderboard[rewardKey];
+      for (const pos in reward.positions) {
+        const found = reward.positions[pos].find(
+          (u) => u.empId === session?.user?.empId
+        );
+        if (found) return found;
+      }
+    }
+    return null;
+  };
 
-    // Sort the data by rank
-    Object.keys(filteredData).forEach(rewardtype => {
-        filteredData[rewardtype].sort((a, b) => a.rank - b.rank);
-    });
+  const currentUser = getCurrentUserData();
 
-    return (
-        <div className='w-full mb-20'>
-            <Tabs value={selectedType} 
-            onChange={handleTabChange} 
-            variant="scrollable" 
-            scrollButtons="auto"
-            sx={{
-                '& .MuiTabs-indicator': {
-                    display: 'none',
-                },
-                '& .Mui-selected': {
-                    position: 'relative',
-                    color: '#0056FF',
-                    fontWeight: 'bold',
-                    fontFamily: 'ttb',
-                },
-                '& .MuiTab-root': {
-                    color: '#c0bdbd',
-                    fontFamily: 'ttb',
-                    textTransform: 'none',
-                    fontSize: '15px',
-                    fontWeight: 'bold',
-                    borderRadius: '15px',
-                    backgroundColor: '#414344',
-                    marginLeft: '5px',
-                    minHeight: '28px',
-                    height: '28px',
-                    '&.Mui-selected': {
-                        color: '#FFF',
-                        borderRadius: '15px',
-                        backgroundColor: '#0056FF',
-                    }, 
-                },
-            }}
+  const handleActiveTab = (tab) => {
+    setActiveTab(tab);
+  };
+
+  const handleClick = (rewardtype) => {
+    if (!rewardtype) return;
+    const encode = encodeURIComponent(rewardtype);
+    router.push(`/club/hall-of-fame?type=${encode}`);
+  };
+
+  if (!leaderboard || status === "loading" || !session) return <Loading />;
+
+  return (
+    <div className="flex flex-col w-full pb-20 bg-gray-200">
+      <div className="flex items-center justify-center bg-white p-4">
+        <Image
+          src="/images/club/club-logo.png"
+          alt="club logo"
+          width={250}
+          height={250}
+          className="object-contain"
+        />
+      </div>
+      <div className="flex flex-col items-center justify-center bg-white w-full">
+        <h1 className="text-3xl font-bold text-[#0056FF]">Leaderboard</h1>
+        {/* selected month & year */}
+        {availableMonths.length > 0 && (
+          <div className="mt-2 flex gap-2 items-center">
+            <span>เดือน</span>
+            <select
+              value={`${selectedYear}-${selectedMonth}`}
+              onChange={(e) => {
+                const [year, month] = e.target.value.split("-");
+                setSelectedYear(+year);
+                setSelectedMonth(+month);
+              }}
+              className="px-2 py-1 outline-none"
             >
-                {types.map((type) => (
-                    <Tab key={type} label={type} value={type} sx={{
-                        minHeight: '28px',
-                        height: '28px',
-                    }} />
-                ))}
-            </Tabs>
+              {availableMonths.map((m, i) => (
+                <option key={i} value={`${m.year}-${m.month}`}>
+                  {moment(`${m.year}-${m.month}-01`).format("MMMM YYYY")}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
 
-            <div className="flex justify-center items-center w-full">
-                <span className="text-xl font-bold text-white">
-                    อันดับประจำเดือน <span className="text-[#0056FF]">ตุลาคม</span>
-                </span>
+      {/* Tabs */}
+      <div className="flex flex-row p-4 bg-white gap-4 overflow-x-auto">
+        {position.map((p, i) => (
+          <div
+            key={i}
+            className="cursor-pointer"
+            onClick={() => handleActiveTab(p.value)}
+          >
+            <div
+              className={`px-4 py-1 rounded-full ${
+                activeTab === p.value
+                  ? "bg-[#0056FF] text-white"
+                  : "bg-gray-200"
+              }`}
+            >
+              {p.name}
             </div>
+          </div>
+        ))}
+      </div>
 
-            {Object.keys(filteredData).map(rewardtype => {
-                const normalizedRewardType = normalizeRewardType(rewardtype);
-                return filteredData[rewardtype].length > 0 && (
-                    <div key={rewardtype}>
-                        <div className="flex items-center gap-2 m-2 mt-2">
-                            <Image 
-                                src={rewardTypeImages[normalizedRewardType]} 
-                                alt={normalizedRewardType} 
-                                width="40" 
-                                height="40"
-                                className="mr-2"
-                                style={{width: 'auto', height: '40px'}}
-                            />
-                            <h2 className="text-lg font-bold text-[#0056FF] mt-5">{normalizedRewardType}</h2>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            {filteredData[rewardtype].map((item, index) => (
-                                <div key={index} className="flex items-center p-2 rounded-full shadow bg-[#414344] cursor-pointer" onClick={() => handleItemClick(item)}>
-                                    <span className="font-bold text-white mr-2 text-xl ml-2">{item.rank}</span>
-                                    {item.pictureUrl ? (
-                                        <Image 
-                                            src={item.pictureUrl} 
-                                            alt={item.name} 
-                                            width="50" 
-                                            height="50"
-                                            className="rounded-full"
-                                        />
-                                    ) : (
-                                        <Avatar>{item.name[0]}</Avatar>
-                                    )}
-                                    <div className="ml-3">
-                                        <div className="font-bold text-white">{item.empId}</div>
-                                        <div className="text-sm text-white">{item.name}</div>
-                                    </div>
-                                    <div className="ml-auto">
-                                        {item.arrow < 0 && <ArrowDownwardIcon style={{ color: 'red' }} className='animate-bounce'/>}
-                                        {item.arrow === 0 && <HorizontalRuleIcon style={{ color: 'yellow' }}/>}
-                                        {item.arrow > 0 && <ArrowUpwardIcon style={{ color: 'green' }} className='animate-bounce'/>}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+      <div className="mt-4 flex flex-col gap-6">
+        {Object.entries(leaderboard).map(([rewardKey, rewardData]) => {
+          const posUsers = rewardData.positions[activeTab] || [];
+          if (!posUsers.length) return null;
+
+          return (
+            <div
+              key={rewardKey}
+              className="border rounded-xl p-4 bg-white shadow"
+            >
+              <div className="flex items-center gap-4 mb-4">
+                {rewardData.badge.image && (
+                  <Image
+                    src={rewardData.badge.image}
+                    alt={rewardData.badge.name}
+                    width={50}
+                    height={50}
+                    className="rounded-full"
+                  />
+                )}
+                <h2 className="text-xl font-bold">
+                  {rewardData.badge.name || rewardKey}
+                </h2>
+              </div>
+              <div className="flex flex-col gap-2">
+                {posUsers.map((user, i) => (
+                  <div
+                    key={user.empId + i}
+                    className="grid grid-cols-[auto_1fr_auto] items-center px-4 py-2 border rounded-full bg-gray-50"
+                    onClick={() => handleClick(user.rewardtype)}
+                  >
+                    <div className="font-bold text-blue-600">{user.rank}</div>
+                    <div className="flex flex-col ml-4">
+                      <span className="font-semibold text-gray-800 text-sm">
+                        {user.name}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {user.empId}
+                      </span>
                     </div>
-                );
-            })}
-
-            {selectedItem && (
-                <ClubLeaderBoardModal isOpen={modalOpen} onRequestClose={onRequestClose} data={selectedItem} />
-            )}
-        </div>
-    );
+                    <div className="text-sm font-bold bg-yellow-400 px-2 py-0.5 rounded-full">
+                      {user.achieve}%
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
-
-export default LeaderBoard;
