@@ -8,6 +8,7 @@ import moment from "moment";
 import "moment/locale/th";
 import { useRouter } from "next/router";
 moment.locale("th");
+import Avatar from "../utils/Avatar";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -17,34 +18,35 @@ const position = [
   { name: "CLSA", value: "CLSA" },
   { name: "CFSA", value: "CFSA" },
   { name: "CISA", value: "CISA" },
+  { name: "CFSA", value: "CFSA" },
+  { name: "CFSA_YINDEE ", value: "CFSA_YINDEE" },
   { name: "WCRM", value: "WCRM" },
-  { name: "PBCRM ", value: "PBCRM" },
+  { name: "PBCRM", value: "PBCRM" },
   { name: "EWS", value: "EWS" },
   { name: "MDS", value: "MDS" },
   { name: "MAL", value: "MAL" },
-  { name: "GH", value: "GH" },
-  { name: "NC", value: "NC" },
-  { name: "UC", value: "UC" },
-  { name: "CFSA_YINDEE", value: "CFSA_YINDEE" },
-  { name: "CISA_OutIn", value: "CISA_OutIn" },
+  { name: "CISAL", value: "CISAL" },
+  { name: "AL_GH", value: "AL GH" },
+  { name: "NC_MKT", value: "NC MKT" },
+  { name: "UC_MKT", value: "UC MKT" },
 ];
 
 const thaiMonths = [
-  "มกราคม",
-  "กุมภาพันธ์",
-  "มีนาคม",
-  "เมษายน",
-  "พฤษภาคม",
-  "มิถุนายน",
-  "กรกฎาคม",
-  "สิงหาคม",
-  "กันยายน",
-  "ตุลาคม",
-  "พฤศจิกายน",
-  "ธันวาคม",
+  { name: "มกราคม", value: 1 },
+  { name: "กุมภาพันธ์", value: 2 },
+  { name: "มีนาคม", value: 3 },
+  { name: "เมษายน", value: 4 },
+  { name: "พฤษภาคม", value: 5 },
+  { name: "มิถุนายน", value: 6 },
+  { name: "กรกฎาคม", value: 7 },
+  { name: "สิงหาคม", value: 8 },
+  { name: "กันยายน", value: 9 },
+  { name: "ตุลาคม", value: 10 },
+  { name: "พฤศจิกายน", value: 11 },
+  { name: "ธันวาคม", value: 12 },
 ];
 
-export default function ClubLeaderboard() {
+export default function ClubLeaderboard({ handleTabClick }) {
   const [leaderboard, setLeaderboard] = useState({});
   const [availableMonths, setAvailableMonths] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(3);
@@ -110,15 +112,6 @@ export default function ClubLeaderboard() {
 
   return (
     <div className="flex flex-col w-full pb-20 bg-gray-200">
-      <div className="flex items-center justify-center bg-white p-4">
-        <Image
-          src="/images/club/club-logo.png"
-          alt="club logo"
-          width={250}
-          height={250}
-          className="object-contain"
-        />
-      </div>
       <div className="flex flex-col items-center justify-center bg-white w-full">
         <h1 className="text-3xl font-bold text-[#0056FF]">Leaderboard</h1>
         {/* selected month & year */}
@@ -194,9 +187,17 @@ export default function ClubLeaderboard() {
                   <div
                     key={user.empId + i}
                     className="grid grid-cols-[auto_1fr_auto] items-center px-4 py-2 border rounded-full bg-gray-50"
-                    onClick={() => handleClick(user.rewardtype)}
+                    onClick={() => handleTabClick("hall-of-fame")}
                   >
-                    <div className="font-bold text-blue-600">{user.rank}</div>
+                    <div className="flex items-center gap-1">
+                      {/* <div className="font-bold text-blue-600">{user.rank}</div> */}
+                      <Avatar
+                        key={user.empId}
+                        src={user.user?.pictureUrl}
+                        size={40}
+                        userId={user.userId}
+                      />
+                    </div>
                     <div className="flex flex-col ml-4">
                       <span className="font-semibold text-gray-800 text-sm">
                         {user.name}

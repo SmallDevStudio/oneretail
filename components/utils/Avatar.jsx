@@ -35,7 +35,7 @@ export default function Avatar({ src, size, userId }) {
         alt="Avatar"
         width={100}
         height={100}
-        className="rounded-full cursor-pointer object-contain bg-white"
+        className="rounded-full cursor-pointer object-contain bg-white border"
         style={{
           width: size ? size : "auto",
           height: size ? size : "auto",

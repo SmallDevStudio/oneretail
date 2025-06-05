@@ -1,6 +1,7 @@
 import connectMongoDB from "@/lib/services/database/mongodb";
 import HallOfFame from "@/database/models/Hall-of-fame/Hall-of-fame";
-import Badges from "@/database/models/Badges"; // ✅ ดึง badge
+import Badges from "@/database/models/Badges";
+import Users from "@/database/models/users";
 
 export default async function handler(req, res) {
   const { method } = req;
@@ -18,7 +19,25 @@ export default async function handler(req, res) {
         const records = await HallOfFame.find(query).lean();
         const badges = await Badges.find({ active: true }).lean();
 
-        // สร้าง map จาก badge name → ข้อมูล badge
+        // ✅ ดึง Users ทั้งหมดที่ empId ตรงกับ HallOfFame
+        const empIds = [...new Set(records.map((r) => r.empId))];
+        const users = await Users.find(
+          { empId: { $in: empIds } },
+          { userId: 1, fullname: 1, pictureUrl: 1, role: 1, empId: 1 }
+        ).lean();
+
+        // ✅ map user ข้อมูลจาก empId
+        const userMap = {};
+        for (const u of users) {
+          userMap[u.empId] = {
+            userId: u.userId,
+            fullname: u.fullname,
+            pictureUrl: u.pictureUrl,
+            role: u.role,
+          };
+        }
+
+        // ✅ map badge
         const badgeMap = {};
         for (const b of badges) {
           const key = (b.name || "").trim().toLowerCase();
@@ -32,7 +51,6 @@ export default async function handler(req, res) {
 
         for (const record of records) {
           let rewardtype = record.rewardtype?.trim().toLowerCase();
-
           if (!rewardtype || rewardtype === "n/a") {
             rewardtype = "ไม่มี rewardtype";
           }
@@ -52,16 +70,17 @@ export default async function handler(req, res) {
             grouped[rewardtype].positions[pos] = [];
           }
 
-          grouped[rewardtype].positions[pos].push(record);
+          grouped[rewardtype].positions[pos].push({
+            ...record,
+            user: userMap[record.empId] || null, // ✅ เพิ่มข้อมูล user ที่จับคู่
+          });
         }
 
-        res
-          .status(200)
-          .json({
-            success: true,
-            data: grouped,
-            months: [...new Set(records.map((r) => `${r.year}-${r.month}`))],
-          });
+        res.status(200).json({
+          success: true,
+          data: grouped,
+          months: [...new Set(records.map((r) => `${r.year}-${r.month}`))],
+        });
       } catch (error) {
         res.status(400).json({ success: false, error: error.message });
       }
