@@ -185,9 +185,9 @@ export default function ClubLeaderboard({ handleTabClick }) {
               <div className="flex flex-col gap-2">
                 {posUsers.map((user, i) => (
                   <div
-                    key={user.empId + i}
+                    key={i}
                     className="grid grid-cols-[auto_1fr_auto] items-center px-4 py-2 border rounded-full bg-gray-50"
-                    onClick={() => handleTabClick("hall-of-fame")}
+                    onClick={() => handleTabClick("hall-of-fame", rewardKey)}
                   >
                     <div className="flex items-center gap-1">
                       {/* <div className="font-bold text-blue-600">{user.rank}</div> */}

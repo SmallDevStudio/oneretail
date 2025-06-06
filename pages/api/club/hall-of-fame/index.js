@@ -58,7 +58,6 @@ export default async function handler(req, res) {
           userMap[user.empId] = user;
         }
 
-        // Group by position
         const grouped = {};
         for (const item of records) {
           const enrichedItem = {
@@ -74,22 +73,56 @@ export default async function handler(req, res) {
           grouped[item.position].push(enrichedItem);
         }
 
-        // Sort by achieve มากไปน้อยในแต่ละตำแหน่ง
+        // Sort by achieve มากไปน้อยในแต่ละตำแหน่ง และเพิ่ม rank
         for (const position in grouped) {
           grouped[position].sort((a, b) => b.achieve - a.achieve);
-
-          // เพิ่ม rank
           grouped[position] = grouped[position].map((item, index) => ({
             ...item,
             rank: index + 1,
           }));
         }
 
+        const bbdOrder = [
+          "BM",
+          "CLSM",
+          "CLSA",
+          "CISA",
+          "CFSA",
+          "WCRM",
+          "PBCRM",
+          "EWS",
+          "MDS",
+          "MAL",
+          "CISAL",
+          "CFSA_YINDEE",
+        ];
+        const alOrder = ["AL GH", "NC MKT", "UC MKT"];
+
+        const orderedGrouped = {};
+
+        if (bbdOrder.some((pos) => grouped[pos])) {
+          orderedGrouped["BBD"] = {};
+          for (const pos of bbdOrder) {
+            if (grouped[pos]) {
+              orderedGrouped["BBD"][pos] = grouped[pos];
+            }
+          }
+        }
+
+        if (alOrder.some((pos) => grouped[pos])) {
+          orderedGrouped["AL"] = {};
+          for (const pos of alOrder) {
+            if (grouped[pos]) {
+              orderedGrouped["AL"][pos] = grouped[pos];
+            }
+          }
+        }
+
         return res.status(200).json({
           rewardtype: rawType ? rawType : null,
           month: !isNaN(monthNum) ? monthNum : null,
           year: !isNaN(yearNum) ? yearNum : null,
-          data: grouped,
+          data: orderedGrouped,
         });
       } catch (err) {
         console.error("Error fetching HallOfFame:", err);

@@ -52,13 +52,13 @@ export default async function handler(req, res) {
         for (const record of records) {
           let rewardtype = record.rewardtype?.trim().toLowerCase();
           if (!rewardtype || rewardtype === "n/a") {
-            rewardtype = "ไม่มี rewardtype";
+            rewardtype = "";
           }
 
           if (!grouped[rewardtype]) {
             grouped[rewardtype] = {
               badge: badgeMap[rewardtype] || {
-                name: "ไม่มี rewardtype",
+                name: "",
                 image: "",
               },
               positions: {},

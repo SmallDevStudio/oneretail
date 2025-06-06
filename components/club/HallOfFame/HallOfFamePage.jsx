@@ -1,40 +1,35 @@
 import { useState, useEffect, useCallback } from "react";
 import HallOfFameTab from "@/components/club/HallOfFame/HallOfFameTab";
-import Image from "next/image";
 import { useRouter } from "next/router";
 
 export default function HallOfFamePage({ typeData }) {
-  const [activeTab, setActiveTab] = useState("Grand%20Ambassador");
+  const [activeTab, setActiveTab] = useState("Grand Ambassador");
   const [type, setType] = useState(typeData);
   const router = useRouter();
+  const { subtab } = router.query;
+
+  console.log("subtab:", subtab);
 
   useEffect(() => {
-    if (typeData) {
-      setActiveTab(typeData);
-      setType(typeData);
-      window.history.pushState(
-        null,
-        "",
-        `?tab=hall-of-fame&subtab=${typeData}`
-      );
-    } else {
-      setActiveTab("Grand%20Ambassador");
-      setType("Grand%20Ambassador");
-      window.history.pushState(
-        null,
-        "",
-        `?tab=hall-of-fame&subtab=Grand%20Ambassador`
-      );
+    if (subtab) {
+      const capitalized = decodeURIComponent(subtab)
+        .split(" ")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+        .join(" ");
+
+      if (["Grand Ambassador", "Ambassador"].includes(capitalized)) {
+        setActiveTab(capitalized); // ✅ set decoded value
+        setType(capitalized);
+      }
     }
-  }, [typeData]);
+  }, [subtab]);
 
   const handleTabClick = useCallback((tab) => {
     setActiveTab(tab);
     setType(tab);
-    window.history.pushState(null, "", `?tab=hall-of-fame&subtab=${tab}`);
+    const encoded = encodeURIComponent(tab); // ✅ encode when pushing to URL
+    window.history.pushState(null, "", `?tab=hall-of-fame&subtab=${encoded}`);
   }, []);
-
-  console.log("typeData", typeData);
 
   return (
     <div>
@@ -43,11 +38,11 @@ export default function HallOfFamePage({ typeData }) {
         <ul className="flex flex-row items-center justify-center flex-wrap gap-1">
           <li
             className={`inline-block px-2 rounded-t-lg font-bold ${
-              activeTab === "Grand%20Ambassador"
+              activeTab === "Grand Ambassador"
                 ? "bg-[#0056FF] text-white"
                 : "bg-gray-200"
             }`}
-            onClick={() => handleTabClick("Grand%20Ambassador")}
+            onClick={() => handleTabClick("Grand Ambassador")}
           >
             Grand Ambassador
           </li>

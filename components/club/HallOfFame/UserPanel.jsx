@@ -3,6 +3,7 @@ import Image from "next/image";
 import { IoClose } from "react-icons/io5";
 import { Slide, Dialog } from "@mui/material";
 import ECer from "./ECer";
+import Avatar from "@/components/utils/Avatar";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -20,14 +21,15 @@ export default function UserPanel({ data, onClose }) {
       {/* Body */}
       <div className="p-4">
         <div className="flex flex-col items-center">
-          <Image
-            src={data?.user?.pictureUrl}
-            alt={data?.user?.fullname}
-            width={150}
-            height={150}
-            className="rounded-full object-cover"
-            style={{ width: "150px", height: "150px" }}
-          />
+          {data?.user ? (
+            <Avatar
+              src={data.user.pictureUrl}
+              size={100}
+              userId={data.user.userId}
+            />
+          ) : (
+            <Avatar src={"/images/Avatar.jpg"} size={100} />
+          )}
         </div>
         <div className="text-center mt-4">
           <p className="font-bold text-lg text-[#0056FF]">{data?.rewardtype}</p>

@@ -14,6 +14,8 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const badgeData = {
   grand_ambassador: {
+    BBD: "/images/hall-of-fame/grand_ambassador/BBD.png",
+    AL: "/images/hall-of-fame/grand_ambassador/AL.png",
     BM: "/images/hall-of-fame/grand_ambassador/BM.png",
     CLSM: "/images/hall-of-fame/grand_ambassador/CLSM.png",
     CLSM: "/images/hall-of-fame/grand_ambassador/CLSM.png",
@@ -33,18 +35,25 @@ const badgeData = {
     INVS: "/images/hall-of-fame/grand_ambassador/INVS.png",
   },
   ambassador: {
+    BBD: "/images/hall-of-fame/ambassador/BBD.png",
+    AL: "/images/hall-of-fame/ambassador/AL.png",
     BM: "/images/hall-of-fame/ambassador/BM.png",
     CLSM: "/images/hall-of-fame/ambassador/CLSM.png",
     CLSM: "/images/hall-of-fame/ambassador/CLSM.png",
     CLSA: "/images/hall-of-fame/ambassador/CLSA.png",
     CISA: "/images/hall-of-fame/ambassador/CISA.png",
     CFSA: "/images/hall-of-fame/ambassador/CFSA.png",
-    EWS: "/images/hall-of-fame/ambassador/EWS.png",
-    INVS: "/images/hall-of-fame/ambassador/INVS.png",
-    MAL: "/images/hall-of-fame/ambassador/MAL.png",
-    MDS: "/images/hall-of-fame/ambassador/MDS.png",
-    PB: "/images/hall-of-fame/ambassador/PB.png",
+    CFSA_YINDEE: "/images/hall-of-fame/ambassador/CFSA_YINDEE.png",
     WCRM: "/images/hall-of-fame/ambassador/WCRM.png",
+    PBCRM: "/images/hall-of-fame/ambassador/PBCRM.png",
+    EWS: "/images/hall-of-fame/ambassador/EWS.png",
+    MDS: "/images/hall-of-fame/ambassador/MDS.png",
+    MAL: "/images/hall-of-fame/ambassador/MAL.png",
+    CISAL: "/images/hall-of-fame/ambassador/CISAL.png",
+    ALGH: "/images/hall-of-fame/ambassador/ALGH.png",
+    NCMKT: "/images/hall-of-fame/ambassador/NCMKT.png",
+    UCMKT: "/images/hall-of-fame/ambassador/UCMKT.png",
+    INVS: "/images/hall-of-fame/ambassador/INVS.png",
   },
 };
 
@@ -69,12 +78,15 @@ export default function HallOfFameTab({ typeData }) {
   const [year, setYear] = useState(2025);
   const [monthOptions, setMonthOptions] = useState([]);
   const [yearOptions, setYearOptions] = useState([]);
-  const [style, setStyle] = useState({});
+  const [type, setType] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
-  const type = typeData;
+  useEffect(() => {
+    if (!typeData) return;
+    if (typeData) setType(typeData);
+  }, [typeData]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -83,7 +95,7 @@ export default function HallOfFameTab({ typeData }) {
       );
       setData(res.data.data);
     };
-    if (month && year) fetchData();
+    if (month && year && type) fetchData();
   }, [month, year, type]);
 
   useEffect(() => {
@@ -127,11 +139,16 @@ export default function HallOfFameTab({ typeData }) {
 
   const isGrand = decodeURIComponent(type || "") === "Grand Ambassador";
 
+  const normalizePosition = (key) => {
+    return key.replace(/\s/g, "").toUpperCase(); // เช่น "AL GH" → "ALGH"
+  };
+
   const badgePath = (position) => {
     const decode = decodeURIComponent(type || "");
     const key = decode.toLowerCase().replace(/\s/g, "_"); // "Grand Ambassador" → "grand_ambassador"
     const badge = badgeData[key];
-    return badge?.[position] || "";
+    const normalized = normalizePosition(position);
+    return badge?.[normalized] || "";
   };
 
   const componentPath = (path) => {
@@ -155,16 +172,8 @@ export default function HallOfFameTab({ typeData }) {
     <div
       className={`${
         isGrand ? "bg-[#373332] text-white" : "bg-[#EAEAEA] text-black"
-      } min-h-screen pb-20`}
+      } min-h-screen pb-20 pt-8`}
     >
-      {/* Header */}
-      <div className="flex flex-row items-center justify-end px-2 pt-1 gap-2">
-        <IoClose
-          size={25}
-          className="cursor-pointer"
-          onClick={() => router.back()}
-        />
-      </div>
       {/* Content */}
       <div className="flex flex-col">
         {/* Header */}
@@ -211,98 +220,112 @@ export default function HallOfFameTab({ typeData }) {
       </div>
       {/* Data */}
       <div className="flex flex-col gap-4 mt-4">
-        {Object.keys(data).map((positionKey) => {
-          const positionData = data[positionKey];
-          const image = badgePath(positionKey);
+        {Object.entries(data).map(([groupLabel, positions]) => (
+          <div key={groupLabel}>
+            <div className="flex justify-center mt-4 mb-4">
+              <Image
+                src={badgePath(groupLabel)} // จะได้ BBD.png หรือ AL.png
+                alt={groupLabel}
+                width={140}
+                height={140}
+                className="object-contain"
+              />
+            </div>
 
-          return (
-            <div key={positionKey}>
-              {image && (
-                <div className="flex justify-center mt-2">
-                  <Image
-                    src={image}
-                    alt={positionKey}
-                    width={100}
-                    height={100}
-                  />
-                </div>
-              )}
+            {Object.entries(positions).map(([positionKey, positionData]) => {
+              const image = badgePath(positionKey);
+              return (
+                <div key={positionKey}>
+                  {image && (
+                    <div className="flex justify-center mt-2">
+                      <Image
+                        src={image}
+                        alt={positionKey}
+                        width={100}
+                        height={100}
+                      />
+                    </div>
+                  )}
 
-              <div
-                className={`flex flex-row items-center gap-4 text-center px-2 overflow-x-auto
+                  <div
+                    className={`flex flex-row items-center gap-4 text-center px-2 overflow-x-auto
                   ${positionData.length === 1 ? "justify-center" : ""}
                 `}
-              >
-                {positionData.map((user) => (
-                  <div
-                    key={user.empId}
-                    className="flex-shrink-0 w-50 min-w-[120px] flex flex-col items-center rounded-xl p-4"
                   >
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="relative">
-                        <Image
-                          src={componentPath("rank")}
-                          alt="rank-badge"
-                          width={30}
-                          height={30}
-                        />
-                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xs ">
-                          {user.rank}
-                        </div>
-                      </div>
+                    {positionData.map((user) => (
                       <div
-                        className="relative"
-                        onClick={() => handleSelectUser(user)}
+                        key={user.empId}
+                        className="flex-shrink-0 w-50 min-w-[120px] flex flex-col items-center rounded-xl p-4"
                       >
-                        {user.user ? (
-                          <Avatar
-                            src={user.user.pictureUrl}
-                            size={100}
-                            userId={user.user.userId}
-                          />
-                        ) : (
-                          <div className="flex flex-col items-center bg-white w-50 h-50"></div>
-                        )}
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="relative">
+                            <Image
+                              src={componentPath("rank")}
+                              alt="rank-badge"
+                              width={30}
+                              height={30}
+                            />
+                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xs ">
+                              {user.rank}
+                            </div>
+                          </div>
+                          <div
+                            className="relative"
+                            onClick={() => handleSelectUser(user)}
+                          >
+                            {user.user ? (
+                              <Avatar
+                                src={user.user.pictureUrl}
+                                size={100}
+                                userId={user.user.userId}
+                              />
+                            ) : (
+                              <Avatar src={"/images/Avatar.jpg"} size={100} />
+                            )}
 
-                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[100px] h-[100px]">
-                          <Image
-                            src={componentPath("avatar")}
-                            alt="avatar-badge"
-                            width={100}
-                            height={100}
-                            className=""
-                            style={{
-                              zIndex: 999,
-                            }}
-                          />
+                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[100px] h-[100px]">
+                              <Image
+                                src={componentPath("avatar")}
+                                alt="avatar-badge"
+                                width={100}
+                                height={100}
+                                className=""
+                                style={{
+                                  zIndex: 999,
+                                }}
+                              />
+                            </div>
+                          </div>
+                          <div
+                            className="relative"
+                            onClick={() => handleSelectUser(user)}
+                          >
+                            <Image
+                              src={componentPath("tag")}
+                              alt="tag-badge"
+                              width={160}
+                              height={160}
+                            />
+                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xs text-black w-full">
+                              <p className="font-bold">{user.name}</p>
+                              <p className="text-[10px]">{user.branch}</p>
+                              <p>
+                                KPI{" "}
+                                <span className="font-bold">
+                                  {user.achieve}%
+                                </span>
+                              </p>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                      <div
-                        className="relative"
-                        onClick={() => handleSelectUser(user)}
-                      >
-                        <Image
-                          src={componentPath("tag")}
-                          alt="tag-badge"
-                          width={160}
-                          height={160}
-                        />
-                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xs text-black w-full">
-                          <p className="font-bold">{user.name}</p>
-                          <p className="text-[10px]">{user.branch}</p>
-                          <p>
-                            KPI{" "}
-                            <span className="font-bold">{user.achieve}%</span>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
+                </div>
+              );
+            })}
+          </div>
+        ))}
       </div>
       <Dialog
         open={open}
