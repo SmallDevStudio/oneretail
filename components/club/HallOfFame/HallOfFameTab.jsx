@@ -275,12 +275,17 @@ export default function HallOfFameTab({ typeData }) {
                           >
                             {user.user ? (
                               <Avatar
+                                key={user.empId}
                                 src={user.user.pictureUrl}
                                 size={100}
                                 userId={user.user.userId}
                               />
                             ) : (
-                              <Avatar src={"/images/Avatar.jpg"} size={100} />
+                              <Avatar
+                                key={user.empId}
+                                src={"/images/Avatar.jpg"}
+                                size={100}
+                              />
                             )}
 
                             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[100px] h-[100px]">

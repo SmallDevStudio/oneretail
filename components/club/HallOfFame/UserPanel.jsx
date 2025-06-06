@@ -59,9 +59,11 @@ export default function UserPanel({ data, onClose }) {
         onClose={() => setOpenCer(false)}
         sx={{
           "& .MuiDialog-paper": {
-            width: "100%",
+            width: "100vw",
             maxWidth: "100%",
             padding: "0px",
+            margin: "0px",
+            background: "transparent",
           },
         }}
       >
