@@ -44,8 +44,6 @@ export default function ECer({ data, onClose }) {
     if (status === "loading" || !session) return;
   }, [data, session, status]);
 
-  console.log("data", data);
-
   const imagePath = () => {
     const type = data?.rewardtype;
     const key = type?.toLowerCase().replace(/\s/g, "_"); // "Grand Ambassador" → "grand_ambassador"
