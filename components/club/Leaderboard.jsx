@@ -7,8 +7,8 @@ import { useSession } from "next-auth/react";
 import moment from "moment";
 import "moment/locale/th";
 import { useRouter } from "next/router";
-moment.locale("th");
 import Avatar from "../utils/Avatar";
+moment.locale("th");
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -18,7 +18,6 @@ const position = [
   { name: "CLSA", value: "CLSA" },
   { name: "CFSA", value: "CFSA" },
   { name: "CISA", value: "CISA" },
-  { name: "CFSA", value: "CFSA" },
   { name: "CFSA_YINDEE ", value: "CFSA_YINDEE" },
   { name: "WCRM", value: "WCRM" },
   { name: "PBCRM", value: "PBCRM" },
