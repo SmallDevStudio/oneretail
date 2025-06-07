@@ -33,9 +33,6 @@ export default function AppView({ data }) {
     if (!data) return;
   }, [data]);
 
-  console.log("answers", answers);
-  console.log("data", data);
-
   const { data: answersData } = useSWR(
     `/api/forms/answers?formId=${id}&userId=${userId}`,
     fetcher
