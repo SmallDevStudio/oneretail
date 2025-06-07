@@ -125,7 +125,7 @@ export default function Test() {
         <div className="flex flex-col">
           <div className="relative">
             <Image
-              src="/images/hall-of-fame/Welcome.jpg"
+              src="/images/hall-of-fame/welcome-ORC.jpg"
               alt="coming-soon"
               width={500}
               height={500}
