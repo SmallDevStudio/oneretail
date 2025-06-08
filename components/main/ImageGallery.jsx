@@ -7,6 +7,7 @@ import { TbZoomScan } from "react-icons/tb";
 import axios from "axios";
 import { GrView } from "react-icons/gr";
 import { Dialog, DialogContent, Slide } from "@mui/material";
+import { MdFileDownload } from "react-icons/md";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -20,6 +21,7 @@ const ImageGallery = ({ medias, userId }) => {
   const videoRef = useRef([]); // ใช้ ref เก็บ video element หลายตัว
   const videoStartTimes = useRef({});
   const videoDurations = useRef({});
+  const [currentIndex, setCurrentIndex] = useState(0);
   // รีเซ็ต hasSentView เมื่อ medias เปลี่ยน (เช่นเมื่อเปลี่ยนโพสต์)
   useEffect(() => {
     setHasSentView({}); // รีเซ็ตค่า hasSentView ทุกครั้งเมื่อโพสต์หรือ medias เปลี่ยน
@@ -27,6 +29,7 @@ const ImageGallery = ({ medias, userId }) => {
 
   const handleOpen = async (media, index) => {
     setCurrentMedia(media);
+    setCurrentIndex(index); // <--- เพิ่มบรรทัดนี้
     setOpen(true);
 
     // 👉 เก็บเวลา view
@@ -182,173 +185,248 @@ const ImageGallery = ({ medias, userId }) => {
     }
   };
 
+  const getGridLayout = (medias) => {
+    const length = medias.length;
+
+    if (length === 1) {
+      return [[medias[0]]]; // แถวเดียว
+    } else if (length <= 3) {
+      return [medias]; // แถวเดียว grid-cols ตามจำนวน
+    } else if (length <= 5) {
+      return [
+        medias.slice(0, 2), // แถวแรก 2
+        medias.slice(2), // แถวสองตามที่เหลือ (2–3)
+      ];
+    } else {
+      return [
+        medias.slice(0, 2), // แถวแรก 2
+        medias.slice(2, 5), // แถวสอง 3
+      ];
+    }
+  };
+
+  const goNext = () => {
+    if (currentIndex < medias.length - 1) {
+      const nextIndex = currentIndex + 1;
+      setCurrentMedia(medias[nextIndex]);
+      setCurrentIndex(nextIndex);
+    }
+  };
+
+  const goPrev = () => {
+    if (currentIndex > 0) {
+      const prevIndex = currentIndex - 1;
+      setCurrentMedia(medias[prevIndex]);
+      setCurrentIndex(prevIndex);
+    }
+  };
+
+  const handleDownload = async (media) => {
+    try {
+      const response = await fetch(media.url, {
+        mode: "cors",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch image.");
+      }
+
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = `${media.public_id}.jpg`; // หรือ .png ตาม type จริง
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl); // ล้าง blob memory
+    } catch (error) {
+      console.error("Download failed:", error);
+      alert("ไม่สามารถดาวน์โหลดรูปภาพได้");
+    }
+  };
+
   return (
-    <div className="flex gap-2 pb-20">
+    <div className="flex gap-2">
       <div className="flex flex-col justify-center items-center w-full">
-        {medias.length > 1 ? (
-          <div className="grid grid-cols-2">
-            {medias.map((media, index) => (
-              <div key={index} className="flex relative">
-                {media.type === "image" ? (
-                  <div
-                    className="flex flex-col w-full"
-                    onClick={() => handleOpen(media, index)}
-                    style={{ width: "180px", height: "250px" }}
-                  >
+        <div className="flex flex-col gap-2 w-full">
+          {(() => {
+            const layout = getGridLayout(medias);
+            const maxDisplay = 5;
+
+            return layout.map((row, rowIndex) => (
+              <div
+                key={rowIndex}
+                className={`grid gap-1items-center justify-center ${
+                  row.length === 1
+                    ? "grid-cols-1 items-center justify-center"
+                    : row.length === 2
+                    ? "grid-cols-2 items-center justify-center"
+                    : "grid-cols-3 items-center justify-center"
+                }`}
+              >
+                {row.map((media, index) => {
+                  const globalIndex = rowIndex === 0 ? index : index + 2;
+
+                  const showOverlay =
+                    medias.length > maxDisplay &&
+                    rowIndex === 1 &&
+                    index === row.length - 1;
+
+                  const remaining = medias.length - maxDisplay;
+
+                  return (
                     <div
-                      className="flex w-full relative"
-                      style={{ width: "180px", height: "210px" }}
+                      key={globalIndex}
+                      className="relative cursor-pointer"
+                      onClick={() => handleOpen(media, globalIndex)}
                     >
-                      <Image
-                        src={media.url}
-                        alt="image"
-                        width={600}
-                        height={400}
-                        className="object-cover cursor-pointer"
-                        style={{ width: "100%", height: "auto" }}
-                        loading="lazy"
-                        onLoad={() => handleImageView(index)} // เรียกเมื่อโหลดภาพสำเร็จ
-                      />
+                      {media.type === "image" ? (
+                        <Image
+                          src={media.url}
+                          alt="media"
+                          width={600}
+                          height={400}
+                          className="object-cover w-full h-auto rounded"
+                          onLoad={() => handleImageView(globalIndex)}
+                        />
+                      ) : (
+                        <>
+                          <video
+                            src={media.url}
+                            ref={(el) => (videoRef.current[globalIndex] = el)}
+                            className="object-cover w-full h-auto rounded"
+                            onTimeUpdate={() => handleTimeUpdate(globalIndex)}
+                            onPlay={() => handleVideoPlay(globalIndex)}
+                            onPause={() => handleVideoPauseOrEnd(globalIndex)}
+                            onEnded={() =>
+                              handleVideoPauseOrEnd(globalIndex, true)
+                            }
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <FaRegPlayCircle className="text-white text-3xl" />
+                          </div>
+                        </>
+                      )}
+
+                      {showOverlay && (
+                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-3xl font-bold">
+                          +{remaining}
+                        </div>
+                      )}
                     </div>
-                    <div className="flex relative bottom-8 right-1 justify-end items-center">
-                      <div className="bg-white/50 flex justify-center items-center rounded-full p-2">
-                        <TbZoomScan />
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div
-                    className="relative w-full cursor-pointer"
-                    onClick={() => handleOpen(media, index)}
-                  >
-                    <video
-                      src={media.url}
-                      ref={(el) => (videoRef.current[index] = el)}
-                      className="object-cover cursor-pointer"
-                      style={{ width: "100%", height: "auto" }}
-                      onTimeUpdate={() => handleTimeUpdate(index)}
-                      onPlay={() => handleVideoPlay(index)}
-                      onPause={() => handleVideoPauseOrEnd(index)}
-                      onEnded={() => handleVideoPauseOrEnd(index, true)}
-                      onLoad={() => handleVideoLoad(index)}
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <FaRegPlayCircle className="text-white text-3xl drop-shadow-lg" />
-                    </div>
-                    <div className="absolute top-2 right-2 bg-white/70 flex items-center gap-1 rounded-full px-2 py-1 text-xs">
-                      <GrView />
-                      <span>{videoViews[media.public_id] || 0}</span>
-                    </div>
-                  </div>
-                )}
+                  );
+                })}
               </div>
-            ))}
-          </div>
-        ) : (
-          medias.map((media, index) => (
-            <div key={index} className="flex relative">
-              {media.type === "image" ? (
-                <div className="flex flex-col w-full">
-                  <div
-                    className="flex relative w-full"
-                    onClick={() => handleOpen(media, index)}
-                  >
-                    <Image
-                      src={media.url}
-                      alt="image"
-                      width={600}
-                      height={400}
-                      className="object-cover cursor-pointer"
-                      style={{ width: "100%", height: "auto" }}
-                      loading="lazy"
-                      onLoad={() => handleImageView(index)} // เรียกเมื่อโหลดภาพสำเร็จ
-                    />
-                  </div>
-                  <div className="flex relative bottom-10 right-2 justify-end items-center">
-                    <div className="bg-white/50 flex justify-center items-center rounded-full p-2">
-                      <TbZoomScan />
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div
-                  className="relative w-full cursor-pointer"
-                  onClick={() => handleOpen(media, index)}
-                >
-                  <video
-                    src={media.url}
-                    ref={(el) => (videoRef.current[index] = el)}
-                    className="object-cover cursor-pointer h-full"
-                    style={{ width: "100%", height: "auto" }}
-                    onTimeUpdate={() => handleTimeUpdate(index)}
-                    onPlay={() => handleVideoPlay(index)}
-                    onPause={() => handleVideoPauseOrEnd(index)}
-                    onEnded={() => handleVideoPauseOrEnd(index, true)}
-                    onLoad={() => handleVideoLoad(index)}
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <FaRegPlayCircle className="text-white text-3xl drop-shadow-lg" />
-                  </div>
-                  <div className="absolute top-2 right-2 bg-white/70 flex items-center gap-1 rounded-full px-2 py-1 text-xs">
-                    <GrView />
-                    <span>{videoViews[media.public_id] || 0}</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))
-        )}
+            ));
+          })()}
+        </div>
       </div>
 
       <Dialog
-        fullScreen
         open={open}
         onClose={handleClose}
         TransitionComponent={Transition}
+        sx={{
+          "& .MuiDialog-paper": {
+            background: "transparent",
+            boxShadow: "none",
+            padding: 0,
+            margin: 0,
+          },
+        }}
       >
-        <DialogContent sx={{ bgcolor: "#fff", p: 0 }}>
+        <DialogContent>
           {currentMedia && (
             <div>
-              <div className="flex justify-end p-2">
+              <div className="flex justify-end p-2 gap-2">
+                <MdFileDownload
+                  size={24}
+                  className="text-[#F2871F] cursor-pointer bg-white rounded-full"
+                  onClick={() => handleDownload(currentMedia)}
+                />
                 <IoIosCloseCircleOutline
                   size={24}
-                  className="text-[#F2871F] cursor-pointer"
+                  className="text-[#F2871F] cursor-pointer bg-white rounded-full"
                   onClick={handleClose}
                 />
               </div>
 
-              {currentMedia.type === "image" ? (
-                <Image
-                  src={currentMedia.url}
-                  alt="image"
-                  width={600}
-                  height={400}
-                  className="rounded-xl object-cover"
-                  style={{ width: "100%", height: "auto" }}
-                  loading="lazy"
-                />
-              ) : (
-                <div className="relative w-full">
-                  <video
-                    ref={(el) =>
-                      (videoRef.current[medias.indexOf(currentMedia)] = el)
-                    }
+              <div className="flex items-center w-full">
+                {currentMedia.type === "image" ? (
+                  <Image
                     src={currentMedia.url}
-                    controls
-                    autoPlay
-                    className="object-cover w-full h-auto"
-                    onPlay={() => handleVideoPlay(medias.indexOf(currentMedia))}
-                    onPause={() =>
-                      handleVideoPauseOrEnd(medias.indexOf(currentMedia), false)
-                    }
-                    onEnded={() =>
-                      handleVideoPauseOrEnd(medias.indexOf(currentMedia), true)
-                    }
+                    alt="image"
+                    width={600}
+                    height={400}
+                    className="rounded-xl object-cover"
+                    style={{ width: "100%", height: "auto" }}
+                    loading="lazy"
                   />
-                  <div className="text-right text-sm text-gray-600 pr-4 mt-1">
-                    <GrView className="inline-block mr-1" />
-                    {videoViews[currentMedia.public_id] || 0} views
+                ) : (
+                  <div className="relative w-full">
+                    <video
+                      ref={(el) =>
+                        (videoRef.current[medias.indexOf(currentMedia)] = el)
+                      }
+                      src={currentMedia.url}
+                      controls
+                      autoPlay
+                      className="object-cover w-full h-auto"
+                      onPlay={() =>
+                        handleVideoPlay(medias.indexOf(currentMedia))
+                      }
+                      onPause={() =>
+                        handleVideoPauseOrEnd(
+                          medias.indexOf(currentMedia),
+                          false
+                        )
+                      }
+                      onEnded={() =>
+                        handleVideoPauseOrEnd(
+                          medias.indexOf(currentMedia),
+                          true
+                        )
+                      }
+                    />
+                    <div className="text-right text-sm text-gray-600 pr-4 mt-1">
+                      <GrView className="inline-block mr-1" />
+                      {videoViews[currentMedia.public_id] || 0} views
+                    </div>
                   </div>
+                )}
+              </div>
+
+              {medias.length > 1 && (
+                <div className="flex items-center justify-between mt-4 px-4 text-white">
+                  <button
+                    onClick={goPrev}
+                    disabled={currentIndex === 0}
+                    className={` px-3 py-1 rounded-full text-lg ${
+                      currentIndex === 0
+                        ? "opacity-30 cursor-not-allowed"
+                        : "hover:bg-black/20"
+                    }`}
+                  >
+                    ◀
+                  </button>
+
+                  <span className="text-sm font-semibold bg-white opacity-30 text-black px-2 py-1 rounded-xl">
+                    {currentIndex + 1} / {medias.length}
+                  </span>
+
+                  <button
+                    onClick={goNext}
+                    disabled={currentIndex === medias.length - 1}
+                    className={`px-3 py-1 rounded-full text-lg ${
+                      currentIndex === medias.length - 1
+                        ? "opacity-30 cursor-not-allowed"
+                        : "hover:bg-black/20"
+                    }`}
+                  >
+                    ▶
+                  </button>
                 </div>
               )}
             </div>
