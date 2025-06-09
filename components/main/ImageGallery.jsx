@@ -295,11 +295,12 @@ const ImageGallery = ({ medias, userId }) => {
                               onLoad={() => handleImageView(0)}
                             />
                           ) : (
-                            <div className="relative w-full">
+                            <div
+                              className="relative w-full"
+                              onClick={() => handleOpen(medias[0], 0)}
+                            >
                               <video
                                 src={medias[0].url}
-                                controls
-                                autoPlay
                                 ref={(el) => (videoRef.current[0] = el)}
                                 className="w-full h-auto object-contain rounded"
                                 onTimeUpdate={() => handleTimeUpdate(0)}

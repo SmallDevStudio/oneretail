@@ -1,40 +1,55 @@
-import { useState, useEffect } from 'react';
-import { AiOutlineMessage } from 'react-icons/ai';
-import { useFirebaseChat } from "@/lib/hook/useFirebaseChat";
-import { useRouter } from 'next/router';
+import { useState, useEffect } from "react";
+import { AiOutlineMessage } from "react-icons/ai";
+import { useRouter } from "next/router";
+import { database } from "@/lib/firebase";
+import { ref, onValue } from "firebase/database";
 
 export default function Messager({ userId, size }) {
-    const { unReadUser } = useFirebaseChat();
-    const [unReadMessages, setUnreadMessages] = useState(0);
+  const [unReadMessages, setUnreadMessages] = useState(0);
+  const router = useRouter();
 
-    const router = useRouter();
+  useEffect(() => {
+    if (!userId) return;
 
-    useEffect(() => {
-        if (!userId) return;
-    
-        const fetchUnreadMessages = async () => {
-          const count = await unReadUser(userId);
-          setUnreadMessages(count);
-        };
-    
-        fetchUnreadMessages();
+    const notiRef = ref(database, `notifications`);
+    const unsubscribe = onValue(notiRef, (snapshot) => {
+      if (!snapshot.exists()) {
+        setUnreadMessages(0);
+        return;
+      }
 
-    }, [unReadUser, userId]);
+      let count = 0;
+      const allNotis = snapshot.val();
 
-    return (
-        <div 
-            className="relative inline-block"
-            onClick={() => router.push('/messager')}
-        >
-            <AiOutlineMessage 
-                size={size || 24} 
-                className="cursor-pointer" 
-            />
-            {unReadMessages > 0 && (
-                <div className="absolute -top-1.5 -right-2 w-4 h-4 flex items-center justify-center rounded-full bg-red-500 text-white text-xs">
-                    {unReadMessages}
-                </div>
-            )}
+      Object.values(allNotis).forEach((chatNotis) => {
+        Object.values(chatNotis).forEach((noti) => {
+          if (
+            noti.userId === userId &&
+            noti.type === "message" &&
+            !noti.isReading
+          ) {
+            count++;
+          }
+        });
+      });
+
+      setUnreadMessages(count);
+    });
+
+    return () => unsubscribe();
+  }, [userId]);
+
+  return (
+    <div
+      className="relative inline-block"
+      onClick={() => router.push("/messager")}
+    >
+      <AiOutlineMessage size={size || 24} className="cursor-pointer" />
+      {unReadMessages > 0 && (
+        <div className="absolute -top-1.5 -right-2 w-4 h-4 flex items-center justify-center rounded-full bg-red-500 text-white text-xs">
+          {unReadMessages}
         </div>
-    );
+      )}
+    </div>
+  );
 }

@@ -40,6 +40,7 @@ import "moment/locale/th";
 import { FaHeart } from "react-icons/fa";
 import { useRouter } from "next/router";
 import { useNotify } from "@/lib/hook/useNotify";
+import { toast } from "react-toastify";
 
 moment.locale("th");
 
@@ -72,7 +73,7 @@ export default function MessageWindows({ selectedChat, handleClose }) {
   const [openImage, setOpenImage] = useState(false); // สถานะเปิดปิดของปุ่มรูปภาพ
   const [openVideo, setOpenVideo] = useState(false); // สถานะเปิดปิดของปุ่มวิดีโอ
   const [currentMedia, setCurrentMedia] = useState(null); // สถานะของไฟล์ที่ถูกเลือก
-  const { toastify } = useNotify();
+  const [useComponent, setUseComponent] = useState(false); // สถานะของคอมโพเนนต์ที่ถูกเลือก
 
   const router = useRouter();
 
@@ -233,10 +234,16 @@ export default function MessageWindows({ selectedChat, handleClose }) {
 
   // เพิ่ม toast เมื่อตรวจสอบว่า user อยู่ใน component นี้
   useEffect(() => {
-    if (selectedChat && userId) {
-      toastify.success("คุณกำลังอ่านข้อความอยู่ในห้องแชทนี้แล้ว");
-    }
-  }, [selectedChat, userId]);
+    if (!userId || !selectedChat) return;
+
+    const presenceRef = ref(database, `presence/${userId}/currentChatId`);
+    set(presenceRef, selectedChat);
+
+    return () => {
+      // เมื่อออกจากห้องแชท
+      set(presenceRef, null);
+    };
+  }, [userId, selectedChat]);
 
   const notifyAbsentUsers = async () => {
     if (!participants || !selectedChat || !userId || !user) return;
@@ -253,6 +260,18 @@ export default function MessageWindows({ selectedChat, handleClose }) {
       const isInChat = snapshot.exists() && snapshot.val() === selectedChat;
 
       if (!isInChat) {
+        // 🟢 สร้าง Firebase Realtime notification
+        const notiRef = push(ref(database, `notifications/${selectedChat}`));
+        await set(notiRef, {
+          userId: participantId,
+          message: {
+            sender: userId,
+            message: text, // หรือ `${user?.user?.fullname} ได้ส่งข้อความ`
+            createdAt: new Date().toISOString(),
+          },
+        });
+
+        // 🟢 ส่ง notification ไป MongoDB
         await axios.post("/api/notifications", {
           userId: participantId,
           senderId: userId,
