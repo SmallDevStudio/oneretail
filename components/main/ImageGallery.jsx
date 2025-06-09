@@ -262,8 +262,8 @@ const ImageGallery = ({ medias, userId }) => {
                   row.length === 1
                     ? "grid-cols-1 items-center justify-center"
                     : row.length === 2
-                    ? "grid-cols-2 items-center justify-center"
-                    : "grid-cols-3 items-center justify-center"
+                    ? "grid-cols-2 items-center justify-center gap-1"
+                    : "grid-cols-3 items-center justify-center gap-1"
                 }`}
               >
                 {row.map((media, index) => {
@@ -282,32 +282,74 @@ const ImageGallery = ({ medias, userId }) => {
                       className="relative cursor-pointer"
                       onClick={() => handleOpen(media, globalIndex)}
                     >
-                      {media.type === "image" ? (
-                        <Image
-                          src={media.url}
-                          alt="media"
-                          width={600}
-                          height={400}
-                          className="object-cover w-full h-auto rounded"
-                          onLoad={() => handleImageView(globalIndex)}
-                        />
+                      {medias.length === 1 ? (
+                        <div className="w-full">
+                          {medias[0].type === "image" ? (
+                            <Image
+                              src={medias[0].url}
+                              alt="single-media"
+                              width={600}
+                              height={400}
+                              className="w-full h-auto object-contain rounded"
+                              onClick={() => handleOpen(medias[0], 0)}
+                              onLoad={() => handleImageView(0)}
+                            />
+                          ) : (
+                            <div className="relative w-full">
+                              <video
+                                src={medias[0].url}
+                                controls
+                                autoPlay
+                                ref={(el) => (videoRef.current[0] = el)}
+                                className="w-full h-auto object-contain rounded"
+                                onTimeUpdate={() => handleTimeUpdate(0)}
+                                onPlay={() => handleVideoPlay(0)}
+                                onPause={() => handleVideoPauseOrEnd(0)}
+                                onEnded={() => handleVideoPauseOrEnd(0, true)}
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <FaRegPlayCircle className="text-white text-3xl" />
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       ) : (
-                        <>
-                          <video
-                            src={media.url}
-                            ref={(el) => (videoRef.current[globalIndex] = el)}
-                            className="object-cover w-full h-auto rounded"
-                            onTimeUpdate={() => handleTimeUpdate(globalIndex)}
-                            onPlay={() => handleVideoPlay(globalIndex)}
-                            onPause={() => handleVideoPauseOrEnd(globalIndex)}
-                            onEnded={() =>
-                              handleVideoPauseOrEnd(globalIndex, true)
-                            }
-                          />
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <FaRegPlayCircle className="text-white text-3xl" />
-                          </div>
-                        </>
+                        <div>
+                          {media.type === "image" ? (
+                            <div className="relative w-full h-48 md:h-64 overflow-hidden rounded">
+                              <Image
+                                src={media.url}
+                                alt="media"
+                                fill
+                                className="object-cover w-full h-full"
+                                onLoad={() => handleImageView(globalIndex)}
+                              />
+                            </div>
+                          ) : (
+                            <div className="relative w-full h-48 md:h-64 overflow-hidden rounded">
+                              <video
+                                src={media.url}
+                                ref={(el) =>
+                                  (videoRef.current[globalIndex] = el)
+                                }
+                                className="object-cover w-full h-full"
+                                onTimeUpdate={() =>
+                                  handleTimeUpdate(globalIndex)
+                                }
+                                onPlay={() => handleVideoPlay(globalIndex)}
+                                onPause={() =>
+                                  handleVideoPauseOrEnd(globalIndex)
+                                }
+                                onEnded={() =>
+                                  handleVideoPauseOrEnd(globalIndex, true)
+                                }
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <FaRegPlayCircle className="text-white text-3xl" />
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       )}
 
                       {showOverlay && (
