@@ -26,7 +26,13 @@ export default function Avatar({ src, size, userId }) {
     return () => unsubscribe(); // Cleanup listener
   }, [userId]);
 
-  const url = `/p/${userId}`;
+  const handleUrl = () => {
+    if (userId) {
+      router.push(`/p/${userId}`);
+    } else {
+      return null;
+    }
+  };
 
   return (
     <div className="relative">
@@ -41,7 +47,7 @@ export default function Avatar({ src, size, userId }) {
           height: size ? size : "auto",
         }}
         loading="lazy"
-        onClick={() => router.push(url)}
+        onClick={handleUrl}
         onError={() => setImgSrc("/images/Avatar.jpg")} // ตั้งค่า imgSrc เมื่อเกิดข้อผิดพลาด
       />
       {isOnline && (

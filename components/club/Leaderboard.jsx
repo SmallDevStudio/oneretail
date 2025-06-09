@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import useSWR from "swr";
 import Image from "next/image";
@@ -9,6 +9,12 @@ import "moment/locale/th";
 import { useRouter } from "next/router";
 import Avatar from "../utils/Avatar";
 moment.locale("th");
+import UserPanel from "./HallOfFame/UserPanel";
+import { Slide, Dialog } from "@mui/material";
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -51,16 +57,26 @@ export default function ClubLeaderboard({ handleTabClick }) {
   const [selectedMonth, setSelectedMonth] = useState(3);
   const [selectedYear, setSelectedYear] = useState(2025);
   const [activeTab, setActiveTab] = useState("BM");
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   const { data: session, status } = useSession();
+  const userId = session?.user?.id;
   const router = useRouter();
 
-  const { data, error } = useSWR(
+  useEffect(() => {
+    if (status === "loading") return; // Do nothing while loading{
+  }, [status]);
+
+  const { data, error, mutate, isLoading } = useSWR(
     selectedMonth && selectedYear
       ? `/api/club/hall-of-fame/leaderboard?month=${selectedMonth}&year=${selectedYear}`
       : null,
     fetcher,
     {
       onSuccess: (data) => {
+        setLoading(false);
         setLeaderboard(data.data);
 
         const parsed = (data.months || []).map((m) => {
@@ -97,17 +113,31 @@ export default function ClubLeaderboard({ handleTabClick }) {
 
   const currentUser = getCurrentUserData();
 
+  console.log({ currentUser });
+
   const handleActiveTab = (tab) => {
     setActiveTab(tab);
   };
 
-  const handleClick = (rewardtype) => {
-    if (!rewardtype) return;
-    const encode = encodeURIComponent(rewardtype);
-    router.push(`/club/hall-of-fame?type=${encode}`);
+  const handleClick = (user) => {
+    setSelectedUser(user);
+    setOpenModal(true);
   };
 
-  if (!leaderboard || status === "loading" || !session) return <Loading />;
+  const handleCloseModal = () => {
+    setSelectedUser(null);
+    setOpenModal(false);
+  };
+
+  if (
+    !leaderboard ||
+    status === "loading" ||
+    !session ||
+    !userId ||
+    isLoading ||
+    loading
+  )
+    return <Loading />;
 
   return (
     <div className="flex flex-col w-full pb-20 bg-gray-200">
@@ -186,7 +216,7 @@ export default function ClubLeaderboard({ handleTabClick }) {
                   <div
                     key={i}
                     className="grid grid-cols-[auto_1fr_auto] items-center px-4 py-2 border rounded-full bg-gray-50"
-                    onClick={() => handleTabClick("hall-of-fame", rewardKey)}
+                    onClick={() => handleClick(user)}
                   >
                     <div className="flex items-center gap-1">
                       {/* <div className="font-bold text-blue-600">{user.rank}</div> */}
@@ -215,6 +245,9 @@ export default function ClubLeaderboard({ handleTabClick }) {
           );
         })}
       </div>
+      <Dialog open={openModal} onClose={handleCloseModal}>
+        <UserPanel data={selectedUser} onClose={handleCloseModal} />
+      </Dialog>
     </div>
   );
 }

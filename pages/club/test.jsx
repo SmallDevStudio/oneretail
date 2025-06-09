@@ -5,6 +5,9 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { Slide, Dialog } from "@mui/material";
 import { IoClose } from "react-icons/io5";
+import axios from "axios";
+import { useSession } from "next-auth/react";
+import NewRules from "@/components/club/NewRules";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -13,14 +16,45 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 export default function Test() {
   const [activeTab, setActiveTab] = useState("leaderboard");
   const [type, setType] = useState("Grand%20Ambassador");
-  const [openWelcome, setOpenWelcome] = useState(true);
+  const [openWelcome, setOpenWelcome] = useState(false);
+  const [hasRead, setHasRead] = useState(false);
   const router = useRouter();
   const { subtab } = router.query;
+
+  const { data: session, status } = useSession();
+
+  const userId = session?.user?.id;
+
+  useEffect(() => {
+    if (status === "loading" || !session) return;
+  }, [status, session]);
 
   useEffect(() => {
     const tab = router.query.tab || "leaderboard";
     setActiveTab(tab);
   }, [router.query.tab]);
+
+  useEffect(() => {
+    const fetchRead = async () => {
+      try {
+        const response = await axios.get(
+          `/api/club/read-welcome?userId=${userId}`
+        );
+        if (response.data.data.length > 0) {
+          setHasRead(true);
+          setOpenWelcome(false);
+        } else {
+          setOpenWelcome(true);
+        }
+      } catch (error) {
+        console.error("Error fetching read status:", error);
+      }
+    };
+
+    if (userId) {
+      fetchRead();
+    }
+  }, [userId]);
 
   const handleTabClick = useCallback((tab) => {
     if (tab === "leaderboard") {
@@ -58,6 +92,11 @@ export default function Test() {
       .join(" ");
   }, [subtab]);
 
+  const handleClose = async () => {
+    await axios.post("/api/club/read-welcome", { userId: userId });
+    setOpenWelcome(false);
+  };
+
   return (
     <div>
       <div className="flex items-center justify-center bg-white p-4">
@@ -93,6 +132,16 @@ export default function Test() {
           >
             Leaderboard
           </li>
+          <li
+            className={`inline-block px-2 border-b-2 rounded-t-lg font-bold ${
+              activeTab === "rules"
+                ? "text-[#0056FF] border-[#F2871F]"
+                : "border-transparent hover:text-[#0056FF] hover:border-[#F2871F]"
+            }`}
+            onClick={() => handleTabClick("rules")}
+          >
+            กติกา
+          </li>
         </ul>
       </div>
 
@@ -104,13 +153,14 @@ export default function Test() {
         {activeTab === "leaderboard" && (
           <LeaderBoard handleTabClick={handleClick} />
         )}
+        {activeTab === "rules" && <NewRules />}
       </div>
 
       <Dialog
         open={openWelcome}
         TransitionComponent={Transition}
         keepMounted
-        onClose={() => setOpenWelcome(false)}
+        onClose={handleClose}
         aria-describedby="alert-dialog-slide-description"
         sx={{
           "& .MuiDialog-paper": {
@@ -132,7 +182,7 @@ export default function Test() {
               className="object-contain"
             />
             <div className="absolute top-2 right-2 bg-white transition-all rounded-full p-1">
-              <IoClose size={20} onClick={() => setOpenWelcome(false)} />
+              <IoClose size={20} onClick={handleClose} />
             </div>
           </div>
         </div>

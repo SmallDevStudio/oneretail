@@ -4,6 +4,7 @@ import { IoClose } from "react-icons/io5";
 import { Slide, Dialog } from "@mui/material";
 import ECer from "./ECer";
 import Avatar from "@/components/utils/Avatar";
+import { useSession } from "next-auth/react";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -11,6 +12,15 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 export default function UserPanel({ data, onClose }) {
   const [openCer, setOpenCer] = useState(false);
+
+  const { data: session, status } = useSession();
+
+  const userId = session?.user?.id;
+
+  useEffect(() => {
+    if (!data) return;
+    if (status === "loading" || !session) return;
+  }, [data, session, status]);
 
   return (
     <div>
@@ -43,14 +53,16 @@ export default function UserPanel({ data, onClose }) {
           <p>
             KPI: <span className="font-bold">{data?.achieve}</span>
           </p>
-          <div className="mt-4">
-            <button
-              className="bg-[#0056FF] text-white px-4 py-2 rounded-md"
-              onClick={() => setOpenCer(true)}
-            >
-              ใบรับรอง
-            </button>
-          </div>
+          {userId === data?.user?.userId && (
+            <div className="mt-4">
+              <button
+                className="bg-[#0056FF] text-white px-4 py-2 rounded-md"
+                onClick={() => setOpenCer(true)}
+              >
+                ใบรับรอง
+              </button>
+            </div>
+          )}
         </div>
       </div>
       <Dialog
