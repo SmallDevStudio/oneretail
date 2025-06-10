@@ -11,6 +11,8 @@ import Avatar from "../utils/Avatar";
 moment.locale("th");
 import UserPanel from "./HallOfFame/UserPanel";
 import { Slide, Dialog } from "@mui/material";
+import { RiHandCoinLine } from "react-icons/ri";
+import { FaSquareWebAwesomeStroke } from "react-icons/fa6";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -60,6 +62,7 @@ export default function ClubLeaderboard({ handleTabClick }) {
   const [openModal, setOpenModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
 
   const { data: session, status } = useSession();
   const userId = session?.user?.id;
@@ -98,13 +101,21 @@ export default function ClubLeaderboard({ handleTabClick }) {
     }
   );
 
+  const { data: userData, mutate: mutateUser } = useSWR(
+    `/api/users/${userId}`,
+    fetcher,
+    {
+      onSuccess: (data) => {
+        setUser(data.user);
+      },
+    }
+  );
+
   const getCurrentUserData = () => {
     for (const rewardKey in leaderboard) {
       const reward = leaderboard[rewardKey];
       for (const pos in reward.positions) {
-        const found = reward.positions[pos].find(
-          (u) => u.empId === session?.user?.empId
-        );
+        const found = reward.positions[pos].find((u) => u.empId === user.empId);
         if (found) return found;
       }
     }
@@ -112,8 +123,6 @@ export default function ClubLeaderboard({ handleTabClick }) {
   };
 
   const currentUser = getCurrentUserData();
-
-  console.log({ currentUser });
 
   const handleActiveTab = (tab) => {
     setActiveTab(tab);
@@ -186,6 +195,45 @@ export default function ClubLeaderboard({ handleTabClick }) {
           </div>
         ))}
       </div>
+
+      {/* current user */}
+      {currentUser && (
+        <div className="mt-4 flex flex-col p-4 bg-white">
+          <div className="grid grid-cols-[auto_1fr_auto] items-center px-4 py-2 border rounded-full bg-gray-50">
+            <div className="flex items-center gap-1">
+              <Image
+                src={currentUser.user.pictureUrl}
+                alt={currentUser.name}
+                width={40}
+                height={40}
+                className="rounded-full"
+              />
+            </div>
+
+            <div className="flex flex-col ml-4">
+              <h2 className="text-sm font-bold">{currentUser.name}</h2>
+              <p className="text-sm text-gray-500">{currentUser.rewardtype}</p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="border border-gray-300 rounded-xl bg-gray-200 p-2">
+                <RiHandCoinLine size={22} />
+              </div>
+              {(currentUser.rewardtype === "Grand Ambassador" ||
+                currentUser.rewardtype === "Ambassador") && (
+                <div
+                  className="border border-gray-300 rounded-xl bg-gray-200 p-2"
+                  onClick={() =>
+                    handleTabClick("hall-of-fame", currentUser.rewardtype)
+                  }
+                >
+                  <FaSquareWebAwesomeStroke size={22} />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="mt-4 flex flex-col gap-6">
         {Object.entries(leaderboard).map(([rewardKey, rewardData]) => {
