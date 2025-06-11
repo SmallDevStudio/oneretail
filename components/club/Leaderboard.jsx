@@ -13,6 +13,8 @@ import UserPanel from "./HallOfFame/UserPanel";
 import { Slide, Dialog } from "@mui/material";
 import { RiHandCoinLine } from "react-icons/ri";
 import { FaSquareWebAwesomeStroke } from "react-icons/fa6";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -63,6 +65,8 @@ export default function ClubLeaderboard({ handleTabClick }) {
   const [selectedUser, setSelectedUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [hasPoint, setHasPoint] = useState(false);
 
   const { data: session, status } = useSession();
   const userId = session?.user?.id;
@@ -111,18 +115,52 @@ export default function ClubLeaderboard({ handleTabClick }) {
     }
   );
 
-  const getCurrentUserData = () => {
-    for (const rewardKey in leaderboard) {
-      const reward = leaderboard[rewardKey];
-      for (const pos in reward.positions) {
-        const found = reward.positions[pos].find((u) => u.empId === user.empId);
-        if (found) return found;
-      }
-    }
-    return null;
-  };
+  useEffect(() => {
+    if (leaderboard && user) {
+      const getCurrentUserData = () => {
+        for (const rewardKey in leaderboard) {
+          const reward = leaderboard[rewardKey];
+          for (const pos in reward.positions) {
+            const found = reward.positions[pos].find(
+              (u) => u.empId === user.empId
+            );
+            if (found) return found;
+          }
+        }
+        return null;
+      };
 
-  const currentUser = getCurrentUserData();
+      setCurrentUser(getCurrentUserData());
+    }
+  }, [leaderboard, user]);
+
+  useEffect(() => {
+    if (currentUser && user) {
+      const fetchPoint = async () => {
+        const res = await axios.get(
+          `/api/club/hall-of-fame/get-points?halloffameId=${currentUser._id}&userId=${user.userId}`
+        );
+        if (res.data.data.length > 0) {
+          setHasPoint(true);
+        } else {
+          setHasPoint(false);
+        }
+      };
+
+      fetchPoint();
+    }
+  }, [currentUser, user]);
+
+  const fetchPoint = async () => {
+    const res = await axios.get(
+      `/api/club/hall-of-fame/get-points?halloffameId=${currentUser._id}&userId=${user.userId}`
+    );
+    if (res.data.data.length > 0) {
+      setHasPoint(true);
+    } else {
+      setHasPoint(false);
+    }
+  };
 
   const handleActiveTab = (tab) => {
     setActiveTab(tab);
@@ -136,6 +174,29 @@ export default function ClubLeaderboard({ handleTabClick }) {
   const handleCloseModal = () => {
     setSelectedUser(null);
     setOpenModal(false);
+  };
+
+  const handleGetPoint = async (id, point) => {
+    const data = {
+      halloffameId: id,
+      points: point,
+      userId: user.userId,
+    };
+
+    try {
+      await axios.post(`/api/club/hall-of-fame/get-points`, data);
+      fetchPoint();
+      await Swal.fire({
+        icon: "success",
+        title: "รับคะแนนสําเร็จ",
+        text: `คุณได้รับ ${point} คะแนน`,
+        showConfirmButton: true,
+        confirmButtonText: "ตกลง",
+      });
+    } catch (error) {
+      console.log(error);
+      toast.error("รับคะแนนไม่สําเร็จ");
+    }
   };
 
   if (
@@ -215,12 +276,20 @@ export default function ClubLeaderboard({ handleTabClick }) {
               <p className="text-sm text-gray-500">{currentUser.rewardtype}</p>
             </div>
 
-            <div className="flex items-center gap-2">
-              <div className="border border-gray-300 rounded-xl bg-gray-200 p-2">
-                <RiHandCoinLine size={22} />
-              </div>
-              {(currentUser.rewardtype === "Grand Ambassador" ||
-                currentUser.rewardtype === "Ambassador") && (
+            {(currentUser.rewardtype === "Grand Ambassador" ||
+              currentUser.rewardtype === "Ambassador") && (
+              <div className="flex items-center gap-2">
+                {!hasPoint && (
+                  <div
+                    className="border border-gray-300 rounded-xl bg-gray-200 p-2"
+                    onClick={() =>
+                      handleGetPoint(currentUser._id, currentUser.points)
+                    }
+                  >
+                    <RiHandCoinLine size={22} />
+                  </div>
+                )}
+
                 <div
                   className="border border-gray-300 rounded-xl bg-gray-200 p-2"
                   onClick={() =>
@@ -229,8 +298,8 @@ export default function ClubLeaderboard({ handleTabClick }) {
                 >
                   <FaSquareWebAwesomeStroke size={22} />
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       )}
