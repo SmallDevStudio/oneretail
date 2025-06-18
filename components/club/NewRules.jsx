@@ -7,23 +7,24 @@ import "react-medium-image-zoom/dist/styles.css";
 
 const rules = [
   { image: "/images/club/rules/0.png" },
-  { image: "/images/club/rules/1.jpeg" },
-  { image: "/images/club/rules/2.jpeg" },
-  { image: "/images/club/rules/3.jpeg" },
-  { image: "/images/club/rules/4.jpeg" },
-  { image: "/images/club/rules/5.jpeg" },
-  { image: "/images/club/rules/6.jpeg" },
-  { image: "/images/club/rules/7.jpeg" },
-  { image: "/images/club/rules/8.jpeg" },
-  { image: "/images/club/rules/9.jpeg" },
-  { image: "/images/club/rules/10.jpeg" },
-  { image: "/images/club/rules/11.jpeg" },
-  { image: "/images/club/rules/12.jpeg" },
-  { image: "/images/club/rules/13.jpeg" },
-  { image: "/images/club/rules/14.jpeg" },
-  { image: "/images/club/rules/15.jpeg" },
-  { image: "/images/club/rules/16.jpeg" },
-  { image: "/images/club/rules/17.jpeg" },
+  { image: "/images/club/rules/Slide2.jpeg" },
+  { image: "/images/club/rules/Slide3.jpeg" },
+  { image: "/images/club/rules/Slide4.jpeg" },
+  { image: "/images/club/rules/Slide5.jpeg" },
+  { image: "/images/club/rules/Slide6.jpeg" },
+  { image: "/images/club/rules/Slide7.jpeg" },
+  { image: "/images/club/rules/Slide8.jpeg" },
+  { image: "/images/club/rules/Slide9.jpeg" },
+  { image: "/images/club/rules/Slide10.jpeg" },
+  { image: "/images/club/rules/Slide11.jpeg" },
+  { image: "/images/club/rules/Slide12.jpeg" },
+  { image: "/images/club/rules/Slide13.jpeg" },
+  { image: "/images/club/rules/Slide14.jpeg" },
+  { image: "/images/club/rules/Slide15.jpeg" },
+  { image: "/images/club/rules/Slide16.jpeg" },
+  { image: "/images/club/rules/Slide17.jpeg" },
+  { image: "/images/club/rules/Slide18.jpeg" },
+  { image: "/images/club/rules/Slide19.jpeg" },
 ];
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -45,15 +46,17 @@ export default function NewRules() {
   };
 
   return (
-    <div className="flex w-full bg-gray-200 min-h-screen">
+    <div className="flex w-full bg-gray-200 min-h-screen pb-20">
       <div className="flex flex-col bg-white w-full">
-        <Image
-          src="/images/club/rules/new-logo.png"
-          alt="new-rules"
-          width={500}
-          height={500}
-          className="object-contain px-8"
-        />
+        <div className="flex flex-col justify-center items-center">
+          <Image
+            src="/images/club/rules/new-logo.png"
+            alt="new-rules"
+            width={350}
+            height={350}
+            className="object-contain px-8"
+          />
+        </div>
         <div className="flex flex-col px-4 py-4 tracking-tight items-center text-center text-[13px] bg-white">
           <span className="text-blue-950">
             คือการแข่งขันเพื่อค้นหาสุดยอดคนเก่ง แห่งชาว Retail และ AL
@@ -62,7 +65,7 @@ export default function NewRules() {
             Top Sales ตั้งแต่ผลงานระดับ V ขึ้นไป ของทุกตำแหน่ง (E-V Performance)
           </span>
         </div>
-        <div className="flex flex-col tracking-tight items-center text-center gap-2">
+        <div className="flex flex-col tracking-tight items-center text-center">
           {rules.map((item, index) => (
             <Image
               key={index}

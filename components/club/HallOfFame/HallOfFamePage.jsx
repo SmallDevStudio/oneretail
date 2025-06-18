@@ -8,8 +8,6 @@ export default function HallOfFamePage({ typeData }) {
   const router = useRouter();
   const { subtab } = router.query;
 
-  console.log("subtab:", subtab);
-
   useEffect(() => {
     if (subtab) {
       const capitalized = decodeURIComponent(subtab)

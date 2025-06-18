@@ -13,8 +13,10 @@ import UserPanel from "./HallOfFame/UserPanel";
 import { Slide, Dialog } from "@mui/material";
 import { RiHandCoinLine } from "react-icons/ri";
 import { FaSquareWebAwesomeStroke } from "react-icons/fa6";
+import { PiCertificate } from "react-icons/pi";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
+import CertificatePanel from "./HallOfFame/CertificatePanel";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -34,7 +36,7 @@ const position = [
   { name: "EWS", value: "EWS" },
   { name: "MDS", value: "MDS" },
   { name: "MAL", value: "MAL" },
-  { name: "CISAL", value: "CISAL" },
+  { name: "CISA(LINE)", value: "CISA_LINE" },
   { name: "AL_GH", value: "AL GH" },
   { name: "NC_MKT", value: "NC MKT" },
   { name: "UC_MKT", value: "UC MKT" },
@@ -66,7 +68,8 @@ export default function ClubLeaderboard({ handleTabClick }) {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
-  const [hasPoint, setHasPoint] = useState(false);
+  const [hasPoint, setHasPoint] = useState(true);
+  const [openCer, setOpenCer] = useState(false);
 
   const { data: session, status } = useSession();
   const userId = session?.user?.id;
@@ -116,6 +119,7 @@ export default function ClubLeaderboard({ handleTabClick }) {
   );
 
   useEffect(() => {
+    setLoading(true);
     if (leaderboard && user) {
       const getCurrentUserData = () => {
         for (const rewardKey in leaderboard) {
@@ -131,36 +135,23 @@ export default function ClubLeaderboard({ handleTabClick }) {
       };
 
       setCurrentUser(getCurrentUserData());
-    }
-  }, [leaderboard, user]);
 
-  useEffect(() => {
-    if (currentUser && user) {
-      const fetchPoint = async () => {
-        const res = await axios.get(
-          `/api/club/hall-of-fame/get-points?halloffameId=${currentUser._id}&userId=${user.userId}`
-        );
-        if (res.data.data.length > 0) {
-          setHasPoint(true);
-        } else {
-          setHasPoint(false);
-        }
-      };
-
-      fetchPoint();
+      if (currentUser && user) {
+        const fetchPoint = async () => {
+          const res = await axios.get(
+            `/api/club/hall-of-fame/get-points?halloffameId=${currentUser._id}&userId=${user.userId}`
+          );
+          if (res.data.data.length > 0) {
+            setHasPoint(true);
+          } else {
+            setHasPoint(false);
+          }
+        };
+        fetchPoint();
+      }
     }
-  }, [currentUser, user]);
-
-  const fetchPoint = async () => {
-    const res = await axios.get(
-      `/api/club/hall-of-fame/get-points?halloffameId=${currentUser._id}&userId=${user.userId}`
-    );
-    if (res.data.data.length > 0) {
-      setHasPoint(true);
-    } else {
-      setHasPoint(false);
-    }
-  };
+    setLoading(false);
+  }, [currentUser, leaderboard, user]);
 
   const handleActiveTab = (tab) => {
     setActiveTab(tab);
@@ -185,7 +176,7 @@ export default function ClubLeaderboard({ handleTabClick }) {
 
     try {
       await axios.post(`/api/club/hall-of-fame/get-points`, data);
-      fetchPoint();
+      setHasPoint(true);
       await Swal.fire({
         icon: "success",
         title: "รับคะแนนสําเร็จ",
@@ -197,6 +188,10 @@ export default function ClubLeaderboard({ handleTabClick }) {
       console.log(error);
       toast.error("รับคะแนนไม่สําเร็จ");
     }
+  };
+
+  const handleCloseCer = () => {
+    setOpenCer(false);
   };
 
   if (
@@ -276,30 +271,40 @@ export default function ClubLeaderboard({ handleTabClick }) {
               <p className="text-sm text-gray-500">{currentUser.rewardtype}</p>
             </div>
 
-            {(currentUser.rewardtype === "Grand Ambassador" ||
-              currentUser.rewardtype === "Ambassador") && (
-              <div className="flex items-center gap-2">
-                {!hasPoint && (
-                  <div
-                    className="border border-gray-300 rounded-xl bg-gray-200 p-2"
-                    onClick={() =>
-                      handleGetPoint(currentUser._id, currentUser.points)
-                    }
-                  >
-                    <RiHandCoinLine size={22} />
-                  </div>
-                )}
-
+            <div className="flex items-center gap-2">
+              {/* BTN Point */}
+              {!hasPoint && (
                 <div
-                  className="border border-gray-300 rounded-xl bg-gray-200 p-2"
+                  className="border border-gray-300 rounded-lg bg-gray-200 p-1"
+                  onClick={() =>
+                    handleGetPoint(currentUser._id, currentUser.points)
+                  }
+                >
+                  <RiHandCoinLine size={22} />
+                </div>
+              )}
+
+              {/* BTN Certificate */}
+              <div
+                className="border border-gray-300 rounded-lg bg-gray-200 p-1"
+                onClick={() => setOpenCer(true)}
+              >
+                <PiCertificate size={22} />
+              </div>
+
+              {/* BTN Hall of Fame */}
+              {(currentUser.rewardtype === "Grand Ambassador" ||
+                currentUser.rewardtype === "Ambassador") && (
+                <div
+                  className="border border-gray-300 rounded-lg bg-gray-200 p-1"
                   onClick={() =>
                     handleTabClick("hall-of-fame", currentUser.rewardtype)
                   }
                 >
                   <FaSquareWebAwesomeStroke size={22} />
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -364,6 +369,13 @@ export default function ClubLeaderboard({ handleTabClick }) {
       </div>
       <Dialog open={openModal} onClose={handleCloseModal}>
         <UserPanel data={selectedUser} onClose={handleCloseModal} />
+      </Dialog>
+      <Dialog
+        open={openCer}
+        onClose={handleCloseCer}
+        TransitionComponent={Transition}
+      >
+        <CertificatePanel data={currentUser} onClose={handleCloseCer} />
       </Dialog>
     </div>
   );

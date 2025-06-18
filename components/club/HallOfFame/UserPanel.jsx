@@ -2,9 +2,14 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { IoClose } from "react-icons/io5";
 import { Slide, Dialog } from "@mui/material";
-import ECer from "./ECer";
+import CertificatePanel from "./CertificatePanel";
 import Avatar from "@/components/utils/Avatar";
 import { useSession } from "next-auth/react";
+import { RiHandCoinLine } from "react-icons/ri";
+import { PiCertificate } from "react-icons/pi";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
+import axios from "axios";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -12,6 +17,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 export default function UserPanel({ data, onClose }) {
   const [openCer, setOpenCer] = useState(false);
+  const [hasPoint, setHasPoint] = useState(true);
 
   const { data: session, status } = useSession();
 
@@ -20,7 +26,43 @@ export default function UserPanel({ data, onClose }) {
   useEffect(() => {
     if (!data) return;
     if (status === "loading" || !session) return;
-  }, [data, session, status]);
+    if (data && userId) {
+      const fetchPoint = async () => {
+        const res = await axios.get(
+          `/api/club/hall-of-fame/get-points?halloffameId=${data._id}&userId=${userId}`
+        );
+        if (res.data.data.length > 0) {
+          setHasPoint(true);
+        } else {
+          setHasPoint(false);
+        }
+      };
+      fetchPoint();
+    }
+  }, [data, session, status, userId]);
+
+  const handleGetPoint = async (id, point) => {
+    const data = {
+      halloffameId: id,
+      points: point,
+      userId: userId,
+    };
+
+    try {
+      await axios.post(`/api/club/hall-of-fame/get-points`, data);
+      setHasPoint(true);
+      await Swal.fire({
+        icon: "success",
+        title: "รับคะแนนสําเร็จ",
+        text: `คุณได้รับ ${point} คะแนน`,
+        showConfirmButton: true,
+        confirmButtonText: "ตกลง",
+      });
+    } catch (error) {
+      console.log(error);
+      toast.error("รับคะแนนไม่สําเร็จ");
+    }
+  };
 
   return (
     <div>
@@ -54,13 +96,21 @@ export default function UserPanel({ data, onClose }) {
             KPI: <span className="font-bold">{data?.achieve}</span>
           </p>
           {userId === data?.user?.userId && (
-            <div className="mt-4">
+            <div className="flex justify-center items-center mt-4 gap-2">
               <button
-                className="bg-[#0056FF] text-white px-4 py-2 rounded-md"
+                className="border border-gray-300 rounded-lg bg-gray-200 p-1"
                 onClick={() => setOpenCer(true)}
               >
-                ใบรับรอง
+                <PiCertificate size={22} />
               </button>
+              {!hasPoint && (
+                <button
+                  className="border border-gray-300 rounded-lg bg-gray-200 p-1"
+                  onClick={() => handleGetPoint(data._id, data.points)}
+                >
+                  <RiHandCoinLine size={22} />
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -79,7 +129,7 @@ export default function UserPanel({ data, onClose }) {
           },
         }}
       >
-        <ECer data={data} onClose={() => setOpenCer(false)} />
+        <CertificatePanel data={data} onClose={() => setOpenCer(false)} />
       </Dialog>
     </div>
   );

@@ -6,6 +6,7 @@ import { IoClose } from "react-icons/io5";
 import Image from "next/image";
 import { Slide, Dialog } from "@mui/material";
 import UserPanel from "./UserPanel";
+import { Divider } from "@mui/material";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -20,6 +21,7 @@ const badgeData = {
     CISA: "/images/hall-of-fame/grand_ambassador/CISA.png",
     CFSA: "/images/hall-of-fame/grand_ambassador/CFSA.png",
     EWS: "/images/hall-of-fame/grand_ambassador/EWS.png",
+    CISA_LINE: "/images/hall-of-fame/grand_ambassador/CISA_LINE.png",
     INVS: "/images/hall-of-fame/grand_ambassador/INVS.png",
     MAL: "/images/hall-of-fame/grand_ambassador/MAL.png",
     MDS: "/images/hall-of-fame/grand_ambassador/MDS.png",
@@ -33,6 +35,7 @@ const badgeData = {
     CLSA: "/images/hall-of-fame/ambassador/CLSA.png",
     CISA: "/images/hall-of-fame/ambassador/CISA.png",
     CFSA: "/images/hall-of-fame/ambassador/CFSA.png",
+    CISA_LINE: "/images/hall-of-fame/ambassador/CISA_LINE.png",
     EWS: "/images/hall-of-fame/ambassador/EWS.png",
     INVS: "/images/hall-of-fame/ambassador/INVS.png",
     MAL: "/images/hall-of-fame/ambassador/MAL.png",
@@ -300,6 +303,7 @@ export default function HallOfFame() {
                   </div>
                 ))}
               </div>
+              <Divider key={positionKey} sx={{ my: 2 }} />
             </div>
           );
         })}

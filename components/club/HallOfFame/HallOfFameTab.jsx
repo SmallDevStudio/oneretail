@@ -7,6 +7,7 @@ import Image from "next/image";
 import { Slide, Dialog } from "@mui/material";
 import UserPanel from "./UserPanel";
 import Avatar from "@/components/utils/Avatar";
+import { Divider } from "@mui/material";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -20,6 +21,7 @@ const badgeData = {
     CLSM: "/images/hall-of-fame/grand_ambassador/CLSM.png",
     CLSM: "/images/hall-of-fame/grand_ambassador/CLSM.png",
     CLSA: "/images/hall-of-fame/grand_ambassador/CLSA.png",
+    CISA_LINE: "/images/hall-of-fame/grand_ambassador/CISA_LINE.png",
     CISA: "/images/hall-of-fame/grand_ambassador/CISA.png",
     CFSA: "/images/hall-of-fame/grand_ambassador/CFSA.png",
     CFSA_YINDEE: "/images/hall-of-fame/grand_ambassador/CFSA_YINDEE.png",
@@ -41,6 +43,7 @@ const badgeData = {
     CLSM: "/images/hall-of-fame/ambassador/CLSM.png",
     CLSM: "/images/hall-of-fame/ambassador/CLSM.png",
     CLSA: "/images/hall-of-fame/ambassador/CLSA.png",
+    CISA_LINE: "/images/hall-of-fame/grand_ambassador/CISA_LINE.png",
     CISA: "/images/hall-of-fame/ambassador/CISA.png",
     CFSA: "/images/hall-of-fame/ambassador/CFSA.png",
     CFSA_YINDEE: "/images/hall-of-fame/ambassador/CFSA_YINDEE.png",
@@ -326,6 +329,17 @@ export default function HallOfFameTab({ typeData }) {
                       </div>
                     ))}
                   </div>
+                  <Divider
+                    key={groupLabel}
+                    sx={{
+                      mb: 4,
+                      mt: 2,
+                      width: "80%",
+                      borderBottomWidth: 2,
+                      mx: "auto",
+                      bgcolor: "#F2F2F2",
+                    }}
+                  />
                 </div>
               );
             })}

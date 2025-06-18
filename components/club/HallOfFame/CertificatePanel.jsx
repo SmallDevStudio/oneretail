@@ -31,7 +31,7 @@ const month = {
   12: "December",
 };
 
-export default function ECer({ data, onClose }) {
+export default function CertificatePanel({ data, onClose }) {
   const [imgSrc, setImgSrc] = useState(data?.user?.pictureUrl);
   const router = useRouter();
   const { data: session, status } = useSession();
