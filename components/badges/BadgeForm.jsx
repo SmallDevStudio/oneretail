@@ -28,8 +28,6 @@ export default function BadgeForm({ data, onClose, mutate, newData }) {
     }
   }, [data]);
 
-  console.log("data", data);
-
   const handleClose = () => {
     setForm({ name: "", description: "" });
     setImage(null);
@@ -73,7 +71,7 @@ export default function BadgeForm({ data, onClose, mutate, newData }) {
       if (newData) {
         await axios.post("/api/badges", Data);
       } else {
-        await axios.put(`/api/badges?id=${data.id}`, Data);
+        await axios.put(`/api/badges?id=${data._id}`, Data);
       }
       mutate();
       handleClose();
@@ -98,7 +96,7 @@ export default function BadgeForm({ data, onClose, mutate, newData }) {
           <label htmlFor="image" className="font-bold">
             รูปภาพ
           </label>
-          {image ? (
+          {image && (
             <div className="relative inline-block">
               <Image
                 src={image.url}
@@ -115,15 +113,14 @@ export default function BadgeForm({ data, onClose, mutate, newData }) {
                 <IoClose size={15} />
               </div>
             </div>
-          ) : (
-            <div
-              className="flex flex-row gap-2 px-4 py-2 border border-gray-300 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200"
-              onClick={handleClickOpen}
-            >
-              <FaRegImage size={25} />
-              <span>อัพโหลดรูปภาพ</span>
-            </div>
           )}
+          <div
+            className="flex flex-row gap-2 px-4 py-2 border border-gray-300 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200"
+            onClick={handleClickOpen}
+          >
+            <FaRegImage size={25} />
+            <span>อัพโหลดรูปภาพ</span>
+          </div>
         </div>
         <div>
           <label htmlFor="name" className="font-bold">
