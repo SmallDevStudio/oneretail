@@ -69,19 +69,23 @@ export default function CertificatePanel({ data, onClose }) {
   };
 
   return (
-    <div className="flex flex-col w-full pb-4">
+    <div className="flex flex-col w-full pb-2">
       {/* Header */}
-      <div className="flex flex-row items-center justify-end gap-2 px-4">
-        <MdFileDownload
-          size={25}
-          onClick={downloadAsImage}
-          className="cursor-pointer bg-white rounded-lg p-1"
-        />
-        <IoClose
-          size={25}
-          onClick={onClose}
-          className="cursor-pointer bg-white rounded-lg p-1"
-        />
+      <div className="flex flex-row items-center justify-end gap-2 px-4 mt-2">
+        <div className="border border-gray-300 rounded-lg">
+          <MdFileDownload
+            size={25}
+            onClick={downloadAsImage}
+            className="cursor-pointer bg-white rounded-lg p-1"
+          />
+        </div>
+        <div className="border border-gray-300 rounded-lg">
+          <IoClose
+            size={25}
+            onClick={onClose}
+            className="cursor-pointer bg-white rounded-lg p-1"
+          />
+        </div>
       </div>
       <div>
         {data && data.rewardtype && (
@@ -93,7 +97,7 @@ export default function CertificatePanel({ data, onClose }) {
                 style={{ width: "350px", height: "auto" }}
               />
             </div>
-            <div className="absolute top-[25%] left-[50%] translate-x-[-50%] flex flex-col items-center justify-center">
+            <div className="absolute top-[27%] left-[50%] translate-x-[-50%] flex flex-col items-center justify-center">
               <p className="text-sm font-bold">
                 {month[data?.month]} {data?.year}
               </p>
