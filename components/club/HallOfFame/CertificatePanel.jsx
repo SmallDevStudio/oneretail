@@ -11,7 +11,7 @@ const cer = {
   improvement: "/images/hall-of-fame/e-cer/improvement.png",
   gold: "/images/hall-of-fame/e-cer/gold.png",
   platinum: "/images/hall-of-fame/e-cer/platinum.png",
-  dimond: "/images/hall-of-fame/e-cer/dimond.png",
+  diamond: "/images/hall-of-fame/e-cer/diamond.png",
   ambassador: "/images/hall-of-fame/e-cer/ambassador.png",
   grand_ambassador: "/images/hall-of-fame/e-cer/grand_ambassador.png",
 };
@@ -67,8 +67,6 @@ export default function CertificatePanel({ data, onClose }) {
     link.click();
     document.body.removeChild(link);
   };
-
-  console.log("data", data);
 
   return (
     <div className="flex flex-col w-full pb-4">

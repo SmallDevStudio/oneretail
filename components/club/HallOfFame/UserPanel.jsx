@@ -65,7 +65,7 @@ export default function UserPanel({ data, onClose }) {
   };
 
   return (
-    <div>
+    <div className="w-full min-w-[60vw]">
       {/* Header */}
       <div>
         <IoClose size={30} onClick={onClose} className="cursor-pointer" />
