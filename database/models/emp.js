@@ -15,6 +15,7 @@ const empSchema = new Schema({
   name: { type: String },
   group: { type: String },
   group2: { type: String },
+  managerId: { type: String },
 });
 
 const Emp = mongoose.models.emp || mongoose.model("emp", empSchema);
