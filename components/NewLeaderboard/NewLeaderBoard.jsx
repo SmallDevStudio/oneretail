@@ -56,7 +56,10 @@ export default function NewLeaderBoard() {
       <div className="bg-[#0056FF] text-white px-4 py-4 rounded-b-xl">
         <div className="grid grid-cols-5 gap-4 text-center text-sm font-bold">
           {sortedGroupData.map((group) => (
-            <div key={group.group} className="flex flex-col items-center">
+            <div
+              key={group.group}
+              className="flex flex-col items-center gap-1 leading-none"
+            >
               <span className="text-white">อันดับ {group.rank}</span>
               <div>
                 <Image
@@ -67,9 +70,15 @@ export default function NewLeaderBoard() {
                   className="object-contain bg-white w-[60px] h-[60px] rounded-full"
                 />
               </div>
-              <span className="text-xl font-bold">{group.group}</span>
-              <span className="text-sm font-bold">{group.totalPoints}</span>
-              <span className="text-[11px]">Users: {group.userCount}</span>
+              <span className="text-lg font-bold text-white bg-[#F2871F] rounded-md px-4 py-0.5 leading-none">
+                {group.group}
+              </span>
+              <span className="text-sm font-bold">
+                {group.totalPoints.toLocaleString()}
+              </span>
+              <span className="text-[11px]">
+                Users: {group.userCount.toLocaleString()}
+              </span>
             </div>
           ))}
         </div>
@@ -99,10 +108,11 @@ export default function NewLeaderBoard() {
             >
               <div className="flex flex-col text-sm">
                 <span className="font-bold text-[#0056FF]">
-                  อันดับ {dept.rank}: {dept.department}
+                  อันดับ {dept.rank}: {dept.department}{" "}
+                  <span className="text-xs text-[#F2871F]">({dept.group})</span>
                 </span>
                 <span className="text-xs text-gray-600">
-                  คะแนนรวม: {dept.totalPoints}
+                  คะแนนรวม: {dept.totalPoints.toLocaleString()}
                 </span>
               </div>
               <div className="text-xs text-gray-500">
@@ -126,25 +136,25 @@ export default function NewLeaderBoard() {
                         size={40}
                         userId={user.userId}
                       />
-                      <span className="text-sm">{user.empId}</span>
-                      <div>
-                        <span className="text-sm font-bold text-[#0056FF]">
+                      <span className="text-xs">{user.empId}</span>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs font-bold text-[#0056FF]">
                           {user.fullname}
                         </span>
                         <div
-                          className={`text-xs text-white px-1 py-0.5 rounded-full w-16 text-center
-                          ${
-                            user.emp.teamGrop === "Retail"
-                              ? "bg-[#0056FF]"
-                              : "bg-[#F2871F]"
-                          }`}
+                          className={`text-[10px] text-gray-600 text-center
+                          `}
                         >
-                          {user.emp.teamGrop}
+                          (
+                          {user.emp.teamGrop === "Retail"
+                            ? "BBD"
+                            : user.emp.teamGrop}
+                          )
                         </div>
                       </div>
                     </div>
                     <span className="text-sm font-bold text-gray-800">
-                      {user.totalPoints}
+                      {user.totalPoints.toLocaleString()}
                     </span>
                   </div>
                 ))}

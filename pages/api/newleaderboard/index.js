@@ -84,31 +84,74 @@ export default async function handler(req, res) {
         );
 
         // --- Group by Department ---
-        const departmentMap = {};
+        // Department whitelist map for merging and group labeling
+        const whitelistMap = {
+          จตุจักร: { names: ["จตุจักร", "สาขาสำนักพหลโยธิน"], group: "RH1" },
+          ธนบุรี: { names: ["ธนบุรี"], group: "RH1" },
+          บางกะปิ: { names: ["บางกะปิ"], group: "RH1" },
+          สาทร: { names: ["สาทร"], group: "RH1" },
+          สุขุมวิท: { names: ["สุขุมวิท"], group: "RH1" },
+
+          ชลบุรี: { names: ["ชลบุรี"], group: "RH2" },
+          บางนา: { names: ["บางนา"], group: "RH2" },
+          พัทยา: { names: ["พัทยา"], group: "RH2" },
+          ระยอง: { names: ["ระยอง"], group: "RH2" },
+
+          เชียงใหม่: { names: ["เชียงใหม่"], group: "RH3" },
+          นครสวรรค์: { names: ["นครสวรรค์"], group: "RH3" },
+          นนทบุรี: { names: ["นนทบุรี"], group: "RH3" },
+          พิษณุโลก: { names: ["พิษณุโลก"], group: "RH3" },
+          อยุธยา: { names: ["อยุธยา"], group: "RH3" },
+
+          ดอนเมือง: { names: ["ดอนเมือง"], group: "RH4" },
+          นครราชสีมา: { names: ["นครราชสีมา"], group: "RH4" },
+          สระบุรี: { names: ["สระบุรี"], group: "RH4" },
+          อุดรธานี: { names: ["อุดรธานี"], group: "RH4" },
+          อุบลราชธานี: { names: ["อุบลราชธานี"], group: "RH4" },
+
+          ภูเก็ต: { names: ["ภูเก็ต"], group: "RH5" },
+          ราชบุรี: { names: ["ราชบุรี"], group: "RH5" },
+          สมุทรสาคร: { names: ["สมุทรสาคร"], group: "RH5" },
+          สุราษฎร์ธานี: { names: ["สุราษฎร์ธานี"], group: "RH5" },
+          หาดใหญ่: { names: ["หาดใหญ่"], group: "RH5" },
+        };
+
+        // Merge departments
+        const mergedDepartmentMap = {};
         filteredByGroup.forEach((entry) => {
-          const department = entry.emp.departmentshort || "Unknown";
-          if (!departmentMap[department]) departmentMap[department] = [];
-          departmentMap[department].push(entry);
+          const deptShort = entry.emp.departmentshort;
+          const displayName = Object.keys(whitelistMap).find((key) =>
+            whitelistMap[key].names.includes(deptShort)
+          );
+
+          if (!displayName) return; // skip if not in whitelist
+
+          if (!mergedDepartmentMap[displayName]) {
+            mergedDepartmentMap[displayName] = {
+              department: displayName,
+              group: whitelistMap[displayName].group,
+              users: [],
+              totalPoints: 0,
+            };
+          }
+
+          mergedDepartmentMap[displayName].users.push(entry);
+          mergedDepartmentMap[displayName].totalPoints += entry.totalPoints;
         });
 
-        const departmentSummary = Object.entries(departmentMap)
-          .map(([department, users]) => {
-            const totalPoints = users.reduce(
-              (sum, u) => sum + u.totalPoints,
-              0
-            );
-            const sortedUsers = [...users]
+        // Convert to array and sort
+        const departmentSummary = Object.values(mergedDepartmentMap)
+          .map((dept) => {
+            const sortedUsers = [...dept.users]
               .sort((a, b) => b.totalPoints - a.totalPoints)
-              .map((user, index) => ({ ...user, rank: index + 1 }));
-
+              .map((u, index) => ({ ...u, rank: index + 1 }));
             return {
-              department,
-              totalPoints,
+              ...dept,
               users: sortedUsers,
             };
           })
           .sort((a, b) => b.totalPoints - a.totalPoints)
-          .map((b, index) => ({ ...b, rank: index + 1 }));
+          .map((dept, index) => ({ ...dept, rank: index + 1 }));
 
         res.status(200).json({
           success: true,
