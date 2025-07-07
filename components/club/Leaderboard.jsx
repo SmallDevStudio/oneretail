@@ -60,8 +60,8 @@ const thaiMonths = [
 export default function ClubLeaderboard({ handleTabClick }) {
   const [leaderboard, setLeaderboard] = useState({});
   const [availableMonths, setAvailableMonths] = useState([]);
-  const [selectedMonth, setSelectedMonth] = useState(3);
-  const [selectedYear, setSelectedYear] = useState(2025);
+  const [selectedMonth, setSelectedMonth] = useState();
+  const [selectedYear, setSelectedYear] = useState();
   const [activeTab, setActiveTab] = useState("BM");
   const [openModal, setOpenModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -70,6 +70,7 @@ export default function ClubLeaderboard({ handleTabClick }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [hasPoint, setHasPoint] = useState(true);
   const [openCer, setOpenCer] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
   const { data: session, status } = useSession();
   const userId = session?.user?.id;
@@ -79,34 +80,38 @@ export default function ClubLeaderboard({ handleTabClick }) {
     if (status === "loading") return; // Do nothing while loading{
   }, [status]);
 
-  const { data, error, mutate, isLoading } = useSWR(
+  const swrKey =
     selectedMonth && selectedYear
       ? `/api/club/hall-of-fame/leaderboard?month=${selectedMonth}&year=${selectedYear}`
-      : null,
-    fetcher,
-    {
-      onSuccess: (data) => {
-        setLoading(false);
-        setLeaderboard(data.data);
+      : "/api/club/hall-of-fame/leaderboard"; // ป้องกันการโหลดถ้าไม่มีข้อมูล
 
-        const parsed = (data.months || []).map((m) => {
+  const { data, error, mutate, isLoading } = useSWR(swrKey, fetcher, {
+    onSuccess: (data) => {
+      setLoading(false);
+      setLeaderboard(data.data);
+
+      const parsed = (data.months || [])
+        .map((m) => {
           const [year, month] = m.split("-");
           return { year: +year, month: +month };
-        });
-
-        parsed.sort((a, b) =>
+        })
+        .filter((m) => !isNaN(m.year) && !isNaN(m.month))
+        .sort((a, b) =>
           a.year === b.year ? b.month - a.month : b.year - a.year
         );
 
-        setAvailableMonths(parsed);
+      setAvailableMonths(parsed);
 
-        if (!selectedMonth || !selectedYear) {
-          setSelectedYear(parsed[0]?.year);
-          setSelectedMonth(parsed[0]?.month);
-        }
-      },
-    }
-  );
+      // ✅ ตั้งค่าครั้งแรกเท่านั้น
+      if (!initialized && parsed.length > 0) {
+        setSelectedYear(parsed[0].year);
+        setSelectedMonth(parsed[0].month);
+        setInitialized(true);
+      }
+    },
+  });
+
+  console.log(selectedMonth, selectedYear, swrKey);
 
   const { data: userData, mutate: mutateUser } = useSWR(
     `/api/users/${userId}`,
@@ -213,13 +218,16 @@ export default function ClubLeaderboard({ handleTabClick }) {
           <div className="mt-2 flex gap-2 items-center">
             <span>เดือน</span>
             <select
-              value={`${selectedYear}-${selectedMonth}`}
+              value={
+                selectedYear && selectedMonth
+                  ? `${selectedYear}-${selectedMonth}`
+                  : ""
+              }
               onChange={(e) => {
                 const [year, month] = e.target.value.split("-");
                 setSelectedYear(+year);
                 setSelectedMonth(+month);
               }}
-              className="px-2 py-1 outline-none"
             >
               {availableMonths.map((m, i) => (
                 <option key={i} value={`${m.year}-${m.month}`}>

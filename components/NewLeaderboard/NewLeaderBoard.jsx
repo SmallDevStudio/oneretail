@@ -60,11 +60,11 @@ export default function NewLeaderBoard() {
               <span className="text-white">อันดับ {group.rank}</span>
               <div>
                 <Image
-                  src={`/images/wally/${group.rank}.png`}
+                  src={`/images/wally/2${group.rank}.jpg`}
                   alt="wally"
-                  width={40}
-                  height={40}
-                  className="object-contain bg-white w-[40px] h-[40px] rounded-full"
+                  width={100}
+                  height={100}
+                  className="object-contain bg-white w-[60px] h-[60px] rounded-full"
                 />
               </div>
               <span className="text-xl font-bold">{group.group}</span>

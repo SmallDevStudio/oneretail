@@ -20,16 +20,15 @@ export default async function handler(req, res) {
         const badges = await Badges.find({ active: true }).lean();
 
         // ✅ ดึง Users ทั้งหมดที่ empId ตรงกับ HallOfFame
-        const empIds = [...new Set(records.map((r) => r.empId))];
+        const empIds = [...new Set(records.map((r) => String(r.empId)))];
         const users = await Users.find(
           { empId: { $in: empIds } },
           { userId: 1, fullname: 1, pictureUrl: 1, role: 1, empId: 1 }
         ).lean();
 
-        // ✅ map user ข้อมูลจาก empId
         const userMap = {};
         for (const u of users) {
-          userMap[u.empId] = {
+          userMap[String(u.empId)] = {
             userId: u.userId,
             fullname: u.fullname,
             pictureUrl: u.pictureUrl,
@@ -48,7 +47,6 @@ export default async function handler(req, res) {
         }
 
         const grouped = {};
-
         for (const record of records) {
           let rewardtype = record.rewardtype?.trim().toLowerCase();
           if (!rewardtype || rewardtype === "n/a") {
@@ -57,10 +55,7 @@ export default async function handler(req, res) {
 
           if (!grouped[rewardtype]) {
             grouped[rewardtype] = {
-              badge: badgeMap[rewardtype] || {
-                name: "",
-                image: "",
-              },
+              badge: badgeMap[rewardtype] || { name: "", image: "" },
               positions: {},
             };
           }
@@ -72,14 +67,28 @@ export default async function handler(req, res) {
 
           grouped[rewardtype].positions[pos].push({
             ...record,
-            user: userMap[record.empId] || null, // ✅ เพิ่มข้อมูล user ที่จับคู่
+            user: userMap[String(record.empId)] || null,
           });
         }
 
+        // ✅ ดึง months ทั้งหมดจาก collection (ไม่ใช้แค่จาก records)
+        const allRecords = await HallOfFame.find(
+          {},
+          { month: 1, year: 1, _id: 0 }
+        ).lean();
+        const months = [
+          ...new Set(
+            allRecords
+              .filter((r) => r.year && r.month)
+              .map((r) => `${r.year}-${r.month}`)
+          ),
+        ];
+
+        // ✅ ส่งข้อมูลออก
         res.status(200).json({
           success: true,
           data: grouped,
-          months: [...new Set(records.map((r) => `${r.year}-${r.month}`))],
+          months,
         });
       } catch (error) {
         res.status(400).json({ success: false, error: error.message });
