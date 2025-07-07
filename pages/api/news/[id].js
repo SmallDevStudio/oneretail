@@ -1,5 +1,5 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
-import News from "@/database/models/News";
+import News from "@/database/models/News/News";
 
 export default async function handler(req, res) {
   const { method } = req;
