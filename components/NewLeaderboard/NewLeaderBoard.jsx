@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import useSWR from "swr";
 import Avatar from "@/components/utils/Avatar";
+import Image from "next/image";
 import Loading from "@/components/Loading";
 import { useSession } from "next-auth/react";
 
@@ -28,7 +29,7 @@ export default function NewLeaderBoard() {
     );
   };
 
-  const customRankOrder = [4, 2, 1, 3, 5];
+  const customRankOrder = [1, 2, 3, 4, 5];
   const sortedGroupData = customRankOrder
     .map((targetRank) => groupData.find((g) => g.rank === targetRank))
     .filter(Boolean);
@@ -55,11 +56,18 @@ export default function NewLeaderBoard() {
       <div className="bg-[#0056FF] text-white px-4 py-4 rounded-b-xl">
         <div className="grid grid-cols-5 gap-4 text-center text-sm font-bold">
           {sortedGroupData.map((group) => (
-            <div key={group.group} className="flex flex-col items-center gap-1">
+            <div key={group.group} className="flex flex-col items-center">
               <span className="text-white">อันดับ {group.rank}</span>
-              <div className="bg-[#F2871F] p-2 rounded-full">
-                <span className="text-2xl font-bold">{group.group}</span>
+              <div>
+                <Image
+                  src={`/images/wally/${group.rank}.png`}
+                  alt="wally"
+                  width={40}
+                  height={40}
+                  className="object-contain bg-white w-[40px] h-[40px] rounded-full"
+                />
               </div>
+              <span className="text-xl font-bold">{group.group}</span>
               <span className="text-sm font-bold">{group.totalPoints}</span>
               <span className="text-[11px]">Users: {group.userCount}</span>
             </div>
