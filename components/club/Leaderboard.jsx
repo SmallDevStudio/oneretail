@@ -142,21 +142,23 @@ export default function ClubLeaderboard({ handleTabClick }) {
       setCurrentUser(getCurrentUserData());
 
       if (currentUser && user) {
-        const fetchPoint = async () => {
-          const res = await axios.get(
-            `/api/club/hall-of-fame/get-points?halloffameId=${currentUser._id}&userId=${user.userId}`
-          );
-          if (res.data.data.length > 0) {
-            setHasPoint(true);
-          } else {
-            setHasPoint(false);
-          }
-        };
         fetchPoint();
       }
     }
     setLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser, leaderboard, user]);
+
+  const fetchPoint = async () => {
+    const res = await axios.get(
+      `/api/club/hall-of-fame/get-points?halloffameId=${currentUser._id}&userId=${user.userId}`
+    );
+    if (res.data.data.length > 0) {
+      setHasPoint(true);
+    } else {
+      setHasPoint(false);
+    }
+  };
 
   const handleActiveTab = (tab) => {
     setActiveTab(tab);
@@ -182,6 +184,7 @@ export default function ClubLeaderboard({ handleTabClick }) {
     try {
       await axios.post(`/api/club/hall-of-fame/get-points`, data);
       setHasPoint(true);
+      fetchPoint();
       await Swal.fire({
         icon: "success",
         title: "รับคะแนนสําเร็จ",
