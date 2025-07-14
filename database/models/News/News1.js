@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
 
-const newsSchema = new mongoose.Schema(
+const news1Schema = new mongoose.Schema(
   {
     title: { type: String, required: true },
-    description: { type: String, required: true },
+    content: { type: String, required: true },
     image: { type: String },
     position: { type: String },
+    group: { type: String },
     active: { type: Boolean, default: true },
     updated_users: [
       {
@@ -23,4 +24,4 @@ const newsSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.models.News || mongoose.model("News", newsSchema);
+export default mongoose.models.News1 || mongoose.model("News1", news1Schema);

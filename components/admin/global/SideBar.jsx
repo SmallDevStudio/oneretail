@@ -37,6 +37,7 @@ import { FaWpforms } from "react-icons/fa";
 import { BiCalendarStar } from "react-icons/bi";
 import { RiCoupon3Line } from "react-icons/ri";
 import { LuNotebookText } from "react-icons/lu";
+import { FaRegNewspaper } from "react-icons/fa6";
 import Image from "next/image";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
@@ -312,6 +313,14 @@ const Sidebar = () => {
                 title="จัดการของขวัญปีใหม่"
                 to="/admin/gifts"
                 icon={<FaGift />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+
+              <Item
+                title="จัดการข่าวสาร"
+                to="/admin/news"
+                icon={<FaRegNewspaper />}
                 selected={selected}
                 setSelected={setSelected}
               />

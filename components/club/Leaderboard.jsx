@@ -111,8 +111,6 @@ export default function ClubLeaderboard({ handleTabClick }) {
     },
   });
 
-  console.log(selectedMonth, selectedYear, swrKey);
-
   const { data: userData, mutate: mutateUser } = useSWR(
     `/api/users/${userId}`,
     fetcher,
