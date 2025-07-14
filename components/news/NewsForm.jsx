@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import axios from "axios";
 import useSWR from "swr";
 import { Divider, Slide, Dialog } from "@mui/material";
@@ -25,7 +26,7 @@ const TiptapEditor = dynamic(() => import("@/components/Tiptap/TiptapEditor"), {
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
-export default function NewsForm({ data, onClose, newData }) {
+export default function NewsForm({ data, onClose, newData, mutate }) {
   const [form, setForm] = useState({
     start_date: "",
     end_date: "",
@@ -41,6 +42,15 @@ export default function NewsForm({ data, onClose, newData }) {
   const [openImage, setOpenImage] = useState(false);
   const [files, setFiles] = useState(null);
   const [group, setGroup] = useState([]);
+
+  const { data: session, status } = useSession();
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "loading") return;
+    if (!session) return;
+  }, [session, status]);
 
   useEffect(() => {
     if (data) {
@@ -99,8 +109,8 @@ export default function NewsForm({ data, onClose, newData }) {
   const handleSubmit = async () => {
     const newData = {
       group: form.group,
-      start_date: form.start_date || new Date(),
-      end_date: form.end_date || new Date(),
+      start_date: form.start_date || new Date().toISOString(),
+      end_date: form.end_date || new Date().toISOString(),
       title: form.title,
       url: form.url,
       content: content,
@@ -125,7 +135,7 @@ export default function NewsForm({ data, onClose, newData }) {
       }
     } else {
       try {
-        newData.creator = session?.user?.id || ""; // ตรวจสอบให้แน่ใจว่ามีค่า
+        newData.creator = session?.user?.id; // ตรวจสอบให้แน่ใจว่ามีค่า
         const res = await axios.post("/api/news", newData);
         if (res.data.success) {
           toast.success("บันทึกข่าวสารเรียบร้อย");

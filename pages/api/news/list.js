@@ -9,7 +9,9 @@ export default async function handler(req, res) {
   switch (method) {
     case "GET":
       try {
-        const news = await News1.find().sort({ createdAt: -1 });
+        const news = await News1.find({ deleted: false }).sort({
+          createdAt: -1,
+        });
         res.status(200).json({ success: true, data: news });
       } catch (error) {
         console.error("Error fetching News:", error);

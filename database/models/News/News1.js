@@ -5,8 +5,10 @@ const news1Schema = new mongoose.Schema(
     title: { type: String, required: true },
     content: { type: String, required: true },
     image: { type: String },
-    position: { type: String },
     group: { type: String },
+    display: { type: String },
+    start_date: { type: Date, default: Date.now },
+    end_date: { type: Date, default: Date.now },
     active: { type: Boolean, default: true },
     updated_users: [
       {
