@@ -11,11 +11,23 @@ export default async function handler(req, res) {
   switch (method) {
     case "GET":
       try {
-        const { halloffameId, userId } = req.query;
+        const { halloffameId, userId, month, year } = req.query;
+        const halloffame = await HallOfFame.findOne({
+          month: month,
+          year: year,
+          userId: userId,
+        }).lean();
+
+        if (!halloffame) {
+          return res
+            .status(404)
+            .json({ success: false, message: "Hall of Fame not found" });
+        }
+
         const getPoints = await GetPoints.find({
-          halloffameId,
-          userId,
+          halloffameId: halloffame._id,
         });
+
         res.status(200).json({ success: true, data: getPoints });
       } catch (error) {
         res.status(400).json({ success: false, error: error.message });

@@ -60,8 +60,8 @@ const thaiMonths = [
 export default function ClubLeaderboard({ handleTabClick }) {
   const [leaderboard, setLeaderboard] = useState({});
   const [availableMonths, setAvailableMonths] = useState([]);
-  const [selectedMonth, setSelectedMonth] = useState();
-  const [selectedYear, setSelectedYear] = useState();
+  const [selectedMonth, setSelectedMonth] = useState(null);
+  const [selectedYear, setSelectedYear] = useState(null);
   const [activeTab, setActiveTab] = useState("BM");
   const [openModal, setOpenModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -102,7 +102,7 @@ export default function ClubLeaderboard({ handleTabClick }) {
 
       setAvailableMonths(parsed);
 
-      // ✅ ตั้งค่าครั้งแรกเท่านั้น
+      // ✅ เซตค่าเดือนล่าสุดตอนโหลดครั้งแรก
       if (!initialized && parsed.length > 0) {
         setSelectedYear(parsed[0].year);
         setSelectedMonth(parsed[0].month);
@@ -122,39 +122,37 @@ export default function ClubLeaderboard({ handleTabClick }) {
   );
 
   useEffect(() => {
-    setLoading(true);
-    if (leaderboard && user) {
-      const getCurrentUserData = () => {
-        for (const rewardKey in leaderboard) {
-          const reward = leaderboard[rewardKey];
-          for (const pos in reward.positions) {
-            const found = reward.positions[pos].find(
-              (u) => u.empId === user.empId
-            );
-            if (found) return found;
-          }
+    if (!leaderboard || !user) return;
+    const getCurrentUserData = () => {
+      for (const rewardKey in leaderboard) {
+        const reward = leaderboard[rewardKey];
+        for (const pos in reward.positions) {
+          const found = reward.positions[pos].find(
+            (u) => u.empId === user.empId
+          );
+          if (found) return found;
         }
-        return null;
-      };
-
-      setCurrentUser(getCurrentUserData());
-
-      if (currentUser && user) {
-        fetchPoint();
       }
-    }
-    setLoading(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser, leaderboard, user]);
+      return null;
+    };
 
-  const fetchPoint = async () => {
-    const res = await axios.get(
-      `/api/club/hall-of-fame/get-points?halloffameId=${currentUser._id}&userId=${user.userId}`
-    );
-    if (res.data.data.length > 0) {
-      setHasPoint(true);
-    } else {
-      setHasPoint(false);
+    const result = getCurrentUserData();
+    setCurrentUser(result);
+
+    if (result && user) {
+      fetchPoint(result._id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [leaderboard, user]);
+
+  const fetchPoint = async (halloffameId) => {
+    try {
+      const res = await axios.get(
+        `/api/club/hall-of-fame/get-points?halloffameId=${halloffameId}&userId=${user.userId}`
+      );
+      setHasPoint(res.data.data.length > 0);
+    } catch (err) {
+      console.error("Error fetching points", err);
     }
   };
 
@@ -173,16 +171,14 @@ export default function ClubLeaderboard({ handleTabClick }) {
   };
 
   const handleGetPoint = async (id, point) => {
-    const data = {
-      halloffameId: id,
-      points: point,
-      userId: user.userId,
-    };
-
     try {
-      await axios.post(`/api/club/hall-of-fame/get-points`, data);
+      await axios.post(`/api/club/hall-of-fame/get-points`, {
+        halloffameId: id,
+        points: point,
+        userId: user.userId,
+      });
       setHasPoint(true);
-      fetchPoint();
+      fetchPoint(id);
       await Swal.fire({
         icon: "success",
         title: "รับคะแนนสําเร็จ",
@@ -191,7 +187,7 @@ export default function ClubLeaderboard({ handleTabClick }) {
         confirmButtonText: "ตกลง",
       });
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error("รับคะแนนไม่สําเร็จ");
     }
   };
@@ -201,12 +197,14 @@ export default function ClubLeaderboard({ handleTabClick }) {
   };
 
   if (
-    !leaderboard ||
     status === "loading" ||
+    isLoading ||
+    loading ||
     !session ||
     !userId ||
-    isLoading ||
-    loading
+    !selectedMonth ||
+    !selectedYear ||
+    !leaderboard
   )
     return <Loading />;
 
@@ -214,16 +212,12 @@ export default function ClubLeaderboard({ handleTabClick }) {
     <div className="flex flex-col w-full pb-20 bg-gray-200">
       <div className="flex flex-col items-center justify-center bg-white w-full">
         <h1 className="text-3xl font-bold text-[#0056FF]">Leaderboard</h1>
-        {/* selected month & year */}
+        {/* Select Month */}
         {availableMonths.length > 0 && (
           <div className="mt-2 flex gap-2 items-center">
             <span>เดือน</span>
             <select
-              value={
-                selectedYear && selectedMonth
-                  ? `${selectedYear}-${selectedMonth}`
-                  : ""
-              }
+              value={`${selectedYear}-${selectedMonth}`}
               onChange={(e) => {
                 const [year, month] = e.target.value.split("-");
                 setSelectedYear(+year);
@@ -281,7 +275,6 @@ export default function ClubLeaderboard({ handleTabClick }) {
             </div>
 
             <div className="flex items-center gap-2">
-              {/* BTN Point */}
               {!hasPoint && (
                 <div
                   className="border border-gray-300 rounded-lg bg-gray-200 p-1"
@@ -292,16 +285,12 @@ export default function ClubLeaderboard({ handleTabClick }) {
                   <RiHandCoinLine size={22} />
                 </div>
               )}
-
-              {/* BTN Certificate */}
               <div
                 className="border border-gray-300 rounded-lg bg-gray-200 p-1"
                 onClick={() => setOpenCer(true)}
               >
                 <PiCertificate size={22} />
               </div>
-
-              {/* BTN Hall of Fame */}
               {(currentUser.rewardtype === "Grand Ambassador" ||
                 currentUser.rewardtype === "Ambassador") && (
                 <div
