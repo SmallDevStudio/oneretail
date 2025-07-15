@@ -3,16 +3,11 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import useSWR from "swr";
 import { Divider, Slide, Dialog } from "@mui/material";
-import dynamic from "next/dynamic";
 import { useSession } from "next-auth/react";
 import Loading from "../Loading";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
 import { IoClose } from "react-icons/io5";
 import { FaRegImage } from "react-icons/fa";
-import Upload from "../utils/Upload";
-import Image from "next/image";
 import Swal from "sweetalert2";
 import NewGroupForm from "./NewGroupForm";
 
@@ -24,10 +19,10 @@ const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 export default function NewGroup() {
   const [groups, setGroups] = useState([]);
-  const [selectedGroup, setSelectedGroup] = useState(null);
+  const [selectedGroup, setSelectedGroup] = useState("select");
   const [open, setOpen] = useState(false);
 
-  const { data, error } = useSWR("/api/news/group", fetcher, {
+  const { data, error, mutate } = useSWR("/api/news/group", fetcher, {
     onSuccess: (data) => setGroups(data.data),
   });
 
@@ -41,11 +36,23 @@ export default function NewGroup() {
   }, [selectedGroup]);
 
   const handleOpen = () => {
+    setSelectedGroup("select");
     setOpen(true);
   };
-  const handleClose = () => {
-    setOpen(false);
+  const handleClose = (value) => {
+    if (value) {
+      setSelectedGroup(value);
+      setOpen(false);
+    } else {
+      setSelectedGroup("select");
+      setOpen(false);
+    }
   };
+
+  if (error) return <div>failed to load</div>;
+  if (!data) return <Loading />;
+
+  console.log(selectedGroup);
 
   return (
     <div>
@@ -59,21 +66,26 @@ export default function NewGroup() {
         value={selectedGroup}
         onChange={(e) => setSelectedGroup(e.target.value)}
       >
-        <option value="">--กรุณาเลือกกลุ่ม--</option>
+        <option value="select">--กรุณาเลือกกลุ่ม--</option>
         {groups.map((group) => (
           <option key={group?._id} value={group?.value}>
             {group?.name}
           </option>
         ))}
         <Divider />
-        <option value="create">สร้างกลุ่มใหม่</option>
+        <option value="create">+ สร้างกลุ่มใหม่</option>
       </select>
       <Dialog
         open={open}
         TransitionComponent={Transition}
         onClose={handleClose}
       >
-        <NewGroupForm onClose={handleClose} />
+        <NewGroupForm
+          onClose={handleClose}
+          groups={groups}
+          mutate={mutate}
+          setGroup={setSelectedGroup}
+        />
       </Dialog>
     </div>
   );

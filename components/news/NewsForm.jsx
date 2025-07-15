@@ -16,6 +16,7 @@ import Image from "next/image";
 import { deleteFile } from "@/lib/hook/useStorage";
 import Swal from "sweetalert2";
 import NewGroup from "./NewGroup";
+import NewTabs from "./NewTabs";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -236,21 +237,7 @@ export default function NewsForm({ data, onClose, newData, mutate }) {
           </div>
 
           <div className="flex flex-col w-full">
-            <label htmlFor="display" className="font-bold">
-              การแสดงผล
-            </label>
-            <select
-              name="display"
-              id="display"
-              value={form.display}
-              onChange={(e) => setForm({ ...form, display: e.target.value })}
-              className="border border-gray-300 rounded-md p-2 w-full"
-            >
-              <option value="">-- กรุณาเลือกการแสดงผล --</option>
-              <option value="popup">Popup</option>
-              <option value="home">Home</option>
-              <option value="all">ทั้งหมด</option>
-            </select>
+            <NewTabs />
           </div>
         </div>
 
