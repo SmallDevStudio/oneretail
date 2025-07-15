@@ -15,6 +15,7 @@ import Upload from "../utils/Upload";
 import Image from "next/image";
 import { deleteFile } from "@/lib/hook/useStorage";
 import Swal from "sweetalert2";
+import NewGroup from "./NewGroup";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -42,6 +43,7 @@ export default function NewsForm({ data, onClose, newData, mutate }) {
   const [openImage, setOpenImage] = useState(false);
   const [files, setFiles] = useState(null);
   const [group, setGroup] = useState([]);
+  const [tab, setTab] = useState([]);
 
   const { data: session, status } = useSession();
 
@@ -227,6 +229,10 @@ export default function NewsForm({ data, onClose, newData, mutate }) {
               placeholderText="เลือกวันที่และเวลา"
               className="border border-gray-300 rounded-md p-2 w-full"
             />
+          </div>
+
+          <div className="flex flex-col w-full">
+            <NewGroup />
           </div>
 
           <div className="flex flex-col w-full">

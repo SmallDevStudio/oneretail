@@ -11,11 +11,11 @@ export default async function handler(req, res) {
   switch (method) {
     case "GET":
       try {
-        const { halloffameId, userId, month, year } = req.query;
+        const { halloffameId, userId, month, year, empId } = req.query;
         const halloffame = await HallOfFame.findOne({
           month: month,
           year: year,
-          userId: userId,
+          empId: empId,
         }).lean();
 
         if (!halloffame) {
@@ -25,7 +25,7 @@ export default async function handler(req, res) {
         }
 
         const getPoints = await GetPoints.find({
-          halloffameId: halloffame._id,
+          halloffameId: halloffameId,
         });
 
         res.status(200).json({ success: true, data: getPoints });

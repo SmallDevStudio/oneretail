@@ -136,19 +136,20 @@ export default function ClubLeaderboard({ handleTabClick }) {
       return null;
     };
 
-    const result = getCurrentUserData();
-    setCurrentUser(result);
-
-    if (result && user) {
-      fetchPoint(result._id);
+    if (selectedMonth && selectedYear) {
+      const result = getCurrentUserData();
+      setCurrentUser(result);
+      if (currentUser && user) {
+        fetchPoint(result?._id);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [leaderboard, user]);
+  }, [leaderboard, user, selectedMonth, selectedYear]);
 
   const fetchPoint = async (halloffameId) => {
     try {
       const res = await axios.get(
-        `/api/club/hall-of-fame/get-points?halloffameId=${halloffameId}&userId=${user.userId}`
+        `/api/club/hall-of-fame/get-points?halloffameId=${halloffameId}&userId=${user.userId}&month=${selectedMonth}&year=${selectedYear}&empId=${user.empId}`
       );
       setHasPoint(res.data.data.length > 0);
     } catch (err) {
