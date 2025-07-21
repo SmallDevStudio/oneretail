@@ -16,12 +16,12 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
-export default function NewTabs() {
+export default function NewTabs({ setTab, tab }) {
   const [tabs, setTabs] = useState([]);
-  const [selectedTab, setSelectedTab] = useState(null);
+  const [selectedTab, setSelectedTab] = useState("select");
   const [open, setOpen] = useState(false);
 
-  const { data, error } = useSWR("/api/news/tabs", fetcher, {
+  const { data, error, mutate } = useSWR("/api/news/tabs", fetcher, {
     onSuccess: (data) => setTabs(data.data),
   });
 
@@ -29,19 +29,35 @@ export default function NewTabs() {
   const { data: session } = useSession();
 
   useEffect(() => {
+    if (tab) {
+      setSelectedTab(tab);
+    }
+  }, [tab]);
+
+  useEffect(() => {
     if (selectedTab === "create") {
       handleOpen();
+    } else if (selectedTab !== "select") {
+      setTab(selectedTab);
     }
-  }, [selectedTab]);
+  }, [selectedTab, setTab]);
 
   const handleOpen = () => {
     setSelectedTab(null);
     setOpen(true);
   };
-  const handleClose = () => {
-    setSelectedTab(null);
-    setOpen(false);
+  const handleClose = (value) => {
+    if (value) {
+      setSelectedTab(value);
+      setOpen(false);
+    } else {
+      setSelectedTab("select");
+      setOpen(false);
+    }
   };
+
+  if (error) return <div>failed to load</div>;
+  if (!data) return <Loading />;
 
   return (
     <div>
@@ -70,7 +86,12 @@ export default function NewTabs() {
         onClose={handleClose}
         aria-describedby="alert-dialog-slide-description"
       >
-        <NewTabForm onClose={handleClose} />
+        <NewTabForm
+          onClose={handleClose}
+          tab={tabs}
+          mutate={mutate}
+          setTab={setSelectedTab}
+        />
       </Dialog>
     </div>
   );

@@ -39,6 +39,17 @@ export default function News() {
 
   if (!news) return <Loading />;
 
+  const handleChangeActive = async (id, currentActive) => {
+    try {
+      const updated = { active: currentActive }; // toggle value ถูกส่งมาแล้ว
+      await axios.put(`/api/news/${id}`, updated);
+      toast.success("อัพเดทสถานะการใช้งานสำเร็จ");
+      mutate();
+    } catch (error) {
+      toast.error("อัพเดทสถานะการใช้งานไม่สำเร็จ");
+    }
+  };
+
   const handleEdit = (news) => {
     setSelectedNews(news);
     setOpen(true);
@@ -89,7 +100,21 @@ export default function News() {
   };
 
   const columns = [
+    {
+      field: "cover",
+      headerName: "รูปปก",
+      width: 150,
+      renderCell: (params) =>
+        params.url ? (
+          <div className="flex items-center justify-center h-full">
+            <Image src={params.url} alt="Cover" width={100} height={100} />
+          </div>
+        ) : (
+          <span>ไม่มีรูป</span>
+        ),
+    },
     { field: "title", headerName: "หัวข้อ", width: 300 },
+    { field: "tab", headerName: "แท็บ", width: 150 },
     { field: "group", headerName: "กลุ่ม", width: 150 },
     {
       field: "start_date",
@@ -107,22 +132,37 @@ export default function News() {
         return moment(params.value).format("ll");
       },
     },
-    { field: "display", headerName: "แสดง", width: 150 },
-    { field: "active", headerName: "สถานะ", width: 150 },
+    {
+      field: "active",
+      headerName: "สถานะ",
+      width: 150,
+      renderCell: (params) => (
+        <div className="flex items-center justify-center h-full">
+          <button
+            className={`px-4 py-2 rounded-full text-sm ${
+              params.value ? "bg-green-500 text-white" : "bg-red-500 text-white"
+            }`}
+            onClick={() => handleChangeActive(params.row._id, params.value)}
+          >
+            {params.value ? "Active" : "Inactive"}
+          </button>
+        </div>
+      ),
+    },
     {
       field: "actions",
       headerName: "จัดการ",
       width: 150,
       renderCell: (params) => (
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-center h-full">
           <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
+            className="flex items-center justify-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded mr-2 h-10"
             onClick={() => handleEdit(params.row)}
           >
             แก้ไข
           </button>
           <button
-            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+            className="flex items-center justify-center bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded h-10"
             onClick={() => handleDelete(params.row)}
           >
             ลบ

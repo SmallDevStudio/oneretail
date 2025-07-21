@@ -2,14 +2,13 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { Divider } from "@mui/material";
 import { IoClose } from "react-icons/io5";
+import { FaEdit, FaRegTrashAlt, FaPlus, FaMinus } from "react-icons/fa";
 import { toast } from "react-toastify";
 
-const fetcher = (url) => axios.get(url).then((res) => res.data);
-
 export default function NewGroupForm({ onClose, groups, mutate, setGroup }) {
-  const [selectedGroup, setSelectedGroup] = useState(null);
   const [name, setName] = useState("");
   const [value, setValue] = useState("");
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (name) setValue(generateValue(name));
@@ -46,13 +45,39 @@ export default function NewGroupForm({ onClose, groups, mutate, setGroup }) {
       setName("");
       setValue("");
       setGroup(value);
+      setOpen(false);
       mutate();
       onClose(value);
     } else {
       setName("");
       setValue("");
+      setOpen(false);
       mutate();
       onClose();
+    }
+  };
+
+  const handleEdit = (group) => {
+    setName(group.name);
+    setValue(group.value);
+    setOpen(true);
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const res = await axios.delete(`/api/news/group/${id}`);
+      if (res.status === 200 || res.status === 201) {
+        mutate();
+        toast.success("ลบกลุ่มเรียบร้อย");
+        setName("");
+        setValue("");
+        setOpen(false);
+      } else {
+        toast.error("ลบกลุ่มไม่สําเร็จ");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("ลบกลุ่มไม่สําเร็จ");
     }
   };
 
@@ -60,40 +85,78 @@ export default function NewGroupForm({ onClose, groups, mutate, setGroup }) {
     <div className="w-[400px]">
       {/* header */}
       <div className="flex items-center text-white justify-between p-2 bg-[#0056FF]">
-        <h1 className="font-bold">สร้างกลุ่ม</h1>
+        <h1 className="font-bold">จัดการกลุ่ม</h1>
         <IoClose className="cursor-pointer" onClick={handleClose} />
       </div>
 
-      <div></div>
-      <Divider />
       <div className="p-4">
-        <div className="flex flex-col gap-1">
-          <label htmlFor="name" className="font-bold w-55">
-            ชื่อกลุ่ม:
-          </label>
-          <input
-            type="text"
-            placeholder="ชื่อกลุ่ม"
-            className="w-full p-2 text-black border border-gray-300 rounded-md"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <div className="flex items-center justify-center gap-2 mt-4">
-            <button
-              className="bg-[#0056FF] text-white py-2 px-4 rounded-md"
-              onClick={handleSave}
-            >
-              บักทึก
-            </button>
-            <button
-              className="bg-red-500 text-white py-2 px-4 rounded-md"
-              onClick={handleClose}
-            >
-              ยกเลิก
-            </button>
+        <div className="flex items-center gap-2 mb-2">
+          <h1 className="font-bold">กลุ่มที่มีอยู่</h1>
+          <div
+            className="flex justify-center items-center cursor-pointer bg-[#F2871F] p-1 rounded-full text-white"
+            onClick={() => {
+              setOpen(!open);
+              setName("");
+              setValue("");
+            }}
+          >
+            {open ? <FaMinus /> : <FaPlus />}
           </div>
         </div>
+        {groups && groups.length > 0 && (
+          <div className="flex flex-col gap-2">
+            {groups.map((group, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between p-2 bg-gray-100 rounded-md hover:bg-gray-200"
+              >
+                <span>{group.name}</span>
+                <div className="flex items-center gap-2">
+                  <FaEdit
+                    className="text-[#0056FF] cursor-pointer"
+                    onClick={() => handleEdit(group)}
+                  />
+                  <FaRegTrashAlt
+                    className="text-red-500 cursor-pointer"
+                    onClick={() => handleDelete(group._id)}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
+      <Divider />
+      {open && (
+        <div className="p-4">
+          <div className="flex flex-col gap-1">
+            <label htmlFor="name" className="font-bold w-55">
+              ชื่อกลุ่ม:
+            </label>
+            <input
+              type="text"
+              placeholder="ชื่อกลุ่ม"
+              className="w-full p-2 text-black border border-gray-300 rounded-md"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <div className="flex items-center justify-center gap-2 mt-4">
+              <button
+                className="bg-[#0056FF] text-white py-2 px-4 rounded-md"
+                onClick={handleSave}
+              >
+                บักทึก
+              </button>
+              <button
+                className="bg-red-500 text-white py-2 px-4 rounded-md"
+                onClick={handleClose}
+              >
+                ยกเลิก
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

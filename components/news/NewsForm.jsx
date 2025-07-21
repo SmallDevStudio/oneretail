@@ -10,7 +10,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
 import { IoClose } from "react-icons/io5";
-import { FaRegImage } from "react-icons/fa";
+import { FaRegImage, FaRegFileAlt, FaPlus, FaMinus } from "react-icons/fa";
 import Upload from "../utils/Upload";
 import Image from "next/image";
 import { deleteFile } from "@/lib/hook/useStorage";
@@ -34,17 +34,20 @@ export default function NewsForm({ data, onClose, newData, mutate }) {
     end_date: "",
     title: "",
     url: "",
-    group: "",
     display: "",
     active: true,
   });
-  const [content, setContent] = useState(
-    `<p>พิมพ์ข้อความข่าวสารที่ต้องการแสดง</p>`
-  );
+  const [content, setContent] = useState("พิมพ์ข้อความข่าวสารที่ต้องการแสดง");
   const [openImage, setOpenImage] = useState(false);
-  const [files, setFiles] = useState(null);
-  const [group, setGroup] = useState([]);
-  const [tab, setTab] = useState([]);
+  const [type, setType] = useState("");
+  const [cover, setCover] = useState(null);
+  const [images, setImages] = useState([]);
+  const [files, setFiles] = useState([]);
+  const [video, setVideo] = useState([]);
+  const [videoUrl, setVideoUrl] = useState("");
+  const [openVideo, setOpenVideo] = useState(false);
+  const [group, setGroup] = useState("");
+  const [tab, setTab] = useState("");
 
   const { data: session, status } = useSession();
 
@@ -62,20 +65,25 @@ export default function NewsForm({ data, onClose, newData, mutate }) {
         end_date: data.end_date,
         title: data.title,
         url: data.url,
-        group: data.group,
         display: data.display,
         active: data.active,
       });
       setContent(data.content);
-      setFiles(data.image);
+      setCover(data.cover);
+      setImages(data.images);
+      setFiles(data.files);
+      setGroup(data.group);
+      setTab(data.tab);
     }
   }, [data]);
 
-  const handleClickOpen = () => {
+  const handleClickOpen = (type) => {
+    setType(type);
     setOpenImage(true);
   };
 
   const handleClickClose = () => {
+    setType("");
     setOpenImage(false);
   };
 
@@ -90,19 +98,14 @@ export default function NewsForm({ data, onClose, newData, mutate }) {
     }
   };
 
-  const handleUpload = (files) => {
-    const file = files[0];
-    setFiles({
-      public_id: file.public_id,
-      url: file.url,
-    });
-  };
-
-  const handleChangeActive = (value) => {
-    setForm((prevForm) => ({
-      ...prevForm,
-      active: value,
-    }));
+  const handleUpload = (type, files) => {
+    if (type === "images") {
+      setFiles((prev) => [...prev, ...files]);
+    } else if (type === "cover") {
+      setCover(files[0]);
+    } else if (type === "files") {
+      setFiles((prev) => [...prev, ...files]);
+    }
   };
 
   const handleClose = () => {
@@ -111,7 +114,8 @@ export default function NewsForm({ data, onClose, newData, mutate }) {
 
   const handleSubmit = async () => {
     const newData = {
-      group: form.group,
+      group: group,
+      tab: tab,
       start_date: form.start_date || new Date().toISOString(),
       end_date: form.end_date || new Date().toISOString(),
       title: form.title,
@@ -159,13 +163,31 @@ export default function NewsForm({ data, onClose, newData, mutate }) {
       end_date: "",
       title: "",
       url: "",
-      group: "",
       display: "",
       active: true,
     });
     setContent(`<p>พิมพ์ข้อความข่าวสารที่ต้องการแสดง</p>`);
     setFiles(null);
+    setGroup("");
+    setTab("");
     onClose();
+  };
+
+  const handleAddVideo = async () => {
+    try {
+      const res = await axios.post("/api/getyoutube", { youtubeUrl: videoUrl });
+      const video = res.data;
+      setVideo((prev) => [...prev, video]);
+      setVideoUrl("");
+      setOpenVideo(false);
+    } catch (error) {
+      console.log(error);
+      toast.error("ไม่สามารถดึงข้อมูล YouTube ได้");
+    }
+  };
+
+  const handleDeleteVideo = (index) => {
+    setVideo((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -233,54 +255,182 @@ export default function NewsForm({ data, onClose, newData, mutate }) {
           </div>
 
           <div className="flex flex-col w-full">
-            <NewGroup />
+            <NewGroup setGroup={setGroup} group={group} />
           </div>
 
           <div className="flex flex-col w-full">
-            <NewTabs />
+            <NewTabs setTab={setTab} tab={tab} />
           </div>
-        </div>
-
-        <div className="flex flex-row items-center gap-2 mt-2 w-full">
-          <label htmlFor="image" className="font-bold">
-            รูปภาพ
-          </label>
-          {files ? (
-            <div className="relative inline-block">
-              <Image
-                src={files.url}
-                alt="image"
-                width={200}
-                height={200}
-                className="object-contain h-[150px]"
-                priority
-              />
-              <div
-                className="absolute top-0 right-0 p-1 cursor-pointer bg-red-500 text-white rounded-full hover:bg-opacity-80"
-                onClick={() => handleDeleteImage(files.url, files.public_id)}
-              >
-                <IoClose size={15} />
-              </div>
-            </div>
-          ) : (
-            <div
-              className="flex flex-row gap-2 px-4 py-2 border border-gray-300 bg-gray-100 rounded-lg"
-              onClick={handleClickOpen}
-            >
-              <FaRegImage size={25} />
-              <span>อัพโหลดรูปภาพ</span>
-            </div>
-          )}
         </div>
 
         <div className="flex flex-col w-full">
           <label htmlFor="descriptions" className="font-bold">
             เนื้อหา
           </label>
-          <TiptapEditor
-            content={content}
-            onChange={(newContent) => setContent(newContent)}
+          <textarea
+            name="content"
+            id="content"
+            className="border border-gray-300 rounded-md p-2 w-full"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="พิมพ์เนื้อหา"
+            rows={5}
+            cols={5}
           />
+        </div>
+
+        {/* Cover & Images */}
+        <div className="flex gap-4 w-full">
+          <div className="flex flex-col gap-2 mt-2">
+            <label htmlFor="cover" className="font-bold">
+              รูปปก
+            </label>
+
+            {cover && (
+              <div className="relative">
+                <Image
+                  src={cover.url}
+                  alt="Cover"
+                  width={200}
+                  height={200}
+                  className="object-cover "
+                />
+                <IoClose
+                  size={25}
+                  className="absolute top-2 right-2 cursor-pointer"
+                  onClick={() => handleDeleteImage(cover.url, cover.public_id)}
+                />
+              </div>
+            )}
+            <div
+              className="flex flex-row items-center gap-2 px-4 py-2 border border-gray-300 bg-gray-100 rounded-lg w-52 cursor-pointer"
+              onClick={() => handleClickOpen("cover")}
+            >
+              <FaRegImage size={25} />
+              <div className="flex flex-col">
+                <span>อัพโหลดรูปปก</span>
+                <span className="text-xs">(อัพโหลดได้ 1 ไฟล์)</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2 mt-2 w-full">
+            <label htmlFor="images" className="font-bold">
+              รูปภาพ
+            </label>
+            {images && images.length > 0 && (
+              <div className="flex flex-row items-center gap-2 w-full overflow-x-auto">
+                {images.map((image, index) => (
+                  <div key={index} className="relative">
+                    <Image
+                      src={image.url}
+                      alt={`Image ${index}`}
+                      width={200}
+                      height={200}
+                      className="object-cover rounded-md"
+                    />
+                    <IoClose
+                      key={index}
+                      size={25}
+                      className="absolute top-2 right-2 cursor-pointer"
+                      onClick={() =>
+                        handleDeleteImage(image.url, image.public_id)
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+            <div
+              className="flex flex-row items-center gap-2 px-4 py-2 border border-gray-300 bg-gray-100 rounded-lg w-52 cursor-pointer"
+              onClick={() => handleClickOpen("images")}
+            >
+              <FaRegImage size={25} />
+              <div className="flex flex-col">
+                <span>อัพโหลดรูปภาพ</span>
+                <span className="text-xs">(อัพโหลดได้หลายไฟล์)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Files */}
+        <div className="flex flex-col gap-2 mt-2 w-full">
+          <label htmlFor="files" className="font-bold">
+            ไฟล์
+          </label>
+
+          <div
+            className="flex flex-row items-center gap-2 px-4 py-2 border border-gray-300 bg-gray-100 rounded-lg w-52 cursor-pointer"
+            onClick={() => handleClickOpen("files")}
+          >
+            <FaRegFileAlt size={22} />
+            <div className="flex flex-col">
+              <span>อัพโหลดไฟล์</span>
+              <span className="text-xs">(อัพโหลดได้หลายไฟล์)</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Video */}
+        <div className="flex flex-col w-full mt-2">
+          <div className="flex flex-row items-center gap-2">
+            <label htmlFor="video" className="font-bold">
+              วีดีโอ
+            </label>
+            <div
+              className="bg-[#F2871F] rounded-full p-1 text-white"
+              onClick={() => {
+                setOpenVideo(!openVideo);
+                setVideoUrl("");
+              }}
+            >
+              {openVideo ? <FaMinus size={18} /> : <FaPlus size={18} />}
+            </div>
+          </div>
+          {video && video.length > 0 && (
+            <div className="my-2 w-full overflow-x-auto">
+              {video.map((v, i) => (
+                <div key={i} className="relative w-[200px]">
+                  <Image
+                    src={v.thumbnailUrl}
+                    alt={`video-thumbnail ${i}`}
+                    width={200}
+                    height={200}
+                    className="object-cover rounded-md"
+                  />
+                  <IoClose
+                    key={i}
+                    size={25}
+                    className="absolute top-0 right-0 cursor-pointer text-red-500"
+                    onClick={() => handleDeleteVideo(i)}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+          {/* Get Video */}
+          {openVideo && (
+            <div className="flex items-center gap-2 mt-2">
+              <label htmlFor="url" className="font-bold">
+                URL:
+              </label>
+              <input
+                type="text"
+                id="url"
+                className="border border-gray-300 rounded-md p-2 w-full"
+                value={videoUrl}
+                onChange={(e) => setVideoUrl(e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=your-video-id"
+              />
+              <button
+                className="bg-red-500 text-white px-4 py-2 rounded w-32"
+                onClick={handleAddVideo}
+              >
+                เพิ่มวีดีโอ
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-row items-center justify-center gap-4 mt-4 w-full">
@@ -302,11 +452,11 @@ export default function NewsForm({ data, onClose, newData, mutate }) {
       <Dialog
         open={openImage}
         onClose={handleClickClose}
-        Transition={Transition}
+        TransitionComponent={Transition}
       >
         <Upload
           onClose={handleClickClose}
-          setFiles={(files) => handleUpload(files)}
+          setFiles={(files) => handleUpload(type, files)}
           folder="news"
           newUpload={!files}
         />

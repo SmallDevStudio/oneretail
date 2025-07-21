@@ -17,12 +17,17 @@ export default async function handler(req, res) {
 
     case "POST":
       try {
-        const tabs = await NewTabs.create(req.body);
-        res.status(201).json(tabs);
+        const { name, value } = req.body;
+        const exists = await NewTabs.findOne({ $or: [{ name }, { value }] });
+        if (exists) {
+          return res.status(409).json({ message: "ชื่อหรือ value ซ้ำกัน" });
+        }
+
+        const tab = await NewTabs.create({ name, value });
+        return res.status(201).json(tab);
       } catch (error) {
-        res.status(400).json({ success: false });
+        return res.status(400).json({ success: false });
       }
-      break;
 
     default:
       res.status(400).json({ success: false });

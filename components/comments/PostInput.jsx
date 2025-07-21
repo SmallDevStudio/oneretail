@@ -197,11 +197,8 @@ const PostInput = ({
 
   return (
     <div>
-      <div className="flex flex-row items-center mb-4 gap-4">
-        <IoIosArrowBack
-          className="text-xl inline text-gray-700"
-          onClick={handleClose}
-        />
+      <div className="flex flex-row items-center mb-4 gap-4 bg-[#0056FF] p-2 text-white">
+        <IoIosArrowBack className="text-xl inline" onClick={handleClose} />
         <span>สร้างโพส</span>
       </div>
       <div>
@@ -219,7 +216,7 @@ const PostInput = ({
             ))}
         </div>
         <textarea
-          className="w-full min-h-32 border-gray-300 rounded-lg outline-none"
+          className="w-full min-h-32 border-gray-300 rounded-lg outline-none px-4"
           value={post}
           name="post"
           placeholder="คุณคิดอะไรอยู่...?"

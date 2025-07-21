@@ -5,10 +5,6 @@ import useSWR from "swr";
 import { Divider, Slide, Dialog } from "@mui/material";
 import { useSession } from "next-auth/react";
 import Loading from "../Loading";
-import { toast } from "react-toastify";
-import { IoClose } from "react-icons/io5";
-import { FaRegImage } from "react-icons/fa";
-import Swal from "sweetalert2";
 import NewGroupForm from "./NewGroupForm";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -17,7 +13,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
-export default function NewGroup() {
+export default function NewGroup({ setGroup, group }) {
   const [groups, setGroups] = useState([]);
   const [selectedGroup, setSelectedGroup] = useState("select");
   const [open, setOpen] = useState(false);
@@ -30,10 +26,18 @@ export default function NewGroup() {
   const { data: session } = useSession();
 
   useEffect(() => {
+    if (group) {
+      setSelectedGroup(group);
+    }
+  }, [group]);
+
+  useEffect(() => {
     if (selectedGroup === "create") {
       handleOpen();
+    } else if (selectedGroup !== "select") {
+      setGroup(selectedGroup);
     }
-  }, [selectedGroup]);
+  }, [selectedGroup, setGroup]);
 
   const handleOpen = () => {
     setSelectedGroup("select");
@@ -51,8 +55,6 @@ export default function NewGroup() {
 
   if (error) return <div>failed to load</div>;
   if (!data) return <Loading />;
-
-  console.log(selectedGroup);
 
   return (
     <div>
@@ -72,7 +74,6 @@ export default function NewGroup() {
             {group?.name}
           </option>
         ))}
-        <Divider />
         <option value="create">+ สร้างกลุ่มใหม่</option>
       </select>
       <Dialog

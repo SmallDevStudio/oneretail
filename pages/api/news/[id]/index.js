@@ -19,6 +19,10 @@ export default async function handler(req, res) {
           return res.status(404).json({ success: false });
         }
 
+        if (news.deleted === true) {
+          return res.status(404).json({ success: false });
+        }
+
         res.status(200).json({ success: true, data: news });
       } catch (error) {
         res.status(400).json({ success: false });
