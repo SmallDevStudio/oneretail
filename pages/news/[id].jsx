@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
+import useSWR from "swr";
 import Image from "next/image";
 import { Divider, Slide, Dialog } from "@mui/material";
 import moment from "moment";
@@ -15,6 +16,8 @@ import CommentInput from "@/components/comments/CommentInput";
 import { toast } from "react-toastify";
 
 moment.locale("th");
+
+const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -35,57 +38,45 @@ export default function News() {
   const { data: session, status } = useSession();
   const userId = session?.user?.id;
 
-  useEffect(() => {
-    if (status === "loading") return;
-    if (!session) return;
-  }, [status, session]);
-
-  useEffect(() => {
-    const fetchNews = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get(`/api/news/${id}`);
-        if (response.data.success) {
-          setNews(response.data.data);
-
-          const likedByUser = response.data.data.likes.some(
-            (like) => like.userId === userId
-          );
-          setLiked(likedByUser);
-          setLikeCount(response.data.data.likes.length);
-        } else {
-          return router.push("/error/404");
-        }
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
+  const {
+    data: newsData,
+    error: newsError,
+    isLoading: newsLoading,
+    mutate,
+  } = useSWR(`/api/news/${id}`, fetcher, {
+    onSuccess: (data) => {
+      if (data.success) {
+        setNews(data.data);
+        setLikeCount(data.data?.likes?.length);
+        setLiked(data.data?.likes?.some((like) => like.userId === userId));
+      } else {
+        return router.push("/error/404");
       }
-    };
+    },
+  });
 
-    fetchNews();
-  }, [id, router, userId]);
-
-  const fetchComments = async () => {
-    try {
-      const response = await axios.get(`/api/news/${id}/comments`);
-      if (response.data.success) {
-        const updated = response.data.data.map((comment) => ({
+  const {
+    data: commentsData,
+    error: commentsError,
+    isLoading: commentsLoading,
+    mutate: mutateComments,
+  } = useSWR(`/api/news/${id}/comments`, fetcher, {
+    onSuccess: (data) => {
+      if (data.success) {
+        const updated = data.data.map((comment) => ({
           ...comment,
           liked: comment.likes.some((like) => like.userId === userId),
           likeCount: comment.likes.length,
         }));
         setComments(updated);
       }
-    } catch (error) {
-      console.error("Fetch comments error:", error);
-    }
-  };
+    },
+  });
 
   useEffect(() => {
-    if (userId) fetchComments();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, userId]);
+    if (status === "loading") return;
+    if (!session) return;
+  }, [status, session]);
 
   const handleLike = async () => {
     if (!userId) return alert("กรุณาเข้าสู่ระบบ");
@@ -93,8 +84,7 @@ export default function News() {
     try {
       const res = await axios.post(`/api/news/${id}/like`, { userId });
       if (res.data.success) {
-        setLiked(res.data.likes.some((like) => like.userId === userId));
-        setLikeCount(res.data.likes.length);
+        mutate();
       }
     } catch (error) {
       console.error("Like error:", error);
@@ -110,17 +100,7 @@ export default function News() {
       });
 
       if (res.data.success) {
-        setComments((prev) =>
-          prev.map((comment) =>
-            comment._id === commentId
-              ? {
-                  ...comment,
-                  liked: res.data.likes.some((l) => l.userId === userId),
-                  likeCount: res.data.likes.length,
-                }
-              : comment
-          )
-        );
+        mutateComments();
       }
     } catch (error) {
       console.error("Like comment error:", error);
@@ -348,9 +328,11 @@ export default function News() {
         aria-describedby="alert-dialog-description"
       >
         <NewsComment
+          newId={id}
           comment={selectedComment}
           onClose={handleCloseComment}
           userId={userId}
+          mutateComments={mutateComments}
         />
       </Dialog>
     </div>

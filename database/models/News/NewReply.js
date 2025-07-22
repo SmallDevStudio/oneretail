@@ -9,7 +9,7 @@ const NewReplySchema = new mongoose.Schema(
     },
     commentId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "NewsComments",
+      ref: "NewComments",
       required: true,
     },
     comment: { type: String },

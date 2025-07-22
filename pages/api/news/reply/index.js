@@ -1,33 +1,33 @@
 // /api/news/reply.js
 import connectMongoDB from "@/lib/services/database/mongodb";
 import NewReply from "@/database/models/News/NewReply";
-import NewComments from "@/database/models/News/NewComments";
 
 export default async function handler(req, res) {
-  if (req.method === "POST") {
-    try {
-      await connectMongoDB();
-      const { newsId, commentId, comment, userId } = req.body;
+  const { method } = req;
 
-      const reply = await NewReply.create({
-        newsId,
-        commentId,
-        comment,
-        userId,
-      });
+  await connectMongoDB();
 
-      // Add reply ID to comment's reply array
-      await NewComments.findByIdAndUpdate(commentId, {
-        $push: { reply: reply._id },
-      });
+  switch (method) {
+    case "GET":
+      try {
+        const replies = await NewReply.find().sort({ createdAt: -1 });
+        res.status(200).json({ success: true, data: replies });
+      } catch (error) {
+        res.status(400).json({ success: false, error: error.message });
+      }
+      break;
 
-      return res.status(201).json({ success: true, data: reply });
-    } catch (err) {
-      return res.status(500).json({ success: false, error: err.message });
-    }
+    case "POST":
+      try {
+        const reply = await NewReply.create(req.body);
+        res.status(201).json({ success: true, data: reply });
+      } catch (error) {
+        res.status(400).json({ success: false, error: error.message });
+      }
+      break;
+
+    default:
+      res.status(400).json({ success: false });
+      break;
   }
-
-  return res
-    .status(405)
-    .json({ success: false, message: "Method not allowed" });
 }
