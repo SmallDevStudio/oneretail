@@ -75,8 +75,6 @@ export default function News() {
     },
   });
 
-  console.log("news", news);
-
   useEffect(() => {
     if (status === "loading") return;
     if (!session) return;

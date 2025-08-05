@@ -235,8 +235,6 @@ export default function NewsForm({ data, onClose, newData, mutate }) {
     setVideo((prev) => prev.filter((_, i) => i !== index));
   };
 
-  console.log("video", video);
-
   return (
     <div className="flex flex-col w-full">
       <div className="flex flex-row justify-between items-center py-4 px-2 bg-[#0056FF] text-white w-full">
