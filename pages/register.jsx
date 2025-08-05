@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import Loading from "@/components/Loading";
 import axios from "axios";
 import RegisterModal from "@/components/RegisterModal";
+import { toast } from "react-toastify";
 
 export default function Register() {
   const { data: session, status } = useSession();
@@ -48,7 +49,8 @@ export default function Register() {
       const response = await axios.post("/api/register", registerData);
 
       if (!response.data.success) {
-        throw new Error("Registration failed");
+        Alert.error("ลงทะเบียนไม่สําเร็จ");
+        return;
       }
 
       setIsOpen(true);

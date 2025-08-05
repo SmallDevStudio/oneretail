@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import useSWR from "swr";
@@ -17,6 +17,7 @@ import { deleteFile } from "@/lib/hook/useStorage";
 import Swal from "sweetalert2";
 import NewGroup from "./NewGroup";
 import NewTabs from "./NewTabs";
+import Link from "next/link";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -52,6 +53,7 @@ export default function NewsForm({ data, onClose, newData, mutate }) {
   const { data: session, status } = useSession();
 
   const router = useRouter();
+  const didInit = useRef(false);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -59,22 +61,33 @@ export default function NewsForm({ data, onClose, newData, mutate }) {
   }, [session, status]);
 
   useEffect(() => {
-    if (data) {
-      setForm({
-        start_date: data.start_date,
-        end_date: data.end_date,
-        title: data.title,
-        url: data.url,
-        display: data.display,
-        active: data.active,
-      });
-      setContent(data.content);
-      setCover(data.cover);
-      setImages(data.images);
-      setFiles(data.files);
-      setGroup(data.group);
-      setTab(data.tab);
-    }
+    if (!data || didInit.current) return;
+
+    setForm({
+      start_date: data.start_date,
+      end_date: data.end_date,
+      title: data.title,
+      url: data.url,
+      display: data.display,
+      active: data.active,
+    });
+    setContent(data.content);
+    setCover(data.cover ? data.cover : null);
+    setImages(data.images ? data.images : []);
+    setVideo(data.video ? data.video : []);
+    setFiles(
+      data.files
+        ? data.files.map((file) => ({
+            ...file,
+            icon: getFileIcon(file.mime_type),
+          }))
+        : []
+    );
+    setGroup(data.group ? data.group : "");
+    setTab(data.tab ? data.tab : "");
+
+    // ✅ ป้องกันไม่ให้ useEffect ทำงานซ้ำอีกครั้ง
+    didInit.current = true;
   }, [data]);
 
   const handleClickOpen = (type) => {
@@ -99,12 +112,17 @@ export default function NewsForm({ data, onClose, newData, mutate }) {
   };
 
   const handleUpload = (type, files) => {
+    const filesWithIcon = files.map((file) => ({
+      ...file,
+      icon: getFileIcon(file.mime_type),
+    }));
+
     if (type === "images") {
-      setFiles((prev) => [...prev, ...files]);
+      setFiles((prev) => [...(prev || []), ...filesWithIcon]);
     } else if (type === "cover") {
-      setCover(files[0]);
+      setCover(filesWithIcon[0]);
     } else if (type === "files") {
-      setFiles((prev) => [...prev, ...files]);
+      setFiles((prev) => [...(prev || []), ...filesWithIcon]);
     }
   };
 
@@ -123,7 +141,10 @@ export default function NewsForm({ data, onClose, newData, mutate }) {
       content: content,
       display: form.display,
       active: form.active,
-      image: files,
+      images: images,
+      cover: cover,
+      files: files,
+      video: video,
     };
 
     if (data && data._id) {
@@ -155,6 +176,30 @@ export default function NewsForm({ data, onClose, newData, mutate }) {
         console.log(error);
       }
     }
+  };
+
+  const getFileIcon = (type) => {
+    const fileType = type?.toLowerCase() || "";
+    if (!fileType) return "/images/iconfiles/other.png";
+
+    if (fileType.includes("pdf")) return "/images/iconfiles/pdf.png";
+    if (fileType.includes("msword") || fileType.includes("doc"))
+      return "/images/iconfiles/doc.png";
+    if (fileType.includes("excel") || fileType.includes("spreadsheet"))
+      return "/images/iconfiles/xls.png";
+    if (fileType.includes("presentation") || fileType.includes("powerpoint"))
+      return "/images/iconfiles/ppt.png";
+
+    return "/images/iconfiles/other.png";
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return "0 B";
+    const k = 1024;
+    const sizes = ["B", "KB", "MB", "GB", "TB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    const size = parseFloat((bytes / Math.pow(k, i)).toFixed(2));
+    return `${size} ${sizes[i]}`;
   };
 
   const handleClear = () => {
@@ -189,6 +234,8 @@ export default function NewsForm({ data, onClose, newData, mutate }) {
   const handleDeleteVideo = (index) => {
     setVideo((prev) => prev.filter((_, i) => i !== index));
   };
+
+  console.log("video", video);
 
   return (
     <div className="flex flex-col w-full">
@@ -359,6 +406,41 @@ export default function NewsForm({ data, onClose, newData, mutate }) {
           <label htmlFor="files" className="font-bold">
             ไฟล์
           </label>
+
+          {files && files.length > 0 && (
+            <div className="flex flex-row items-center gap-2 mt-2">
+              {files.map((file, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-2 border p-2 rounded-md bg-gray-50"
+                >
+                  <Image
+                    src={file.icon}
+                    alt="file-icon"
+                    width={30}
+                    height={30}
+                  />
+                  <div className="flex flex-col">
+                    <Link
+                      href={file.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <span className="font-medium">{file.file_name}</span>
+                    </Link>
+                    <span className="text-xs text-gray-500">
+                      {formatFileSize(file.file_size)}
+                    </span>
+                  </div>
+                  <IoClose
+                    size={20}
+                    className="ml-auto cursor-pointer text-red-500"
+                    onClick={() => handleDeleteImage(file.url, file.public_id)}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
 
           <div
             className="flex flex-row items-center gap-2 px-4 py-2 border border-gray-300 bg-gray-100 rounded-lg w-52 cursor-pointer"

@@ -32,7 +32,7 @@ export default function NewsPage() {
   }, []);
 
   return (
-    <div className="bg-[#0056FF] p-5 min-h-screen">
+    <div className="bg-[#0056FF] p-5 pb-20 min-h-screen">
       {/* Header */}
       <div className="text-[#F2871F] text-5xl font-black flex justify-center p-4 mb-2">
         News
