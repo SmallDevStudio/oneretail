@@ -275,80 +275,88 @@ export default function GiftsDetails() {
             </div>
           </div>
           {/* table */}
-          <div className="overflow-x-auto w-full px-2">
-            <table className="table-auto text-xs w-full">
-              <thead className="bg-gray-200">
-                <tr>
-                  <th className="px-4 py-2 w-12">No</th>
-                  <th className="px-4 py-2">รายการของขวัญ</th>
-                </tr>
-              </thead>
-              <tbody>
-                {gift?.map((item, index) => (
-                  <tr key={item._id}>
-                    <td className="border px-2 py-2 text-center">
-                      <div className="flex flex-col items-center justify-start gap-2">
-                        {index + 1}
-                        <FaGift
-                          className="text-[#F2871F]"
-                          onClick={() => handleOpenGift(item)}
-                        />
-                      </div>
-                    </td>
-                    <td className="border px-2 py-2">
-                      <div className="flex flex-col justify-start align-top w-full gap-1">
-                        <span
-                          className="text-[#0056FF] font-bold text-sm"
-                          onClick={() => handleOpenGift(item)}
-                        >
-                          {item.name}
-                        </span>
-                        <div className="grid grid-cols-3 gap-2">
-                          <div>
-                            <span className="text-gray-500">เลือกจำนวน:</span>
-                            {(() => {
-                              const selected = selectedGift.find(
-                                (g) => g._id === item._id
-                              );
-                              return (
-                                <div
-                                  onClick={() => {
-                                    setOpenSelect(item._id);
-                                    setInputQty(selected?.qty || 0);
-                                  }}
-                                  className="flex items-center gap-2 border rounded-md px-2 py-1 cursor-pointer"
-                                >
-                                  {selected?.qty
-                                    ? `${selected.qty} ชิ้น`
-                                    : "รอการสั่งซื้อ"}
-                                  <IoIosArrowDown className="text-gray-500" />
-                                </div>
-                              );
-                            })()}
-                          </div>
-                          <div>
-                            <span className="text-gray-500">ราคาต่อชิ้น:</span>
-                            <div className="border rounded-md px-2 py-1">
-                              {item.price}
+          <div className="px-2 w-full h-full">
+            <div className="overflow-y-auto max-h-[400px] border rounded-md">
+              <table className="min-w-full text-xs border-collapse">
+                <thead className="bg-gray-200">
+                  <tr>
+                    <th className="px-4 py-2 w-12">No</th>
+                    <th className="px-4 py-2">รายการของขวัญ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {gift?.map((item, index) => (
+                    <tr key={item._id}>
+                      <td className="border px-2 py-2 text-center">
+                        <div className="flex flex-col items-center justify-start gap-2">
+                          {index + 1}
+                          <FaGift
+                            className="text-[#F2871F]"
+                            onClick={() => handleOpenGift(item)}
+                          />
+                        </div>
+                      </td>
+                      <td className="border px-2 py-2">
+                        <div className="flex flex-col justify-start align-top w-full gap-1">
+                          <span
+                            className="text-[#0056FF] font-bold text-sm"
+                            onClick={() => handleOpenGift(item)}
+                          >
+                            {item.name}
+                          </span>
+                          <div className="grid grid-cols-3 gap-2">
+                            <div>
+                              <span className="text-gray-500">เลือกจำนวน:</span>
+                              {(() => {
+                                const selected = selectedGift.find(
+                                  (g) => g._id === item._id
+                                );
+                                return (
+                                  <div
+                                    onClick={() => {
+                                      setOpenSelect(item._id);
+                                      setInputQty(selected?.qty || 0);
+                                    }}
+                                    className="flex items-center gap-2 border rounded-md px-2 py-1 cursor-pointer"
+                                  >
+                                    {selected?.qty ? (
+                                      `${selected.qty} ชิ้น`
+                                    ) : (
+                                      <span className="text-[11px]">
+                                        รอการสั่งซื้อ
+                                      </span>
+                                    )}
+                                    <IoIosArrowDown className="text-gray-500" />
+                                  </div>
+                                );
+                              })()}
                             </div>
-                          </div>
-                          <div>
-                            <span className="text-gray-500">
-                              จำนวนเงินที่ใช้:
-                            </span>
-                            <div className="border rounded-md px-2 py-1">
-                              {selectedGift
-                                .find((g) => g._id === item._id)
-                                ?.total?.toFixed(2) || "0.00"}
+                            <div>
+                              <span className="text-gray-500">
+                                ราคาต่อชิ้น:
+                              </span>
+                              <div className="border rounded-md px-2 py-1">
+                                {item.price}
+                              </div>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">
+                                จำนวนเงินที่ใช้:
+                              </span>
+                              <div className="border rounded-md px-2 py-1">
+                                {selectedGift
+                                  .find((g) => g._id === item._id)
+                                  ?.total?.toFixed(2) || "0.00"}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 

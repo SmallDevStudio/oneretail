@@ -59,13 +59,14 @@ export default function GiftAdmin() {
       width: 200,
       renderCell: (params) => {
         return (
-          <Image
-            src={params.row.image.url}
-            alt={params.row.name}
-            width={100}
-            height={100}
-            className="object-contain w-full h-full p-2"
-          />
+          params.row.image && (
+            <Image
+              src={params?.row?.image?.url}
+              alt={params.row.name}
+              width={100}
+              height={100}
+            />
+          )
         );
       },
     },
