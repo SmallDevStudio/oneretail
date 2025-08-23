@@ -146,6 +146,13 @@ export default function SummeryModel({ onClose, branchId, mutate }) {
     onClose();
   };
 
+  const formatNumber = (number) => {
+    return number.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+
   return (
     <div className="flex flex-col gap-2 p-4 w-full">
       <div className="absolute top-2 right-2">
@@ -176,8 +183,8 @@ export default function SummeryModel({ onClose, branchId, mutate }) {
                   selectedGift.map((item) => (
                     <tr key={item._id}>
                       <td className="py-1">{item.name}</td>
-                      <td className="py-1">{item.price}</td>
-                      <td className="py-1">{item.total}</td>
+                      <td className="py-1">{formatNumber(item.price)}</td>
+                      <td className="py-1">{formatNumber(item.total)}</td>
                     </tr>
                   ))}
                 <tr>
@@ -186,7 +193,7 @@ export default function SummeryModel({ onClose, branchId, mutate }) {
                     className="bg-green-500 font-bold text-white py-1"
                     colSpan="2"
                   >
-                    {totalAmount?.toFixed(2)}
+                    {formatNumber(totalAmount)}
                   </td>
                 </tr>
                 <tr>
@@ -195,7 +202,7 @@ export default function SummeryModel({ onClose, branchId, mutate }) {
                     className="bg-orange-500 font-bold text-white py-1"
                     colSpan="2"
                   >
-                    {budget?.budget?.toFixed(2)}
+                    {formatNumber(budget?.budget)}
                   </td>
                 </tr>
                 <tr>
@@ -204,7 +211,7 @@ export default function SummeryModel({ onClose, branchId, mutate }) {
                     className="bg-blue-500 font-bold text-white py-1"
                     colSpan="2"
                   >
-                    {remainingBudget?.toFixed(2)}
+                    {formatNumber(remainingBudget)}
                   </td>
                 </tr>
               </>

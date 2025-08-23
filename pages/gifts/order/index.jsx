@@ -229,8 +229,15 @@ export default function GiftsDetails() {
     handleOpenConfirm();
   };
 
+  const formatNumber = (number) => {
+    return number.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col h-screen w-full">
       {/* Header */}
       <div className="flex items-center gap-2 bg-[#0056FF] text-lg text-white p-3">
         <div className="flex flex-row items-center gap-2">
@@ -267,141 +274,140 @@ export default function GiftsDetails() {
           </span>
         </Breadcrumbs>
       </div>
-      <div className="flex flex-col justify-between w-full h-full">
-        <div className="overflow-y-auto">
-          <div className="flex justify-center w-full my-4">
-            <div className="flex bg-gray-400 rounded-full items-center justify-center text-white px-4 py-1 w-2/3">
-              <h2 className="font-bold">รายการสั่งจองของขวัญปีใหม่ 2567</h2>
-            </div>
+
+      {/* Table section (scrollable only this part) */}
+      <div className="flex-1 overflow-y-auto px-2">
+        <div className="flex justify-center w-full my-4">
+          <div className="flex bg-gray-400 rounded-full items-center justify-center text-white px-4 py-1 w-2/3">
+            <h2 className="font-bold text-sm">
+              รายการสั่งจองของขวัญปีใหม่ 2567
+            </h2>
           </div>
-          {/* table */}
-          <div className="px-2 w-full h-full">
-            <div className="overflow-y-auto max-h-[400px] border rounded-md">
-              <table className="min-w-full text-xs border-collapse">
-                <thead className="bg-gray-200">
-                  <tr>
-                    <th className="px-4 py-2 w-12">No</th>
-                    <th className="px-4 py-2">รายการของขวัญ</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {gift?.map((item, index) => (
-                    <tr key={item._id}>
-                      <td className="border px-2 py-2 text-center">
-                        <div className="flex flex-col items-center justify-start gap-2">
-                          {index + 1}
-                          <FaGift
-                            className="text-[#F2871F]"
-                            onClick={() => handleOpenGift(item)}
-                          />
+        </div>
+
+        <div className="border rounded-md">
+          <table className="min-w-full text-xs border-collapse">
+            <thead className="bg-gray-200">
+              <tr>
+                <th className="px-4 py-2 w-12">No</th>
+                <th className="px-4 py-2">รายการของขวัญ</th>
+              </tr>
+            </thead>
+            <tbody>
+              {gift?.map((item, index) => (
+                <tr key={item._id}>
+                  <td className="border px-2 py-2 text-center">
+                    <div className="flex flex-col items-center justify-start gap-2">
+                      {index + 1}
+                      <FaGift
+                        className="text-[#F2871F] cursor-pointer"
+                        onClick={() => handleOpenGift(item)}
+                      />
+                    </div>
+                  </td>
+                  <td className="border px-2 py-2">
+                    <div className="flex flex-col justify-start gap-1">
+                      <span
+                        className="text-[#0056FF] font-bold text-sm cursor-pointer"
+                        onClick={() => handleOpenGift(item)}
+                      >
+                        {item.name}
+                      </span>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div>
+                          <span className="text-gray-500">เลือกจำนวน:</span>
+                          {(() => {
+                            const selected = selectedGift.find(
+                              (g) => g._id === item._id
+                            );
+                            return (
+                              <div
+                                onClick={() => {
+                                  setOpenSelect(item._id);
+                                  setInputQty(selected?.qty || 0);
+                                }}
+                                className="flex items-center gap-2 border rounded-md px-2 py-1 cursor-pointer"
+                              >
+                                {selected?.qty ? (
+                                  `${selected.qty} ชิ้น`
+                                ) : (
+                                  <span className="text-[11px]">
+                                    รอการสั่งซื้อ
+                                  </span>
+                                )}
+                                <IoIosArrowDown className="text-gray-500" />
+                              </div>
+                            );
+                          })()}
                         </div>
-                      </td>
-                      <td className="border px-2 py-2">
-                        <div className="flex flex-col justify-start align-top w-full gap-1">
-                          <span
-                            className="text-[#0056FF] font-bold text-sm"
-                            onClick={() => handleOpenGift(item)}
-                          >
-                            {item.name}
-                          </span>
-                          <div className="grid grid-cols-3 gap-2">
-                            <div>
-                              <span className="text-gray-500">เลือกจำนวน:</span>
-                              {(() => {
-                                const selected = selectedGift.find(
-                                  (g) => g._id === item._id
-                                );
-                                return (
-                                  <div
-                                    onClick={() => {
-                                      setOpenSelect(item._id);
-                                      setInputQty(selected?.qty || 0);
-                                    }}
-                                    className="flex items-center gap-2 border rounded-md px-2 py-1 cursor-pointer"
-                                  >
-                                    {selected?.qty ? (
-                                      `${selected.qty} ชิ้น`
-                                    ) : (
-                                      <span className="text-[11px]">
-                                        รอการสั่งซื้อ
-                                      </span>
-                                    )}
-                                    <IoIosArrowDown className="text-gray-500" />
-                                  </div>
-                                );
-                              })()}
-                            </div>
-                            <div>
-                              <span className="text-gray-500">
-                                ราคาต่อชิ้น:
-                              </span>
-                              <div className="border rounded-md px-2 py-1">
-                                {item.price}
-                              </div>
-                            </div>
-                            <div>
-                              <span className="text-gray-500">
-                                จำนวนเงินที่ใช้:
-                              </span>
-                              <div className="border rounded-md px-2 py-1">
-                                {selectedGift
-                                  .find((g) => g._id === item._id)
-                                  ?.total?.toFixed(2) || "0.00"}
-                              </div>
-                            </div>
+                        <div>
+                          <span className="text-gray-500">ราคาต่อชิ้น:</span>
+                          <div className="border rounded-md px-2 py-1">
+                            {formatNumber(item.price)}
                           </div>
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                        <div>
+                          <span className="text-gray-500">
+                            จำนวนเงินที่ใช้:
+                          </span>
+                          <div className="border rounded-md px-2 py-1">
+                            {selectedGift
+                              .find((g) => g._id === item._id)
+                              ?.total?.toLocaleString("th-Th", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              }) || "0.00"}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Footer (fixed at bottom) */}
+      <div className="sticky bottom-16 bg-gray-300 px-2 py-2 w-full shadow-lg">
+        <div className="flex justify-between items-center px-4 py-2 w-full">
+          <div className="flex flex-col items-center w-1/3">
+            <span className="text-sm font-bold">งบประมาณที่ได้รับ</span>
+            <div className="border rounded-md px-2 py-1 text-center bg-blue-950 text-white font-bold w-full">
+              {formatNumber(budget?.budget)}
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center w-1/3">
+            <span className="text-sm font-bold">จำนวนเงินที่ใช้</span>
+            <div className="border rounded-md px-2 py-1 text-center bg-blue-500 text-white font-bold w-full">
+              {formatNumber(totalAmount)}
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center w-1/3">
+            <span className="text-sm font-bold">ยอดงบคงเหลือ</span>
+            <div
+              className={`border rounded-md px-2 py-1 text-center font-bold w-full ${
+                remainingBudget < 0 ? "bg-red-500" : "bg-green-500"
+              } text-white`}
+            >
+              {formatNumber(remainingBudget)}
             </div>
           </div>
         </div>
 
-        {/* footer */}
-        <div className="absolute bottom-16 bg-gray-300 px-2 py-1 w-full shadow-lg">
-          <div className="flex flex-col w-full gap-4">
-            <div className="flex justify-between items-center px-4 py-2 w-full">
-              <div className="flex flex-col items-center w-1/3">
-                <span className=" text-sm font-bold">งบประมาณที่ได้รับ</span>
-                <div className="border rounded-md px-2 py-1 text-center bg-blue-950 text-white font-bold w-full">
-                  {budget?.budget?.toFixed(2)}
-                </div>
-              </div>
-
-              <div className="flex flex-col items-center w-1/3">
-                <span className=" text-sm font-bold">จำนวนเงินที่ใช้</span>
-                <div className="border rounded-md px-2 py-1 text-center bg-blue-500 text-white font-bold w-full">
-                  {totalAmount?.toFixed(2)}
-                </div>
-              </div>
-
-              <div className="flex flex-col items-center w-1/3">
-                <span className=" text-sm font-bold">ยอดงบคงเหลือ</span>
-                <div
-                  className={`border rounded-md px-2 py-1 text-center font-bold w-full ${
-                    remainingBudget < 0 ? "bg-red-500" : "bg-green-500"
-                  } text-white`}
-                >
-                  {remainingBudget?.toFixed(2)}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex justify-center gap-2 px-4 py-2 w-full">
-            <button
-              className="bg-[#F2871F] text-white font-bold px-4 py-2 rounded-lg"
-              onClick={() => handleOpenInfo()}
-            >
-              บันทึก
-            </button>
-            <button className="bg-red-500 text-white font-bold px-4 py-2 rounded-lg">
-              ยกเลิก
-            </button>
-          </div>
+        <div className="flex justify-center gap-2 px-4 py-2 w-full">
+          <button
+            className="bg-[#F2871F] text-white font-bold px-4 py-2 rounded-lg"
+            onClick={() => handleOpenInfo()}
+          >
+            บันทึก
+          </button>
+          <button className="bg-red-500 text-white font-bold px-4 py-2 rounded-lg">
+            ยกเลิก
+          </button>
         </div>
       </div>
 

@@ -109,6 +109,13 @@ export default function ApproveSection({ active }) {
     setOpen(false);
   };
 
+  const formatNumber = (number) => {
+    return number.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+
   return (
     <div className="flex flex-col items-center gap-4 w-full">
       <div className="flex bg-gray-400 rounded-full items-center justify-center text-white px-4 py-1 w-2/3">
@@ -140,7 +147,7 @@ export default function ApproveSection({ active }) {
                       <span>
                         งบประมาณ{" "}
                         <strong className="text-[#F2871F] font-bold text-sm">
-                          {b.budget.toFixed(2)}
+                          {formatNumber(b.budget)}
                         </strong>{" "}
                         บาท
                       </span>

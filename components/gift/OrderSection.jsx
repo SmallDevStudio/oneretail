@@ -103,7 +103,10 @@ export default function OrderSection({ active }) {
                     <span>
                       งบประมาณ{" "}
                       <strong className="text-[#F2871F] font-bold text-sm">
-                        {b.budget.toFixed(2)}
+                        {b.budget.toLocaleString("th-Th", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
                       </strong>{" "}
                       บาท
                     </span>
