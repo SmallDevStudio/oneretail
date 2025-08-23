@@ -146,8 +146,11 @@ export default function SummeryModel({ onClose, branchId, mutate }) {
     onClose();
   };
 
-  const formatNumber = (number) => {
-    return number.toLocaleString("en-US", {
+  const formatNumber = (value) => {
+    if (value === null || value === undefined || isNaN(value)) {
+      return "0.00";
+    }
+    return Number(value).toLocaleString("en-US", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
