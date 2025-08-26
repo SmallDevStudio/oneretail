@@ -105,7 +105,7 @@ export default function GiftsDetails() {
     const qty = parseInt(inputQty, 10);
 
     if (qty === 0) {
-      const newSelected = selectedGift.filter((g) => g.id !== selected.id);
+      const newSelected = selectedGift.filter((g) => g._id !== selected._id);
       setSelectedGift(newSelected);
     } else {
       const updatedGift = {
@@ -115,7 +115,7 @@ export default function GiftsDetails() {
       };
 
       const newSelected = [
-        ...selectedGift.filter((g) => g.id !== selected.id),
+        ...selectedGift.filter((g) => g._id !== selected._id),
         updatedGift,
       ];
       setSelectedGift(newSelected);
@@ -279,7 +279,7 @@ export default function GiftsDetails() {
       </div>
 
       {/* Table section (scrollable only this part) */}
-      <div className="flex-1 overflow-y-auto px-2">
+      <div className="flex-1 overflow-y-auto px-2 pb-20">
         <div className="flex justify-center w-full my-4">
           <div className="flex bg-gray-400 rounded-full items-center justify-center text-white px-4 py-1 w-2/3">
             <h2 className="font-bold text-sm">

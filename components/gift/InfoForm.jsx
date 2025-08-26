@@ -57,14 +57,14 @@ export default function InfoForm({ onClose, info, setInfo }) {
           <textarea
             name="address"
             id="address"
-            value={form.address}
+            value={form?.address}
             onChange={(e) => setForm({ ...form, address: e.target.value })}
             className={`w-full border rounded-lg p-2
-            ${errors.address ? "border-red-500" : "border-gray-300"}`}
+            ${errors?.address ? "border-red-500" : "border-gray-300"}`}
             placeholder="ที่ตั้งสาขา-ที่จัดส่งของขวัญ"
             rows="3"
           />
-          {errors.address && (
+          {errors?.address && (
             <p className="text-red-500 text-xs">{errors.address}</p>
           )}
         </div>
@@ -77,7 +77,7 @@ export default function InfoForm({ onClose, info, setInfo }) {
             type="text"
             name="phone_manager"
             id="phone_manager"
-            value={form.phone_manager}
+            value={form?.phone_manager}
             onChange={(e) =>
               setForm({ ...form, phone_manager: e.target.value })
             }
@@ -98,7 +98,7 @@ export default function InfoForm({ onClose, info, setInfo }) {
             type="text"
             name="receiver1_empId"
             id="receiver1_empId"
-            value={form.receiver1_empId}
+            value={form?.receiver1_empId}
             onChange={(e) =>
               setForm({ ...form, receiver1_empId: e.target.value })
             }
@@ -119,7 +119,7 @@ export default function InfoForm({ onClose, info, setInfo }) {
             type="text"
             name="receiver1_name"
             id="receiver1_name"
-            value={form.receiver1_name}
+            value={form?.receiver1_name}
             onChange={(e) =>
               setForm({ ...form, receiver1_name: e.target.value })
             }
@@ -140,7 +140,7 @@ export default function InfoForm({ onClose, info, setInfo }) {
             type="text"
             name="receiver1_phone"
             id="receiver1_phone"
-            value={form.receiver1_phone}
+            value={form?.receiver1_phone}
             onChange={(e) =>
               setForm({ ...form, receiver1_phone: e.target.value })
             }
@@ -160,7 +160,7 @@ export default function InfoForm({ onClose, info, setInfo }) {
             type="text"
             name="receiver2_empId"
             id="receiver2_empId"
-            value={form.receiver2_empId}
+            value={form?.receiver2_empId}
             onChange={(e) =>
               setForm({ ...form, receiver2_empId: e.target.value })
             }
@@ -176,7 +176,7 @@ export default function InfoForm({ onClose, info, setInfo }) {
             type="text"
             name="receiver2_name"
             id="receiver2_name"
-            value={form.receiver2_name}
+            value={form?.receiver2_name}
             onChange={(e) =>
               setForm({ ...form, receiver2_name: e.target.value })
             }
@@ -192,7 +192,7 @@ export default function InfoForm({ onClose, info, setInfo }) {
             type="text"
             name="receiver2_phone"
             id="receiver2_phone"
-            value={form.receiver2_phone}
+            value={form?.receiver2_phone}
             onChange={(e) =>
               setForm({ ...form, receiver2_phone: e.target.value })
             }
