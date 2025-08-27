@@ -40,13 +40,18 @@ export default function GiftsDetails() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { branchId } = router.query;
+  const id = router.query.branchId;
 
-  const { data: budgets } = useSWR(`/api/gift/budget/${branchId}`, fetcher, {
-    onSuccess: (data) => {
-      setBudget(data.data);
-      setRemainingBudget(data.data.budget);
-    },
-  });
+  const { data: budgets } = useSWR(
+    branchId ? `/api/gift/budgetId/${branchId}` : null,
+    fetcher,
+    {
+      onSuccess: (data) => {
+        setBudget(data.data);
+        setRemainingBudget(data.data.budget);
+      },
+    }
+  );
 
   const { data: gifts } = useSWR(`/api/gift`, fetcher, {
     onSuccess: (data) => {
