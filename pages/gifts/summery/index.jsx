@@ -215,8 +215,6 @@ export default function GiftSummery() {
     XLSX.writeFile(wb, `Gift_Report_${moment().format("YYYYMMDD_HHmm")}.xlsx`);
   };
 
-  console.log("filteredOrder", filteredOrder);
-
   return (
     <div className="flex flex-col pb-20 min-h-screen">
       {/* Header */}
