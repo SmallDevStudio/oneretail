@@ -28,7 +28,11 @@ export default function OrderSection({ active }) {
     }
   );
 
-  const { data: userData } = useSWR(`/api/users/${userId}`, fetcher, {
+  const {
+    data: userData,
+    error: userError,
+    mutate: userMutate,
+  } = useSWR(`/api/users/${userId}`, fetcher, {
     onSuccess: (data) => {
       setUser(data.user);
     },
@@ -37,8 +41,9 @@ export default function OrderSection({ active }) {
   useEffect(() => {
     if (active) {
       mutate(); // ดึงข้อมูลใหม่เมื่อ tab ถูกเปิด
+      userMutate();
     }
-  }, [active, mutate]);
+  }, [active, mutate, userMutate]);
 
   useEffect(() => {
     if (search) {

@@ -38,7 +38,11 @@ export default function ApproveSection({ active }) {
     }
   );
 
-  const { data: userData } = useSWR(`/api/users/${apporveId}`, fetcher, {
+  const {
+    data: userData,
+    error: userError,
+    mutate: userMutate,
+  } = useSWR(`/api/users/${apporveId}`, fetcher, {
     onSuccess: (data) => {
       setUser(data.user);
     },
@@ -47,8 +51,9 @@ export default function ApproveSection({ active }) {
   useEffect(() => {
     if (active) {
       mutate(); // ดึงข้อมูลใหม่เมื่อ tab ถูกเปิด
+      userMutate();
     }
-  }, [active, mutate]);
+  }, [active, mutate, userMutate]);
 
   useEffect(() => {
     if (search) {
