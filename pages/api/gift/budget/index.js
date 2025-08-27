@@ -45,6 +45,7 @@ export default async function handler(req, res) {
             orderId: order?._id,
             userId: order?.userId,
             usedBudget,
+            order_createdAt: order?.createdAt,
             remainingBudget: (obj.budget || 0) - usedBudget,
           };
         });

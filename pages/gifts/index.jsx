@@ -1,37 +1,56 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import axios from "axios";
+import useSWR from "swr";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { IoChevronBack } from "react-icons/io5";
 import OrderSection from "@/components/gift/OrderSection";
 import ApproveSection from "@/components/gift/ApproveSection";
 import { MdDisplaySettings } from "react-icons/md";
+import Loading from "@/components/Loading";
+
+const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 export default function GiftsPage() {
   const [user, setUser] = useState(null);
+  const [branch, setBranch] = useState(null);
   const [activeTab, setActiveTab] = useState("order");
   const { data: session, status } = useSession();
   const router = useRouter();
+  const userId = session?.user?.id;
 
   useEffect(() => {
-    if (status === "loading") return;
-    if (session) {
-      const fetchUser = async () => {
-        try {
-          const response = await axios.get(`/api/users/${session.user.id}`);
-          setUser(response.data.user);
-        } catch (error) {
-          console.error("Error fetching user:", error);
-        }
-      };
-      fetchUser();
-    }
+    if (status === "loading" || !session) return;
   }, [session, status]);
+
+  const { data, error, isLoading, mutate } = useSWR(
+    `/api/gift/budget/${userId}`,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateOnMount: true,
+      onSuccess: (data) => {
+        setBranch(data.data);
+      },
+    }
+  );
+
+  const {
+    data: userData,
+    error: userError,
+    mutate: userMutate,
+  } = useSWR(`/api/users/${userId}`, fetcher, {
+    onSuccess: (data) => {
+      setUser(data.user);
+    },
+  });
 
   const handleActive = (tabs) => {
     setActiveTab(tabs);
   };
+
+  if (!branch || !user || isLoading) return <Loading />;
 
   return (
     <div className="flex flex-col w-full">
@@ -41,7 +60,9 @@ export default function GiftsPage() {
           <IoChevronBack />
           <span className="font-bold">ระบบของขวัญปีใหม่</span>
         </div>
-        <MdDisplaySettings />
+        {user && user?.role === "admin" && (
+          <MdDisplaySettings onClick={() => router.push("/gifts/summery")} />
+        )}
       </div>
 
       <div className="flex flex-col items-center p-4 gap-4">
@@ -101,10 +122,16 @@ export default function GiftsPage() {
         {/* active */}
         <div className="flex items-center justify-center w-full">
           {activeTab === "approve" && (
-            <ApproveSection active={activeTab === "approve"} />
+            <ApproveSection active={activeTab === "approve"} user={user} />
           )}
           {activeTab === "order" && (
-            <OrderSection active={activeTab === "order"} />
+            <OrderSection
+              active={activeTab === "order"}
+              user={user}
+              branch={branch}
+              mutate={mutate}
+              userMutate={userMutate}
+            />
           )}
         </div>
       </div>

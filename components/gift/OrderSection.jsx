@@ -7,36 +7,19 @@ import Loading from "../Loading";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
-export default function OrderSection({ active }) {
-  const [branch, setBranch] = useState([]);
+export default function OrderSection({
+  active,
+  user,
+  branch,
+  mutate,
+  userMutate,
+}) {
   const [filterBranch, setFilterBranch] = useState([]);
-  const [user, setUser] = useState({});
   const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("");
   const { data: session } = useSession();
   const router = useRouter();
   const userId = session?.user?.id;
-
-  const { data, error, mutate } = useSWR(
-    `/api/gift/budget/${userId}`,
-    fetcher,
-    {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      onSuccess: (data) => {
-        setBranch(data.data);
-      },
-    }
-  );
-
-  const {
-    data: userData,
-    error: userError,
-    mutate: userMutate,
-  } = useSWR(`/api/users/${userId}`, fetcher, {
-    onSuccess: (data) => {
-      setUser(data.user);
-    },
-  });
 
   useEffect(() => {
     if (active) {
@@ -59,6 +42,17 @@ export default function OrderSection({ active }) {
       setFilterBranch(branch);
     }
   }, [branch, search]);
+
+  useEffect(() => {
+    if (status) {
+      const filteredBranch = branch.filter((b) => b.status === status);
+      setFilterBranch(filteredBranch);
+    } else {
+      setFilterBranch(branch);
+    }
+  }, [branch, status]);
+
+  if (!branch || !session) return <Loading />;
 
   const getStatus = (status) => {
     if (status === "order") {
@@ -129,8 +123,6 @@ export default function OrderSection({ active }) {
     });
   };
 
-  if (!data || !branch || !session || !userData) return <Loading />;
-
   return (
     <div className="flex flex-col items-center gap-4 w-full pb-20">
       <div className="flex bg-gray-400 rounded-full items-center justify-center text-white px-4 py-1 w-2/3">
@@ -154,6 +146,22 @@ export default function OrderSection({ active }) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
+          </div>
+          <div className="flex items-center gap-2">
+            <label htmlFor="status">สถานะ:</label>
+            <select
+              id="status"
+              className="p-1 border border-gray-300 rounded-full text-sm"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
+              <option value="">ทั้งหมด</option>
+              <option value="order">สาขาคลิกเพื่อสั่งจองของขวัญ</option>
+              <option value="draft">แบบร่าง</option>
+              <option value="pending">รอการอนุมัติ</option>
+              <option value="approved">อนุมัติแล้ว</option>
+              <option value="notApprove">ไม่อนุมัติ</option>
+            </select>
           </div>
         </div>
       )}
