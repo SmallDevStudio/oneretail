@@ -13,19 +13,41 @@ export default async function handler(req, res) {
         const budgets = await BudgetGifts.find({});
         const branchIds = budgets.map((b) => b._id.toString());
 
+        // ดึง order ที่ branchId match กับ budget._id
         const orders = await OrderGifts.find({
           branchId: { $in: branchIds },
         });
 
+        // map ตาม branchId
         const ordersMap = {};
         orders.forEach((order) => {
-          ordersMap[order.branchId.toString()] = order.status;
+          ordersMap[order.branchId.toString()] = order;
         });
 
-        const enrichedBudgets = budgets.map((b) => ({
-          ...b.toObject(),
-          status: ordersMap[b._id.toString()] || "order",
-        }));
+        const enrichedBudgets = budgets.map((b) => {
+          const obj = b.toObject();
+
+          const order = ordersMap[b._id.toString()] || null;
+
+          // รวม budget ที่ใช้ไปจาก order.gifts
+          let usedBudget = 0;
+          if (order?.gifts?.length) {
+            usedBudget = order.gifts.reduce(
+              (sum, g) => sum + (g.total || 0),
+              0
+            );
+          }
+
+          return {
+            ...obj,
+            status: order?.status || "order",
+            gifts: order?.gifts || [],
+            orderId: order?._id,
+            userId: order?.userId,
+            usedBudget,
+            remainingBudget: (obj.budget || 0) - usedBudget,
+          };
+        });
 
         res.status(200).json({ success: true, data: enrichedBudgets });
       } catch (error) {

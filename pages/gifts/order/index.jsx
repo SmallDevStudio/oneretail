@@ -239,6 +239,15 @@ export default function GiftsDetails() {
     });
   };
 
+  const handleClear = () => {
+    setSelectedGift([]);
+    setOpenSelect(null);
+    setInputQty(0);
+    setOpenConfirm(false);
+    setOpenInfo(false);
+    router.push("/gifts");
+  };
+
   return (
     <div className="flex flex-col h-screen w-full">
       {/* Header */}
@@ -405,7 +414,10 @@ export default function GiftsDetails() {
           >
             บันทึก
           </button>
-          <button className="bg-red-500 text-white font-bold px-4 py-2 rounded-lg">
+          <button
+            className="bg-red-500 text-white font-bold px-4 py-2 rounded-lg"
+            onClick={() => handleClear()}
+          >
             ยกเลิก
           </button>
         </div>

@@ -6,82 +6,34 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { IoClose } from "react-icons/io5";
 import Swal from "sweetalert2";
+import { Dialog, Slide, Divider } from "@mui/material";
 
-const fetcher = (url) => axios.get(url).then((res) => res.data);
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
-export default function SummeryModel({ onClose, branchId, mutate }) {
-  const [gift, setGift] = useState([]);
+export default function SummeryModel({ onClose, order, mutate }) {
   const [budget, setBudget] = useState([]);
   const [selectedGift, setSelectedGift] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
   const [remainingBudget, setRemainingBudget] = useState(0);
   const [orderId, setOrderId] = useState(null);
-  const [isOrderLoaded, setIsOrderLoaded] = useState(false);
   const [info, setInfo] = useState(null);
+  const [openNotApprove, setOpenNotApprove] = useState(false);
+  const [reason, setReason] = useState("");
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const { data: budgets } = useSWR(
-    branchId ? `/api/gift/budget/${branchId}` : null,
-    fetcher,
-    {
-      onSuccess: (data) => {
-        setBudget(data.data);
-        setRemainingBudget(data.data.budget);
-      },
-    }
-  );
-
-  const { data: gifts } = useSWR(`/api/gift`, fetcher, {
-    onSuccess: (data) => {
-      setGift(data.data);
-    },
-  });
-
   useEffect(() => {
-    if (branchId) {
-      const fetchOrder = async () => {
-        try {
-          const res = await axios.get(`/api/gift/order/${branchId}`);
-          const data = res.data;
-          if (data.success && data.data) {
-            const order = data.data;
-
-            // แปลง order.gifts จาก Array<[]>
-            const flatGifts = order.gifts.flat(); // ✅ fix รูปแบบ gift ซ้อน []
-
-            const updatedGiftList = gift.map((g) => {
-              const matched = flatGifts.find(
-                (og) => og._id === g._id || og.code === g.code
-              );
-              return matched
-                ? { ...g, qty: matched.qty, total: matched.total }
-                : g;
-            });
-
-            setGift(updatedGiftList);
-            setSelectedGift(flatGifts);
-            setInfo(order.info ? order.info : null);
-            setOrderId(order._id);
-          }
-        } catch (error) {
-          console.error("Error fetching order:", error);
-        } finally {
-          setIsOrderLoaded(true);
-        }
-      };
-
-      if (branchId && gift.length > 0 && !isOrderLoaded) {
-        fetchOrder();
-      }
+    if (order) {
+      setSelectedGift(order.gifts);
+      setBudget(order.budget);
+      setTotalAmount(order.usedBudget);
+      setRemainingBudget(order.remainingBudget);
+      setOrderId(order.orderId);
+      setInfo(order.info);
     }
-  }, [branchId, gift, isOrderLoaded]);
-
-  useEffect(() => {
-    const total = selectedGift.reduce((acc, g) => acc + g.qty * g.price, 0);
-    setTotalAmount(total);
-    setRemainingBudget(budget.budget - total);
-  }, [budget.budget, selectedGift]);
+  }, [order]);
 
   const handleSaveOrder = async (status) => {
     if (!session?.user?.id) return;
@@ -90,7 +42,7 @@ export default function SummeryModel({ onClose, branchId, mutate }) {
       const result = await Swal.fire({
         title: "ยืนยันการสั่งจอง",
         icon: "warning",
-        text: "การสั่งจองจะไม่สามารถยกเลิก และแก้ไขได้ คุณแน่ใจหรือไม่",
+        text: "ยืนยันการสั่งจองจะไม่สามารถยกเลิก และแก้ไขได้ คุณแน่ใจหรือไม่",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
@@ -103,14 +55,10 @@ export default function SummeryModel({ onClose, branchId, mutate }) {
       }
     }
 
-    const giftsToSave = selectedGift.map((gift) => ({
-      ...gift, // ส่ง gift ทั้ง object
-    }));
-
     const dataToSave = {
       userId: session.user.id,
-      branchId: branchId,
-      gifts: giftsToSave,
+      branchId: order._id,
+      gifts: selectedGift,
       info,
       status,
     };
@@ -126,24 +74,17 @@ export default function SummeryModel({ onClose, branchId, mutate }) {
       };
       dataToSave.update_by = update_by.update_by;
       // update
-      await axios.put(`/api/gift/order/${branchId}`, {
+      await axios.put(`/api/gift/order/${order._id}`, {
         newData: dataToSave,
         orderId, // for logging if needed
       });
       mutate();
       toast.success("อัปเดตรายการสำเร็จ");
-      handleClear();
+      onClose();
     } catch (error) {
       console.error(error);
       toast.error("เกิดข้อผิดพลาดในการบันทึก");
     }
-  };
-
-  const handleClear = () => {
-    setForm({ code: "", name: "", description: "", price: "" });
-    setImage(null);
-    setIsEdit(false);
-    onClose();
   };
 
   const formatNumber = (value) => {
@@ -155,6 +96,48 @@ export default function SummeryModel({ onClose, branchId, mutate }) {
       maximumFractionDigits: 2,
     });
   };
+
+  const handleNotApprove = () => {
+    setReason("");
+    setOpenNotApprove(true);
+  };
+
+  const handleCloseNotApprove = () => {
+    setReason("");
+    setOpenNotApprove(false);
+    onClose();
+  };
+
+  const handleNotApproveSubmit = async () => {
+    if (reason === "") {
+      toast.error("กรุณาใส่เหตุผล");
+      return;
+    }
+
+    try {
+      const dataSave = {
+        branchId: order._id,
+        orderId,
+        userId: order.userId,
+        approverId: session.user.id,
+        reason,
+      };
+      const res = await axios.post("/api/gift/order/not_approve", dataSave);
+      if (res.data.success) {
+        handleSaveOrder("notApprove");
+        mutate();
+        toast.success("บันทึกเรียบร้อย");
+        handleCloseNotApprove();
+      } else {
+        toast.error("เกิดข้อผิดพลาดในการบันทึก");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("เกิดข้อผิดพลาดในการบันทึก");
+    }
+  };
+
+  console.log(order);
 
   return (
     <div className="flex flex-col gap-2 p-4 w-full">
@@ -205,7 +188,7 @@ export default function SummeryModel({ onClose, branchId, mutate }) {
                     className="bg-orange-500 font-bold text-white py-1"
                     colSpan="2"
                   >
-                    {formatNumber(budget?.budget)}
+                    {formatNumber(budget)}
                   </td>
                 </tr>
                 <tr>
@@ -240,10 +223,59 @@ export default function SummeryModel({ onClose, branchId, mutate }) {
         >
           อนุมัติ
         </button>
-        <button className="bg-[#0056FF] text-white font-bold px-4 py-2 rounded-lg">
+        <button
+          className="bg-red-500 text-white font-bold px-4 py-2 rounded-lg"
+          onClick={handleNotApprove}
+        >
+          ไม่อนุมัติ
+        </button>
+        <button
+          className="bg-[#0056FF] text-white font-bold px-4 py-2 rounded-lg"
+          onClick={onClose}
+        >
           ยกเลิก
         </button>
       </div>
+      <Dialog
+        open={openNotApprove}
+        onClose={handleCloseNotApprove}
+        TransitionComponent={Transition}
+        sx={{ "& .MuiDialog-paper": { width: "100%", maxWidth: "md" } }}
+      >
+        <div className="flex flex-col w-full">
+          <div className="flex items-center justify-between bg-red-500 text-white p-2">
+            <h3 className="font-bold">ไม่อนุมัติ</h3>
+            <IoClose size={25} onClick={handleCloseNotApprove} />
+          </div>
+          <div className="flex flex-col gap-2 p-4 w-full">
+            <label htmlFor="reason" className="font-bold">
+              เหตุผลไม่อนุมัติ
+            </label>
+            <textarea
+              id="reason"
+              className="border border-gray-300 rounded-md p-2"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              required
+              placeholder="กรุณากรอกเหตุผลไม่อนุมัติ"
+            />
+            <div className="flex justify-center gap-2 mt-4">
+              <button
+                className="bg-red-500 text-white font-bold px-4 py-2 rounded-lg"
+                onClick={handleNotApproveSubmit}
+              >
+                ยืนยัน
+              </button>
+              <button
+                className="bg-[#0056FF] text-white font-bold px-4 py-2 rounded-lg"
+                onClick={handleCloseNotApprove}
+              >
+                ยกเลิก
+              </button>
+            </div>
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 }

@@ -17,6 +17,7 @@ export default function ApproveSection({ active }) {
   const [branch, setBranch] = useState([]);
   const [filter, setFilter] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
+  const [selectedBranch, setSelectedBranch] = useState(null);
   const [open, setOpen] = useState(false);
   const { data: session } = useSession();
   const router = useRouter();
@@ -76,7 +77,9 @@ export default function ApproveSection({ active }) {
       return (
         <button
           className="bg-red-500 font-bold text-white px-2 py-2 rounded-lg"
-          onClick={() => router.push(`/gifts/order?branchId=${branch._id}`)}
+          onClick={() =>
+            router.push(`/gifts/order?branchId=${(branch._id, branch)}`)
+          }
         >
           แบบร่าง
         </button>
@@ -85,7 +88,7 @@ export default function ApproveSection({ active }) {
       return (
         <button
           className="bg-[#FFC107] font-bold text-white px-2 py-2 rounded-lg"
-          onClick={() => handleOpen(branch._id)}
+          onClick={() => handleOpen(branch._id, branch)}
         >
           รอการอนุมัติ
         </button>
@@ -99,13 +102,15 @@ export default function ApproveSection({ active }) {
     }
   };
 
-  const handleOpen = (id) => {
+  const handleOpen = (id, branch) => {
     setSelectedId(id);
+    setSelectedBranch(branch);
     setOpen(true);
   };
 
   const handleClose = () => {
     setSelectedId(null);
+    setSelectedBranch(null);
     setOpen(false);
   };
 
@@ -118,6 +123,8 @@ export default function ApproveSection({ active }) {
       maximumFractionDigits: 2,
     });
   };
+
+  console.log("selectedBranch", selectedBranch);
 
   return (
     <div className="flex flex-col items-center gap-4 w-full">
@@ -180,6 +187,7 @@ export default function ApproveSection({ active }) {
         <SummeryModel
           onClose={handleClose}
           branchId={selectedId}
+          order={selectedBranch}
           mutate={mutate}
         />
       </Dialog>

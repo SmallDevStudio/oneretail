@@ -28,7 +28,7 @@ export default function OrderSection({ active }) {
   const getStatus = (status) => {
     if (status === "order") {
       return (
-        <span className="bg-gray-500 font-bold">
+        <span className="text-gray-600 font-bold">
           สาขาคลิกเพื่อสั่งจองของขวัญ
         </span>
       );
@@ -72,8 +72,29 @@ export default function OrderSection({ active }) {
           อนุมัติแล้ว
         </button>
       );
+    } else if (branch.status === "notApprove") {
+      return (
+        <button
+          className="bg-red-500 font-bold text-white px-2 py-2 rounded-lg"
+          onClick={() => router.push(`/gifts/order?branchId=${branch._id}`)}
+        >
+          ไม่อนุมัติ
+        </button>
+      );
     }
   };
+
+  const formatNumber = (value) => {
+    if (value === null || value === undefined || isNaN(value)) {
+      return "0.00";
+    }
+    return Number(value).toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+
+  console.log(branch);
 
   return (
     <div className="flex flex-col items-center gap-4 w-full">
@@ -103,13 +124,29 @@ export default function OrderSection({ active }) {
                     <span>
                       งบประมาณ{" "}
                       <strong className="text-[#F2871F] font-bold text-sm">
-                        {b.budget.toLocaleString("th-Th", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
+                        {formatNumber(b.budget)}
                       </strong>{" "}
                       บาท
                     </span>
+                    {b.usedBudget > 0 && (
+                      <span>
+                        ยอดงบที่ใช้ไป{" "}
+                        <strong className="text-red-500 font-bold text-sm">
+                          {formatNumber(b.usedBudget)}
+                        </strong>{" "}
+                        บาท
+                      </span>
+                    )}
+                    {b.remainingBudget > 0 && (
+                      <span>
+                        ยอดงบคงเหลือ{" "}
+                        <strong className="text-[#0056FF] font-bold text-sm">
+                          {formatNumber(b.remainingBudget)}
+                        </strong>{" "}
+                        บาท
+                      </span>
+                    )}
+
                     <span>สถานะ {getStatus(b.status)}</span>
                   </div>
                 </td>
