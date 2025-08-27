@@ -1,6 +1,7 @@
 import connetMongoDB from "@/lib/services/database/mongodb";
 import OrderGifts from "@/database/models/Gifts/OrderGifts";
 import OrderGiftLogs from "@/database/models/Gifts/OrderGiftLogs";
+import sendLineMessage from "@/lib/sendLineMessage";
 
 export default async function handler(req, res) {
   const { method, query } = req;
@@ -23,10 +24,7 @@ export default async function handler(req, res) {
       const { update_by, ...dataWithoutUpdateBy } = newData;
 
       // ดึงข้อมูลเดิมก่อนอัปเดต
-      const existingOrder = await OrderGifts.findOne({
-        branchId: branchId,
-      }).lean();
-
+      const existingOrder = await OrderGifts.findOne({ branchId }).lean();
       if (!existingOrder) return res.status(404).json({ error: "Not found" });
 
       const updated = await OrderGifts.findOneAndUpdate(
@@ -59,6 +57,54 @@ export default async function handler(req, res) {
         before: existingOrder,
         after: newData,
       });
+
+      // ✅ ถ้าอนุมัติแล้ว → ส่ง LINE
+      if (newData.status === "approved") {
+        const flexMessage = {
+          type: "flex",
+          altText: "การสั่งจองได้รับการอนุมัติ",
+          contents: {
+            type: "bubble",
+            body: {
+              type: "box",
+              layout: "vertical",
+              contents: [
+                {
+                  type: "text",
+                  text: "คำสั่งจองของคุณได้รับการอนุมัติ 🎉",
+                  weight: "bold",
+                  size: "md",
+                  wrap: true,
+                },
+              ],
+            },
+            footer: {
+              type: "box",
+              layout: "vertical",
+              spacing: "sm",
+              contents: [
+                {
+                  type: "button",
+                  style: "primary",
+                  action: {
+                    type: "uri",
+                    label: "ดูของขวัญ",
+                    uri: `${process.env.NEXT_PUBLIC_BASE_URL}/gifts`,
+                  },
+                },
+              ],
+              flex: 0,
+            },
+          },
+        };
+
+        try {
+          await sendLineMessage(updated.userId, flexMessage);
+          console.log("✅ Sent LINE approved message");
+        } catch (err) {
+          console.error("❌ Failed to send LINE approved message", err);
+        }
+      }
 
       res.status(200).json(updated);
       break;

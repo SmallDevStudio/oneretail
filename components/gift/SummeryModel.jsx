@@ -137,7 +137,9 @@ export default function SummeryModel({ onClose, order, mutate }) {
     }
   };
 
-  console.log(order);
+  const handleApprove = async () => {
+    handleSaveOrder("approved");
+  };
 
   return (
     <div className="flex flex-col gap-2 p-4 w-full">

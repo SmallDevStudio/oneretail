@@ -10,14 +10,19 @@ export default function OrderSection({ active }) {
   const [branch, setBranch] = useState([]);
   const { data: session } = useSession();
   const router = useRouter();
+  const userId = session?.user?.id;
 
-  const { data, error, mutate } = useSWR("/api/gift/budget", fetcher, {
-    revalidateOnFocus: false,
-    revalidateOnMount: true,
-    onSuccess: (data) => {
-      setBranch(data.data);
-    },
-  });
+  const { data, error, mutate } = useSWR(
+    `/api/gift/budget/${userId}`,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateOnMount: true,
+      onSuccess: (data) => {
+        setBranch(data.data);
+      },
+    }
+  );
 
   useEffect(() => {
     if (active) {
@@ -93,8 +98,6 @@ export default function OrderSection({ active }) {
       maximumFractionDigits: 2,
     });
   };
-
-  console.log(branch);
 
   return (
     <div className="flex flex-col items-center gap-4 w-full">
