@@ -30,7 +30,7 @@ export default async function handler(req, res) {
         // ดึง orders เฉพาะ approve หรือ pending
         const orders = await OrderGifts.find({
           branchId: { $in: branchIds },
-          status: { $in: ["approve", "pending"] },
+          status: { $in: ["approved", "pending"] },
         });
 
         // map ตาม branchId
