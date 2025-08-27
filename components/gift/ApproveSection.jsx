@@ -122,7 +122,7 @@ export default function ApproveSection({ active }) {
   };
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full">
+    <div className="flex flex-col items-center gap-4 w-full pb-20">
       <div className="flex bg-gray-400 rounded-full items-center justify-center text-white px-4 py-1 w-2/3">
         <h2 className="font-bold">สาขาสั่งของของขวัญ</h2>
       </div>
