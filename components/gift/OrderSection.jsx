@@ -3,11 +3,15 @@ import { useSession } from "next-auth/react";
 import axios from "axios";
 import useSWR from "swr";
 import { useRouter } from "next/router";
+import Loading from "../Loading";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 export default function OrderSection({ active }) {
   const [branch, setBranch] = useState([]);
+  const [filterBranch, setFilterBranch] = useState([]);
+  const [user, setUser] = useState({});
+  const [search, setSearch] = useState("");
   const { data: session } = useSession();
   const router = useRouter();
   const userId = session?.user?.id;
@@ -24,11 +28,32 @@ export default function OrderSection({ active }) {
     }
   );
 
+  const { data: userData } = useSWR(`/api/users/${userId}`, fetcher, {
+    onSuccess: (data) => {
+      setUser(data.user);
+    },
+  });
+
   useEffect(() => {
     if (active) {
       mutate(); // ดึงข้อมูลใหม่เมื่อ tab ถูกเปิด
     }
   }, [active, mutate]);
+
+  useEffect(() => {
+    if (search) {
+      const lowerSearch = search.toLowerCase();
+      const filteredBranch = branch.filter((b) => {
+        const branchName = b.branch ? b.branch.toLowerCase() : "";
+        const rhName = b.rh ? b.rh.toLowerCase() : "";
+
+        return branchName.includes(lowerSearch) || rhName.includes(lowerSearch);
+      });
+      setFilterBranch(filteredBranch);
+    } else {
+      setFilterBranch(branch);
+    }
+  }, [branch, search]);
 
   const getStatus = (status) => {
     if (status === "order") {
@@ -99,11 +124,34 @@ export default function OrderSection({ active }) {
     });
   };
 
+  if (!data || !branch || !session || !userData) return <Loading />;
+
   return (
     <div className="flex flex-col items-center gap-4 w-full">
       <div className="flex bg-gray-400 rounded-full items-center justify-center text-white px-4 py-1 w-2/3">
         <h2 className="font-bold">สาขาสั่งของของขวัญ</h2>
       </div>
+
+      {user?.role === "admin" && (
+        <div className="flex flex-col gap-2 w-full">
+          <div className="flex items-center justify-center gap-2">
+            <h3 className="font-bold bg-[#0056FF] text-white px-4 py-1 rounded-full">
+              Admin User
+            </h3>
+          </div>
+          <div className="flex items-center gap-2 w-full">
+            <span className="font-bold text-sm">ค้นหา:</span>
+            <input
+              type="text"
+              id="search"
+              className="w-full p-1 border border-gray-300 rounded-full text-sm"
+              placeholder="ค้นหาสาขา"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
+      )}
 
       {/* table */}
       <div className="overflow-x-auto w-full">
@@ -116,7 +164,7 @@ export default function OrderSection({ active }) {
             </tr>
           </thead>
           <tbody>
-            {branch.map((b, index) => (
+            {filterBranch.map((b, index) => (
               <tr key={index}>
                 <td className="border px-4 py-2 text-center align-top">
                   {index + 1}

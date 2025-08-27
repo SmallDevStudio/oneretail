@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import { Dialog, Slide, Divider } from "@mui/material";
 import { IoClose } from "react-icons/io5";
 import SummeryModel from "./SummeryModel";
+import Loading from "../Loading";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -15,20 +16,24 @@ const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 export default function ApproveSection({ active }) {
   const [branch, setBranch] = useState([]);
-  const [filter, setFilter] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [open, setOpen] = useState(false);
   const { data: session } = useSession();
+  const apporveId = session?.user?.id;
   const router = useRouter();
 
-  const { data, error, mutate } = useSWR("/api/gift/budget", fetcher, {
-    revalidateOnFocus: false,
-    revalidateOnMount: true,
-    onSuccess: (data) => {
-      setBranch(data.data);
-    },
-  });
+  const { data, error, mutate } = useSWR(
+    `/api/gift/order/approve/${apporveId}`,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateOnMount: true,
+      onSuccess: (data) => {
+        setBranch(data.data);
+      },
+    }
+  );
 
   useEffect(() => {
     if (active) {
@@ -36,16 +41,8 @@ export default function ApproveSection({ active }) {
     }
   }, [active, mutate]);
 
-  useEffect(() => {
-    if (branch.length > 0) {
-      setFilter(
-        branch.filter(
-          (branch) =>
-            branch.status === "pending" || branch.status === "approved"
-        )
-      );
-    }
-  }, [branch]);
+  if (error) return <div>failed to load</div>;
+  if (!data || !branch || !session) return <Loading />;
 
   const getStatus = (status) => {
     if (status === "order") {
@@ -124,8 +121,6 @@ export default function ApproveSection({ active }) {
     });
   };
 
-  console.log("selectedBranch", selectedBranch);
-
   return (
     <div className="flex flex-col items-center gap-4 w-full">
       <div className="flex bg-gray-400 rounded-full items-center justify-center text-white px-4 py-1 w-2/3">
@@ -143,8 +138,8 @@ export default function ApproveSection({ active }) {
             </tr>
           </thead>
           <tbody>
-            {filter.length > 0 ? (
-              filter.map((b, index) => (
+            {branch.length > 0 ? (
+              branch.map((b, index) => (
                 <tr key={index}>
                   <td className="border px-4 py-2 text-center align-top">
                     {index + 1}
