@@ -16,6 +16,9 @@ const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 export default function ApproveSection({ active }) {
   const [branch, setBranch] = useState([]);
+  const [user, setUser] = useState({});
+  const [filterBranch, setFilterBranch] = useState([]);
+  const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState(null);
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [open, setOpen] = useState(false);
@@ -35,14 +38,35 @@ export default function ApproveSection({ active }) {
     }
   );
 
+  const { data: userData } = useSWR(`/api/users/${apporveId}`, fetcher, {
+    onSuccess: (data) => {
+      setUser(data.user);
+    },
+  });
+
   useEffect(() => {
     if (active) {
       mutate(); // ดึงข้อมูลใหม่เมื่อ tab ถูกเปิด
     }
   }, [active, mutate]);
 
+  useEffect(() => {
+    if (search) {
+      const lowerSearch = search.toLowerCase();
+      const filteredBranch = branch.filter((b) => {
+        const branchName = b.branch ? b.branch.toLowerCase() : "";
+        const rhName = b.rh ? b.rh.toLowerCase() : "";
+
+        return branchName.includes(lowerSearch) || rhName.includes(lowerSearch);
+      });
+      setFilterBranch(filteredBranch);
+    } else {
+      setFilterBranch(branch);
+    }
+  }, [branch, search]);
+
   if (error) return <div>failed to load</div>;
-  if (!data || !branch || !session) return <Loading />;
+  if (!data || !branch || !session || !userData) return <Loading />;
 
   const getStatus = (status) => {
     if (status === "order") {
@@ -127,6 +151,27 @@ export default function ApproveSection({ active }) {
         <h2 className="font-bold">สาขาสั่งของของขวัญ</h2>
       </div>
 
+      {user && user?.role === "admin" && (
+        <div className="flex flex-col gap-2 w-full">
+          <div className="flex items-center justify-center gap-2">
+            <h3 className="font-bold bg-[#0056FF] text-white px-4 py-1 rounded-full">
+              Admin User
+            </h3>
+          </div>
+          <div className="flex items-center gap-2 w-full">
+            <span className="font-bold text-sm">ค้นหา:</span>
+            <input
+              type="text"
+              id="search"
+              className="w-full p-1 border border-gray-300 rounded-full text-sm"
+              placeholder="ค้นหาสาขา"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
+      )}
+
       {/* table */}
       <div className="overflow-x-auto w-full">
         <table className="table-auto text-xs w-full">
@@ -138,8 +183,8 @@ export default function ApproveSection({ active }) {
             </tr>
           </thead>
           <tbody>
-            {branch.length > 0 ? (
-              branch.map((b, index) => (
+            {filterBranch.length > 0 ? (
+              filterBranch.map((b, index) => (
                 <tr key={index}>
                   <td className="border px-4 py-2 text-center align-top">
                     {index + 1}

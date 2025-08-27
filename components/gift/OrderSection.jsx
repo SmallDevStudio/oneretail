@@ -132,7 +132,7 @@ export default function OrderSection({ active }) {
         <h2 className="font-bold">สาขาสั่งของของขวัญ</h2>
       </div>
 
-      {user?.role === "admin" && (
+      {user && user?.role === "admin" && (
         <div className="flex flex-col gap-2 w-full">
           <div className="flex items-center justify-center gap-2">
             <h3 className="font-bold bg-[#0056FF] text-white px-4 py-1 rounded-full">
