@@ -197,7 +197,7 @@ export default function ApproveSection({ active }) {
                   <td className="border px-4 py-2">
                     <div className="flex flex-col text-left">
                       <span className="text-[#0056FF] font-bold">
-                        {b.branch}
+                        {b.branch} ({b.rh})
                       </span>
                       <span>
                         งบประมาณ{" "}

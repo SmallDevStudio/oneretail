@@ -12,25 +12,31 @@ export default async function handler(req, res) {
   switch (method) {
     case "GET":
       try {
-        const user = await Users.findOne({ userId: apporveId });
+        const user = await Users.findOne({ userId: apporveId }).select(
+          "empId role"
+        );
         if (!user) {
           return res
             .status(404)
             .json({ success: false, message: "User not found" });
         }
 
+        console.log("User:", user);
+
         // ดึง budgets ตาม role
         const budgets =
           user.role === "admin"
             ? await BudgetGifts.find({})
-            : await BudgetGifts.find({ apporveId: user.empId });
+            : await BudgetGifts.find({ approver: user.empId });
+
+        console.log("Budgets:", budgets);
 
         const branchIds = budgets.map((b) => b._id.toString());
 
         // ดึง orders เฉพาะ approve หรือ pending
         const orders = await OrderGifts.find({
           branchId: { $in: branchIds },
-          status: { $in: ["approved", "pending"] },
+          status: { $in: ["pending", "approved"] },
         });
 
         // map ตาม branchId
