@@ -44,6 +44,7 @@ export default async function handler(req, res) {
             gifts: order?.gifts || [],
             orderId: order?._id,
             userId: order?.userId,
+            info: order?.info || {},
             usedBudget,
             order_createdAt: order?.createdAt,
             remainingBudget: (obj.budget || 0) - usedBudget,

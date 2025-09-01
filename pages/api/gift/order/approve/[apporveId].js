@@ -21,15 +21,11 @@ export default async function handler(req, res) {
             .json({ success: false, message: "User not found" });
         }
 
-        console.log("User:", user);
-
         // ดึง budgets ตาม role
         const budgets =
           user.role === "admin"
             ? await BudgetGifts.find({})
             : await BudgetGifts.find({ approver: user.empId });
-
-        console.log("Budgets:", budgets);
 
         const branchIds = budgets.map((b) => b._id.toString());
 

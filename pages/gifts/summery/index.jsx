@@ -148,6 +148,12 @@ export default function GiftSummery() {
             budget: o.budget,
             usedBudget: o.usedBudget,
             createdAt: moment(o.order_createdAt).format("lll"),
+            address: o.info.address || "",
+            phone_manager: o.info.phone_manager || "",
+            receiver1_name: o.info.receiver1_name || "",
+            receiver1_phone: o.info.receiver1_phone || "",
+            receiver2_name: o.info.receiver2_name || "",
+            receiver2_phone: o.info.receiver2_phone || "",
           };
 
           // ✅ แตก gifts เป็นคอลัมน์
@@ -214,6 +220,8 @@ export default function GiftSummery() {
 
     XLSX.writeFile(wb, `Gift_Report_${moment().format("YYYYMMDD_HHmm")}.xlsx`);
   };
+
+  console.log("filteredOrder", filteredOrder);
 
   return (
     <div className="flex flex-col pb-20 min-h-screen">
