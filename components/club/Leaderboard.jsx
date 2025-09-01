@@ -276,7 +276,7 @@ export default function ClubLeaderboard({ handleTabClick }) {
             </div>
 
             <div className="flex items-center gap-2">
-              {!hasPoint && (
+              {/*{!hasPoint && (
                 <div
                   className="border border-gray-300 rounded-lg bg-gray-200 p-1"
                   onClick={() =>
@@ -285,7 +285,7 @@ export default function ClubLeaderboard({ handleTabClick }) {
                 >
                   <RiHandCoinLine size={22} />
                 </div>
-              )}
+              )}*/}
               <div
                 className="border border-gray-300 rounded-lg bg-gray-200 p-1"
                 onClick={() => setOpenCer(true)}
