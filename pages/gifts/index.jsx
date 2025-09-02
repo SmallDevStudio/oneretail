@@ -122,7 +122,11 @@ export default function GiftsPage() {
         {/* active */}
         <div className="flex items-center justify-center w-full">
           {activeTab === "approve" && (
-            <ApproveSection active={activeTab === "approve"} user={user} />
+            <ApproveSection
+              active={activeTab === "approve"}
+              user={user}
+              mutate={mutate}
+            />
           )}
           {activeTab === "order" && (
             <OrderSection

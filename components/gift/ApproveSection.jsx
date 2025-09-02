@@ -14,9 +14,8 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
-export default function ApproveSection({ active }) {
+export default function ApproveSection({ active, user }) {
   const [branch, setBranch] = useState([]);
-  const [user, setUser] = useState({});
   const [filterBranch, setFilterBranch] = useState([]);
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState(null);
@@ -26,34 +25,24 @@ export default function ApproveSection({ active }) {
   const apporveId = session?.user?.id;
   const router = useRouter();
 
-  const { data, error, mutate } = useSWR(
-    `/api/gift/order/approve/${apporveId}`,
-    fetcher,
-    {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      onSuccess: (data) => {
-        setBranch(data.data);
-      },
-    }
-  );
-
   const {
-    data: userData,
-    error: userError,
-    mutate: userMutate,
-  } = useSWR(`/api/users/${apporveId}`, fetcher, {
+    data,
+    error,
+    mutate: approveMutate,
+    isLoading,
+  } = useSWR(`/api/gift/order/approve/${apporveId}`, fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnMount: true,
     onSuccess: (data) => {
-      setUser(data.user);
+      setBranch(data.data);
     },
   });
 
   useEffect(() => {
     if (active) {
-      mutate(); // ดึงข้อมูลใหม่เมื่อ tab ถูกเปิด
-      userMutate();
+      approveMutate(); // ดึงข้อมูลใหม่เมื่อ tab ถูกเปิด
     }
-  }, [active, mutate, userMutate]);
+  }, [active, approveMutate]);
 
   useEffect(() => {
     if (search) {
@@ -71,7 +60,7 @@ export default function ApproveSection({ active }) {
   }, [branch, search]);
 
   if (error) return <div>failed to load</div>;
-  if (!data || !branch || !session || !userData) return <Loading />;
+  if (!data || !branch || !session || isLoading) return <Loading />;
 
   const getStatus = (status) => {
     if (status === "order") {
@@ -233,7 +222,7 @@ export default function ApproveSection({ active }) {
           onClose={handleClose}
           branchId={selectedId}
           order={selectedBranch}
-          mutate={mutate}
+          mutate={approveMutate}
         />
       </Dialog>
     </div>
