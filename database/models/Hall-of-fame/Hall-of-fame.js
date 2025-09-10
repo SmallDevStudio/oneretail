@@ -12,7 +12,7 @@ const HallOfFameSchema = new mongoose.Schema({
   rating: { type: String },
   rank: { type: Number },
   arrow: { type: String },
-  rewerdtype: { type: String } /* change to rewardtype */,
+  rewardtype: { type: String } /* change to rewardtype */,
   month: { type: Number },
   year: { type: Number },
   points: { type: Number },
