@@ -38,8 +38,6 @@ export default async function handler(req, res) {
       try {
         const { halloffameId, userId, points } = req.body;
 
-        console.log("body", req.body);
-
         if (!halloffameId || !userId || !points) {
           return res
             .status(400)
