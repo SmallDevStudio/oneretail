@@ -38,17 +38,38 @@ export default async function handler(req, res) {
       try {
         const { halloffameId, userId, points } = req.body;
 
+        console.log("body", req.body);
+
         if (!halloffameId || !userId || !points) {
           return res
             .status(400)
             .json({ success: false, message: "All fields are required" });
         }
 
+        // ✅ ตรวจสอบว่ารับ point ไปแล้วหรือยัง
+        const alreadyClaimed = await GetPoints.findOne({
+          halloffameId,
+          userId,
+        });
+        if (alreadyClaimed) {
+          return res.status(200).json({
+            success: true,
+            alreadyClaimed: true,
+            message: "คุณได้รับ point จาก reward นี้แล้ว",
+          });
+        }
+
+        // ✅ ถ้ายังไม่เคยได้รับ → create ใหม่
         const getPoints = await GetPoints.create({
           halloffameId,
           userId,
           points,
         });
+
+        await HallOfFame.updateOne(
+          { _id: halloffameId },
+          { $set: { isClaimed: false } }
+        );
 
         const pointEntry = new Point({
           userId,
@@ -63,7 +84,11 @@ export default async function handler(req, res) {
         const message = `คุณได้รับ ${points} คะแนน hall of fame 🎉`;
         sendLineMessage(userId, message);
 
-        res.status(201).json({ success: true, data: getPoints });
+        res.status(201).json({
+          success: true,
+          alreadyClaimed: false,
+          data: getPoints,
+        });
       } catch (error) {
         res.status(400).json({ success: false, error: error.message });
       }

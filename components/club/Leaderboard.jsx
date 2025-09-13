@@ -66,7 +66,6 @@ export default function ClubLeaderboard({ handleTabClick }) {
   const [openModal, setOpenModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [hasPoint, setHasPoint] = useState(true);
   const [openCer, setOpenCer] = useState(false);
@@ -82,13 +81,14 @@ export default function ClubLeaderboard({ handleTabClick }) {
 
   const swrKey =
     selectedMonth && selectedYear
-      ? `/api/club/hall-of-fame/leaderboard?month=${selectedMonth}&year=${selectedYear}`
+      ? `/api/club/hall-of-fame/leaderboard?month=${selectedMonth}&year=${selectedYear}&userId=${userId}`
       : "/api/club/hall-of-fame/leaderboard"; // ป้องกันการโหลดถ้าไม่มีข้อมูล
 
   const { data, error, mutate, isLoading } = useSWR(swrKey, fetcher, {
     onSuccess: (data) => {
       setLoading(false);
       setLeaderboard(data.data);
+      setCurrentUser(data.currentUser);
 
       const parsed = (data.months || [])
         .map((m) => {
@@ -111,51 +111,7 @@ export default function ClubLeaderboard({ handleTabClick }) {
     },
   });
 
-  const { data: userData, mutate: mutateUser } = useSWR(
-    `/api/users/${userId}`,
-    fetcher,
-    {
-      onSuccess: (data) => {
-        setUser(data.user);
-      },
-    }
-  );
-
-  useEffect(() => {
-    if (!leaderboard || !user) return;
-    const getCurrentUserData = () => {
-      for (const rewardKey in leaderboard) {
-        const reward = leaderboard[rewardKey];
-        for (const pos in reward.positions) {
-          const found = reward.positions[pos].find(
-            (u) => u.empId === user.empId
-          );
-          if (found) return found;
-        }
-      }
-      return null;
-    };
-
-    if (selectedMonth && selectedYear) {
-      const result = getCurrentUserData();
-      setCurrentUser(result);
-      if (currentUser && user) {
-        fetchPoint(result?._id);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [leaderboard, user, selectedMonth, selectedYear]);
-
-  const fetchPoint = async (halloffameId) => {
-    try {
-      const res = await axios.get(
-        `/api/club/hall-of-fame/get-points?halloffameId=${halloffameId}&userId=${user.userId}&month=${selectedMonth}&year=${selectedYear}&empId=${user.empId}`
-      );
-      setHasPoint(res.data.data.length > 0);
-    } catch (err) {
-      console.error("Error fetching points", err);
-    }
-  };
+  console.log("data", data);
 
   const handleActiveTab = (tab) => {
     setActiveTab(tab);
@@ -173,13 +129,23 @@ export default function ClubLeaderboard({ handleTabClick }) {
 
   const handleGetPoint = async (id, point) => {
     try {
-      await axios.post(`/api/club/hall-of-fame/get-points`, {
+      const res = await axios.post(`/api/club/hall-of-fame/get-points`, {
         halloffameId: id,
         points: point,
-        userId: user.userId,
+        userId: userId,
       });
-      setHasPoint(true);
-      fetchPoint(id);
+
+      if (res.data.alreadyClaimed) {
+        await Swal.fire({
+          icon: "info",
+          title: "รับคะแนนแล้ว",
+          text: "คุณได้รับ point จาก reward นี้แล้ว",
+          confirmButtonText: "ตกลง",
+        });
+        return; // ไม่ต้องทำอะไรต่อ
+      }
+
+      mutate(); // รีเฟรชข้อมูล
       await Swal.fire({
         icon: "success",
         title: "รับคะแนนสําเร็จ",
@@ -257,13 +223,13 @@ export default function ClubLeaderboard({ handleTabClick }) {
       </div>
 
       {/* current user */}
-      {currentUser && (
+      {currentUser?.hallOfFame && (
         <div className="mt-4 flex flex-col p-4 bg-white">
           <div className="grid grid-cols-[auto_1fr_auto] items-center px-4 py-2 border rounded-full bg-gray-50">
             <div className="flex items-center gap-1">
               <Image
-                src={currentUser.user.pictureUrl}
-                alt={currentUser.name}
+                src={currentUser?.pictureUrl}
+                alt={currentUser?.hallOfFame?.name}
                 width={40}
                 height={40}
                 className="rounded-full"
@@ -271,37 +237,51 @@ export default function ClubLeaderboard({ handleTabClick }) {
             </div>
 
             <div className="flex flex-col ml-4">
-              <h2 className="text-sm font-bold">{currentUser.name}</h2>
-              <p className="text-sm text-gray-500">{currentUser.rewardtype}</p>
+              <h2 className="text-sm font-bold">
+                {currentUser?.hallOfFame?.name}
+              </h2>
+              <p className="text-sm text-gray-500">
+                {currentUser?.hallOfFame?.rewardtype}
+              </p>
             </div>
 
             <div className="flex items-center gap-2">
-              {/*{!hasPoint && (
+              {currentUser?.hallOfFame?.isClaimed && (
                 <div
                   className="border border-gray-300 rounded-lg bg-gray-200 p-1"
                   onClick={() =>
-                    handleGetPoint(currentUser._id, currentUser.points)
+                    handleGetPoint(
+                      currentUser?.hallOfFame?._id,
+                      currentUser?.hallOfFame?.points
+                    )
                   }
                 >
                   <RiHandCoinLine size={22} />
                 </div>
-              )}*/}
-              <div
-                className="border border-gray-300 rounded-lg bg-gray-200 p-1"
-                onClick={() => setOpenCer(true)}
-              >
-                <PiCertificate size={22} />
-              </div>
-              {(currentUser.rewardtype === "Grand Ambassador" ||
-                currentUser.rewardtype === "Ambassador") && (
-                <div
-                  className="border border-gray-300 rounded-lg bg-gray-200 p-1"
-                  onClick={() =>
-                    handleTabClick("hall-of-fame", currentUser.rewardtype)
-                  }
-                >
-                  <FaSquareWebAwesomeStroke size={22} />
-                </div>
+              )}
+              {["grand ambassador", "ambassador"].includes(
+                currentUser?.hallOfFame?.rewardtype?.toLowerCase()
+              ) && (
+                <>
+                  <div
+                    className="border border-gray-300 rounded-lg bg-gray-200 p-1"
+                    onClick={() => setOpenCer(true)}
+                  >
+                    <PiCertificate size={22} />
+                  </div>
+
+                  <div
+                    className="border border-gray-300 rounded-lg bg-gray-200 p-1"
+                    onClick={() =>
+                      handleTabClick(
+                        "hall-of-fame",
+                        currentUser?.hallOfFame?.rewardtype
+                      )
+                    }
+                  >
+                    <FaSquareWebAwesomeStroke size={22} />
+                  </div>
+                </>
               )}
             </div>
           </div>
@@ -340,7 +320,7 @@ export default function ClubLeaderboard({ handleTabClick }) {
                     onClick={() => handleClick(user)}
                   >
                     <div className="flex items-center gap-1">
-                      {/* <div className="font-bold text-blue-600">{user.rank}</div> */}
+                      <div className="font-bold">{user.rank}</div>
                       <Avatar
                         key={user.empId}
                         src={user.user?.pictureUrl}
@@ -373,8 +353,12 @@ export default function ClubLeaderboard({ handleTabClick }) {
         open={openCer}
         onClose={handleCloseCer}
         TransitionComponent={Transition}
+        sx={{ bgcolor: "rgba(0, 0, 0, 0.5)", maxWidth: "100vw", m: 0 }}
       >
-        <CertificatePanel data={currentUser} onClose={handleCloseCer} />
+        <CertificatePanel
+          data={currentUser?.hallOfFame}
+          onClose={handleCloseCer}
+        />
       </Dialog>
     </div>
   );
