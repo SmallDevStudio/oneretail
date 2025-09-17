@@ -35,10 +35,12 @@ const AnswerReport = () => {
   if (error) return <div>Failed to load</div>;
   if (!data) return <Loading />;
 
-  console.log(answers);
+  // Export to Excel
 
   const handleExport = async () => {
     setLoading(true);
+
+    console.log("Exporting data...");
 
     try {
       const rawData = answers;
@@ -60,15 +62,15 @@ const AnswerReport = () => {
       const formattedData = rawData.map((item) => {
         // Create a base object with separate empId and fullname columns
         const baseData = {
-          empId: item.user.empId,
-          fullname: item.user.fullname,
-          teamGroup: item.emp.teamGrop,
-          chief_th: item.emp.chief_th ? item.emp.chief_th : "-",
-          chief_en: item.emp.chief_en ? item.emp.chief_en : "-",
-          position: item.emp.position ? item.emp.position : "-",
-          department: item.emp.department ? item.emp.department : "-",
-          branch: item.emp.branch ? item.emp.branch : "-",
-          group: item.emp.group ? item.emp.group : "-",
+          empId: item?.user?.empId ? item.user.empId : "-",
+          fullname: item?.user?.fullname ? item.user.fullname : "-",
+          teamGroup: item?.emp?.teamGrop ? item.emp.teamGrop : "-",
+          chief_th: item?.emp?.chief_th ? item.emp.chief_th : "-",
+          chief_en: item?.emp?.chief_en ? item.emp.chief_en : "-",
+          position: item?.emp?.position ? item.emp.position : "-",
+          department: item?.emp?.department ? item.emp.department : "-",
+          branch: item?.emp?.branch ? item.emp.branch : "-",
+          group: item?.emp?.group ? item.emp.group : "-",
           created_at: moment(item.createdAt).format("lll"),
         };
 
@@ -92,7 +94,10 @@ const AnswerReport = () => {
       XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
 
       // Export to Excel
-      XLSX.writeFile(workbook, `forms-report.xlsx`);
+      XLSX.writeFile(
+        workbook,
+        `forms-report-${moment(new Date()).format("lll")}.xlsx`
+      );
 
       setLoading(false);
     } catch (error) {
@@ -169,7 +174,7 @@ const AnswerReport = () => {
                   <td className="border px-4 py-1 items-center justify-center">
                     <div className="flex items-center justify-center">
                       <Image
-                        src={item.user.pictureUrl}
+                        src={item?.user?.pictureUrl}
                         alt="User Picture"
                         width={50}
                         height={50}
@@ -183,7 +188,7 @@ const AnswerReport = () => {
                       />
                     </div>
                   </td>
-                  <td className="border px-4 py-2">{item.user.fullname}</td>
+                  <td className="border px-4 py-2">{item?.user?.fullname}</td>
                   <td className="border px-4 py-2">
                     <div className="flex flex-row gap-2">
                       {item.answers.map((answer, index) => (
