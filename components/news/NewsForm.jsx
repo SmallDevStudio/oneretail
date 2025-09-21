@@ -131,7 +131,7 @@ export default function NewsForm({ data, onClose, newData, mutate }) {
   };
 
   const handleSubmit = async () => {
-    const newData = {
+    const payload = {
       group: group,
       tab: tab,
       start_date: form.start_date || new Date().toISOString(),
@@ -147,34 +147,34 @@ export default function NewsForm({ data, onClose, newData, mutate }) {
       video: video,
     };
 
-    if (data && data._id) {
-      newData.updated_users = [
-        {
-          userId: session?.user?.id,
-          updatedAt: new Date(),
-        },
-      ];
-      const res = await axios.put(`/api/news/${data._id}`, newData);
-      if (res.data.success) {
-        toast.success("แก้ไขข่าวสารเรียบร้อย");
-        handleClear();
-        mutate();
-        onClose();
-      }
-    } else {
-      try {
-        newData.creator = session?.user?.id; // ตรวจสอบให้แน่ใจว่ามีค่า
-        const res = await axios.post("/api/news", newData);
+    try {
+      if (data && data._id) {
+        payload.updated_users = [
+          {
+            userId: session?.user?.id,
+            updatedAt: new Date(),
+          },
+        ];
+        const res = await axios.put(`/api/news/${data._id}`, payload);
+        if (res.data.success) {
+          toast.success("แก้ไขข่าวสารเรียบร้อย");
+          handleClear();
+          mutate();
+          onClose();
+        }
+      } else {
+        payload.creator = session?.user?.id; // ตรวจสอบให้แน่ใจว่ามีค่า
+        const res = await axios.post("/api/news", payload);
         if (res.data.success) {
           toast.success("บันทึกข่าวสารเรียบร้อย");
           handleClear();
           mutate();
           onClose();
         }
-      } catch (error) {
-        toast.error("บันทึกผิดพลาด");
-        console.log(error);
       }
+    } catch (error) {
+      toast.error("บันทึกผิดพลาด");
+      console.log(error);
     }
   };
 
@@ -212,7 +212,7 @@ export default function NewsForm({ data, onClose, newData, mutate }) {
       active: true,
     });
     setContent(`<p>พิมพ์ข้อความข่าวสารที่ต้องการแสดง</p>`);
-    setFiles(null);
+    setFiles([]);
     setGroup("");
     setTab("");
     onClose();
@@ -266,7 +266,7 @@ export default function NewsForm({ data, onClose, newData, mutate }) {
               วันที่เริ่มต้น
             </label>
             <DatePicker
-              selected={form.start_date ? new Date(form.start_date) : null}
+              selected={form.start_date ? new Date(form.start_date) : undefined}
               onChange={(date) =>
                 setForm({ ...form, start_date: date.toISOString() })
               }
@@ -285,7 +285,7 @@ export default function NewsForm({ data, onClose, newData, mutate }) {
               วันที่เวลาสิ้นสุด
             </label>
             <DatePicker
-              selected={form.end_date ? new Date(form.end_date) : null}
+              selected={form.end_date ? new Date(form.end_date) : undefined}
               onChange={(date) =>
                 setForm({ ...form, end_date: date.toISOString() })
               }
@@ -331,7 +331,7 @@ export default function NewsForm({ data, onClose, newData, mutate }) {
               รูปปก
             </label>
 
-            {cover && (
+            {cover?.url && (
               <div className="relative">
                 <Image
                   src={cover.url}

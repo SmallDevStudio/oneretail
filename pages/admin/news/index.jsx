@@ -105,9 +105,14 @@ export default function News() {
       headerName: "รูปปก",
       width: 150,
       renderCell: (params) =>
-        params.url ? (
+        params.row.cover && params.row.cover.url ? (
           <div className="flex items-center justify-center h-full">
-            <Image src={params.url} alt="Cover" width={100} height={100} />
+            <Image
+              src={params.row.cover.url}
+              alt="Cover"
+              width={100}
+              height={100}
+            />
           </div>
         ) : (
           <span>ไม่มีรูป</span>

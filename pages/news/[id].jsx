@@ -110,7 +110,6 @@ export default function News() {
   };
 
   const handleAddPost = async (data) => {
-    console.log("Submitting comment:", data);
     try {
       const res = await axios.post("/api/news/comments", {
         comment: data.post,
@@ -167,9 +166,6 @@ export default function News() {
     const size = parseFloat((bytes / Math.pow(k, i)).toFixed(2));
     return `${size} ${sizes[i]}`;
   };
-
-  console.log("news", news);
-  console.log("comments", comments);
 
   return (
     <div className="w-full bg-gray-100 min-h-screen pb-20">
