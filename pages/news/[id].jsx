@@ -110,6 +110,7 @@ export default function News() {
   };
 
   const handleAddPost = async (data) => {
+    console.log("Submitting comment:", data);
     try {
       const res = await axios.post("/api/news/comments", {
         comment: data.post,
@@ -167,6 +168,9 @@ export default function News() {
     return `${size} ${sizes[i]}`;
   };
 
+  console.log("news", news);
+  console.log("comments", comments);
+
   return (
     <div className="w-full bg-gray-100 min-h-screen pb-20">
       {/* header */}
@@ -188,49 +192,6 @@ export default function News() {
             className="w-full shadow-sm"
           />
         </div>
-        <div>
-          {news?.images?.length > 0 && (
-            <div className="flex items-center gap-2 p-4 overflow-x-auto">
-              {news?.images?.map((image, index) => (
-                <Image
-                  key={index}
-                  src={image.url}
-                  alt={news.title}
-                  width={200}
-                  height={200}
-                  className="w-full shadow-sm"
-                />
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="w-full">
-          {news?.video?.length > 0 &&
-            (news?.video?.length === 1 ? (
-              <div className="w-full aspect-video">
-                <ReactPlayer
-                  url={news.video[0].videoUrl}
-                  controls
-                  width="100%"
-                  height="100%"
-                />
-              </div>
-            ) : (
-              <div className="flex flex-col items-center gap-2">
-                {news.video.map((video, index) => (
-                  <ReactPlayer
-                    key={index}
-                    url={video.videoUrl}
-                    controls
-                    width="100%"
-                    height="100%"
-                    className="w-full aspect-video"
-                  />
-                ))}
-              </div>
-            ))}
-        </div>
 
         <div className="px-4 py-2">
           <h3 className="text-lg font-bold text-[#0056FF]">{news.title}</h3>
@@ -240,6 +201,50 @@ export default function News() {
           <p className="text-xs text-gray-900 whitespace-pre-line mt-1">
             {news.content}
           </p>
+
+          <div className="w-full mt-2">
+            {news?.images?.length > 0 && (
+              <div className="flex items-center gap-2 p-4 overflow-x-auto">
+                {news?.images?.map((image, index) => (
+                  <Image
+                    key={index}
+                    src={image.url}
+                    alt={news.title}
+                    width={200}
+                    height={200}
+                    className="w-full shadow-sm"
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="w-full">
+            {news?.video?.length > 0 &&
+              (news?.video?.length === 1 ? (
+                <div className="w-full aspect-video">
+                  <ReactPlayer
+                    url={news.video[0].videoUrl}
+                    controls
+                    width="100%"
+                    height="100%"
+                  />
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-2">
+                  {news.video.map((video, index) => (
+                    <ReactPlayer
+                      key={index}
+                      url={video.videoUrl}
+                      controls
+                      width="100%"
+                      height="100%"
+                      className="w-full aspect-video"
+                    />
+                  ))}
+                </div>
+              ))}
+          </div>
 
           <div className="flex w-full">
             {news?.files?.length > 0 && (
@@ -272,7 +277,10 @@ export default function News() {
                       <span className="text-[10px] text-gray-600">
                         size:{formatFileSize(file.file_size)}
                       </span>
-                      <div className="text-[10px] bg-[#0056FF] text-white px-2 py-1 rounded">
+                      <div
+                        className="text-[10px] bg-[#0056FF] text-white px-2 py-1 rounded"
+                        onClick={() => window.open(file.url, "_blank")}
+                      >
                         ดาวน์โหลด
                       </div>
                     </div>
@@ -338,7 +346,7 @@ export default function News() {
               className="flex gap-2 w-full"
               onClick={() => handleOpenComment(c)}
             >
-              <div className="flex items-center justify-center w-12">
+              <div className="flex  justify-center w-12">
                 <Avatar size={40} src={c.user?.pictureUrl} alt={c.userId} />
               </div>
               <div className="flex flex-col w-full">
@@ -354,6 +362,49 @@ export default function News() {
                   </div>
                 </div>
                 <p className="text-sm text-gray-600">{c.comment}</p>
+                {c.medias && c.medias.length > 0 && (
+                  <div className="flex items-center gap-2 p-2 overflow-x-auto">
+                    {c.medias.map((media, index) => (
+                      <div key={index} className="h-20 relative">
+                        {media.type === "image" ? (
+                          <Image
+                            src={media.url}
+                            alt={news.title}
+                            width={200}
+                            height={200}
+                            className="w-full h-full object-cover rounded-md"
+                          />
+                        ) : (
+                          <video
+                            src={media.url}
+                            controls
+                            className="w-full h-full"
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {c.files && c.files.length > 0 && (
+                  <div className="flex items-center gap-2 p-2 overflow-x-auto">
+                    {c.files.map((file, index) => (
+                      <div key={index} className="w-32 h-32 relative">
+                        <Link
+                          href={file.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Image
+                            src={file.url}
+                            alt={news.title}
+                            layout="fill"
+                            objectFit="cover"
+                          />
+                        </Link>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex items-center justify-end mt-2">

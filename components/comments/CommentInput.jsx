@@ -41,6 +41,7 @@ const CommentInput = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false); // จัดการสถานะการอัปโหลด
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const [error, setError] = useState(null);
 
