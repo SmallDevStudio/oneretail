@@ -71,7 +71,15 @@ export default async function handler(req, res) {
           });
         }
 
-        // ✅ จัดเรียงตามลำดับที่กำหนด
+        // ✅ เรียงลำดับ rank ภายใน positions
+        for (const rewardKey of Object.keys(grouped)) {
+          const positions = grouped[rewardKey].positions;
+          for (const posKey of Object.keys(positions)) {
+            positions[posKey].sort((a, b) => a.rank - b.rank); // จัดเรียง rank จากน้อยไปมาก
+          }
+        }
+
+        // ✅ เรียงลำดับ rewardtype
         const rewardOrder = [
           "grand ambassador",
           "ambassador",
