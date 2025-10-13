@@ -1,7 +1,5 @@
-// pages/api/migrate-rewardtype.js
-import connectMongoDB from "@/lib/services/database/mongodb";
+import connetMongoDB from "@/lib/services/database/mongodb";
 import HallOfFame from "@/database/models/Hall-of-fame/Hall-of-fame";
-import GetPoints from "@/database/models/Hall-of-fame/GetPoints";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -9,40 +7,31 @@ export default async function handler(req, res) {
   }
 
   try {
-    await connectMongoDB();
+    await connetMongoDB();
 
-    // ✅ step1: set ค่าเริ่มต้นเป็น false ทั้งหมด
-    await HallOfFame.updateMany({}, { $set: { isClaimed: false } });
-
-    // ✅ step2: หา record ที่มี points > 0
-    const recordsWithPoints = await HallOfFame.find(
-      { points: { $gt: 0 } },
-      { _id: 1 }
-    ).lean();
-
-    const recordIds = recordsWithPoints.map((r) => r._id);
-
-    // ✅ step3: หา record ที่มีใน GetPoints
-    const claimed = await GetPoints.find(
-      { halloffameId: { $in: recordIds } },
-      { halloffameId: 1 }
-    ).lean();
-
-    const claimedIds = new Set(claimed.map((c) => String(c.halloffameId)));
-
-    // ✅ step4: update isClaimed = true เฉพาะ record ที่มี points > 0 และไม่ได้อยู่ใน GetPoints
-    for (const r of recordsWithPoints) {
-      if (!claimedIds.has(String(r._id))) {
-        await HallOfFame.updateOne(
-          { _id: r._id },
-          { $set: { isClaimed: true } }
-        );
-      }
-    }
+    await HallOfFame.updateMany(
+      {
+        $or: [
+          { rewerdtype: { $exists: true } },
+          { "Branch Name": { $exists: true } },
+        ],
+      },
+      [
+        {
+          $set: {
+            rewardtype: "$rewerdtype", // ✅ migrate rewerdtype → rewardtype
+            branch: "$Branch Name", // ✅ migrate Branch Name → branch
+            isClaimed: false, // ✅ set ค่าเริ่มต้น
+          },
+        },
+        { $unset: ["rewerdtype", "Branch Name"] }, // ✅ ลบ field เก่า
+      ]
+    );
 
     return res.status(200).json({
       success: true,
-      message: "Migration completed: isClaimed updated based on conditions",
+      message:
+        "Migration completed (rewerdtype → rewardtype, Branch Name → branch)",
     });
   } catch (error) {
     console.error(error);
