@@ -16,6 +16,8 @@ const RedeemReport = () => {
 
   const { data, error, isLoading, mutate } = useSWR(`/api/redeemtran`, fetcher);
 
+  console.log(data);
+
   const handleExport = async () => {
     setLoading(true);
     setProgress(0);

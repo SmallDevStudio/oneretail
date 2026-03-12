@@ -6,7 +6,7 @@ import Emp from "@/database/models/emp";
 
 export default async function handler(req, res) {
   const { method } = req;
-  const { id } = req.query; // Assuming you pass the ID in the query
+
   await connectMongoDB();
 
   switch (method) {
@@ -41,20 +41,6 @@ export default async function handler(req, res) {
       } catch (error) {
         console.error(error);
         res.status(500).json({ success: false });
-      }
-      break;
-
-    case "PUT":
-      try {
-        const { status } = req.body;
-        const updatedTrans = await RedeemTrans.findByIdAndUpdate(
-          id,
-          { status },
-          { new: true },
-        );
-        res.status(200).json({ success: true, data: updatedTrans });
-      } catch (error) {
-        res.status(400).json({ success: false, message: error.message });
       }
       break;
 
