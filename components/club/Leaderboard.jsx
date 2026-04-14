@@ -97,7 +97,7 @@ export default function ClubLeaderboard({ handleTabClick }) {
         })
         .filter((m) => !isNaN(m.year) && !isNaN(m.month))
         .sort((a, b) =>
-          a.year === b.year ? b.month - a.month : b.year - a.year
+          a.year === b.year ? b.month - a.month : b.year - a.year,
         );
 
       setAvailableMonths(parsed);
@@ -247,20 +247,10 @@ export default function ClubLeaderboard({ handleTabClick }) {
 
             <div className="flex items-center gap-2">
               {currentUser?.hallOfFame?.isClaimed && (
-                <div
-                  className="border border-gray-300 rounded-lg bg-gray-200 p-1"
-                  onClick={() =>
-                    handleGetPoint(
-                      currentUser?.hallOfFame?._id,
-                      currentUser?.hallOfFame?.points
-                    )
-                  }
-                >
-                  <RiHandCoinLine size={22} />
-                </div>
+                <div className="border border-gray-300 rounded-lg bg-gray-200 p-1"></div>
               )}
               {["grand ambassador", "ambassador"].includes(
-                currentUser?.hallOfFame?.rewardtype?.toLowerCase()
+                currentUser?.hallOfFame?.rewardtype?.toLowerCase(),
               ) && (
                 <>
                   <div
@@ -275,7 +265,7 @@ export default function ClubLeaderboard({ handleTabClick }) {
                     onClick={() =>
                       handleTabClick(
                         "hall-of-fame",
-                        currentUser?.hallOfFame?.rewardtype
+                        currentUser?.hallOfFame?.rewardtype,
                       )
                     }
                   >
