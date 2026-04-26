@@ -49,8 +49,8 @@ export default function Upload({ onClose, setFiles, folder, newUpload }) {
 
         setUploadingFiles((prev) =>
           prev.map((f, i) =>
-            i === index ? { ...f, progress: parsedProgress } : f
-          )
+            i === index ? { ...f, progress: parsedProgress } : f,
+          ),
         );
 
         uploadedSize += (file.size * parsedProgress) / 100;

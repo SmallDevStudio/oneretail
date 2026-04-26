@@ -23,7 +23,7 @@ export default async function handler(req, res) {
         const empIds = [...new Set(records.map((r) => String(r.empId)))];
         const users = await Users.find(
           { empId: { $in: empIds } },
-          { userId: 1, fullname: 1, pictureUrl: 1, role: 1, empId: 1 }
+          { userId: 1, fullname: 1, pictureUrl: 1, role: 1, empId: 1 },
         ).lean();
 
         const userMap = {};
@@ -81,6 +81,7 @@ export default async function handler(req, res) {
 
         // ✅ เรียงลำดับ rewardtype
         const rewardOrder = [
+          "rising star",
           "grand ambassador",
           "ambassador",
           "diamond",
@@ -101,7 +102,7 @@ export default async function handler(req, res) {
         if (userId) {
           const u = await Users.findOne(
             { userId },
-            { empId: 1, userId: 1, fullname: 1, pictureUrl: 1, role: 1 }
+            { empId: 1, userId: 1, fullname: 1, pictureUrl: 1, role: 1 },
           ).lean();
           if (u) {
             const hofRecord = await HallOfFame.findOne({
@@ -129,13 +130,13 @@ export default async function handler(req, res) {
         // ✅ months ทั้งหมด
         const allRecords = await HallOfFame.find(
           {},
-          { month: 1, year: 1, _id: 0 }
+          { month: 1, year: 1, _id: 0 },
         ).lean();
         const months = [
           ...new Set(
             allRecords
               .filter((r) => r.year && r.month)
-              .map((r) => `${r.year}-${r.month}`)
+              .map((r) => `${r.year}-${r.month}`),
           ),
         ];
 

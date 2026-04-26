@@ -30,7 +30,6 @@ const position = [
   { name: "CLSA", value: "CLSA" },
   { name: "CFSA", value: "CFSA" },
   { name: "CISA", value: "CISA" },
-  { name: "CFSA_New Joiner", value: "CFSA_New Joiner" },
   { name: "CFSA_YINDEE ", value: "CFSA_YINDEE" },
   { name: "WCRM", value: "WCRM" },
   { name: "PBCRM", value: "PBCRM" },
@@ -39,7 +38,6 @@ const position = [
   { name: "MAL", value: "MAL" },
   { name: "CISA(LINE)", value: "CISA_LINE" },
   { name: "AL_GH", value: "AL GH" },
-  { name: "MKT", value: "MKT" },
   { name: "NC_MKT", value: "NC MKT" },
   { name: "UC_MKT", value: "UC MKT" },
 ];
@@ -59,7 +57,7 @@ const thaiMonths = [
   { name: "ธันวาคม", value: 12 },
 ];
 
-export default function ClubLeaderboard({ handleTabClick }) {
+export default function ClubLeaderboardResult({ handleTabClick }) {
   const [leaderboard, setLeaderboard] = useState({});
   const [availableMonths, setAvailableMonths] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(null);
