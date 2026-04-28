@@ -36,9 +36,9 @@ export default function Avatar({ src, size, userId }) {
 
   return (
     <div className="relative">
-      <Image
+      <img
         src={imgSrc} // ใช้ imgSrc แทน src เดิม
-        alt="Avatar"
+        alt="avatar"
         width={100}
         height={100}
         className="rounded-full cursor-pointer object-contain bg-white border"
@@ -48,7 +48,7 @@ export default function Avatar({ src, size, userId }) {
         }}
         loading="lazy"
         onClick={handleUrl}
-        onError={() => setImgSrc("/images/Avatar.jpg")} // ตั้งค่า imgSrc เมื่อเกิดข้อผิดพลาด
+        onError={() => setImgSrc("/images/avatar.jpg")} // ตั้งค่า imgSrc เมื่อเกิดข้อผิดพลาด
       />
       {isOnline && (
         <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-500 rounded-full"></div>
