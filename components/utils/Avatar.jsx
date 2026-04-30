@@ -48,7 +48,7 @@ export default function Avatar({ src, size, userId }) {
         }}
         loading="lazy"
         onClick={handleUrl}
-        onError={() => setImgSrc("/images/avatar.jpg")} // ตั้งค่า imgSrc เมื่อเกิดข้อผิดพลาด
+        onError={() => setImgSrc("/images/profile/avatar.jpg")} // ตั้งค่า imgSrc เมื่อเกิดข้อผิดพลาด
       />
       {isOnline && (
         <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-500 rounded-full"></div>
