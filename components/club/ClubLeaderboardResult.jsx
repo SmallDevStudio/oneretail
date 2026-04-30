@@ -4,6 +4,7 @@ import { CiExport } from "react-icons/ci";
 import { ImFilePicture } from "react-icons/im";
 import { FaRegFilePdf } from "react-icons/fa";
 import * as htmlToImage from "html-to-image";
+import jsPDF from "jspdf";
 
 const ClubLeaderboardResult = ({ dataset }) => {
   const exportRef = useRef();
@@ -28,10 +29,49 @@ const ClubLeaderboardResult = ({ dataset }) => {
     }
   };
 
+  const handleExportPDF = async () => {
+    if (!exportRef.current) return;
+
+    try {
+      const dataUrl = await htmlToImage.toPng(exportRef.current, {
+        quality: 1,
+        pixelRatio: 2,
+        cacheBust: true,
+      });
+
+      const pdf = new jsPDF("p", "mm", "a4");
+
+      const img = new Image();
+      img.src = dataUrl;
+
+      img.onload = () => {
+        const pdfWidth = 210; // A4 width (mm)
+        const pdfHeight = 297;
+
+        const imgWidth = img.width;
+        const imgHeight = img.height;
+
+        const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+
+        const finalWidth = imgWidth * ratio;
+        const finalHeight = imgHeight * ratio;
+
+        pdf.addImage(dataUrl, "PNG", 0, 0, finalWidth, finalHeight);
+
+        pdf.save("club-leaderboard.pdf");
+      };
+    } catch (error) {
+      console.error("Export PDF error:", error);
+    }
+  };
+
   return (
     <div className="p-4">
       <div className="flex items-center justify-end mb-2 gap-2">
-        <button className="flex items-center gap-2 px-2 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+        <button
+          className="flex items-center gap-2 px-2 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+          onClick={handleExportPDF}
+        >
           <FaRegFilePdf size={18} />
         </button>
         <button
