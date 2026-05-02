@@ -81,10 +81,10 @@ export default async function handler(req, res) {
 
         // ✅ เรียงลำดับ rewardtype
         const rewardOrder = [
-          "rising star",
           "grand ambassador",
           "ambassador",
           "diamond",
+          "rising star",
           "platinum",
           "gold",
           "",
