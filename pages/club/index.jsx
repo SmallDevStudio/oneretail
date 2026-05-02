@@ -8,10 +8,14 @@ import { IoClose } from "react-icons/io5";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import NewRules from "@/components/club/NewRules";
+import { TbReportAnalytics } from "react-icons/tb";
+import useSWR from "swr";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
+
+const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 export default function Test() {
   const [activeTab, setActiveTab] = useState("leaderboard");
@@ -29,6 +33,13 @@ export default function Test() {
     if (status === "loading" || !session) return;
   }, [status, session]);
 
+  const { data: user, mutate: mutateUser } = useSWR(
+    `/api/users/${session?.user?.id}`,
+    fetcher,
+  );
+
+  console.log("User data:", user);
+
   useEffect(() => {
     const tab = router.query.tab || "leaderboard";
     setActiveTab(tab);
@@ -38,7 +49,7 @@ export default function Test() {
     const fetchRead = async () => {
       try {
         const response = await axios.get(
-          `/api/club/read-welcome?userId=${userId}`
+          `/api/club/read-welcome?userId=${userId}`,
         );
         if (response.data.data.length > 0) {
           setHasRead(true);
@@ -63,7 +74,7 @@ export default function Test() {
       window.history.pushState(
         null,
         "",
-        `?tab=${tab}&subtab=${encodeURIComponent("Grand Ambassador")}`
+        `?tab=${tab}&subtab=${encodeURIComponent("Grand Ambassador")}`,
       );
     }
     setActiveTab(tab);
@@ -108,6 +119,15 @@ export default function Test() {
           className="object-contain"
         />
       </div>
+      {user?.user?.role === "admin" && (
+        <div className="absolute top-4 right-4 text-gray-600 cursor-pointer transition-colors hover:text-gray-800">
+          <TbReportAnalytics
+            size={24}
+            className="inline-block mr-2"
+            onClick={() => router.push("/club/report")}
+          />
+        </div>
+      )}
 
       {/* Tabs */}
       <div>

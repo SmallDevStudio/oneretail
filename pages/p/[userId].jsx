@@ -42,7 +42,7 @@ moment.locale("th");
 
 const LineProgressBar = dynamic(
   () => import("@/components/ProfileLineProgressBarnew"),
-  { ssr: false }
+  { ssr: false },
 );
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -75,14 +75,15 @@ const ProfilePage = () => {
 
   const { data: user, mutate: mutateUser } = useSWR(
     `/api/users/${session?.user?.id}`,
-    fetcher
+    fetcher,
   );
+
   const { data: survey, error: surveyError } = useSWR(
     session ? `/api/survey/user?userId=${session.user.id}` : null,
     fetcher,
     {
       onSuccess: (data) => setPercentage(parseFloat(data?.percent)),
-    }
+    },
   );
   const { data: badges, error: badgesError } = useSWR(`/api/badges`, fetcher);
 
@@ -394,7 +395,7 @@ const ProfilePage = () => {
         Swal.fire(
           "Error!",
           "There was an issue deleting the comment.",
-          "error"
+          "error",
         );
       } finally {
         setLoading(false);
@@ -454,7 +455,7 @@ const ProfilePage = () => {
     ? parseFloat(
         (userData?.points?.totalPoints /
           userData?.level?.nextLevelRequiredPoints) *
-          100
+          100,
       )
     : 0;
 
@@ -584,7 +585,7 @@ const ProfilePage = () => {
                       className="flex flex-row px-2 py-1 bg-gray-200 text-[10px] rounded-full items-center gap-1"
                       onClick={() =>
                         router.push(
-                          "/messager?receiverId=" + userData?.user?.userId
+                          "/messager?receiverId=" + userData?.user?.userId,
                         )
                       }
                     >
@@ -748,7 +749,7 @@ const ProfilePage = () => {
                                   className="text-[#F68B1F]"
                                   onClick={() =>
                                     router.push(
-                                      `/stores?tab=share-your-story#${post?._id}`
+                                      `/stores?tab=share-your-story#${post?._id}`,
                                     )
                                   }
                                 >
@@ -889,7 +890,7 @@ const ProfilePage = () => {
                             className="text-xs cursor-pointer"
                             onClick={() =>
                               setShowComments(
-                                showComments !== post._id ? post._id : null
+                                showComments !== post._id ? post._id : null,
                               )
                             }
                           >
@@ -938,7 +939,7 @@ const ProfilePage = () => {
                                             handleOptionClick(
                                               e,
                                               "comment",
-                                              comment._id
+                                              comment._id,
                                             )
                                           }
                                         />
@@ -952,7 +953,7 @@ const ProfilePage = () => {
                                           <MenuItem
                                             onClick={() => {
                                               handleCommentDelete(
-                                                currentOption.id
+                                                currentOption.id,
                                               );
                                               handleOptionClose();
                                             }}
@@ -976,7 +977,7 @@ const ProfilePage = () => {
                                           >
                                             {taguser?.fullname}
                                           </span>
-                                        )
+                                        ),
                                       )}
                                   </div>
                                 </div>
@@ -1064,7 +1065,7 @@ const ProfilePage = () => {
                                         setShowReply(
                                           showReply !== comment._id
                                             ? comment._id
-                                            : null
+                                            : null,
                                         )
                                       }
                                     >
@@ -1120,7 +1121,7 @@ const ProfilePage = () => {
                                                   handleOptionClick(
                                                     e,
                                                     "reply",
-                                                    reply._id
+                                                    reply._id,
                                                   )
                                                 }
                                               />
@@ -1134,7 +1135,7 @@ const ProfilePage = () => {
                                                 <MenuItem
                                                   onClick={() => {
                                                     handleReplyDelete(
-                                                      currentOption.id
+                                                      currentOption.id,
                                                     );
                                                     handleOptionClose();
                                                   }}
@@ -1158,7 +1159,7 @@ const ProfilePage = () => {
                                                 >
                                                   {taguser?.fullname}
                                                 </span>
-                                              )
+                                              ),
                                             )}
                                         </div>
                                         <p className="text-sm text-left px-1">
@@ -1193,7 +1194,7 @@ const ProfilePage = () => {
                                             onClick={() =>
                                               handleReplyLike(
                                                 reply._id,
-                                                comment.postId
+                                                comment.postId,
                                               )
                                             }
                                           />
@@ -1203,7 +1204,7 @@ const ProfilePage = () => {
                                             onClick={() =>
                                               handleReplyLike(
                                                 reply._id,
-                                                comment.postId
+                                                comment.postId,
                                               )
                                             }
                                           />
