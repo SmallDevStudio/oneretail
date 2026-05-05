@@ -38,8 +38,6 @@ export default function Test() {
     fetcher,
   );
 
-  console.log("User data:", user);
-
   useEffect(() => {
     const tab = router.query.tab || "leaderboard";
     setActiveTab(tab);
